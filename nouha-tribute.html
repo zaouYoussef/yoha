@@ -276,27 +276,6 @@ nav.solid{
 }
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
-/* cta */
-.h-cta-row{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;opacity:0;animation:slideUp .8s 2.4s both}
-.btn{
-  padding:.9rem 2.4rem;border-radius:50px;
-  font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
-  text-decoration:none;transition:all .4s cubic-bezier(.22,1,.36,1);
-  position:relative;overflow:hidden;
-}
-.btn::before{
-  content:'';position:absolute;inset:0;border-radius:inherit;
-  background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);
-  opacity:0;transition:opacity .4s;
-}
-.btn:hover::before{opacity:1}
-.btn-hot{
-  background:linear-gradient(135deg,var(--hot),#a0004a);
-  color:white;
-  box-shadow:0 8px 32px rgba(255,26,117,.5),0 0 80px rgba(255,26,117,.2),inset 0 1px 0 rgba(255,255,255,.2);
-  animation:btnGlow 3.5s ease-in-out infinite;
-}
-.btn-hot:hover{transform:translateY(-4px) scale(1.04);box-shadow:0 18px 50px rgba(255,26,117,.65),0 0 100px rgba(255,26,117,.3);animation-play-state:paused}
 .magnetic{display:inline-block;transition:transform .4s cubic-bezier(.22,1,.36,1)}
 
 /* scroll hint : combiner translate(-50%,…) avec l’entrée (slideUp écrase transform) */
@@ -629,13 +608,9 @@ nav.solid{
   cursor:zoom-in;transform-style:preserve-3d;
   transition:transform .12s ease,box-shadow .4s;
 }
-.hcard:nth-child(odd){width:270px;height:370px}
-.hcard:nth-child(even){width:210px;height:290px;margin-top:50px}
-.hcard:nth-child(3){width:300px;height:420px;margin-top:-25px}
-.hcard:nth-child(6){width:310px;height:400px;margin-top:20px}
-/* Vignettes Film sur mesure : une petite + une grande (priorité sur nth-child) */
-.hcard.hcard-film-sm{width:185px!important;height:248px!important;margin-top:60px!important}
-.hcard.hcard-film-lg{width:335px!important;height:455px!important;margin-top:-38px!important}
+/* Film : alternance fixe — impairs = grande, pairs = petite */
+.hcard:nth-child(odd){width:308px;height:402px;margin-top:0}
+.hcard:nth-child(even){width:198px;height:272px;margin-top:58px}
 .hcard img{width:100%;height:100%;object-fit:cover;object-position:center top;transition:transform .5s,filter .4s;filter:saturate(.85)}
 .hcard-img-center img{object-position:center}
 .hcard:hover{box-shadow:0 0 0 2px var(--hot),0 30px 60px rgba(255,26,117,.32)}
@@ -815,10 +790,6 @@ footer::before{content:'';position:absolute;inset:0;background:radial-gradient(e
   0%,100%{opacity:.35;transform:scale(1)}
   50%{opacity:1;transform:scale(1.35)}
 }
-@keyframes btnGlow{
-  0%,100%{box-shadow:0 8px 32px rgba(255,26,117,.5),0 0 80px rgba(255,26,117,.2),inset 0 1px 0 rgba(255,255,255,.2)}
-  50%{box-shadow:0 10px 40px rgba(255,26,117,.58),0 0 100px rgba(255,26,117,.28),inset 0 1px 0 rgba(255,255,255,.25)}
-}
 @keyframes atagFloat{
   0%,100%{border-color:rgba(255,26,117,.2);box-shadow:none}
   50%{border-color:rgba(255,26,117,.38);box-shadow:0 4px 18px rgba(255,26,117,.12)}
@@ -829,7 +800,7 @@ footer::before{content:'';position:absolute;inset:0;background:radial-gradient(e
 }
 
 @media (prefers-reduced-motion:reduce){
-  .badge,.gline,.stitle .accent,.n-logo,.ab-kicker,.ab-title-l1,.ab-title-accent,.ab-ornament-dot,.ab-prose,.bl-q,.ft-name,.mq-dot,.btn-hot,.atag,.qcard.rv.on{
+  .badge,.gline,.stitle .accent,.n-logo,.ab-kicker,.ab-title-l1,.ab-title-accent,.ab-ornament-dot,.ab-prose,.bl-q,.ft-name,.mq-dot,.atag,.qcard.rv.on{
     animation:none!important;
   }
 }
@@ -846,8 +817,8 @@ footer::before{content:'';position:absolute;inset:0;background:radial-gradient(e
   .fan-stage:hover .fan-card:nth-child(1){transform:translate(-50%,-50%) rotate(-32deg) translateX(-130px) translateY(20px) scale(.96)}
   .fan-stage:hover .fan-card:nth-child(5){transform:translate(-50%,-50%) rotate(32deg) translateX(130px) translateY(20px) scale(.96)}
   .lb-p{left:-46px}.lb-n{right:-46px}
-  .hcard.hcard-film-sm{width:170px!important;height:228px!important;margin-top:56px!important}
-  .hcard.hcard-film-lg{width:285px!important;height:390px!important;margin-top:-30px!important}
+  .hcard:nth-child(odd){width:248px;height:328px}
+  .hcard:nth-child(even){width:168px;height:232px;margin-top:50px}
 }
 @media(max-width:580px){
   #about,#gallery,#qualities,#fanstack{padding:5rem 4%}
@@ -858,11 +829,8 @@ footer::before{content:'';position:absolute;inset:0;background:radial-gradient(e
   .fan-stage{width:280px;height:340px}
   .fan-card{width:180px;height:260px}
   .lb-p{left:-40px}.lb-n{right:-40px}
-  .hcard:nth-child(odd){width:210px;height:290px}
-  .hcard:nth-child(even){width:175px;height:235px}
-  .hcard:nth-child(3){width:240px;height:330px}
-  .hcard.hcard-film-sm{width:155px!important;height:210px!important;margin-top:52px!important}
-  .hcard.hcard-film-lg{width:255px!important;height:350px!important;margin-top:-24px!important}
+  .hcard:nth-child(odd){width:200px;height:278px}
+  .hcard:nth-child(even){width:142px;height:198px;margin-top:46px}
 }
 </style>
 </head>
@@ -912,9 +880,6 @@ footer::before{content:'';position:absolute;inset:0;background:radial-gradient(e
       <span class="h-name-line line2" id="heroLine2"></span>
     </div>
     <div class="h-type"><span id="typewriter"></span><span class="h-cursor"></span></div>
-    <div class="h-cta-row">
-      <a href="#gallery" class="btn btn-hot magnetic">Voir la galerie 🌸</a>
-    </div>
   </div>
 
   <div class="h-scroll">
@@ -1024,8 +989,8 @@ footer::before{content:'';position:absolute;inset:0;background:radial-gradient(e
         <div class="hcard" data-idx="12"><img src="thumb_nouhabrh__2026-02-03T212619.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">✨</span></div></div>
         <div class="hcard" data-idx="13"><img src="thumb_nouhabrh__2026-03-27T222001.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🌸</span></div></div>
         <div class="hcard" data-idx="14"><img src="thumb_nouhabrh__2026-04-05T214114.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">💫</span></div></div>
-        <div class="hcard hcard-film-lg" data-idx="15"><img src="hero.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🌸</span></div></div>
-        <div class="hcard hcard-film-sm hcard-img-center" data-idx="16"><img src="jiji.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🩷</span></div></div>
+        <div class="hcard" data-idx="15"><img src="hero.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🌸</span></div></div>
+        <div class="hcard hcard-img-center" data-idx="16"><img src="jiji.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🩷</span></div></div>
         <div class="hcard" data-idx="17"><img src="yuyu.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">💖</span></div></div>
       </div>
     </div>
@@ -1162,7 +1127,7 @@ let mx=0,my=0,tx=0,ty=0;
 document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
 function animTrail(){tx+=(mx-tx)*.14;ty+=(my-ty)*.14;trail.style.left=tx+'px';trail.style.top=ty+'px';requestAnimationFrame(animTrail)}
 animTrail();
-document.querySelectorAll('a,.tc,.hcard,.fan-card,.atag,.btn').forEach(el=>{
+document.querySelectorAll('a,.tc,.hcard,.fan-card,.atag').forEach(el=>{
   el.addEventListener('mouseenter',()=>cur.classList.add('big'));
   el.addEventListener('mouseleave',()=>cur.classList.remove('big'));
 });
