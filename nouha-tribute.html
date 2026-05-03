@@ -633,7 +633,11 @@ nav.solid{
 .hcard:nth-child(even){width:210px;height:290px;margin-top:50px}
 .hcard:nth-child(3){width:300px;height:420px;margin-top:-25px}
 .hcard:nth-child(6){width:310px;height:400px;margin-top:20px}
+/* Vignettes Film sur mesure : une petite + une grande (priorité sur nth-child) */
+.hcard.hcard-film-sm{width:185px!important;height:248px!important;margin-top:60px!important}
+.hcard.hcard-film-lg{width:335px!important;height:455px!important;margin-top:-38px!important}
 .hcard img{width:100%;height:100%;object-fit:cover;object-position:center top;transition:transform .5s,filter .4s;filter:saturate(.85)}
+.hcard-img-center img{object-position:center}
 .hcard:hover{box-shadow:0 0 0 2px var(--hot),0 30px 60px rgba(255,26,117,.32)}
 .hcard:hover img{transform:scale(1.07);filter:saturate(1.22)}
 .hcard-ov{
@@ -842,6 +846,8 @@ footer::before{content:'';position:absolute;inset:0;background:radial-gradient(e
   .fan-stage:hover .fan-card:nth-child(1){transform:translate(-50%,-50%) rotate(-32deg) translateX(-130px) translateY(20px) scale(.96)}
   .fan-stage:hover .fan-card:nth-child(5){transform:translate(-50%,-50%) rotate(32deg) translateX(130px) translateY(20px) scale(.96)}
   .lb-p{left:-46px}.lb-n{right:-46px}
+  .hcard.hcard-film-sm{width:170px!important;height:228px!important;margin-top:56px!important}
+  .hcard.hcard-film-lg{width:285px!important;height:390px!important;margin-top:-30px!important}
 }
 @media(max-width:580px){
   #about,#gallery,#qualities,#fanstack{padding:5rem 4%}
@@ -855,6 +861,8 @@ footer::before{content:'';position:absolute;inset:0;background:radial-gradient(e
   .hcard:nth-child(odd){width:210px;height:290px}
   .hcard:nth-child(even){width:175px;height:235px}
   .hcard:nth-child(3){width:240px;height:330px}
+  .hcard.hcard-film-sm{width:155px!important;height:210px!important;margin-top:52px!important}
+  .hcard.hcard-film-lg{width:255px!important;height:350px!important;margin-top:-24px!important}
 }
 </style>
 </head>
@@ -961,11 +969,11 @@ footer::before{content:'';position:absolute;inset:0;background:radial-gradient(e
     <div class="gline c"></div>
   </div>
   <div class="fan-stage" id="fanStage">
-    <div class="fan-card" data-idx="0"><img src="thumb_nouhabrh__2025-04-27T210813.000Z.jpg" alt=""/></div>
-    <div class="fan-card" data-idx="1"><img src="thumb_nouhabrh__2025-07-22T001907.000Z.jpg" alt=""/></div>
-    <div class="fan-card" data-idx="2"><img src="thumb_nouhabrh__2025-08-14T175545.000Z.jpg" alt=""/></div>
-    <div class="fan-card" data-idx="3"><img src="thumb_nouhabrh__2025-08-17T200029.000Z.jpg" alt=""/></div>
-    <div class="fan-card" data-idx="4"><img src="thumb_nouhabrh__2025-08-22T225828.000Z.jpg" alt=""/></div>
+    <div class="fan-card" data-idx="2"><img src="thumb_nouhabrh__2025-04-27T210813.000Z.jpg" alt=""/></div>
+    <div class="fan-card" data-idx="3"><img src="thumb_nouhabrh__2025-07-22T001907.000Z.jpg" alt=""/></div>
+    <div class="fan-card" data-idx="4"><img src="thumb_nouhabrh__2025-08-14T175545.000Z.jpg" alt=""/></div>
+    <div class="fan-card" data-idx="5"><img src="thumb_nouhabrh__2025-08-17T200029.000Z.jpg" alt=""/></div>
+    <div class="fan-card" data-idx="6"><img src="thumb_nouhabrh__2025-08-22T225828.000Z.jpg" alt=""/></div>
   </div>
 </section>
 
@@ -978,14 +986,14 @@ footer::before{content:'';position:absolute;inset:0;background:radial-gradient(e
     <p style="font-size:.82rem;font-weight:300;color:var(--w3);max-width:420px;margin:0 auto">Chaque photo — une histoire. Chaque sourire — un cadeau. 💖</p>
   </div>
   <div class="g-grid" id="gGrid">
-    <div class="tc rv" style="transition-delay:.04s" data-idx="5"><img src="thumb_nouhabrh__2025-08-26T212340.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">🌸</span><span class="tc-lbl">Pure radiance</span></div></div>
-    <div class="tc rv" style="transition-delay:.08s" data-idx="6"><img src="thumb_nouhabrh__2025-09-18T104436.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">💖</span><span class="tc-lbl">Sa douceur</span></div></div>
-    <div class="tc rv" style="transition-delay:.12s" data-idx="7"><img src="thumb_nouhabrh__2025-10-18T220559.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">🌺</span><span class="tc-lbl">Regard doux</span></div></div>
-    <div class="tc rv" style="transition-delay:.16s" data-idx="8"><img src="thumb_nouhabrh__2025-11-16T212801.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">✨</span><span class="tc-lbl">Présence</span></div></div>
-    <div class="tc rv" style="transition-delay:.06s" data-idx="9"><img src="thumb_nouhabrh__2025-12-07T234451.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">🩷</span><span class="tc-lbl">Lumière</span></div></div>
-    <div class="tc rv" style="transition-delay:.1s"  data-idx="10"><img src="thumb_nouhabrh__2026-02-03T212619.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">👩‍⚕️</span><span class="tc-lbl">Force tranquille</span></div></div>
-    <div class="tc rv" style="transition-delay:.14s" data-idx="11"><img src="thumb_nouhabrh__2026-03-27T222001.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">🌺</span><span class="tc-lbl">Élégance</span></div></div>
-    <div class="tc rv" style="transition-delay:.18s" data-idx="12"><img src="thumb_nouhabrh__2026-04-05T214114.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">💫</span><span class="tc-lbl">Grâce</span></div></div>
+    <div class="tc rv" style="transition-delay:.04s" data-idx="7"><img src="thumb_nouhabrh__2025-08-26T212340.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">🌸</span><span class="tc-lbl">Pure radiance</span></div></div>
+    <div class="tc rv" style="transition-delay:.08s" data-idx="8"><img src="thumb_nouhabrh__2025-09-18T104436.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">💖</span><span class="tc-lbl">Sa douceur</span></div></div>
+    <div class="tc rv" style="transition-delay:.12s" data-idx="9"><img src="thumb_nouhabrh__2025-10-18T220559.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">🌺</span><span class="tc-lbl">Regard doux</span></div></div>
+    <div class="tc rv" style="transition-delay:.16s" data-idx="16"><img src="jiji.jpg" alt=""/><div class="tc-ov"><span class="tc-em">✨</span><span class="tc-lbl">Présence</span></div></div>
+    <div class="tc rv" style="transition-delay:.06s" data-idx="11"><img src="thumb_nouhabrh__2025-12-07T234451.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">🩷</span><span class="tc-lbl">Lumière</span></div></div>
+    <div class="tc rv" style="transition-delay:.1s"  data-idx="12"><img src="thumb_nouhabrh__2026-02-03T212619.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">👩‍⚕️</span><span class="tc-lbl">Force tranquille</span></div></div>
+    <div class="tc rv" style="transition-delay:.14s" data-idx="13"><img src="thumb_nouhabrh__2026-03-27T222001.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">🌺</span><span class="tc-lbl">Élégance</span></div></div>
+    <div class="tc rv" style="transition-delay:.18s" data-idx="14"><img src="thumb_nouhabrh__2026-04-05T214114.000Z.jpg" alt=""/><div class="tc-ov"><span class="tc-em">💫</span><span class="tc-lbl">Grâce</span></div></div>
   </div>
 </section>
 
@@ -1001,14 +1009,24 @@ footer::before{content:'';position:absolute;inset:0;background:radial-gradient(e
     </div>
     <div class="hs-wrap">
       <div class="hs-track" id="hsTrack">
-        <div class="hcard" data-idx="13"><img src="thumb_nouhabrh__2023-09-08T162526.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🩷</span></div></div>
-        <div class="hcard" data-idx="15"><img src="thumb_nouhabrh__2024-12-28T234212.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">💖</span></div></div>
-        <div class="hcard" data-idx="14"><img src="hero.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🌸</span></div></div>
-        <div class="hcard" data-idx="2"><img src="thumb_nouhabrh__2025-08-14T175545.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">✨</span></div></div>
-        <div class="hcard" data-idx="3"><img src="thumb_nouhabrh__2025-08-17T200029.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">💫</span></div></div>
-        <div class="hcard" data-idx="4"><img src="thumb_nouhabrh__2025-08-22T225828.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">💝</span></div></div>
-        <div class="hcard" data-idx="6"><img src="thumb_nouhabrh__2025-09-18T104436.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🌺</span></div></div>
-        <div class="hcard" data-idx="10"><img src="thumb_nouhabrh__2026-02-03T212619.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🩺</span></div></div>
+        <div class="hcard" data-idx="0"><img src="thumb_nouhabrh__2023-09-08T162526.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🩷</span></div></div>
+        <div class="hcard" data-idx="1"><img src="thumb_nouhabrh__2024-12-28T234212.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">💖</span></div></div>
+        <div class="hcard" data-idx="2"><img src="thumb_nouhabrh__2025-04-27T210813.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🌸</span></div></div>
+        <div class="hcard" data-idx="3"><img src="thumb_nouhabrh__2025-07-22T001907.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">✨</span></div></div>
+        <div class="hcard" data-idx="4"><img src="thumb_nouhabrh__2025-08-14T175545.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">💫</span></div></div>
+        <div class="hcard" data-idx="5"><img src="thumb_nouhabrh__2025-08-17T200029.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🩺</span></div></div>
+        <div class="hcard" data-idx="6"><img src="thumb_nouhabrh__2025-08-22T225828.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">💝</span></div></div>
+        <div class="hcard" data-idx="7"><img src="thumb_nouhabrh__2025-08-26T212340.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🌺</span></div></div>
+        <div class="hcard" data-idx="8"><img src="thumb_nouhabrh__2025-09-18T104436.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">💊</span></div></div>
+        <div class="hcard" data-idx="9"><img src="thumb_nouhabrh__2025-10-18T220559.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🌷</span></div></div>
+        <div class="hcard" data-idx="10"><img src="thumb_nouhabrh__2025-11-16T212801.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">💖</span></div></div>
+        <div class="hcard" data-idx="11"><img src="thumb_nouhabrh__2025-12-07T234451.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🩷</span></div></div>
+        <div class="hcard" data-idx="12"><img src="thumb_nouhabrh__2026-02-03T212619.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">✨</span></div></div>
+        <div class="hcard" data-idx="13"><img src="thumb_nouhabrh__2026-03-27T222001.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🌸</span></div></div>
+        <div class="hcard" data-idx="14"><img src="thumb_nouhabrh__2026-04-05T214114.000Z.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">💫</span></div></div>
+        <div class="hcard hcard-film-lg" data-idx="15"><img src="hero.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🌸</span></div></div>
+        <div class="hcard hcard-film-sm hcard-img-center" data-idx="16"><img src="jiji.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">🩷</span></div></div>
+        <div class="hcard" data-idx="17"><img src="yuyu.jpg" alt=""/><div class="hcard-ov"><span class="hcard-em">💖</span></div></div>
       </div>
     </div>
     <div class="hs-prog"><div class="hs-prog-fill" id="hsPF"></div></div>
@@ -1067,6 +1085,8 @@ footer::before{content:'';position:absolute;inset:0;background:radial-gradient(e
    ALL PHOTOS
 ════════════════════════════════════════ */
 const PICS=[
+  'thumb_nouhabrh__2023-09-08T162526.000Z.jpg',
+  'thumb_nouhabrh__2024-12-28T234212.000Z.jpg',
   'thumb_nouhabrh__2025-04-27T210813.000Z.jpg',
   'thumb_nouhabrh__2025-07-22T001907.000Z.jpg',
   'thumb_nouhabrh__2025-08-14T175545.000Z.jpg',
@@ -1080,9 +1100,9 @@ const PICS=[
   'thumb_nouhabrh__2026-02-03T212619.000Z.jpg',
   'thumb_nouhabrh__2026-03-27T222001.000Z.jpg',
   'thumb_nouhabrh__2026-04-05T214114.000Z.jpg',
-  'thumb_nouhabrh__2023-09-08T162526.000Z.jpg',
   'hero.jpg',
-  'thumb_nouhabrh__2024-12-28T234212.000Z.jpg',
+  'jiji.jpg',
+  'yuyu.jpg',
 ];
 
 /* ════ LOADER ════ */
