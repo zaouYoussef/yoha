@@ -860,28 +860,28 @@ const TESTIMONIALS = [
   {
     name: "Dr. Samia · CHU",
     text: "YoHa a changé mes nuits de garde 🤍 Je mange mieux et je gagne beaucoup de temps pendant les périodes chargées.",
-    avatar: "perso1.png",
+    avatar: "https://i.pravatar.cc/300?img=47",
     rating: 5,
     color: "from-pink-500 to-rose-500",
   },
   {
     name: "Dr. Lina · CHU",
     text: "Le menu MedEat est pratique et vraiment adapté à notre rythme à l’hôpital.",
-    avatar: "perso2.jpg",
+    avatar: "https://i.pravatar.cc/300?img=32",
     rating: 5,
     color: "from-sky-500 to-indigo-500",
   },
   {
     name: "Dr. Amina · Alliance",
     text: "YoHa m’a vraiment sauvé pendant ma période d’internat en médecine interne. Avec un emploi du temps chargé à l’hôpital, je peux enfin manger facilement et sans stress.",
-    avatar: "perso4.jpg",
+    avatar: "https://i.pravatar.cc/300?img=12",
     rating: 5,
     color: "from-orange-500 to-amber-500",
   },
   {
     name: "Dr. Maryam · CHU",
     text: "Service rapide, propre et fiable même pendant les périodes de forte demande. La livraison est toujours efficace.",
-    avatar: "pesro3.jpg",
+    avatar: "https://i.pravatar.cc/300?img=5",
     rating: 5,
     color: "from-violet-500 to-fuchsia-500",
   },
@@ -1275,6 +1275,7 @@ function Hero({ onStart }) {
             <div className="flex -space-x-2">
               {PERSON_AVATARS.map((avatar, i) => (
                 <img key={i} src={avatar} alt=""
+                  onError={(e) => { e.currentTarget.src = `https://i.pravatar.cc/120?img=${i + 10}`; }}
                   className="w-9 h-9 rounded-full border-2 border-white dark:border-ink-900 object-cover" />
               ))}
             </div>
@@ -1311,6 +1312,7 @@ function BentoHero() {
       <Tilt className="col-span-4 row-span-3">
         <div className="group relative h-full rounded-3xl overflow-hidden shadow-cardhover">
           <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=900&q=80&auto=format&fit=crop"
+            onError={(e) => { e.currentTarget.src = 'https://picsum.photos/seed/yoha-hero-main/900/700'; }}
             alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
           <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/30 to-transparent"></div>
           <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/95 text-ink-900 shadow flex items-center gap-1">
@@ -1355,6 +1357,7 @@ function BentoHero() {
           <div className="mt-3 flex -space-x-2">
             {PERSON_AVATARS.map((avatar, i) => (
               <img key={i} src={avatar} alt=""
+                onError={(e) => { e.currentTarget.src = `https://i.pravatar.cc/96?img=${i + 20}`; }}
                 className="w-7 h-7 rounded-full border-2 border-white dark:border-ink-900 object-cover"/>
             ))}
           </div>
@@ -1609,7 +1612,8 @@ function PhoneMockup() {
     <div className="relative mx-auto w-[280px] sm:w-[320px] aspect-[9/19] rounded-[3rem] bg-ink-900 dark:bg-black p-3 shadow-cardhover animate-float-slow">
       <div className="absolute inset-x-0 -top-4 mx-auto w-32 h-7 rounded-b-2xl bg-ink-900 dark:bg-black z-10"></div>
       <div className="relative h-full w-full rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-brand-50 to-pink-50 dark:from-ink-900 dark:to-ink-950">
-        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80&auto=format&fit=crop"
+        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80&auto=format&fit=crop"
+          onError={(e) => { e.currentTarget.src = 'https://picsum.photos/seed/yoha-phone-bg/800/1200'; }}
           alt="" className="absolute inset-0 w-full h-full object-cover opacity-90"/>
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
 
@@ -1623,7 +1627,9 @@ function PhoneMockup() {
         <div className="absolute bottom-20 left-4 right-4 glass-strong rounded-2xl p-3">
           <div className="text-xs font-semibold text-ink-500 dark:text-ink-400">Recommandé pour vous</div>
           <div className="mt-2 flex items-center gap-2">
-            <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=100&q=80&auto=format&fit=crop" className="w-12 h-12 rounded-xl object-cover"/>
+            <img src="https://images.unsplash.com/photo-1601924582970-9238bcb495d9?w=100&q=80&auto=format&fit=crop"
+              onError={(e) => { e.currentTarget.src = 'https://picsum.photos/seed/yoha-rec-item/200/200'; }}
+              className="w-12 h-12 rounded-xl object-cover"/>
             <div>
               <div className="font-bold text-sm">Margherita</div>
               <div className="text-xs text-ink-500">35 MAD · 14 min</div>
@@ -1664,7 +1670,9 @@ function TestimonialsSection() {
               <div className="text-5xl text-ink-200 dark:text-ink-700 leading-none">"</div>
               <p className="mt-2 text-ink-700 dark:text-ink-200 leading-relaxed">{t.text}</p>
               <div className="mt-5 flex items-center gap-3">
-                <img src={t.avatar} alt="" className="w-11 h-11 rounded-full object-cover"/>
+                <img src={t.avatar} alt=""
+                  onError={(e) => { e.currentTarget.src = 'https://i.pravatar.cc/120?img=44'; }}
+                  className="w-11 h-11 rounded-full object-cover"/>
                 <div>
                   <div className="font-bold text-sm">{t.name}</div>
                   <div className="flex items-center gap-0.5 text-amber-500">
