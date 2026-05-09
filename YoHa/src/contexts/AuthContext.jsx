@@ -6,7 +6,8 @@ const STORAGE_SESSION = 'yoha-session';
 /** Ancien nom démo dans le stockage local → remplacé pour les sessions / comptes existants. */
 export function migrateLegacyDisplayName(displayName) {
   if (!displayName || typeof displayName !== 'string') return displayName;
-  return /^nouha\s+bourouhou$/i.test(displayName.trim()) ? 'X Y' : displayName;
+  const collapsed = displayName.normalize('NFKC').trim().replace(/\s+/g, ' ');
+  return /^nouha bourouhou$/i.test(collapsed) ? 'X Y' : displayName;
 }
 
 /** Rôles : client (commande), admin (gérant), courier (livreur), restaurant */
