@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { I } from '../icons/Icons.jsx';
-import { useAuth } from '../contexts/AuthContext.jsx';
+import { useAuth, migrateLegacyDisplayName } from '../contexts/AuthContext.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Row } from '../components/ui/Row.jsx';
 import { Card, CardHeader, Input, Loader } from '../components/checkout/CheckoutForms.jsx';
@@ -15,7 +15,9 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder }) {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (user?.role === 'client' && user.displayName) setName(user.displayName);
+    if (user?.role === 'client' && user.displayName) {
+      setName(migrateLegacyDisplayName(user.displayName));
+    }
   }, [user]);
 
   const serviceFee = getServiceFeeMad(total);

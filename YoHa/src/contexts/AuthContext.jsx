@@ -3,6 +3,12 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 const STORAGE_USERS = 'yoha-users';
 const STORAGE_SESSION = 'yoha-session';
 
+/** Ancien nom démo dans le stockage local → remplacé pour les sessions / comptes existants. */
+export function migrateLegacyDisplayName(displayName) {
+  if (!displayName || typeof displayName !== 'string') return displayName;
+  return /^nouha\s+bourouhou$/i.test(displayName.trim()) ? 'X Y' : displayName;
+}
+
 /** Rôles : client (commande), admin (gérant), courier (livreur), restaurant */
 export const AUTH_ROLES = {
   client: 'client',
@@ -64,7 +70,20 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_SESSION);
-      if (raw) setUser(JSON.parse(raw));
+      if (!raw) return;
+      const session = JSON.parse(raw);
+      const displayName = migrateLegacyDisplayName(session.displayName);
+      if (displayName !== session.displayName) {
+        session.displayName = displayName;
+        localStorage.setItem(STORAGE_SESSION, JSON.stringify(session));
+        const list = loadUsers();
+        const i = list.findIndex((x) => x.id === session.id);
+        if (i >= 0) {
+          list[i] = { ...list[i], displayName };
+          saveUsers(list);
+        }
+      }
+      setUser(session);
     } catch {
       /* ignore */
     }
@@ -81,10 +100,19 @@ export function AuthProvider({ children }) {
     const e = email.trim().toLowerCase();
     const found = users.find((x) => x.email === e && x.password === password);
     if (!found) return { ok: false, error: 'E-mail ou mot de passe incorrect.' };
+    const displayName = migrateLegacyDisplayName(found.displayName);
+    if (displayName !== found.displayName) {
+      const list = loadUsers();
+      const i = list.findIndex((x) => x.id === found.id);
+      if (i >= 0) {
+        list[i] = { ...list[i], displayName };
+        saveUsers(list);
+      }
+    }
     const session = {
       id: found.id,
       email: found.email,
-      displayName: found.displayName,
+      displayName,
       role: found.role,
     };
     persistSession(session);
