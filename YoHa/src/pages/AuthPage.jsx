@@ -232,11 +232,6 @@ export function AuthPage({ redirect, goto, goHome }) {
               </Button>
             </form>
           )}
-
-          <p className="mt-6 text-[11px] text-center text-ink-400 dark:text-ink-500 leading-relaxed">
-            Connexion Pro (mot de passe démo <code className="px-1 rounded bg-ink-100 dark:bg-ink-800">demo123</code>) :{' '}
-            <span className="block sm:inline mt-1">admin@yoha.ma · livreur@yoha.ma · resto@yoha.ma — client test : client@yoha.ma</span>
-          </p>
         </div>
       </div>
     </div>
