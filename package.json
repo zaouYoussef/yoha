@@ -1,0 +1,9 @@
+{
+  "name": "nuha",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix YoHa",
+    "build": "npm run build --prefix YoHa",
+    "preview": "npm run preview --prefix YoHa"
+  }
+}

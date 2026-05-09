@@ -1,0 +1,3499 @@
+import React, { useState, useEffect, useRef, useMemo, useContext, createContext, useCallback, Fragment } from 'react';
+/* ============================================================================
+   ICONS
+============================================================================ */
+const Svg = ({ children, size = 20, stroke = 2, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round"
+    className={className}>{children}</svg>
+);
+const I = {
+  Cart:    p => <Svg {...p}><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></Svg>,
+  Search:  p => <Svg {...p}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></Svg>,
+  Star:    p => <Svg {...p}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></Svg>,
+  Clock:   p => <Svg {...p}><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></Svg>,
+  Plus:    p => <Svg {...p}><path d="M12 5v14M5 12h14"/></Svg>,
+  Minus:   p => <Svg {...p}><path d="M5 12h14"/></Svg>,
+  X:       p => <Svg {...p}><path d="M18 6 6 18M6 6l12 12"/></Svg>,
+  Sun:     p => <Svg {...p}><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></Svg>,
+  Moon:    p => <Svg {...p}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></Svg>,
+  Home:    p => <Svg {...p}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z"/></Svg>,
+  Heart:   p => <Svg {...p}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></Svg>,
+  User:    p => <Svg {...p}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></Svg>,
+  MapPin:  p => <Svg {...p}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></Svg>,
+  Card:    p => <Svg {...p}><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></Svg>,
+  Right:   p => <Svg {...p}><path d="M5 12h14M13 5l7 7-7 7"/></Svg>,
+  Left:    p => <Svg {...p}><path d="M19 12H5M12 19l-7-7 7-7"/></Svg>,
+  Check:   p => <Svg {...p}><path d="M20 6 9 17l-5-5"/></Svg>,
+  Trash:   p => <Svg {...p}><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></Svg>,
+  Zap:     p => <Svg {...p}><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></Svg>,
+  Sparkle: p => <Svg {...p}><path d="m12 3-1.9 5.8L4 10.7l5.4 3.4L12 20l1.9-5.9 6.1-1.4-5.4-3.4z"/></Svg>,
+  Chef:    p => <Svg {...p}><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><path d="M6 17h12"/></Svg>,
+  Bag:     p => <Svg {...p}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/></Svg>,
+  Bike:    p => <Svg {...p}><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/></Svg>,
+  Bell:    p => <Svg {...p}><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></Svg>,
+  ArrowDown: p => <Svg {...p}><path d="M12 5v14M19 12l-7 7-7-7"/></Svg>,
+  Phone:   p => <Svg {...p}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></Svg>,
+  Shield:  p => <Svg {...p}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></Svg>,
+  Flame:   p => <Svg {...p}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></Svg>,
+  Headset: p => <Svg {...p}><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-7h3zM3 19a2 2 0 0 0 2 2h1v-7H3z"/></Svg>,
+};
+
+/* ============================================================================
+   FAKE DATA
+============================================================================ */
+const CUISINES = [
+  { id:'all',     label:'Tout',     emoji:'✨' },
+  { id:'pizza',   label:'Pizza',    emoji:'🍕' },
+  { id:'burger',  label:'Burger',   emoji:'🍔' },
+  { id:'healthy', label:'Healthy',  emoji:'🥗' },
+  { id:'asian',   label:'Asiatique',emoji:'🍜' },
+  { id:'sushi',   label:'Sushi',    emoji:'🍣' },
+  { id:'medical', label:'MedEat',   emoji:'🏥' },
+  { id:'dessert', label:'Dessert',  emoji:'🍰' },
+  { id:'drinks',  label:'Boissons', emoji:'🥤' },
+];
+
+const RESTAURANTS = [
+  {
+    id:'pizza-palace', name:'Pizza Palace', cuisine:'pizza',
+    tags:['Pizza','Italien','Rapide'],
+    rating:4.8, reviews:1240, eta:'15-25 min', fee:'Livraison offerte',
+    distance:'0,6 km', promo:'-20% sur la 1ère commande',
+    cover:'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200&q=80&auto=format&fit=crop',
+    logo:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=160&q=80&auto=format&fit=crop',
+    description:'Pizzas napolitaines au feu de bois, tomates San Marzano importées et pâte fermentée 48h.',
+    menu:[
+      { category:'🔥 Les plus populaires', items:[
+        { id:'pp1', name:'Margherita Classica', price:8.90, desc:'San Marzano, fior di latte, basilic', img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&q=80&auto=format&fit=crop' },
+        { id:'pp2', name:'Pepperoni Storm',     price:10.50,desc:'Pepperoni épicé, mozzarella, origan', img:'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400&q=80&auto=format&fit=crop' },
+        { id:'pp3', name:'Truffe & Champignons',price:12.90,desc:'Champignons sauvages, huile de truffe, parmesan', img:'https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?w=400&q=80&auto=format&fit=crop' },
+      ]},
+      { category:'🍕 Pizzas', items:[
+        { id:'pp4', name:'Quattro Formaggi',     price:11.90,desc:'Mozzarella, gorgonzola, parmesan, ricotta', img:'https://images.unsplash.com/photo-1571997478779-2adcbbe9ab2f?w=400&q=80&auto=format&fit=crop' },
+        { id:'pp5', name:'Diavola Heat',         price:11.20,desc:'Salami épicé, huile pimentée, mozzarella', img:'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=400&q=80&auto=format&fit=crop' },
+        { id:'pp6', name:'Prosciutto e Rucola',  price:13.50,desc:'Jambon de Parme, roquette, copeaux de parmesan', img:'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&q=80&auto=format&fit=crop' },
+      ]},
+      { category:'🥤 Boissons', items:[
+        { id:'pp7', name:'Limonade italienne',   price:3.20, desc:'Pétillante, citrons frais', img:'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&q=80&auto=format&fit=crop' },
+        { id:'pp8', name:'Espresso',             price:1.80, desc:'Arabica origine unique', img:'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&q=80&auto=format&fit=crop' },
+      ]},
+    ],
+  },
+  {
+    id:'healthy-bowl', name:'Healthy Bowl', cuisine:'healthy',
+    tags:['Healthy','Vegan','Bowls'],
+    rating:4.9, reviews:980, eta:'10-20 min', fee:'Livraison offerte',
+    distance:'0,4 km', promo:'Exclu campus',
+    cover:'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1200&q=80&auto=format&fit=crop',
+    logo:'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=160&q=80&auto=format&fit=crop',
+    description:'Bowls signatures avec ingrédients bio de saison, équilibrés en macros pour booster votre énergie.',
+    menu:[
+      { category:'🌟 Bowls signatures', items:[
+        { id:'hb1', name:'Buddha Power Bowl',    price:9.50, desc:'Quinoa, avocat, kale, sauce tahini', img:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80&auto=format&fit=crop' },
+        { id:'hb2', name:'Poke Saumon Fumé',     price:12.90,desc:'Riz à sushi, saumon, edamame, mangue', img:'https://images.unsplash.com/photo-1546069901-d5bfd2cbfb1f?w=400&q=80&auto=format&fit=crop' },
+        { id:'hb3', name:'Bowl Méditerranéen',   price:8.90, desc:'Falafel, houmous, taboulé, feta', img:'https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80&auto=format&fit=crop' },
+      ]},
+      { category:'🥗 Salades', items:[
+        { id:'hb4', name:'Caesar Réinventée',    price:7.90, desc:'Romaine, kale, parmesan, anchois croustillants', img:'https://images.unsplash.com/photo-1551248429-40975aa4de74?w=400&q=80&auto=format&fit=crop' },
+        { id:'hb5', name:'Détox Arc-en-ciel',    price:8.20, desc:'Betterave, carotte, vinaigrette agrumes', img:'https://images.unsplash.com/photo-1505253758473-96b7015fcd40?w=400&q=80&auto=format&fit=crop' },
+      ]},
+      { category:'🥤 Jus pressés à froid', items:[
+        { id:'hb6', name:'Green Glow',           price:4.50, desc:'Kale, pomme, gingembre, citron', img:'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=400&q=80&auto=format&fit=crop' },
+        { id:'hb7', name:'Antioxydant Berry',    price:4.50, desc:'Myrtille, framboise, grenade', img:'https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?w=400&q=80&auto=format&fit=crop' },
+      ]},
+    ],
+  },
+  {
+    id:'burger-lab', name:'Burger Lab', cuisine:'burger',
+    tags:['Burger','Américain','Confort'],
+    rating:4.7, reviews:2100, eta:'20-30 min', fee:'1,99 € de frais',
+    distance:'1,1 km', promo:'2 burgers achetés = frites offertes',
+    cover:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=80&auto=format&fit=crop',
+    logo:'https://images.unsplash.com/photo-1606131731446-5568d87113aa?w=160&q=80&auto=format&fit=crop',
+    description:'Steaks smashés sur brioche grillée, bœuf maturé local, sauce secrète au top.',
+    menu:[
+      { category:'🍔 Smash Burgers', items:[
+        { id:'bl1', name:'Lab Classic Smash',    price:9.90, desc:'Double steak, cheddar, cornichons, sauce maison', img:'https://images.unsplash.com/photo-1571091655789-405eb7a3a3a8?w=400&q=80&auto=format&fit=crop' },
+        { id:'bl2', name:'Truffle Mayo Beast',   price:12.50,desc:'Wagyu, mayo truffe, oignons confits', img:'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=400&q=80&auto=format&fit=crop' },
+        { id:'bl3', name:'Spicy Chipotle',       price:10.90,desc:'Jalapeño, chipotle, pepper jack, oignons frits', img:'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=400&q=80&auto=format&fit=crop' },
+      ]},
+      { category:'🍟 Accompagnements', items:[
+        { id:'bl4', name:'Frites Cheese Loaded', price:5.50, desc:'Sauce cheddar, lardons, ciboulette', img:'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&q=80&auto=format&fit=crop' },
+        { id:'bl5', name:'Onion Rings croustillants', price:4.20, desc:'Pâte au babeurre, fleur de sel', img:'https://images.unsplash.com/photo-1639024471283-03518883512d?w=400&q=80&auto=format&fit=crop' },
+      ]},
+      { category:'🥤 Milkshakes', items:[
+        { id:'bl6', name:'Vanille de Madagascar',price:4.90, desc:'Vanille bourbon, chantilly maison', img:'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&q=80&auto=format&fit=crop' },
+        { id:'bl7', name:'Tempête Oréo',         price:5.20, desc:'Chocolat, biscuits émiettés, fudge', img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80&auto=format&fit=crop' },
+      ]},
+    ],
+  },
+  {
+    id:'sushi-zen', name:'Sushi Zen', cuisine:'sushi',
+    tags:['Sushi','Japonais','Premium'],
+    rating:4.9, reviews:1530, eta:'25-35 min', fee:'2,50 € de frais',
+    distance:'1,4 km', promo:'Soupe miso offerte',
+    cover:'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1200&q=80&auto=format&fit=crop',
+    logo:'https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=160&q=80&auto=format&fit=crop',
+    description:'Poissons durables, nigiris pressés à la main, omakase de saison par le chef Hiroshi.',
+    menu:[
+      { category:'✨ Sélection du chef', items:[
+        { id:'sz1', name:'Omakase 12 pièces',    price:24.90,desc:'Sélection quotidienne du chef · nigiri & maki', img:'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400&q=80&auto=format&fit=crop' },
+        { id:'sz2', name:'Sashimi Saumon Deluxe',price:16.50,desc:'12 tranches de saumon norvégien premium', img:'https://images.unsplash.com/photo-1583623025817-d180a2221d0a?w=400&q=80&auto=format&fit=crop' },
+        { id:'sz3', name:'Dragon Roll',          price:14.90,desc:'Anguille, avocat, concombre, tobiko', img:'https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=400&q=80&auto=format&fit=crop' },
+      ]},
+      { category:'🍣 Maki Rolls', items:[
+        { id:'sz4', name:'Spicy Tuna Roll',      price:9.90, desc:'Thon, mayo épicée, oignons verts', img:'https://images.unsplash.com/photo-1607301405390-d831c242f59b?w=400&q=80&auto=format&fit=crop' },
+        { id:'sz5', name:'Rainbow Roll',         price:12.90,desc:'Crabe, avocat, garni de cinq poissons', img:'https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=400&q=80&auto=format&fit=crop' },
+      ]},
+      { category:'🍵 Accompagnements', items:[
+        { id:'sz6', name:'Edamame',              price:3.90, desc:'Fèves de soja vapeur, fleur de sel', img:'https://images.unsplash.com/photo-1564834744159-ff0ea41ba4b9?w=400&q=80&auto=format&fit=crop' },
+        { id:'sz7', name:'Soupe Miso',           price:2.50, desc:'Tofu, wakame, oignons verts', img:'https://images.unsplash.com/photo-1607330289024-1535c6b4e1c1?w=400&q=80&auto=format&fit=crop' },
+      ]},
+    ],
+  },
+  {
+    id:'medeat', name:'MedEat', cuisine:'medical',
+    tags:['Hôpital','Nutritionniste','Diététique'],
+    rating:4.9, reviews:760, eta:'12-18 min', fee:'Livraison offerte',
+    distance:'0,2 km', promo:'Partenaire hôpital',
+    cover:'https://images.unsplash.com/photo-1547573854-74d2a71d0826?w=1200&q=80&auto=format&fit=crop',
+    logo:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=160&q=80&auto=format&fit=crop',
+    description:'Repas conçus par des nutritionnistes pour patients, soignants et visiteurs. Allergènes maîtrisés.',
+    menu:[
+      { category:'🩺 Approuvé par les médecins', items:[
+        { id:'me1', name:'Soupe Récup\' Poulet',  price:6.90, desc:'Bouillon d\'os, gingembre, herbes, doux pour l\'estomac', img:'https://images.unsplash.com/photo-1547573854-74d2a71d0826?w=400&q=80&auto=format&fit=crop' },
+        { id:'me2', name:'Saumon Vapeur Hyposodé',price:11.50,desc:'Saumon vapeur, quinoa, brocolis', img:'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80&auto=format&fit=crop' },
+        { id:'me3', name:'Bowl Diabétique',       price:9.90, desc:'Protéines maigres, légumes verts, IG bas', img:'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80&auto=format&fit=crop' },
+      ]},
+      { category:'☕ Pause soignants', items:[
+        { id:'me4', name:'Latte de garde',        price:3.50, desc:'Double espresso, lait d\'avoine, peu sucré', img:'https://images.unsplash.com/photo-1561882468-9110e03e0f78?w=400&q=80&auto=format&fit=crop' },
+        { id:'me5', name:'Wrap Énergie',          price:5.90, desc:'Wrap complet, dinde, avocat', img:'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&q=80&auto=format&fit=crop' },
+      ]},
+      { category:'🍓 Confort patient', items:[
+        { id:'me6', name:'Box de fruits frais',   price:4.50, desc:'Fruits de saison, taillés à la main', img:'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=400&q=80&auto=format&fit=crop' },
+        { id:'me7', name:'Yaourt grec & granola', price:4.90, desc:'Miel, granola maison, myrtilles', img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80&auto=format&fit=crop' },
+      ]},
+    ],
+  },
+  {
+    id:'asian-wok', name:'Asian Wok', cuisine:'asian',
+    tags:['Asiatique','Nouilles','Wok'],
+    rating:4.6, reviews:870, eta:'18-28 min', fee:'1,50 € de frais',
+    distance:'0,9 km', promo:'Nems offerts',
+    cover:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=1200&q=80&auto=format&fit=crop',
+    logo:'https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=160&q=80&auto=format&fit=crop',
+    description:'Street food pan-asiatique : Thaï, Vietnamien, Chinois — du wok ultra chaud à votre porte.',
+    menu:[
+      { category:'🍜 Nouilles', items:[
+        { id:'aw1', name:'Pad Thaï',             price:8.90, desc:'Nouilles de riz, crevettes, cacahuètes, citron vert', img:'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=400&q=80&auto=format&fit=crop' },
+        { id:'aw2', name:'Pho au Bœuf',          price:9.50, desc:'Bouillon longue cuisson, bœuf cru, herbes', img:'https://images.unsplash.com/photo-1570707253266-46969cd0ce86?w=400&q=80&auto=format&fit=crop' },
+        { id:'aw3', name:'Ramen épicé',          price:10.20,desc:'Bouillon tonkotsu, chashu, œuf mollet', img:'https://images.unsplash.com/photo-1591814468924-caf88d1232e1?w=400&q=80&auto=format&fit=crop' },
+      ]},
+      { category:'🥟 Dim Sum', items:[
+        { id:'aw4', name:'Bao au Porc',          price:5.50, desc:'3 baos vapeur moelleux, glaçage hoisin', img:'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=400&q=80&auto=format&fit=crop' },
+        { id:'aw5', name:'Raviolis Crystal',     price:6.20, desc:'6 pièces, peau translucide, soja-gingembre', img:'https://images.unsplash.com/photo-1568625365131-079e026a927d?w=400&q=80&auto=format&fit=crop' },
+      ]},
+    ],
+  },
+];
+
+const CATEGORIES_BANNERS = [
+  { label:'Pizza',    gradient:'from-orange-400 to-red-500',     emoji:'🍕', id:'pizza' },
+  { label:'Healthy',  gradient:'from-emerald-400 to-teal-500',   emoji:'🥗', id:'healthy' },
+  { label:'Burger',   gradient:'from-amber-400 to-orange-500',   emoji:'🍔', id:'burger' },
+  { label:'Sushi',    gradient:'from-rose-400 to-pink-500',      emoji:'🍣', id:'sushi' },
+  { label:'Asiatique',gradient:'from-fuchsia-400 to-purple-500', emoji:'🍜', id:'asian' },
+  { label:'MedEat',   gradient:'from-sky-400 to-indigo-500',     emoji:'🏥', id:'medical' },
+  { label:'Dessert',  gradient:'from-pink-400 to-fuchsia-500',   emoji:'🍰', id:'dessert' },
+  { label:'Boissons', gradient:'from-cyan-400 to-blue-500',      emoji:'🥤', id:'drinks' },
+];
+
+const FEATURES = [
+  { icon:<I.Zap size={28}/>,    title:'Ultra rapide',           desc:'18 min en moyenne sur le campus et dans les hôpitaux.', from:'from-amber-400', to:'to-orange-500' },
+  { icon:<I.Sparkle size={28}/>,title:'Commandes intelligentes',desc:'L\'IA vous suggère des repas selon vos cours et vos gardes.', from:'from-violet-400', to:'to-fuchsia-500' },
+  { icon:<I.Chef size={28}/>,   title:'Multi-restaurants',      desc:'Un seul panier, plusieurs cuisines — combinez vos préférés.', from:'from-rose-400', to:'to-pink-500' },
+  { icon:<I.MapPin size={28}/>, title:'Optimisé campus',        desc:'Livraison directe en chambre, à l\'aile hospitalière, à la BU.', from:'from-sky-400', to:'to-indigo-500' },
+];
+
+const TESTIMONIALS = [
+  { name:'Sarah · ENCG Casa',   text:'YoHa m\'a sauvé pendant les partiels. Mes nuits blanches ont enfin du goût 🤍', avatar:'https://i.pravatar.cc/120?img=47', rating:5, color:'from-pink-500 to-rose-500' },
+  { name:'Dr. Karim · CHU',     text:'Je commande pour toute l\'équipe de garde. Le menu MedEat est parfait, validé par notre nutri.', avatar:'https://i.pravatar.cc/120?img=33', rating:5, color:'from-sky-500 to-indigo-500' },
+  { name:'Yassine · EMSI',      text:'Plus rapide que mon chauffeur perso. Et je suis sur le campus en pyjama 😎', avatar:'https://i.pravatar.cc/120?img=14', rating:5, color:'from-orange-500 to-amber-500' },
+  { name:'Lina · Médecine UH2', text:'L\'app est tellement belle que ça donne faim juste en scrollant. Bravo l\'équipe.', avatar:'https://i.pravatar.cc/120?img=44', rating:5, color:'from-violet-500 to-fuchsia-500' },
+  { name:'Anas · Internat',     text:'18 minutes chrono entre commande et premier coup de fourchette. Magique.', avatar:'https://i.pravatar.cc/120?img=12', rating:5, color:'from-emerald-500 to-teal-500' },
+  { name:'Imane · Pharma',      text:'Le mode sombre, les animations, le suivi en temps réel… C\'est trop propre.', avatar:'https://i.pravatar.cc/120?img=5',  rating:5, color:'from-fuchsia-500 to-pink-500' },
+];
+
+const HOW_STEPS = [
+  { num:'01', title:'Choisissez',  desc:'Parcourez les restaurants partenaires de votre campus ou hôpital.', icon:<I.Search size={22}/>, color:'from-orange-500 to-amber-500' },
+  { num:'02', title:'Composez',    desc:'Mixez plusieurs cuisines dans un seul panier, en quelques tapotements.', icon:<I.Bag size={22}/>,   color:'from-pink-500 to-rose-500' },
+  { num:'03', title:'Recevez',     desc:'Suivi en direct, livreur dédié, livré directement à votre porte.', icon:<I.Bike size={22}/>,  color:'from-violet-500 to-fuchsia-500' },
+];
+
+const CAMPUS_HOSPITALS = [
+  {
+    name: 'CHU Mohammed VI de Tanger',
+    subtitle: 'Centre hospitalier universitaire',
+    img: 'https://www.lesiteinfo.com/wp-content/uploads/2023/04/CHU.jpg',
+  },
+  {
+    name: 'Hôpital Universitaire Mohammed VI',
+    subtitle: 'Zone hospitalière et services d’urgence',
+    img: 'https://i.ytimg.com/vi/4ig1_HC_5I0/maxresdefault.jpg',
+  },
+  {
+    name: 'ISPITS Tanger',
+    subtitle: 'Institut Supérieur des Professions Infirmières et Techniques de Santé',
+    img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSc18JHdfUDUTNsudkUQY0H0jmYlV3HZhyIWg&s',
+  },
+  {
+    name: 'Résidence universitaire Alliance Tanger',
+    subtitle: 'Résidence étudiante universitaire',
+    img: 'https://alliancesdarna.ma/wp-content/uploads/Riad-Tanger-1.jpg',
+  },
+];
+
+/* ============================================================================
+   ORDER WORKFLOW — central state for the realistic delivery workflow
+   States flow:  placed → pickup_confirmed → preparing → ready → delivering → delivered
+============================================================================ */
+const ORDER_STATES = {
+  placed:           { label:'Nouvelle commande', color:'bg-amber-500',   text:'text-amber-600',   step:1 },
+  pickup_confirmed: { label:'Livreur confirmé',  color:'bg-sky-500',     text:'text-sky-600',     step:2 },
+  preparing:        { label:'En préparation',    color:'bg-violet-500',  text:'text-violet-600',  step:3 },
+  ready:            { label:'Prêt à récupérer',  color:'bg-emerald-500', text:'text-emerald-600', step:4 },
+  delivering:       { label:'En livraison',      color:'bg-pink-500',    text:'text-pink-600',    step:5 },
+  delivered:        { label:'Livré',             color:'bg-ink-700',     text:'text-ink-700',     step:6 },
+};
+
+const COURIERS = [
+  { id:'c1', name:'Yacine A.',  phone:'+212 6 11 22 33 44', avatar:'https://i.pravatar.cc/120?img=12', rating:4.9, vehicle:'Scooter' },
+  { id:'c2', name:'Hamza R.',   phone:'+212 6 22 33 44 55', avatar:'https://i.pravatar.cc/120?img=13', rating:4.8, vehicle:'Vélo' },
+  { id:'c3', name:'Soukaina B.',phone:'+212 6 33 44 55 66', avatar:'https://i.pravatar.cc/120?img=23', rating:5.0, vehicle:'Scooter' },
+  { id:'c4', name:'Mehdi T.',   phone:'+212 6 44 55 66 77', avatar:'https://i.pravatar.cc/120?img=15', rating:4.7, vehicle:'Vélo' },
+];
+
+const DELIVERY_FEE_DH  = 16; // charges livraison
+const PROFIT_FACTOR    = 0.20; // 20%
+const PROFIT_FIXED     = 12;
+const computeProfit  = (totalDh) => totalDh * PROFIT_FACTOR + PROFIT_FIXED;
+const computeNet     = (totalDh) => computeProfit(totalDh) - DELIVERY_FEE_DH;
+/* convert € to DH for display in dashboards (visual mock — 1€ ≈ 11 DH) */
+const EUR_TO_DH = 11;
+
+/* Generate ~18 mock historical orders to populate dashboards */
+function generateMockOrders() {
+  const customers = [
+    { name:'Sarah Bennani',    address:'Résidence A · Ch. 312', phone:'+212 6 11 22 33 44' },
+    { name:'Yassine El Idrissi',address:'Pavillon C · Ch. 207',  phone:'+212 6 22 33 44 55' },
+    { name:'Dr. Karim Naciri', address:'CHU · Aile B · 4e étage', phone:'+212 6 33 44 55 66' },
+    { name:'Lina Tazi',        address:'Cité U · Bât. 7 · Ch. 18', phone:'+212 6 44 55 66 77' },
+    { name:'Anas Benali',      address:'Internat · Ch. 412',     phone:'+212 6 55 66 77 88' },
+    { name:'Imane Cherkaoui',  address:'Faculté · Bloc 3',       phone:'+212 6 66 77 88 99' },
+  ];
+  const states = ['delivered','delivered','delivered','delivered','delivering','ready','preparing','pickup_confirmed','placed'];
+  const now = Date.now();
+  return Array.from({ length:18 }).map((_, i) => {
+    const r = RESTAURANTS[i % RESTAURANTS.length];
+    const items = r.menu[0].items.slice(0, 1 + (i % 3)).map(it => ({ ...it, qty: 1 + (i % 2), restaurantId:r.id, restaurantName:r.name }));
+    const totalEur = items.reduce((s,it) => s + it.price * it.qty, 0);
+    const totalDh = totalEur * EUR_TO_DH;
+    const cust = customers[i % customers.length];
+    const status = states[i % states.length];
+    const courier = COURIERS[i % COURIERS.length];
+    return {
+      id: 'YH-' + (4001 + i),
+      createdAt: now - (i * 1000 * 60 * 47),
+      customer: cust,
+      restaurantId: r.id,
+      restaurantName: r.name,
+      items,
+      totalEur,
+      totalDh,
+      profitDh: computeProfit(totalDh),
+      netDh: computeNet(totalDh),
+      status,
+      courierId: status === 'placed' ? null : courier.id,
+      courierName: status === 'placed' ? null : courier.name,
+      eta: 12 + (i % 18),
+    };
+  });
+}
+
+/* ============================================================================
+   APP — root
+============================================================================ */
+const ToastCtx = createContext(null);
+const useToast = () => useContext(ToastCtx);
+const CartIconRefCtx = createContext({ current: null });
+const OrdersCtx = createContext(null);
+const useOrders = () => useContext(OrdersCtx);
+
+export default function App() {
+  const [view, setView] = useState({ name:'landing' });
+  const [dark, setDark] = useState(false);
+  const [cart, setCart] = useState([]);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [toasts, setToasts] = useState([]);
+  const [cartShake, setCartShake] = useState(false);
+  const [orders, setOrders] = useState(() => generateMockOrders());
+  const [restaurants, setRestaurants] = useState(RESTAURANTS); // editable
+  const cartIconRef = useRef(null);
+
+  /* ORDER WORKFLOW HELPERS */
+  const addOrder = useCallback((cartItems, totalEur, customer) => {
+    const id = 'YH-' + (5000 + Math.floor(Math.random() * 999));
+    const totalDh = totalEur * EUR_TO_DH;
+    const restaurantId = cartItems[0]?.restaurantId;
+    const restaurantName = cartItems[0]?.restaurantName;
+    const order = {
+      id,
+      createdAt: Date.now(),
+      customer,
+      restaurantId,
+      restaurantName,
+      items: cartItems,
+      totalEur,
+      totalDh,
+      profitDh: computeProfit(totalDh),
+      netDh: computeNet(totalDh),
+      status: 'placed',
+      courierId: null,
+      courierName: null,
+      eta: 18,
+    };
+    setOrders(prev => [order, ...prev]);
+    return id;
+  }, []);
+
+  const updateOrderStatus = useCallback((orderId, status, extra = {}) => {
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status, ...extra } : o));
+    pushToast({ title:'Statut mis à jour', desc:`#${orderId} · ${ORDER_STATES[status]?.label || status}`, type:'success' });
+  }, []);
+
+  const assignCourier = useCallback((orderId, courier) => {
+    setOrders(prev => prev.map(o => o.id === orderId
+      ? { ...o, courierId: courier.id, courierName: courier.name, status:'pickup_confirmed' }
+      : o));
+    pushToast({ title:'Livreur assigné', desc:`${courier.name} · #${orderId}`, type:'success' });
+  }, []);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('yoha-theme');
+    const prefers = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+    setDark(stored ? stored === 'dark' : prefers);
+  }, []);
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', dark);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#020617' : '#fff7ed');
+    localStorage.setItem('yoha-theme', dark ? 'dark' : 'light');
+  }, [dark]);
+
+  useEffect(() => { window.scrollTo({ top:0, behavior:'instant' }); }, [view]);
+
+  const pushToast = useCallback((t) => {
+    const id = Math.random().toString(36).slice(2);
+    setToasts(prev => [...prev, { id, ...t }]);
+    setTimeout(() => setToasts(prev => prev.filter(x => x.id !== id)), t.duration || 2400);
+  }, []);
+  const toastApi = { push: pushToast };
+
+  const addToCart = (item, restaurant, sourceEl) => {
+    /* fly-to-cart animation */
+    if (sourceEl && cartIconRef.current) {
+      flyToCart(sourceEl, cartIconRef.current, item.img);
+    }
+    setCart(prev => {
+      const e = prev.find(p => p.id === item.id);
+      if (e) return prev.map(p => p.id === item.id ? { ...p, qty: p.qty + 1 } : p);
+      return [...prev, { ...item, qty:1, restaurantId:restaurant.id, restaurantName:restaurant.name }];
+    });
+    /* delayed toast + cart shake (after fly animation lands) */
+    setTimeout(() => {
+      setCartShake(true);
+      setTimeout(() => setCartShake(false), 500);
+      pushToast({ title:'Ajouté au panier', desc:item.name, type:'success' });
+    }, 800);
+  };
+  const removeFromCart = id => setCart(prev => prev.filter(p => p.id !== id));
+  const setQty = (id, qty) => setCart(prev => qty <= 0 ? prev.filter(p => p.id !== id) : prev.map(p => p.id === id ? { ...p, qty } : p));
+  const clearCart = () => setCart([]);
+
+  const cartCount = cart.reduce((s,p) => s + p.qty, 0);
+  const cartTotal = cart.reduce((s,p) => s + p.qty * p.price, 0);
+
+  const goto = useCallback((name, params={}) => setView({ name, ...params }), []);
+
+  const isDashboard = view.name === 'admin' || view.name === 'delivery' || view.name === 'restaurant-dash';
+
+  return (
+    <ToastCtx.Provider value={toastApi}>
+      <OrdersCtx.Provider value={{ orders, setOrders, addOrder, updateOrderStatus, assignCourier, restaurants, setRestaurants }}>
+        <CartIconRefCtx.Provider value={cartIconRef}>
+          <CursorFollower />
+          <ScrollProgress />
+          <div className="min-h-screen flex flex-col relative">
+            {!isDashboard && (
+              <Navbar
+                dark={dark} setDark={setDark}
+                cartCount={cartCount}
+                cartShake={cartShake}
+                cartIconRef={cartIconRef}
+                onCart={() => setCartOpen(true)}
+                onLogo={() => goto('landing')}
+                onHome={() => goto('home')}
+                goto={goto}
+              />
+            )}
+
+            <main className={`flex-1 ${isDashboard ? '' : 'pt-16 pb-24 md:pb-0'}`}>
+              {view.name === 'landing'         && <Landing onStart={() => goto('home')} goto={goto} />}
+              {view.name === 'home'            && <Home onPickRestaurant={(r) => goto('restaurant', { restaurant: r })} />}
+              {view.name === 'restaurant'      && <RestaurantPage restaurant={view.restaurant} onBack={() => goto('home')} onAdd={addToCart} />}
+              {view.name === 'checkout'        && <Checkout cart={cart} total={cartTotal} onBack={() => setCartOpen(true)} addOrder={addOrder} onSuccess={(orderId) => { clearCart(); goto('success', { orderId }); }} />}
+              {view.name === 'success'         && <SuccessPage orderId={view.orderId} onHome={() => goto('home')} />}
+              {view.name === 'admin'           && <AdminDashboard goto={goto} dark={dark} setDark={setDark} />}
+              {view.name === 'delivery'        && <DeliveryDashboard goto={goto} dark={dark} setDark={setDark} />}
+              {view.name === 'restaurant-dash' && <RestaurantDashboard goto={goto} dark={dark} setDark={setDark} />}
+            </main>
+
+            {!isDashboard && (view.name === 'landing' || view.name === 'home') && (
+              <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 pb-10 sm:pb-14">
+                <CampusHospitalsSection />
+              </div>
+            )}
+
+            {!isDashboard && <Footer goto={goto} />}
+
+            {!isDashboard && (
+              <BottomNav active={view.name} onHome={() => goto('home')} onSearch={() => goto('home')} onCart={() => setCartOpen(true)} cartCount={cartCount} />
+            )}
+
+            <CartSidebar
+              open={cartOpen} onClose={() => setCartOpen(false)}
+              items={cart} setQty={setQty} remove={removeFromCart}
+              total={cartTotal}
+              onCheckout={() => { setCartOpen(false); goto('checkout'); }}
+            />
+
+            <FloatingCart count={cartCount} total={cartTotal} onClick={() => setCartOpen(true)} hidden={view.name === 'landing' || view.name === 'success' || cartOpen || isDashboard} />
+
+            {!isDashboard && <LiveOrderTracker visible={view.name !== 'landing' && view.name !== 'success' && view.name !== 'checkout'} />}
+
+            <ToastViewport toasts={toasts} />
+          </div>
+        </CartIconRefCtx.Provider>
+      </OrdersCtx.Provider>
+    </ToastCtx.Provider>
+  );
+}
+
+/* ============================================================================
+   CUSTOM CURSOR — dot + morphing ring with hover states
+============================================================================ */
+function CursorFollower() {
+  useEffect(() => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    document.body.classList.add('has-cursor');
+
+    const dot  = document.createElement('div');
+    const ring = document.createElement('div');
+    dot.className  = 'cursor-dot';
+    ring.className = 'cursor-ring';
+    document.body.appendChild(dot);
+    document.body.appendChild(ring);
+
+    let mx = -100, my = -100;
+    let rx = -100, ry = -100;
+    let raf;
+
+    const onMove = e => {
+      mx = e.clientX; my = e.clientY;
+      dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
+    };
+    const tick = () => {
+      rx += (mx - rx) * 0.18;
+      ry += (my - ry) * 0.18;
+      ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+      raf = requestAnimationFrame(tick);
+    };
+
+    const findInteractive = (el) => {
+      while (el && el !== document.body) {
+        if (el.matches && el.matches('button, a, input, [role="button"], .cursor-grow')) return 'btn';
+        if (el.matches && el.matches('img, .cursor-img, .menu-img')) return 'img';
+        el = el.parentElement;
+      }
+      return null;
+    };
+
+    const onOver = e => {
+      const kind = findInteractive(e.target);
+      ring.classList.toggle('is-active', kind === 'btn');
+      ring.classList.toggle('is-img',    kind === 'img');
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseover', onOver);
+    raf = requestAnimationFrame(tick);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseover', onOver);
+      document.body.classList.remove('has-cursor');
+      dot.remove(); ring.remove();
+    };
+  }, []);
+  return null;
+}
+
+/* ============================================================================
+   SCROLL PROGRESS BAR
+============================================================================ */
+function ScrollProgress() {
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setW(max > 0 ? (window.scrollY / max) * 100 : 0);
+    };
+    window.addEventListener('scroll', onScroll, { passive:true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return <div className="scroll-progress" style={{ width: w + '%' }}/>;
+}
+
+/* ============================================================================
+   CANVAS PARTICLE NETWORK — interactive, performant
+============================================================================ */
+function ParticleCanvas() {
+  const ref = useRef();
+  useEffect(() => {
+    const canvas = ref.current; if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let particles = [], mouse = { x: -1000, y: -1000 }, raf;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    const resize = () => {
+      const w = canvas.offsetWidth, h = canvas.offsetHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr, dpr);
+      const count = Math.min(75, Math.floor((w * h) / 16000));
+      particles = Array.from({ length: count }, () => ({
+        x: Math.random() * w, y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        r: 1 + Math.random() * 2.4,
+      }));
+    };
+
+    const onMove = e => {
+      const r = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - r.left;
+      mouse.y = e.clientY - r.top;
+    };
+    const onLeave = () => { mouse.x = -1000; mouse.y = -1000; };
+
+    const draw = () => {
+      const w = canvas.offsetWidth, h = canvas.offsetHeight;
+      ctx.clearRect(0, 0, w, h);
+
+      particles.forEach(p => {
+        const dx = p.x - mouse.x, dy = p.y - mouse.y;
+        const d2 = dx*dx + dy*dy;
+        if (d2 < 140*140) {
+          const dist = Math.sqrt(d2) || 1;
+          const force = (140 - dist) / 140 * 1.4;
+          p.x += (dx / dist) * force;
+          p.y += (dy / dist) * force;
+        }
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0)   { p.x = 0;   p.vx *= -1; }
+        if (p.x > w)   { p.x = w;   p.vx *= -1; }
+        if (p.y < 0)   { p.y = 0;   p.vy *= -1; }
+        if (p.y > h)   { p.y = h;   p.vy *= -1; }
+      });
+
+      /* connections */
+      ctx.lineWidth = 1;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const a = particles[i], b = particles[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d2 = dx*dx + dy*dy;
+          if (d2 < 130*130) {
+            const dist = Math.sqrt(d2);
+            const alpha = (1 - dist / 130) * 0.28;
+            ctx.strokeStyle = `rgba(249, 115, 22, ${alpha})`;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      /* particles */
+      particles.forEach(p => {
+        const dx = p.x - mouse.x, dy = p.y - mouse.y;
+        const d2 = dx*dx + dy*dy;
+        const near = d2 < 140*140;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r + (near ? 1 : 0), 0, Math.PI * 2);
+        ctx.fillStyle = near ? 'rgba(236,72,153,0.85)' : 'rgba(249,115,22,0.65)';
+        ctx.fill();
+      });
+
+      raf = requestAnimationFrame(draw);
+    };
+
+    resize();
+    window.addEventListener('resize', resize);
+    canvas.addEventListener('mousemove', onMove);
+    canvas.addEventListener('mouseleave', onLeave);
+    raf = requestAnimationFrame(draw);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+      canvas.removeEventListener('mousemove', onMove);
+      canvas.removeEventListener('mouseleave', onLeave);
+    };
+  }, []);
+  return <canvas ref={ref} className="absolute inset-0 w-full h-full" />;
+}
+
+/* ============================================================================
+   LIVE ORDER TRACKER — floating widget with simulated ETA
+============================================================================ */
+function LiveOrderTracker({ visible }) {
+  const { orders } = useOrders();
+  const [show, setShow] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+
+  /* Find most recent active customer order (status not delivered) */
+  const order = useMemo(() => {
+    const active = orders.filter(o => o.status !== 'delivered');
+    if (active.length === 0) return orders[0];
+    return active.sort((a,b) => b.createdAt - a.createdAt)[0];
+  }, [orders]);
+
+  useEffect(() => {
+    if (!visible) { setShow(false); return; }
+    const t = setTimeout(() => setShow(true), 1500);
+    return () => clearTimeout(t);
+  }, [visible]);
+
+  if (!visible || !order) return null;
+
+  const stepNum = ORDER_STATES[order.status]?.step || 1;
+  const progress = (stepNum / 6) * 100;
+  const stateLabel = ORDER_STATES[order.status]?.label || '';
+  const courierName = order.courierName ? order.courierName.split(' ')[0] : 'En attente livreur';
+
+  return (
+    <div className={`live-tracker ${show ? 'show' : ''}`}>
+      {collapsed ? (
+        <button onClick={() => setCollapsed(false)}
+          className="cursor-grow w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-500 to-pink-500 text-white shadow-glow grid place-items-center hover:scale-105 transition-transform">
+          <div className="relative">
+            <I.Bike size={22}/>
+            <span className="absolute -top-2 -right-2 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white animate-pulse"></span>
+          </div>
+        </button>
+      ) : (
+        <div className="rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-cardhover overflow-hidden grad-border">
+          <div className="px-4 pt-3 pb-2 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> En direct
+            </div>
+            <button onClick={() => setCollapsed(true)} className="w-7 h-7 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 grid place-items-center">
+              <I.X size={14}/>
+            </button>
+          </div>
+          <div className="px-4 pb-4">
+            <div className="flex items-center gap-3">
+              <span className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-pink-500 text-white grid place-items-center shrink-0">
+                <I.Bike size={18}/>
+                <span className="pulse-ring rounded-xl"></span>
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="font-bold text-sm truncate">{courierName} · {stateLabel}</div>
+                <div className="text-xs text-ink-500 truncate">#{order.id} · {order.restaurantName}</div>
+              </div>
+              <div className="text-right">
+                <div className="font-display font-extrabold text-lg leading-none text-gradient">{order.eta}<span className="text-xs">min</span></div>
+              </div>
+            </div>
+            <div className="mt-3 h-1.5 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-brand-500 via-pink-500 to-emerald-500 transition-all duration-1000" style={{ width: progress + '%' }}></div>
+            </div>
+            <div className="mt-3 grid grid-cols-6 text-[9px] font-semibold gap-1">
+              {Object.entries(ORDER_STATES).map(([key, st]) => (
+                <Step key={key} active={stepNum >= st.step} label={st.label.split(' ')[0]}/>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Step({ active, label }) {
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <span className={`w-2 h-2 rounded-full transition-colors ${active ? 'bg-emerald-500' : 'bg-ink-300 dark:bg-ink-700'}`}></span>
+      <span className={active ? 'text-emerald-600 dark:text-emerald-400' : 'text-ink-400'}>{label}</span>
+    </div>
+  );
+}
+
+/* ============================================================================
+   FLY TO CART — clones image and animates to cart icon
+============================================================================ */
+function flyToCart(sourceEl, targetEl, imgSrc) {
+  const sRect = sourceEl.getBoundingClientRect();
+  const tRect = targetEl.getBoundingClientRect();
+  const startSize = Math.min(sRect.width, 80);
+  const clone = document.createElement('div');
+  clone.className = 'fly-clone';
+  clone.style.width = startSize + 'px';
+  clone.style.height = startSize + 'px';
+  clone.style.left = (sRect.left + sRect.width/2 - startSize/2) + 'px';
+  clone.style.top  = (sRect.top  + sRect.height/2 - startSize/2) + 'px';
+  clone.style.background = `url(${imgSrc}) center/cover`;
+  clone.style.boxShadow = '0 10px 30px rgba(249,115,22,.45)';
+  clone.style.transform = 'scale(1) rotate(0deg)';
+  document.body.appendChild(clone);
+
+  /* trigger transition */
+  requestAnimationFrame(() => {
+    const dx = (tRect.left + tRect.width/2)  - (sRect.left + sRect.width/2);
+    const dy = (tRect.top  + tRect.height/2) - (sRect.top  + sRect.height/2);
+    clone.style.transform = `translate(${dx}px, ${dy}px) scale(0.15) rotate(720deg)`;
+    clone.style.opacity = '0';
+  });
+
+  setTimeout(() => clone.remove(), 1100);
+}
+
+/* ============================================================================
+   NAVBAR
+============================================================================ */
+function Navbar({ dark, setDark, cartCount, cartShake, cartIconRef, onCart, onLogo, onHome, goto }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [proOpen, setProOpen] = useState(false);
+  const proRef = useRef();
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener('scroll', onScroll, { passive:true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  useEffect(() => {
+    const onClick = (e) => {
+      if (proRef.current && !proRef.current.contains(e.target)) setProOpen(false);
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, []);
+
+  return (
+    <header className={`fixed top-0 inset-x-0 z-40 transition-all duration-500 ${scrolled ? 'glass-strong shadow-soft' : 'bg-transparent'}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3">
+        <button onClick={onLogo} className="flex items-center gap-2 group cursor-grow">
+          <Logo />
+          <span className="font-display font-extrabold text-xl tracking-tight">YoHa</span>
+        </button>
+
+        <button onClick={onHome} className="hidden md:inline-flex ml-6 items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium hover:bg-ink-100 dark:hover:bg-ink-800 transition cursor-grow">
+          <I.Home size={18}/> Restaurants
+        </button>
+        <button className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium hover:bg-ink-100 dark:hover:bg-ink-800 transition cursor-grow">
+          <I.MapPin size={18}/> Campus & Hôpitaux
+        </button>
+
+        {/* Espace Pro dropdown */}
+        <div ref={proRef} className="hidden md:block relative">
+          <button onClick={() => setProOpen(o => !o)}
+            className="cursor-grow inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium hover:bg-ink-100 dark:hover:bg-ink-800 transition gradient-border">
+            <I.Sparkle size={16} className="text-brand-500"/> Espace Pro
+            <I.ArrowDown size={14} className={`transition-transform ${proOpen ? 'rotate-180' : ''}`}/>
+          </button>
+          {proOpen && (
+            <div className="absolute top-full mt-2 right-0 w-72 rounded-2xl glass-strong shadow-cardhover border border-ink-200/60 dark:border-ink-800 p-2 animate-scale-in origin-top-right z-50">
+              <DashLink icon={<I.Sparkle size={18}/>}  title="Admin / Manager"   sub="Stats, revenus, vue globale" color="from-brand-500 to-pink-500"   onClick={() => { setProOpen(false); goto('admin'); }}/>
+              <DashLink icon={<I.Bike size={18}/>}     title="Dashboard Livreur" sub="Commandes, pickup, GPS"     color="from-violet-500 to-fuchsia-500" onClick={() => { setProOpen(false); goto('delivery'); }}/>
+              <DashLink icon={<I.Chef size={18}/>}     title="Dashboard Resto"   sub="Commandes, menu, statuts"   color="from-sky-500 to-indigo-500"     onClick={() => { setProOpen(false); goto('restaurant-dash'); }}/>
+            </div>
+          )}
+        </div>
+
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={() => setDark(d => !d)}
+            aria-label="Changer le thème"
+            className="cursor-grow relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-ink-100 dark:hover:bg-ink-800 transition group"
+          >
+            <span className={`absolute transition-all duration-500 ${dark ? 'opacity-0 -rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'}`}>
+              <I.Sun size={20}/>
+            </span>
+            <span className={`absolute transition-all duration-500 ${dark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-50'}`}>
+              <I.Moon size={20}/>
+            </span>
+          </button>
+
+          <button ref={cartIconRef} onClick={onCart} className={`cursor-grow relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-ink-100 dark:hover:bg-ink-800 transition ${cartShake ? 'cart-shake' : ''}`}>
+            <I.Cart size={20}/>
+            {cartCount > 0 && (
+              <span key={cartCount} className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white grid place-items-center animate-pop shadow-glow">
+                {cartCount}
+              </span>
+            )}
+          </button>
+
+          <Magnetic>
+            <button className="cursor-grow hidden md:inline-flex items-center gap-2 ml-1 px-4 py-2 rounded-xl text-sm font-semibold bg-ink-900 text-white dark:bg-white dark:text-ink-900 hover:opacity-90 transition btn-shine">
+              <I.User size={16}/> Connexion
+            </button>
+          </Magnetic>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function Logo() {
+  return (
+    <span className="relative w-9 h-9 rounded-2xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 grid place-items-center shadow-glow group-hover:scale-110 transition-transform">
+      <span className="font-display font-extrabold text-white text-lg leading-none">Y</span>
+      <span className="absolute -inset-0.5 rounded-2xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 opacity-50 blur-md -z-10"></span>
+    </span>
+  );
+}
+
+/* ============================================================================
+   LANDING
+============================================================================ */
+function Landing({ onStart }) {
+  return (
+    <div className="page-enter">
+      <Hero onStart={onStart} />
+      <PartnersMarquee />
+      <StatsSection />
+      <Carousel3DSection />
+      <FeaturesSection />
+      <HowItWorksSection />
+      <ShowcaseSection />
+      <TestimonialsSection />
+      <PromoStrip />
+      <FinalCTA onStart={onStart} />
+    </div>
+  );
+}
+
+/* === HERO === */
+function Hero({ onStart }) {
+  const slogans = [
+    'Livraison intelligente',
+    'pour Universités & Hôpitaux',
+    'Pensé pour la vie de campus',
+    'Plus rapide que ta faim.',
+  ];
+  const [sloganIdx, setSloganIdx] = useState(0);
+  const [typed, setTyped] = useState('');
+
+  useEffect(() => {
+    let i = 0; let dir = 1; let t;
+    const target = slogans[sloganIdx];
+    const tick = () => {
+      i += dir; setTyped(target.slice(0, i));
+      if (i === target.length && dir === 1) { t = setTimeout(() => { dir = -1; tick(); }, 1600); }
+      else if (i === 0 && dir === -1)       { setSloganIdx(s => (s + 1) % slogans.length); }
+      else                                   { t = setTimeout(tick, dir === 1 ? 65 : 30); }
+    };
+    tick();
+    return () => clearTimeout(t);
+  }, [sloganIdx]);
+
+  /* spotlight follows cursor */
+  const heroRef = useRef();
+  /* parallax on text */
+  const textRef = useRef();
+  useEffect(() => {
+    const el = heroRef.current; if (!el) return;
+    const onMove = e => {
+      const r = el.getBoundingClientRect();
+      const xPct = (e.clientX - r.left) / r.width;
+      const yPct = (e.clientY - r.top ) / r.height;
+      el.style.setProperty('--mx', (xPct * 100) + '%');
+      el.style.setProperty('--my', (yPct * 100) + '%');
+      if (textRef.current) {
+        const tx = (xPct - 0.5) * 14;
+        const ty = (yPct - 0.5) * 14;
+        textRef.current.style.transform = `translate(${tx}px, ${ty}px)`;
+      }
+    };
+    el.addEventListener('mousemove', onMove);
+    return () => el.removeEventListener('mousemove', onMove);
+  }, []);
+
+  return (
+    <section ref={heroRef} className="relative overflow-hidden hero-spot">
+      {/* Animated blobs */}
+      <div aria-hidden className="absolute inset-0 -z-10">
+        <div className="absolute top-[-10%] left-[-10%] w-[42rem] h-[42rem] rounded-full bg-brand-400/40 blur-3xl animate-blob"></div>
+        <div className="absolute top-[10%] right-[-15%] w-[36rem] h-[36rem] rounded-full bg-fuchsia-400/40 blur-3xl animate-blob" style={{ animationDelay:'4s' }}></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-[44rem] h-[44rem] rounded-full bg-violet-400/30 blur-3xl animate-blob" style={{ animationDelay:'8s' }}></div>
+        <div className="absolute inset-0 mesh-bg opacity-70"></div>
+        <div className="absolute inset-0 grid-bg"></div>
+      </div>
+
+      {/* Canvas particle network — overlays everything but pointer-events allowed */}
+      <div className="absolute inset-0 -z-[5] pointer-events-none">
+        <div className="absolute inset-0 pointer-events-auto">
+          <ParticleCanvas />
+        </div>
+      </div>
+
+      {/* Floating emoji decorations */}
+      <span className="emoji-deco hidden md:block" style={{ top:'18%', left:'8%',  animationDelay:'0s'   }}>🍕</span>
+      <span className="emoji-deco hidden md:block" style={{ top:'38%', left:'4%',  animationDelay:'1.5s' }}>🥗</span>
+      <span className="emoji-deco hidden md:block" style={{ top:'68%', left:'12%', animationDelay:'3s'   }}>🍣</span>
+      <span className="emoji-deco hidden lg:block" style={{ top:'26%', right:'4%', animationDelay:'2s'   }}>🥤</span>
+      <span className="emoji-deco hidden lg:block" style={{ top:'72%', right:'8%', animationDelay:'.5s'  }}>🍔</span>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-28 grid lg:grid-cols-2 gap-12 items-center">
+        {/* LEFT */}
+        <div ref={textRef} className="relative z-10 transition-transform duration-300 ease-out" style={{ pointerEvents:'auto' }}>
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-xs font-semibold tracking-wider uppercase animate-fade-up">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+            </span>
+            En direct sur les campus & hôpitaux
+          </span>
+
+          <h1 className="mt-6 font-display font-black tracking-tight text-5xl sm:text-6xl lg:text-7xl leading-[0.95]">
+            <AnimatedHeading text="YoHa." gradient />
+            <span className="block mt-3 text-ink-900 dark:text-ink-50">
+              {typed}<span className="caret align-baseline" style={{ height:'0.85em' }}></span>
+            </span>
+          </h1>
+
+          <p className="mt-6 max-w-xl text-lg text-ink-600 dark:text-ink-300 leading-relaxed animate-fade-up" style={{ animationDelay:'600ms' }}>
+            Commandez auprès de vos cuisines préférées et faites-vous livrer directement à votre chambre, à l'aile hospitalière ou à la BU — en moins de 20 minutes. Aucun détour.
+          </p>
+
+          <div className="mt-8 flex flex-wrap items-center gap-3 animate-fade-up" style={{ animationDelay:'750ms' }}>
+            <Magnetic strength={20}>
+              <Button onClick={onStart} variant="primary" size="lg">
+                Commander maintenant <I.Right size={18}/>
+              </Button>
+            </Magnetic>
+            <Button variant="ghost" size="lg">
+              <I.Bike size={18}/> Comment ça marche
+            </Button>
+          </div>
+
+          <div className="mt-10 flex items-center gap-6 animate-fade-up" style={{ animationDelay:'900ms' }}>
+            <div className="flex -space-x-2">
+              {[1,2,3,4].map(i => (
+                <img key={i} src={`https://i.pravatar.cc/64?img=${i+10}`} alt=""
+                  className="w-9 h-9 rounded-full border-2 border-white dark:border-ink-900 object-cover" />
+              ))}
+            </div>
+            <div className="text-sm">
+              <div className="flex items-center gap-1 text-amber-500">
+                {[1,2,3,4,5].map(i => <I.Star key={i} size={14} stroke={2.4} className="fill-amber-400" />)}
+                <span className="ml-1 font-semibold text-ink-900 dark:text-ink-50">4,9</span>
+              </div>
+              <div className="text-ink-500 dark:text-ink-400">Adoré par 12 000+ étudiants & soignants</div>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT — Bento layout */}
+        <div className="relative">
+          <BentoHero />
+        </div>
+      </div>
+
+      {/* Scroll cue */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 text-ink-400 animate-pulse-slow">
+        <span className="text-xs uppercase tracking-widest">Défiler</span>
+        <I.ArrowDown size={18}/>
+      </div>
+    </section>
+  );
+}
+
+/* === Animated heading — char-by-char reveal === */
+function AnimatedHeading({ text, gradient }) {
+  const chars = text.split('');
+  return (
+    <span className={`block ${gradient ? 'text-gradient' : ''}`}>
+      <span className="word-anim">
+        {chars.map((c, i) => (
+          <span key={i} className="animate-char-up" style={{ animationDelay: (i * 70) + 'ms' }}>
+            {c === ' ' ? ' ' : c}
+          </span>
+        ))}
+      </span>
+    </span>
+  );
+}
+
+/* === Bento layout for hero right === */
+function BentoHero() {
+  return (
+    <div className="grid grid-cols-6 grid-rows-6 gap-3 h-[520px] sm:h-[600px] lg:h-[640px]">
+      <Tilt className="col-span-4 row-span-3">
+        <div className="cursor-grow group relative h-full rounded-3xl overflow-hidden shadow-cardhover spotlight"
+          onMouseMove={spotlightHandler}>
+          <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=900&q=80&auto=format&fit=crop"
+            alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/30 to-transparent"></div>
+          <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/95 text-ink-900 shadow flex items-center gap-1">
+            <I.Flame size={12} className="text-brand-500"/> Tendance
+          </div>
+          <div className="absolute bottom-4 left-4 right-4 text-white">
+            <div className="font-display font-extrabold text-2xl">Pizza Palace</div>
+            <div className="text-sm opacity-90 flex items-center gap-2 mt-0.5">
+              <I.Star size={12} className="fill-amber-400 text-amber-400"/> 4,8 · <I.Clock size={12}/> 15-25 min
+            </div>
+          </div>
+        </div>
+      </Tilt>
+
+      <Tilt className="col-span-2 row-span-3" max={5}>
+        <div className="relative h-full rounded-3xl bg-gradient-to-br from-ink-900 to-black p-4 text-white overflow-hidden shadow-cardhover">
+          <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-brand-500/40 blur-2xl"></div>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider opacity-80">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> En direct
+          </div>
+          <div className="mt-2 font-display font-bold text-lg">Suivi livraison</div>
+          <LiveTrackMini />
+          <div className="absolute bottom-3 left-4 right-4">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="w-7 h-7 rounded-full bg-white/15 grid place-items-center"><I.Bike size={14}/></span>
+              <div>
+                <div className="font-semibold leading-tight">Yacine, livreur</div>
+                <div className="text-[10px] opacity-70">Arrivée dans 4 min</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Tilt>
+
+      <Tilt className="col-span-3 row-span-2">
+        <div className="h-full rounded-3xl glass-strong p-4 shadow-cardhover">
+          <div className="text-xs font-semibold text-ink-500 uppercase tracking-wider">Communauté</div>
+          <div className="mt-2 font-display font-black text-3xl sm:text-4xl text-gradient">12 000+</div>
+          <div className="text-sm text-ink-600 dark:text-ink-300">étudiants & soignants</div>
+          <div className="mt-3 flex -space-x-2">
+            {[5,16,18,22,33].map(i => (
+              <img key={i} src={`https://i.pravatar.cc/48?img=${i}`} alt=""
+                className="w-7 h-7 rounded-full border-2 border-white dark:border-ink-900 object-cover"/>
+            ))}
+          </div>
+        </div>
+      </Tilt>
+
+      <Tilt className="col-span-3 row-span-2">
+        <div className="relative h-full rounded-3xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 p-4 text-white shadow-glow overflow-hidden">
+          <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-white/15 blur-2xl"></div>
+          <div className="text-xs font-semibold uppercase tracking-wider opacity-80">Livraison moyenne</div>
+          <div className="mt-2 font-display font-black text-5xl">18<span className="text-2xl">min</span></div>
+          <div className="text-sm opacity-90">⚡ Du clic à la fourchette</div>
+        </div>
+      </Tilt>
+
+      <Tilt className="col-span-3 row-span-1">
+        <div className="h-full rounded-3xl bg-emerald-500/10 border border-emerald-500/30 px-4 flex items-center gap-3">
+          <span className="w-9 h-9 rounded-xl bg-emerald-500 text-white grid place-items-center"><I.Bike size={18}/></span>
+          <div className="text-sm">
+            <div className="font-bold">Livraison offerte</div>
+            <div className="text-ink-500 dark:text-ink-400 text-xs">Sur tout le campus</div>
+          </div>
+        </div>
+      </Tilt>
+
+      <Tilt className="col-span-3 row-span-1">
+        <div className="h-full rounded-3xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 px-4 flex items-center gap-3 shadow-card">
+          <span className="w-9 h-9 rounded-xl bg-amber-400 text-white grid place-items-center"><I.Star size={18} className="fill-current"/></span>
+          <div className="text-sm">
+            <div className="font-bold">4,9 / 5</div>
+            <div className="text-ink-500 dark:text-ink-400 text-xs">Basé sur 5 800+ avis</div>
+          </div>
+        </div>
+      </Tilt>
+    </div>
+  );
+}
+
+/* spotlight handler — sets CSS vars for radial gradient */
+function spotlightHandler(e) {
+  const r = e.currentTarget.getBoundingClientRect();
+  e.currentTarget.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+  e.currentTarget.style.setProperty('--my', (e.clientY - r.top ) + 'px');
+}
+
+/* Live track mini SVG */
+function LiveTrackMini() {
+  return (
+    <svg viewBox="0 0 200 100" className="absolute inset-x-0 top-12 w-full h-24" fill="none">
+      <defs>
+        <linearGradient id="track" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#f97316"/>
+          <stop offset="100%" stopColor="#ec4899"/>
+        </linearGradient>
+      </defs>
+      <path d="M 10 60 Q 60 10, 110 50 T 195 30" stroke="rgba(255,255,255,.15)" strokeWidth="3" strokeLinecap="round" strokeDasharray="4 4"/>
+      <path d="M 10 60 Q 60 10, 110 50 T 195 30" stroke="url(#track)" strokeWidth="3" strokeLinecap="round" pathLength="100"
+        style={{ strokeDasharray:'100', strokeDashoffset:'40', animation:'shimmer 3s linear infinite' }}/>
+      <circle cx="10" cy="60" r="4" fill="#fff"/>
+      <circle cx="195" cy="30" r="4" fill="#10b981"/>
+      <g style={{ offsetPath:"path('M 10 60 Q 60 10, 110 50 T 195 30')", animation:'bike-go 4s ease-in-out infinite alternate' }}>
+        <circle r="9" fill="#f97316"/>
+        <circle r="9" fill="none" stroke="#fff" strokeWidth="2"/>
+        <text x="0" y="3" textAnchor="middle" fontSize="10">🛵</text>
+      </g>
+    </svg>
+  );
+}
+
+/* === Marquee === */
+function PartnersMarquee() {
+  const items = [
+    '🎓 Université de Casablanca',
+    '🏥 CHU Ibn Rochd',
+    '🎓 Campus EMSI',
+    '🏥 Polyclinique Atlas',
+    '🎓 Université Mohammed V',
+    '🏥 Hôpital Cheikh Khalifa',
+    '🎓 ENCG',
+    '🏥 Hôpital 20 Août',
+  ];
+  return (
+    <section className="border-y border-ink-200/60 dark:border-ink-800/60 py-6 overflow-hidden bg-white/40 dark:bg-ink-900/40 backdrop-blur">
+      <div className="marquee gap-12 text-2xl sm:text-3xl font-display font-bold tracking-tight text-ink-400/70 dark:text-ink-500/70">
+        {[...Array(2)].map((_, k) => (
+          <Fragment key={k}>
+            {items.map(it => <span key={it+k}>{it}</span>)}
+          </Fragment>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* === Stats === */
+function StatsSection() {
+  const stats = [
+    { num: 12000, suffix:'+',     label:'Étudiants & soignants', color:'text-brand-600' },
+    { num: 50,    suffix:'+',     label:'Restaurants partenaires', color:'text-pink-600' },
+    { num: 18,    suffix:' min',  label:'Livraison moyenne',     color:'text-violet-600' },
+    { num: 4.9,   suffix:' / 5',  label:'Note communauté',       color:'text-amber-500', decimals:1 },
+  ];
+  return (
+    <section className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {stats.map((s, i) => (
+          <Reveal key={i} delay={i*100}>
+            <div className="relative p-6 sm:p-8 rounded-3xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card overflow-hidden group spotlight"
+              onMouseMove={spotlightHandler}>
+              <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br from-brand-400 to-pink-400 opacity-10 group-hover:opacity-25 transition-opacity blur-2xl"></div>
+              <div className={`relative z-10 font-display font-black text-4xl sm:text-5xl ${s.color}`}>
+                <Counter to={s.num} decimals={s.decimals||0} suffix={s.suffix}/>
+              </div>
+              <div className="relative z-10 mt-2 text-sm text-ink-500 dark:text-ink-400 font-medium">{s.label}</div>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* === 3D AUTO-ROTATING CAROUSEL === */
+function Carousel3DSection() {
+  const items = RESTAURANTS;
+  const radius = 360;
+  const angleStep = 360 / items.length;
+
+  return (
+    <section className="relative overflow-hidden py-16 sm:py-24">
+      <div className="absolute inset-0 -z-10 mesh-conic opacity-50"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center mb-10">
+        <span className="text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">À découvrir</span>
+        <h2 className="mt-3 font-display font-extrabold text-4xl sm:text-5xl tracking-tight">
+          Un univers culinaire <span className="text-gradient">à 360°</span>
+        </h2>
+        <p className="mt-3 text-ink-500 dark:text-ink-400">Survolez pour mettre en pause · faites le tour de votre prochain repas.</p>
+      </div>
+
+      <div className="carousel-3d relative h-[420px]">
+        <div className="carousel-3d-inner">
+          {items.map((r, i) => {
+            const angle = i * angleStep;
+            return (
+              <div key={r.id} className="carousel-3d-card cursor-grow"
+                style={{ transform: `rotateY(${angle}deg) translateZ(${radius}px)` }}>
+                <div className="relative w-full h-full overflow-hidden rounded-3xl">
+                  <img src={r.cover} alt={r.name} className="absolute inset-0 w-full h-full object-cover"/>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"></div>
+                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/95 text-ink-900 shadow flex items-center gap-1">
+                    <I.Star size={11} className="fill-amber-400 text-amber-400"/> {r.rating.toString().replace('.', ',')}
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <div className="text-[10px] uppercase tracking-wider opacity-70">{r.tags[0]}</div>
+                    <div className="font-display font-extrabold text-xl mt-0.5">{r.name}</div>
+                    <div className="text-xs opacity-80 mt-1 flex items-center gap-1.5"><I.Clock size={11}/> {r.eta}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* === Features === */
+function FeaturesSection() {
+  return (
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
+      <div className="max-w-2xl">
+        <span className="text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">Pourquoi YoHa</span>
+        <h2 className="mt-3 font-display font-extrabold text-4xl sm:text-5xl tracking-tight">
+          Pensé pour le <span className="text-gradient">rythme du campus.</span>
+        </h2>
+        <p className="mt-4 text-lg text-ink-600 dark:text-ink-300">
+          Conçu avec des étudiants et des soignants — rapide, calme et ridiculement simple à utiliser.
+        </p>
+      </div>
+
+      <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {FEATURES.map((f, i) => (
+          <Reveal key={f.title} delay={i*80}>
+            <Tilt max={8}>
+              <div className="group relative h-full p-6 rounded-3xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card hover:shadow-cardhover overflow-hidden spotlight"
+                onMouseMove={spotlightHandler}>
+                <div className={`absolute -inset-1 bg-gradient-to-br ${f.from} ${f.to} opacity-0 group-hover:opacity-10 transition-opacity blur-2xl`}></div>
+                <div className={`relative w-12 h-12 rounded-2xl bg-gradient-to-br ${f.from} ${f.to} text-white grid place-items-center shadow-md group-hover:scale-110 transition-transform`}>
+                  {f.icon}
+                </div>
+                <h3 className="relative mt-5 font-display font-bold text-xl">{f.title}</h3>
+                <p className="relative mt-2 text-ink-600 dark:text-ink-400 text-sm leading-relaxed">{f.desc}</p>
+              </div>
+            </Tilt>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* === How It Works === */
+function HowItWorksSection() {
+  return (
+    <section className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20">
+      <div className="text-center max-w-2xl mx-auto">
+        <span className="text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">Comment ça marche</span>
+        <h2 className="mt-3 font-display font-extrabold text-4xl sm:text-5xl tracking-tight">
+          3 étapes. <span className="text-gradient">Zéro friction.</span>
+        </h2>
+      </div>
+
+      <div className="relative mt-14 grid md:grid-cols-3 gap-6">
+        <div aria-hidden className="hidden md:block absolute top-12 left-[16%] right-[16%] border-t-2 border-dashed border-ink-300 dark:border-ink-700"></div>
+
+        {HOW_STEPS.map((s, i) => (
+          <Reveal key={s.num} delay={i*150}>
+            <div className="relative group">
+              <div className={`relative w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br ${s.color} text-white grid place-items-center shadow-glow group-hover:scale-110 transition-transform`}>
+                <span className="absolute font-display font-black text-3xl opacity-25 -top-1 -right-2">{s.num}</span>
+                {s.icon}
+                <span className="pulse-ring rounded-3xl"></span>
+              </div>
+              <div className="mt-6 text-center">
+                <div className="font-display font-bold text-xl">{s.title}</div>
+                <p className="mt-2 text-ink-600 dark:text-ink-400 text-sm max-w-xs mx-auto">{s.desc}</p>
+              </div>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* === Showcase === */
+function ShowcaseSection() {
+  return (
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
+      <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <Reveal>
+          <div className="relative">
+            <div aria-hidden className="absolute -inset-10 mesh-conic opacity-50"></div>
+            <PhoneMockup />
+          </div>
+        </Reveal>
+
+        <Reveal delay={120}>
+          <div>
+            <span className="text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">Sur tous vos écrans</span>
+            <h2 className="mt-3 font-display font-extrabold text-4xl sm:text-5xl tracking-tight">
+              Une expérience <span className="text-gradient">si fluide</span> que vous oublierez de respirer.
+            </h2>
+            <p className="mt-5 text-lg text-ink-600 dark:text-ink-300 max-w-lg">
+              Animations 60 fps, dark mode soigné, suivi temps réel, paiement en un tap. Tout est calibré pour faire du bien aux yeux et au temps.
+            </p>
+            <ul className="mt-6 space-y-3">
+              {[
+                ['Suivi en direct du livreur, étape par étape', 'sky'],
+                ['Mode hors-ligne intelligent — votre dernière commande revient en 1 tap', 'pink'],
+                ['Recommandations IA selon vos cours et vos gardes', 'violet'],
+                ['Paiement sécurisé local + cash à la livraison', 'emerald'],
+              ].map(([t, c]) => (
+                <li key={t} className="flex items-start gap-3">
+                  <span className={`mt-0.5 w-6 h-6 rounded-full bg-${c}-500/15 text-${c}-600 grid place-items-center shrink-0`}>
+                    <I.Check size={14} stroke={3}/>
+                  </span>
+                  <span className="text-ink-700 dark:text-ink-200">{t}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function PhoneMockup() {
+  return (
+    <div className="relative mx-auto w-[280px] sm:w-[320px] aspect-[9/19] rounded-[3rem] bg-ink-900 dark:bg-black p-3 shadow-cardhover animate-float-slow">
+      <div className="absolute inset-x-0 -top-4 mx-auto w-32 h-7 rounded-b-2xl bg-ink-900 dark:bg-black z-10"></div>
+      <div className="relative h-full w-full rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-brand-50 to-pink-50 dark:from-ink-900 dark:to-ink-950">
+        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80&auto=format&fit=crop"
+          alt="" className="absolute inset-0 w-full h-full object-cover opacity-90"/>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+
+        <div className="absolute top-12 left-4 right-4">
+          <div className="glass-strong rounded-2xl p-3 flex items-center gap-2">
+            <I.Search size={16}/>
+            <span className="text-xs font-semibold">Que mangez-vous ?</span>
+          </div>
+        </div>
+
+        <div className="absolute bottom-20 left-4 right-4 glass-strong rounded-2xl p-3">
+          <div className="text-xs font-semibold text-ink-500 dark:text-ink-400">Recommandé pour vous</div>
+          <div className="mt-2 flex items-center gap-2">
+            <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=100&q=80&auto=format&fit=crop" className="w-12 h-12 rounded-xl object-cover"/>
+            <div>
+              <div className="font-bold text-sm">Margherita</div>
+              <div className="text-xs text-ink-500">8,90 € · 14 min</div>
+            </div>
+            <button className="ml-auto w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-pink-500 text-white grid place-items-center shadow-glow">
+              <I.Plus size={14} stroke={3}/>
+            </button>
+          </div>
+        </div>
+
+        <div className="absolute bottom-3 inset-x-3 bg-gradient-to-r from-brand-500 to-pink-500 text-white rounded-2xl p-3 flex items-center justify-between shadow-glow">
+          <span className="font-bold text-sm flex items-center gap-2"><I.Bag size={16}/> 3 articles</span>
+          <span className="font-bold text-sm">24,30 €</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* === Testimonials === */
+function TestimonialsSection() {
+  return (
+    <section className="relative py-20 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-end justify-between flex-wrap gap-4">
+          <div className="max-w-2xl">
+            <span className="text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">Ils en parlent</span>
+            <h2 className="mt-3 font-display font-extrabold text-4xl sm:text-5xl tracking-tight">
+              Adoré sur les <span className="text-gradient">campus & dans les couloirs.</span>
+            </h2>
+          </div>
+        </div>
+
+        <div className="mt-10 testi-track flex gap-5 overflow-x-auto no-scrollbar -mx-4 sm:mx-0 px-4 sm:px-0 pb-4">
+          {TESTIMONIALS.map((t, i) => (
+            <div key={i} className="cursor-grow shrink-0 w-[85%] sm:w-[420px] rounded-3xl p-6 bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card hover:shadow-cardhover transition-shadow lift-on-hover relative overflow-hidden spotlight"
+              onMouseMove={spotlightHandler}>
+              <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br ${t.color} opacity-15 blur-2xl`}></div>
+              <div className="text-5xl text-ink-200 dark:text-ink-700 leading-none">"</div>
+              <p className="mt-2 text-ink-700 dark:text-ink-200 leading-relaxed">{t.text}</p>
+              <div className="mt-5 flex items-center gap-3">
+                <img src={t.avatar} alt="" className="w-11 h-11 rounded-full object-cover"/>
+                <div>
+                  <div className="font-bold text-sm">{t.name}</div>
+                  <div className="flex items-center gap-0.5 text-amber-500">
+                    {[...Array(t.rating)].map((_,j) => <I.Star key={j} size={12} className="fill-amber-400" stroke={2.5}/>)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* === Promo Strip === */
+function PromoStrip() {
+  return (
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-20">
+      <div className="grid lg:grid-cols-3 gap-5">
+        <Reveal>
+          <PromoCard
+            title="🎓 Vibes étudiantes"
+            desc="Pâtes nocturnes, fuel-révision, bowls de groupe d'étude. -10% avec votre email universitaire."
+            cta="Activer le tarif étudiant"
+            gradient="from-violet-500 via-fuchsia-500 to-pink-500"
+          />
+        </Reveal>
+        <Reveal delay={120}>
+          <PromoCard
+            title="🏥 Partenaire hôpital"
+            desc="Repas adaptés, validés par des nutritionnistes cliniques, livrés en chambre et en salle de repos."
+            cta="Découvrir MedEat"
+            gradient="from-sky-500 via-blue-500 to-indigo-600"
+          />
+        </Reveal>
+        <Reveal delay={240}>
+          <PromoCard
+            title="⚡ 18 min en moyenne"
+            desc="Suivi temps réel, livreurs piétons et files dédiées en cuisine pour les commandes campus."
+            cta="Voir la carte en direct"
+            gradient="from-amber-500 via-orange-500 to-rose-500"
+          />
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function PromoCard({ title, desc, cta, gradient }) {
+  return (
+    <Tilt max={6}>
+      <div className={`relative h-full overflow-hidden rounded-3xl bg-gradient-to-br ${gradient} p-7 text-white shadow-cardhover`}>
+        <div aria-hidden className="absolute inset-0 opacity-30 mix-blend-overlay"
+          style={{ background:'radial-gradient(circle at 80% 10%, white, transparent 50%)' }}></div>
+        <h3 className="font-display font-extrabold text-2xl">{title}</h3>
+        <p className="mt-2 text-white/85">{desc}</p>
+        <button className="cursor-grow relative mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 backdrop-blur font-semibold text-sm transition">
+          {cta} <I.Right size={16}/>
+        </button>
+      </div>
+    </Tilt>
+  );
+}
+
+/* === Final CTA === */
+function FinalCTA({ onStart }) {
+  return (
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-24">
+      <Reveal>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-ink-900 via-ink-800 to-ink-900 dark:from-black dark:via-ink-900 dark:to-black p-8 sm:p-14 text-white">
+          <div aria-hidden className="absolute -top-24 -right-24 w-[28rem] h-[28rem] rounded-full bg-brand-500/40 blur-3xl animate-pulse-slow"></div>
+          <div aria-hidden className="absolute -bottom-24 -left-24 w-[28rem] h-[28rem] rounded-full bg-fuchsia-500/40 blur-3xl animate-pulse-slow" style={{ animationDelay:'1s' }}></div>
+          <div className="absolute inset-0 grid-bg opacity-30"></div>
+          <div className="relative max-w-2xl">
+            <h3 className="font-display font-extrabold text-3xl sm:text-5xl tracking-tight">
+              Faim ? Votre chambre est à <span className="text-gradient">14 minutes</span> de quelque chose de génial.
+            </h3>
+            <p className="mt-4 text-white/70 text-lg">Aucune app à télécharger. Ouvrez YoHa et commandez.</p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Magnetic strength={20}>
+                <Button onClick={onStart} variant="primary" size="lg">Commander maintenant <I.Right size={18}/></Button>
+              </Magnetic>
+              <Button variant="glass" size="lg"><I.Headset size={18}/> Parler au support</Button>
+            </div>
+          </div>
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+function CampusHospitalsSection() {
+  return (
+    <section className="mt-8">
+      <Reveal>
+        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white via-orange-50 to-rose-50 dark:from-ink-900 dark:via-ink-900 dark:to-ink-950 text-ink-900 dark:text-white shadow-cardhover p-5 sm:p-7 border border-ink-200/70 dark:border-ink-800">
+          <div className="absolute inset-0 opacity-20 dark:opacity-10 grid-bg"></div>
+          <div aria-hidden className="absolute -top-24 -right-20 w-72 h-72 rounded-full bg-brand-400/25 dark:bg-brand-500/30 blur-3xl"></div>
+          <div aria-hidden className="absolute -bottom-24 -left-20 w-72 h-72 rounded-full bg-fuchsia-400/20 dark:bg-violet-500/25 blur-3xl"></div>
+
+          <div className="relative flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 dark:bg-white/15 backdrop-blur text-xs font-semibold border border-white/70 dark:border-white/15">
+                <I.MapPin size={14}/> Campus & Hôpitaux — Tanger
+              </div>
+              <h3 className="mt-3 font-display font-extrabold text-2xl sm:text-4xl tracking-tight">
+                Zones stratégiques <span className="text-gradient">couvertes 24/7</span>
+              </h3>
+              <p className="mt-2 text-sm sm:text-base text-ink-600 dark:text-white/80 max-w-2xl">
+                Commande rapide vers les hôpitaux universitaires, instituts de santé et résidences étudiantes.
+              </p>
+            </div>
+            <div className="shrink-0 rounded-2xl bg-white/85 dark:bg-white/10 px-4 py-3 backdrop-blur border border-white/80 dark:border-white/15">
+              <div className="text-[11px] uppercase tracking-wider text-ink-500 dark:text-white/70">Points couverts</div>
+              <div className="font-display font-black text-3xl leading-none">+{CAMPUS_HOSPITALS.length}</div>
+            </div>
+          </div>
+
+          <div className="relative mt-6 space-y-4">
+            {CAMPUS_HOSPITALS.map((place, idx) => (
+              <Reveal key={place.name} delay={idx * 90}>
+                <Tilt max={4}>
+                  <article className="group grid md:grid-cols-[280px_1fr] gap-0 rounded-2xl overflow-hidden border border-ink-200/80 dark:border-white/15 bg-white/90 dark:bg-white/10 backdrop-blur-sm hover:bg-white dark:hover:bg-white/15 transition-all">
+                    <div className="relative h-48 md:h-full overflow-hidden">
+                      <img
+                        src={place.img}
+                        alt={place.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-black/35 to-transparent md:bg-gradient-to-t md:from-black/30 md:to-transparent"></div>
+                    </div>
+                    <div className="p-5 sm:p-6 flex flex-col justify-center">
+                      <div className="inline-flex items-center gap-2 text-xs font-semibold text-brand-700 dark:text-brand-200 mb-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Disponible pour livraison
+                      </div>
+                      <h4 className="font-display font-bold text-xl sm:text-2xl leading-tight">{place.name}</h4>
+                      <p className="mt-2 text-ink-600 dark:text-white/80">{place.subtitle}</p>
+                      <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-ink-700 dark:text-white/90">
+                        <I.Bike size={16}/> Livraison prioritaire
+                      </div>
+                    </div>
+                  </article>
+                </Tilt>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+/* ============================================================================
+   HOME
+============================================================================ */
+function Home({ onPickRestaurant }) {
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    const t = setTimeout(() => setLoading(false), 600);
+    return () => clearTimeout(t);
+  }, [filter]);
+
+  const restaurants = useMemo(() => {
+    return RESTAURANTS.filter(r => {
+      const matchCuisine = filter === 'all' || r.cuisine === filter;
+      const matchSearch = !search ||
+        r.name.toLowerCase().includes(search.toLowerCase()) ||
+        r.tags.join(' ').toLowerCase().includes(search.toLowerCase());
+      return matchCuisine && matchSearch;
+    });
+  }, [search, filter]);
+
+  return (
+    <div className="page-enter max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <div className="flex flex-col gap-4">
+        <div className="flex items-start sm:items-center gap-3 flex-wrap">
+          <div>
+            <h1 className="font-display font-extrabold text-3xl sm:text-4xl tracking-tight">
+              Salut <span className="text-gradient">toi</span> 👋
+            </h1>
+            <div className="mt-1 flex items-center gap-1.5 text-sm text-ink-500 dark:text-ink-400">
+              <I.MapPin size={14}/> Livraison à <span className="font-semibold text-ink-700 dark:text-ink-200">Résidence Universitaire A — Chambre 312</span>
+            </div>
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <span className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Maintenant — 15-20 min
+            </span>
+          </div>
+        </div>
+
+        <SearchBar value={search} onChange={setSearch} />
+
+        <div className="-mx-4 sm:mx-0 px-4 sm:px-0 overflow-x-auto no-scrollbar pt-1">
+          <div className="flex gap-3 min-w-max sm:min-w-0 sm:grid sm:grid-cols-4 lg:grid-cols-8">
+            {CATEGORIES_BANNERS.map((c) => {
+              const active = filter === c.id;
+              return (
+                <button key={c.label} onClick={() => setFilter(active ? 'all' : c.id)}
+                  className={`cursor-grow group relative shrink-0 w-32 sm:w-auto h-24 rounded-2xl overflow-hidden text-left p-3 transition-all ${active ? 'ring-2 ring-brand-500 scale-[0.98]' : ''}`}>
+                  <div className={`absolute inset-0 bg-gradient-to-br ${c.gradient} opacity-90 group-hover:opacity-100 transition`}></div>
+                  <div className="relative text-white">
+                    <div className="text-2xl group-hover:scale-110 transition-transform">{c.emoji}</div>
+                    <div className="font-display font-bold text-sm mt-1">{c.label}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 sm:mx-0 px-4 sm:px-0 pt-1">
+          {CUISINES.map(c => {
+            const active = filter === c.id;
+            return (
+              <button key={c.id} onClick={() => setFilter(c.id)}
+                className={`cursor-grow shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${active
+                  ? 'bg-ink-900 text-white dark:bg-white dark:text-ink-900 shadow-md scale-105'
+                  : 'bg-white dark:bg-ink-900 text-ink-700 dark:text-ink-200 border border-ink-200 dark:border-ink-800 hover:border-brand-500'}`}>
+                <span>{c.emoji}</span> {c.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="mt-8 flex items-baseline justify-between">
+        <h2 className="font-display font-extrabold text-2xl sm:text-3xl">
+          {filter === 'all' ? 'Tous les restaurants' : CUISINES.find(c => c.id === filter)?.label}
+        </h2>
+        <span className="text-sm text-ink-500 dark:text-ink-400">{loading ? '…' : `${restaurants.length} adresses`}</span>
+      </div>
+
+      <div className="mt-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {loading
+          ? Array.from({ length: 6 }).map((_, i) => <RestaurantSkeleton key={i} />)
+          : restaurants.length === 0
+            ? <EmptyState />
+            : restaurants.map((r, i) => (
+                <Reveal key={r.id} delay={i*60}>
+                  <Tilt max={6}>
+                    <RestaurantCard restaurant={r} onClick={() => onPickRestaurant(r)} />
+                  </Tilt>
+                </Reveal>
+              ))
+        }
+      </div>
+    </div>
+  );
+}
+
+function SearchBar({ value, onChange }) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div className={`group relative rounded-2xl transition-all ${focused ? 'shadow-glow' : 'shadow-card'}`}>
+      <div className={`absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 transition-opacity ${focused ? 'opacity-60 blur-md' : 'opacity-0'}`}></div>
+      <div className="relative flex items-center gap-3 px-4 sm:px-5 h-14 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800">
+        <I.Search size={20} className="text-ink-400 shrink-0"/>
+        <input
+          type="text" value={value} onChange={e => onChange(e.target.value)}
+          onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+          placeholder="Pizza, sushi, bowls healthy…"
+          className="flex-1 bg-transparent outline-none placeholder:text-ink-400 text-base"
+        />
+        {value && (
+          <button onClick={() => onChange('')} className="cursor-grow p-1 rounded-full hover:bg-ink-100 dark:hover:bg-ink-800">
+            <I.X size={16}/>
+          </button>
+        )}
+        <span className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-semibold bg-ink-100 dark:bg-ink-800 text-ink-500">⌘K</span>
+      </div>
+    </div>
+  );
+}
+
+function RestaurantCard({ restaurant, onClick }) {
+  return (
+    <button onClick={onClick} onMouseMove={spotlightHandler}
+      className="cursor-grow group text-left w-full bg-white dark:bg-ink-900 rounded-3xl overflow-hidden shadow-card hover:shadow-cardhover border border-ink-200/60 dark:border-ink-800 spotlight">
+      <div className="relative aspect-[16/10] overflow-hidden">
+        <img src={restaurant.cover} alt={restaurant.name} loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0"></div>
+        {restaurant.promo && (
+          <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-md">
+            🎁 {restaurant.promo}
+          </span>
+        )}
+        <button className="cursor-grow absolute top-3 right-3 w-9 h-9 rounded-full glass-strong grid place-items-center hover:scale-110 transition-transform"
+          onClick={(e) => { e.stopPropagation(); }}>
+          <I.Heart size={16}/>
+        </button>
+        <div className="absolute bottom-3 left-3 flex items-center gap-2">
+          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/95 text-ink-900 shadow flex items-center gap-1">
+            <I.Clock size={12}/> {restaurant.eta}
+          </span>
+          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/95 text-ink-900 shadow">
+            {restaurant.fee}
+          </span>
+        </div>
+      </div>
+      <div className="p-4 relative z-10">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="font-display font-bold text-lg truncate">{restaurant.name}</h3>
+            <div className="text-sm text-ink-500 dark:text-ink-400 truncate">{restaurant.tags.join(' • ')}</div>
+          </div>
+          <span className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+            <I.Star size={12} className="fill-current"/> {restaurant.rating.toString().replace('.', ',')}
+          </span>
+        </div>
+        <div className="mt-3 flex items-center justify-between text-sm">
+          <div className="text-ink-500 dark:text-ink-400 flex items-center gap-1.5"><I.MapPin size={14}/> {restaurant.distance}</div>
+          <div className="font-semibold inline-flex items-center gap-1 text-brand-600 dark:text-brand-400 group-hover:gap-2 transition-all">
+            Voir le menu <I.Right size={14}/>
+          </div>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function RestaurantSkeleton() {
+  return (
+    <div className="bg-white dark:bg-ink-900 rounded-3xl overflow-hidden border border-ink-200/60 dark:border-ink-800">
+      <div className="aspect-[16/10] skeleton"></div>
+      <div className="p-4 space-y-3">
+        <div className="h-5 w-2/3 rounded skeleton"></div>
+        <div className="h-3 w-1/2 rounded skeleton"></div>
+        <div className="h-3 w-3/4 rounded skeleton"></div>
+      </div>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="col-span-full grid place-items-center text-center py-20">
+      <div className="text-6xl mb-4 animate-wiggle">🍽️</div>
+      <h3 className="font-display font-bold text-xl">Aucun restaurant ici pour l'instant</h3>
+      <p className="mt-1 text-ink-500">Essayez une autre catégorie ou recherche.</p>
+    </div>
+  );
+}
+
+/* ============================================================================
+   RESTAURANT PAGE
+============================================================================ */
+function RestaurantPage({ restaurant, onBack, onAdd }) {
+  const r = restaurant;
+  const [activeCat, setActiveCat] = useState(r.menu[0].category);
+  const sectionRefs = useRef({});
+
+  const scrollToCat = (cat) => {
+    setActiveCat(cat);
+    const el = sectionRefs.current[cat];
+    if (el) {
+      const top = el.getBoundingClientRect().top + window.scrollY - 180;
+      window.scrollTo({ top, behavior:'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    const onScroll = () => {
+      const offsets = r.menu.map(c => ({
+        cat: c.category,
+        top: sectionRefs.current[c.category]?.getBoundingClientRect().top || 0
+      }));
+      const visible = offsets.filter(o => o.top < 220).pop();
+      if (visible) setActiveCat(visible.cat);
+    };
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [r]);
+
+  return (
+    <div className="page-enter">
+      <section className="relative h-[42vh] sm:h-[55vh] min-h-[280px] overflow-hidden">
+        <img src={r.cover} alt={r.name} className="absolute inset-0 w-full h-full object-cover scale-105"/>
+        <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/40 to-transparent"></div>
+        <div className="absolute inset-0 flex items-end">
+          <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 pb-8 sm:pb-12">
+            <button onClick={onBack} className="cursor-grow mb-4 inline-flex items-center gap-2 px-3 py-2 rounded-xl glass text-white hover:bg-white/20 transition">
+              <I.Left size={18}/> Retour
+            </button>
+            <div className="flex items-end gap-4">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-4 border-white shadow-cardhover bg-white">
+                <img src={r.logo} alt="" className="w-full h-full object-cover"/>
+              </div>
+              <div className="text-white">
+                <h1 className="font-display font-black text-3xl sm:text-5xl tracking-tight">{r.name}</h1>
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                  <span className="inline-flex items-center gap-1"><I.Star size={14} className="fill-amber-400 text-amber-400"/> <b>{r.rating.toString().replace('.',',')}</b> <span className="opacity-70">({r.reviews}+ avis)</span></span>
+                  <span className="opacity-70">•</span>
+                  <span className="inline-flex items-center gap-1"><I.Clock size={14}/> {r.eta}</span>
+                  <span className="opacity-70">•</span>
+                  <span className="inline-flex items-center gap-1"><I.MapPin size={14}/> {r.distance}</span>
+                  <span className="opacity-70">•</span>
+                  <span className="inline-flex items-center gap-1"><I.Bike size={14}/> {r.fee}</span>
+                </div>
+              </div>
+            </div>
+            <p className="mt-3 max-w-2xl text-white/85 text-sm sm:text-base">{r.description}</p>
+          </div>
+        </div>
+      </section>
+
+      <div className="sticky top-16 z-30 glass-strong border-b border-ink-200/60 dark:border-ink-800/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex gap-1 overflow-x-auto no-scrollbar h-14 items-center">
+          {r.menu.map(c => {
+            const active = activeCat === c.category;
+            return (
+              <button key={c.category} onClick={() => scrollToCat(c.category)}
+                className={`cursor-grow shrink-0 px-4 h-10 rounded-full text-sm font-semibold transition-all ${active
+                  ? 'bg-ink-900 text-white dark:bg-white dark:text-ink-900'
+                  : 'text-ink-600 dark:text-ink-300 hover:bg-ink-100 dark:hover:bg-ink-800'}`}>
+                {c.category}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        {r.menu.map(cat => (
+          <div key={cat.category} ref={el => sectionRefs.current[cat.category] = el} className="mb-12 scroll-mt-44">
+            <h2 className="font-display font-extrabold text-2xl sm:text-3xl mb-5">{cat.category}</h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {cat.items.map((it, i) => (
+                <Reveal key={it.id} delay={i*40}>
+                  <MenuItem item={it} restaurant={r} onAdd={onAdd} />
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
+
+function MenuItem({ item, restaurant, onAdd }) {
+  const [adding, setAdding] = useState(false);
+  const imgRef = useRef();
+
+  const handleAdd = (e) => {
+    onAdd(item, restaurant, imgRef.current);
+    setAdding(true);
+    setTimeout(() => setAdding(false), 600);
+    rippleEffect(e);
+  };
+
+  return (
+    <div className="group relative bg-white dark:bg-ink-900 rounded-2xl overflow-hidden border border-ink-200/60 dark:border-ink-800 shadow-card hover:shadow-cardhover transition-all spotlight"
+      onMouseMove={spotlightHandler}>
+      <div className="flex p-3 gap-3">
+        <div ref={imgRef} className="menu-img relative shrink-0 w-28 h-28 sm:w-32 sm:h-32 rounded-xl overflow-hidden">
+          <img src={item.img} alt={item.name} loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        </div>
+        <div className="flex-1 min-w-0 flex flex-col">
+          <h3 className="font-display font-bold text-base leading-tight line-clamp-2">{item.name}</h3>
+          <p className="mt-1 text-xs text-ink-500 dark:text-ink-400 line-clamp-2">{item.desc}</p>
+          <div className="mt-auto pt-3 flex items-center justify-between">
+            <div className="font-display font-extrabold text-lg">{item.price.toFixed(2).replace('.', ',')} €</div>
+            <button onClick={handleAdd}
+              className={`cursor-grow ripple relative w-10 h-10 rounded-xl bg-ink-900 text-white dark:bg-white dark:text-ink-900 grid place-items-center hover:scale-110 active:scale-95 transition-transform ${adding ? 'animate-wiggle' : ''}`}>
+              <I.Plus size={18} stroke={3}/>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================================
+   CART SIDEBAR
+============================================================================ */
+function CartSidebar({ open, onClose, items, setQty, remove, total, onCheckout }) {
+  useEffect(() => {
+    if (open) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
+  useEffect(() => {
+    const onKey = e => { if (e.key === 'Escape') onClose(); };
+    if (open) window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
+  return (
+    <Fragment>
+      <div
+        className={`fixed inset-0 z-50 bg-ink-950/60 backdrop-blur-sm transition-opacity duration-300 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        onClick={onClose}
+      />
+      <aside className={`fixed top-0 right-0 z-50 h-full w-full sm:w-[440px] bg-white dark:bg-ink-950 shadow-2xl flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${open ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="flex items-center justify-between px-5 h-16 border-b border-ink-200 dark:border-ink-800">
+          <div className="flex items-center gap-2">
+            <I.Bag size={20}/>
+            <h3 className="font-display font-bold text-lg">Mon panier</h3>
+            <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-bold bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300">{items.reduce((s,i)=>s+i.qty,0)}</span>
+          </div>
+          <button onClick={onClose} className="cursor-grow w-9 h-9 rounded-xl hover:bg-ink-100 dark:hover:bg-ink-800 grid place-items-center transition">
+            <I.X size={20}/>
+          </button>
+        </div>
+
+        {items.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
+            <div className="text-7xl mb-4 animate-float-med">🛒</div>
+            <h4 className="font-display font-bold text-xl">Votre panier est vide</h4>
+            <p className="mt-2 text-ink-500 dark:text-ink-400">Ajoutez quelques délices et ils apparaîtront ici.</p>
+            <button onClick={onClose} className="cursor-grow mt-6 px-5 py-3 rounded-2xl bg-ink-900 text-white dark:bg-white dark:text-ink-900 font-semibold hover:scale-105 transition btn-shine">
+              Parcourir les restaurants
+            </button>
+          </div>
+        ) : (
+          <Fragment>
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+              {items.map(item => (
+                <CartLine key={item.id} item={item} setQty={setQty} remove={remove} />
+              ))}
+
+              <div className="mt-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-3">
+                <span className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-600 grid place-items-center shrink-0"><I.Bike size={18}/></span>
+                <div>
+                  <div className="font-semibold text-sm">Livraison offerte sur votre campus</div>
+                  <div className="text-xs text-ink-500 mt-0.5">Arrivée estimée dans 15-22 min ⚡</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-5 py-4 border-t border-ink-200 dark:border-ink-800 space-y-3">
+              <Row label="Sous-total" value={`${total.toFixed(2).replace('.', ',')} €`} />
+              <Row label="Frais de livraison" value={<span className="text-emerald-600 font-semibold">Offerts</span>} />
+              <div className="border-t border-dashed border-ink-200 dark:border-ink-800 my-1"></div>
+              <Row label={<b className="text-base">Total</b>} value={<b className="text-xl">{total.toFixed(2).replace('.', ',')} €</b>} />
+
+              <Button onClick={onCheckout} variant="primary" size="lg" className="w-full justify-center">
+                Passer commande · {total.toFixed(2).replace('.', ',')} € <I.Right size={18}/>
+              </Button>
+            </div>
+          </Fragment>
+        )}
+      </aside>
+    </Fragment>
+  );
+}
+
+function CartLine({ item, setQty, remove }) {
+  return (
+    <div className="flex gap-3 items-center bg-ink-50 dark:bg-ink-900 rounded-2xl p-3 animate-fade-up">
+      <img src={item.img} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0"/>
+      <div className="flex-1 min-w-0">
+        <div className="font-semibold text-sm truncate">{item.name}</div>
+        <div className="text-xs text-ink-500 truncate">{item.restaurantName}</div>
+        <div className="mt-1 font-display font-extrabold">{(item.price * item.qty).toFixed(2).replace('.', ',')} €</div>
+      </div>
+      <div className="flex flex-col items-end gap-2">
+        <div className="flex items-center gap-1 bg-white dark:bg-ink-800 rounded-full p-0.5 border border-ink-200 dark:border-ink-700">
+          <button onClick={() => setQty(item.id, item.qty - 1)} className="cursor-grow w-7 h-7 rounded-full hover:bg-ink-100 dark:hover:bg-ink-700 grid place-items-center"><I.Minus size={14}/></button>
+          <span className="min-w-[22px] text-center text-sm font-bold">{item.qty}</span>
+          <button onClick={() => setQty(item.id, item.qty + 1)} className="cursor-grow w-7 h-7 rounded-full hover:bg-ink-100 dark:hover:bg-ink-700 grid place-items-center"><I.Plus size={14}/></button>
+        </div>
+        <button onClick={() => remove(item.id)} className="cursor-grow text-ink-400 hover:text-red-500 transition" aria-label="Supprimer">
+          <I.Trash size={16}/>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Row({ label, value }) {
+  return (
+    <div className="flex items-center justify-between text-sm">
+      <span className="text-ink-500 dark:text-ink-400">{label}</span>
+      <span>{value}</span>
+    </div>
+  );
+}
+
+/* ============================================================================
+   FLOATING CART
+============================================================================ */
+function FloatingCart({ count, total, onClick, hidden }) {
+  if (count === 0 || hidden) return null;
+  return (
+    <button onClick={onClick}
+      className="cursor-grow fixed bottom-24 md:bottom-6 right-4 sm:right-6 z-30 group flex items-center gap-3 px-4 sm:px-5 py-3 rounded-2xl bg-ink-900 dark:bg-white text-white dark:text-ink-900 shadow-glow-lg hover:scale-105 active:scale-95 transition-transform animate-bounce-soft">
+      <span className="relative">
+        <I.Bag size={20}/>
+        <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold bg-brand-500 text-white grid place-items-center">{count}</span>
+      </span>
+      <span className="font-bold text-sm sm:text-base hidden sm:inline">Voir le panier</span>
+      <span className="font-bold text-sm sm:text-base">{total.toFixed(2).replace('.', ',')} €</span>
+      <I.Right size={16} className="group-hover:translate-x-0.5 transition-transform"/>
+    </button>
+  );
+}
+
+/* ============================================================================
+   CHECKOUT
+============================================================================ */
+function Checkout({ cart, total, onBack, onSuccess, addOrder }) {
+  const [address, setAddress] = useState('Résidence Universitaire A — Chambre 312');
+  const [phone, setPhone] = useState('+212 6 12 34 56 78');
+  const [name, setName] = useState('Sarah Bennani');
+  const [method, setMethod] = useState('card');
+  const [submitting, setSubmitting] = useState(false);
+  const tax = total * 0.1;
+  const grand = total + tax;
+
+  const handleConfirm = () => {
+    setSubmitting(true);
+    const customer = { name, address, phone };
+    const orderId = addOrder(cart, total, customer);
+    setTimeout(() => onSuccess(orderId), 1400);
+  };
+
+  if (cart.length === 0) {
+    return (
+      <div className="page-enter max-w-2xl mx-auto px-4 sm:px-6 py-20 text-center">
+        <div className="text-7xl mb-4">🛒</div>
+        <h2 className="font-display font-bold text-2xl">Aucun article à commander</h2>
+        <p className="mt-2 text-ink-500">Ajoutez d'abord quelque chose de délicieux.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page-enter max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <button onClick={onBack} className="cursor-grow inline-flex items-center gap-2 mb-6 px-3 py-2 rounded-xl hover:bg-ink-100 dark:hover:bg-ink-800 transition">
+        <I.Left size={18}/> Retour au panier
+      </button>
+
+      <h1 className="font-display font-extrabold text-3xl sm:text-4xl tracking-tight">Validation de commande</h1>
+      <p className="mt-1 text-ink-500 dark:text-ink-400">Presque fini — vérifiez vos infos et passons à table.</p>
+
+      <div className="mt-8 grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-5">
+          <Card>
+            <CardHeader icon={<I.MapPin size={18}/>} title="Adresse de livraison" />
+            <div className="px-5 pb-5 space-y-3">
+              <Input label="Nom complet" value={name} onChange={setName} placeholder="Prénom Nom"/>
+              <Input label="Adresse" value={address} onChange={setAddress} placeholder="Bâtiment, chambre, étage"/>
+              <Input label="Téléphone" value={phone} onChange={setPhone} placeholder="+212 6 …" />
+              <textarea
+                className="w-full mt-1 px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition resize-none"
+                rows="2" placeholder="Instructions livreur (sonner deux fois, laisser à l'accueil…)"></textarea>
+            </div>
+          </Card>
+
+          <Card>
+            <CardHeader icon={<I.Card size={18}/>} title="Mode de paiement" />
+            <div className="px-5 pb-5 grid sm:grid-cols-2 gap-3">
+              <PayOption active={method==='card'} onClick={() => setMethod('card')}
+                icon={<I.Card size={20}/>} title="Carte bancaire" subtitle="Visa, Mastercard, CMI"/>
+              <PayOption active={method==='cash'} onClick={() => setMethod('cash')}
+                icon={<I.Bag size={20}/>} title="Espèces" subtitle="À la livraison"/>
+            </div>
+          </Card>
+
+          <Card>
+            <CardHeader icon={<I.Bag size={18}/>} title={`Récapitulatif (${cart.reduce((s,i)=>s+i.qty,0)} articles)`} />
+            <div className="px-5 pb-5 space-y-3">
+              {cart.map(it => (
+                <div key={it.id} className="flex items-center gap-3">
+                  <img src={it.img} alt="" className="w-12 h-12 rounded-lg object-cover"/>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold truncate">{it.name}</div>
+                    <div className="text-xs text-ink-500">x{it.qty} · {it.restaurantName}</div>
+                  </div>
+                  <div className="font-semibold text-sm">{(it.price * it.qty).toFixed(2).replace('.', ',')} €</div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        <div className="lg:sticky lg:top-24 self-start">
+          <Card>
+            <div className="p-5 space-y-3">
+              <h3 className="font-display font-bold text-lg">Total</h3>
+              <Row label="Sous-total" value={`${total.toFixed(2).replace('.', ',')} €`} />
+              <Row label="Livraison" value={<span className="text-emerald-600 font-semibold">Offerte</span>} />
+              <Row label="Service (10%)" value={`${tax.toFixed(2).replace('.', ',')} €`} />
+              <div className="border-t border-dashed border-ink-200 dark:border-ink-800"></div>
+              <Row label={<b className="text-base">À payer</b>} value={<b className="text-2xl text-gradient">{grand.toFixed(2).replace('.', ',')} €</b>} />
+
+              <div className="pt-3">
+                <Button onClick={handleConfirm} disabled={submitting} variant="primary" size="lg" className="w-full justify-center">
+                  {submitting
+                    ? <span className="inline-flex items-center gap-2">Traitement<Loader/></span>
+                    : <span className="inline-flex items-center gap-2">Confirmer la commande <I.Check size={18} stroke={3}/></span>
+                  }
+                </Button>
+                <div className="mt-3 flex items-center justify-center gap-2 text-xs text-ink-500"><I.Shield size={14}/> Paiement sécurisé · SSL</div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Card({ children }) {
+  return <div className="bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 rounded-3xl shadow-card overflow-hidden">{children}</div>;
+}
+function CardHeader({ icon, title }) {
+  return (
+    <div className="flex items-center gap-2 px-5 h-14 border-b border-ink-200/60 dark:border-ink-800">
+      <span className="text-brand-500">{icon}</span>
+      <h3 className="font-display font-bold">{title}</h3>
+    </div>
+  );
+}
+function Input({ label, value, onChange, placeholder, type = 'text' }) {
+  return (
+    <label className="block">
+      <span className="text-xs font-semibold text-ink-500 uppercase tracking-wider">{label}</span>
+      <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+        className="block w-full mt-1 px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition"/>
+    </label>
+  );
+}
+function PayOption({ active, onClick, icon, title, subtitle }) {
+  return (
+    <button onClick={onClick}
+      className={`cursor-grow relative text-left p-4 rounded-2xl border-2 transition-all ${active
+        ? 'border-brand-500 bg-brand-50 dark:bg-brand-500/10'
+        : 'border-ink-200 dark:border-ink-800 hover:border-brand-300'}`}>
+      <div className="flex items-center gap-3">
+        <span className={`w-10 h-10 rounded-xl grid place-items-center transition ${active ? 'bg-brand-500 text-white' : 'bg-ink-100 dark:bg-ink-800'}`}>
+          {icon}
+        </span>
+        <div>
+          <div className="font-semibold">{title}</div>
+          <div className="text-xs text-ink-500">{subtitle}</div>
+        </div>
+        <span className={`ml-auto w-5 h-5 rounded-full border-2 transition ${active ? 'border-brand-500 bg-brand-500' : 'border-ink-300'}`}>
+          {active && <I.Check size={12} stroke={4} className="text-white -translate-y-0.5"/>}
+        </span>
+      </div>
+    </button>
+  );
+}
+function Loader() {
+  return <span className="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>;
+}
+
+/* ============================================================================
+   SUCCESS
+============================================================================ */
+function SuccessPage({ orderId, onHome }) {
+  const { orders } = useOrders();
+  const order = orders.find(o => o.id === orderId);
+  const stepNum = order ? ORDER_STATES[order.status]?.step || 1 : 1;
+  const stepLabel = order ? ORDER_STATES[order.status]?.label : 'Confirmée';
+
+  return (
+    <div className="page-enter relative max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
+      <Confetti />
+      <div className="relative inline-grid place-items-center w-28 h-28 mx-auto rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-cardhover animate-bounce-soft">
+        <svg viewBox="0 0 24 24" className="w-14 h-14 text-white">
+          <path d="M5 12l4 4L19 6" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"
+            style={{ strokeDasharray:50, strokeDashoffset:50, animation:'check-in .7s .3s forwards cubic-bezier(.16,1,.3,1)' }}/>
+        </svg>
+        <span className="absolute inset-0 rounded-full bg-emerald-400/40 animate-ping"></span>
+      </div>
+      <h1 className="mt-8 font-display font-extrabold text-4xl sm:text-5xl tracking-tight">Commande confirmée ! 🎉</h1>
+      <p className="mt-3 text-ink-500 dark:text-ink-400 text-lg">Merci — votre repas est en route. Arrivée estimée dans <b className="text-ink-900 dark:text-white">15 à 22 minutes</b>.</p>
+
+      <div className="mt-8 max-w-md mx-auto rounded-3xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 p-5 text-left shadow-card">
+        <div className="flex items-center gap-3">
+          <span className="w-10 h-10 rounded-xl bg-brand-500 text-white grid place-items-center"><I.Bike size={20}/></span>
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold">Commande #{orderId || 'YH-XXXX'}</div>
+            <div className="text-xs text-ink-500">{stepLabel} · suivi temps réel</div>
+          </div>
+          <span className="px-2 py-1 rounded-lg text-[11px] font-bold bg-emerald-500/10 text-emerald-600">EN DIRECT</span>
+        </div>
+        {/* Live progress bar */}
+        <div className="mt-4 h-1.5 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-brand-500 via-pink-500 to-emerald-500 transition-all duration-1000" style={{ width: (stepNum / 6 * 100) + '%' }}></div>
+        </div>
+        <div className="mt-4 grid grid-cols-6 text-[10px] gap-1">
+          {Object.entries(ORDER_STATES).map(([key, st]) => (
+            <Step key={key} active={stepNum >= st.step} label={st.label.split(' ')[0]}/>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 max-w-md mx-auto p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-left text-sm">
+        <div className="font-bold flex items-center gap-2 mb-1"><I.Sparkle size={14} className="text-amber-500"/> Astuce démo</div>
+        <p className="text-ink-600 dark:text-ink-300">Ouvrez les dashboards <b>Livreur</b> puis <b>Restaurant</b> (menu Espace Pro) pour voir la commande circuler en temps réel à travers tout le système.</p>
+      </div>
+
+      <div className="mt-8 flex flex-wrap gap-3 justify-center">
+        <Button onClick={onHome} variant="primary" size="lg">Commander autre chose <I.Right size={18}/></Button>
+      </div>
+    </div>
+  );
+}
+
+function Confetti() {
+  const pieces = useMemo(() => Array.from({ length: 32 }).map((_,i) => ({
+    id:i, left:Math.random()*100, delay:Math.random()*0.6,
+    duration:1.6 + Math.random()*1.4,
+    color:['#f97316','#ec4899','#8b5cf6','#3b82f6','#10b981','#f59e0b'][i % 6],
+    rotate:Math.random()*360, shape:i % 3,
+  })), []);
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      {pieces.map(p => (
+        <span key={p.id}
+          style={{
+            position:'absolute', top:'-10px', left:`${p.left}%`,
+            width:p.shape === 1 ? 10 : 8, height:p.shape === 0 ? 14 : 8,
+            background:p.color, borderRadius:p.shape === 2 ? '50%' : 2,
+            transform:`rotate(${p.rotate}deg)`,
+            animation:`fall ${p.duration}s ${p.delay}s ease-in forwards`,
+          }}/>
+      ))}
+      <style>{`@keyframes fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0.4; } }`}</style>
+    </div>
+  );
+}
+
+/* ============================================================================
+   BOTTOM NAV
+============================================================================ */
+function BottomNav({ active, onHome, onSearch, onCart, cartCount }) {
+  return (
+    <nav className="fixed md:hidden bottom-0 inset-x-0 z-30 glass-strong border-t border-ink-200/60 dark:border-ink-800/60 pb-[env(safe-area-inset-bottom)]">
+      <div className="grid grid-cols-4 h-16">
+        <BNBtn active={active==='home'||active==='landing'} onClick={onHome} icon={<I.Home size={20}/>} label="Accueil"/>
+        <BNBtn onClick={onSearch} icon={<I.Search size={20}/>} label="Recherche"/>
+        <BNBtn onClick={onCart} icon={
+          <span className="relative">
+            <I.Cart size={20}/>
+            {cartCount > 0 && <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full text-[10px] font-bold bg-brand-500 text-white grid place-items-center">{cartCount}</span>}
+          </span>
+        } label="Panier"/>
+        <BNBtn icon={<I.User size={20}/>} label="Profil"/>
+      </div>
+    </nav>
+  );
+}
+function BNBtn({ active, onClick, icon, label }) {
+  return (
+    <button onClick={onClick} className={`cursor-grow flex flex-col items-center justify-center gap-0.5 text-xs font-semibold transition ${active ? 'text-brand-600 dark:text-brand-400' : 'text-ink-500 dark:text-ink-400 hover:text-ink-900 dark:hover:text-white'}`}>
+      {icon}
+      <span>{label}</span>
+    </button>
+  );
+}
+
+/* ============================================================================
+   FOOTER
+============================================================================ */
+function Footer({ goto }) {
+  return (
+    <footer className="relative mt-10 border-t border-ink-200/60 dark:border-ink-800/60">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div>
+          <div className="flex items-center gap-2">
+            <Logo/>
+            <span className="font-display font-extrabold text-xl">YoHa</span>
+          </div>
+          <p className="mt-3 text-sm text-ink-500 dark:text-ink-400 max-w-xs">Livraison de repas intelligente, pensée pour les résidences universitaires et les hôpitaux. Fait avec passion.</p>
+          {goto && (
+            <div className="mt-4 space-y-1.5">
+              <div className="text-[11px] uppercase tracking-wider font-bold text-brand-600">🚀 Espace Pro · Démo</div>
+              <button onClick={() => goto('admin')} className="cursor-grow block text-sm font-semibold text-ink-700 dark:text-ink-200 hover:text-brand-500 transition">→ Admin Dashboard</button>
+              <button onClick={() => goto('delivery')} className="cursor-grow block text-sm font-semibold text-ink-700 dark:text-ink-200 hover:text-brand-500 transition">→ Dashboard Livreur</button>
+              <button onClick={() => goto('restaurant-dash')} className="cursor-grow block text-sm font-semibold text-ink-700 dark:text-ink-200 hover:text-brand-500 transition">→ Dashboard Restaurant</button>
+            </div>
+          )}
+        </div>
+        <FooterCol title="Produit"     links={['Restaurants','Comment ça marche','Couverture','Carrières']}/>
+        <FooterCol title="Entreprise"  links={['À propos','Presse','Blog','Contact']}/>
+        <FooterCol title="Légal"       links={['CGU','Confidentialité','Cookies','Mentions légales']}/>
+      </div>
+      <div className="border-t border-ink-200/60 dark:border-ink-800/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-500">
+          <span>© {new Date().getFullYear()} YoHa. Conçu sur le campus, livré chez vous.</span>
+          <span className="inline-flex items-center gap-3">
+            <span>Fait avec ❤️ + Tailwind + React</span>
+          </span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+function FooterCol({ title, links }) {
+  return (
+    <div>
+      <h4 className="font-display font-bold mb-3">{title}</h4>
+      <ul className="space-y-2">
+        {links.map(l => <li key={l}><a className="cursor-grow text-sm text-ink-500 hover:text-brand-500 transition" href="#">{l}</a></li>)}
+      </ul>
+    </div>
+  );
+}
+
+/* ============================================================================
+   PRIMITIVES
+============================================================================ */
+function Button({ children, variant='primary', size='md', className='', onClick, disabled, ...rest }) {
+  const sizes = { md:'h-11 px-5 text-sm', lg:'h-14 px-7 text-base', sm:'h-9 px-3 text-sm' };
+  const variants = {
+    primary:'bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white shadow-glow hover:shadow-glow-lg hover:-translate-y-0.5',
+    ghost:  'bg-white/60 dark:bg-ink-900/60 backdrop-blur border border-ink-200/60 dark:border-ink-800 hover:border-brand-500',
+    glass:  'glass-strong text-white border border-white/20 hover:bg-white/20',
+    dark:   'bg-ink-900 text-white dark:bg-white dark:text-ink-900 hover:opacity-90',
+  };
+  return (
+    <button
+      onClick={(e) => { rippleEffect(e); onClick && onClick(e); }}
+      disabled={disabled}
+      className={`cursor-grow ripple btn-shine relative inline-flex items-center justify-center gap-2 font-semibold rounded-2xl transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed ${sizes[size]} ${variants[variant]} ${className}`}
+      {...rest}
+    >
+      {children}
+    </button>
+  );
+}
+
+function rippleEffect(e) {
+  const target = e.currentTarget;
+  if (!target) return;
+  const rect = target.getBoundingClientRect();
+  const ripple = document.createElement('span');
+  const size = Math.max(rect.width, rect.height);
+  ripple.className = 'ripple-effect';
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+  ripple.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+  target.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 700);
+}
+
+function Reveal({ children, delay = 0 }) {
+  const ref = useRef(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setTimeout(() => setShown(true), delay); io.disconnect(); }
+    }, { rootMargin:'-30px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [delay]);
+  return <div ref={ref} className={`reveal ${shown ? 'in' : ''}`}>{children}</div>;
+}
+
+function Tilt({ children, max = 8, className = "" }) {
+  const ref = useRef();
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    const onMove = (e) => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top ) / r.height - 0.5;
+      el.style.transform = `perspective(1100px) rotateX(${-y*max}deg) rotateY(${x*max}deg) translateY(-3px)`;
+    };
+    const onLeave = () => { el.style.transform = ''; };
+    el.addEventListener('mousemove', onMove);
+    el.addEventListener('mouseleave', onLeave);
+    return () => { el.removeEventListener('mousemove', onMove); el.removeEventListener('mouseleave', onLeave); };
+  }, [max]);
+  return <div ref={ref} className={`tilt-3d ${className}`}>{children}</div>;
+}
+
+function Magnetic({ children, strength = 25 }) {
+  const ref = useRef();
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    const onMove = (e) => {
+      const r = el.getBoundingClientRect();
+      const x = e.clientX - r.left - r.width/2;
+      const y = e.clientY - r.top  - r.height/2;
+      el.style.transform = `translate(${x/strength}px, ${y/strength}px)`;
+    };
+    const onLeave = () => { el.style.transform = ''; };
+    el.addEventListener('mousemove', onMove);
+    el.addEventListener('mouseleave', onLeave);
+    return () => { el.removeEventListener('mousemove', onMove); el.removeEventListener('mouseleave', onLeave); };
+  }, [strength]);
+  return <div ref={ref} className="magnetic inline-block">{children}</div>;
+}
+
+function Counter({ to, duration = 1800, decimals = 0, suffix = '' }) {
+  const [val, setVal] = useState(0);
+  const ref = useRef();
+  const started = useRef(false);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started.current) {
+        started.current = true;
+        const start = performance.now();
+        const tick = (now) => {
+          const elapsed = now - start;
+          const p = Math.min(elapsed / duration, 1);
+          const eased = 1 - Math.pow(1 - p, 3);
+          setVal(to * eased);
+          if (p < 1) requestAnimationFrame(tick);
+          else setVal(to);
+        };
+        requestAnimationFrame(tick);
+        io.disconnect();
+      }
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [to, duration]);
+  const display = decimals > 0
+    ? val.toFixed(decimals).replace('.', ',')
+    : Math.floor(val).toLocaleString('fr-FR');
+  return <span ref={ref}>{display}{suffix}</span>;
+}
+
+function ToastViewport({ toasts }) {
+  return (
+    <div className="fixed top-20 right-4 z-[60] space-y-2 w-[min(92vw,360px)] pointer-events-none">
+      {toasts.map(t => (
+        <div key={t.id}
+          className="pointer-events-auto rounded-2xl glass-strong shadow-cardhover border border-ink-200/60 dark:border-ink-800 px-4 py-3 flex items-center gap-3 animate-slide-up">
+          <span className={`w-9 h-9 rounded-xl grid place-items-center shrink-0 ${
+            t.type === 'success' ? 'bg-emerald-500/15 text-emerald-600' :
+            t.type === 'error'   ? 'bg-red-500/15 text-red-600' :
+                                    'bg-brand-500/15 text-brand-600'
+          }`}>
+            {t.type === 'success' ? <I.Check size={18} stroke={3}/> : <I.Bell size={18}/>}
+          </span>
+          <div className="min-w-0">
+            <div className="font-semibold text-sm">{t.title}</div>
+            {t.desc && <div className="text-xs text-ink-500 truncate">{t.desc}</div>}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ============================================================================
+   ============================================================================
+   DASHBOARDS — Admin · Livreur · Restaurant
+   ============================================================================
+============================================================================ */
+
+/* === Shared dropdown link for nav === */
+function DashLink({ icon, title, sub, color, onClick }) {
+  return (
+    <button onClick={onClick} className="cursor-grow w-full flex items-center gap-3 p-3 rounded-xl hover:bg-ink-100 dark:hover:bg-ink-800 transition text-left">
+      <span className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} text-white grid place-items-center shadow-md shrink-0`}>{icon}</span>
+      <div className="min-w-0">
+        <div className="font-bold text-sm">{title}</div>
+        <div className="text-xs text-ink-500 truncate">{sub}</div>
+      </div>
+      <I.Right size={14} className="ml-auto text-ink-400"/>
+    </button>
+  );
+}
+
+/* === Shared dashboard layout with sidebar === */
+function DashLayout({ kind, current, setCurrent, goto, dark, setDark, children, title, subtitle }) {
+  const links = {
+    admin: [
+      { id:'overview',    label:'Tableau de bord', icon:<I.Sparkle size={18}/> },
+      { id:'orders',      label:'Commandes',       icon:<I.Bag size={18}/> },
+      { id:'restaurants', label:'Restaurants',     icon:<I.Chef size={18}/> },
+      { id:'couriers',    label:'Livreurs',        icon:<I.Bike size={18}/> },
+      { id:'revenue',     label:'Revenus',         icon:<I.Star size={18}/> },
+    ],
+    delivery: [
+      { id:'available',  label:'Disponibles',  icon:<I.Bell size={18}/> },
+      { id:'mine',       label:'Mes courses',  icon:<I.Bike size={18}/> },
+      { id:'history',    label:'Historique',   icon:<I.Clock size={18}/> },
+      { id:'earnings',   label:'Mes gains',    icon:<I.Star size={18}/> },
+    ],
+    restaurant: [
+      { id:'incoming',   label:'Commandes',    icon:<I.Bell size={18}/> },
+      { id:'menu',       label:'Mon menu',     icon:<I.Chef size={18}/> },
+      { id:'stats',      label:'Statistiques', icon:<I.Sparkle size={18}/> },
+    ],
+  }[kind];
+
+  const accent = {
+    admin:      { from:'from-brand-500',  to:'to-pink-500',     name:'Admin · Manager',  emoji:'✨' },
+    delivery:   { from:'from-violet-500', to:'to-fuchsia-500',  name:'Livreur',          emoji:'🚴' },
+    restaurant: { from:'from-sky-500',    to:'to-indigo-500',   name:'Restaurant',       emoji:'🍽️' },
+  }[kind];
+
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="page-enter min-h-screen flex bg-ink-50 dark:bg-ink-950">
+      {/* SIDEBAR */}
+      <aside className={`fixed lg:static z-40 inset-y-0 left-0 w-72 bg-white dark:bg-ink-900 border-r border-ink-200/60 dark:border-ink-800 transform ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} transition-transform duration-300`}>
+        <div className="h-16 flex items-center justify-between px-5 border-b border-ink-200/60 dark:border-ink-800">
+          <button onClick={() => goto('landing')} className="cursor-grow flex items-center gap-2 group">
+            <Logo/>
+            <span className="font-display font-extrabold text-lg">YoHa</span>
+            <span className={`ml-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-gradient-to-r ${accent.from} ${accent.to} text-white`}>{accent.emoji} {accent.name}</span>
+          </button>
+        </div>
+        <nav className="p-3 space-y-1">
+          {links.map(l => (
+            <button key={l.id} onClick={() => { setCurrent(l.id); setOpen(false); }}
+              className={`cursor-grow w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition ${current === l.id
+                ? `bg-gradient-to-r ${accent.from} ${accent.to} text-white shadow-md`
+                : 'text-ink-600 dark:text-ink-300 hover:bg-ink-100 dark:hover:bg-ink-800'}`}>
+              {l.icon} {l.label}
+            </button>
+          ))}
+        </nav>
+        <div className="absolute bottom-3 inset-x-3 space-y-1">
+          <button onClick={() => setDark(d => !d)} className="cursor-grow w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-ink-600 dark:text-ink-300 hover:bg-ink-100 dark:hover:bg-ink-800">
+            {dark ? <I.Sun size={18}/> : <I.Moon size={18}/>} {dark ? 'Mode clair' : 'Mode sombre'}
+          </button>
+          <button onClick={() => goto('landing')} className="cursor-grow w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-ink-600 dark:text-ink-300 hover:bg-ink-100 dark:hover:bg-ink-800">
+            <I.Left size={18}/> Retour à YoHa
+          </button>
+        </div>
+      </aside>
+
+      {/* Backdrop mobile */}
+      {open && <div className="fixed inset-0 z-30 bg-black/40 lg:hidden" onClick={() => setOpen(false)}/>}
+
+      {/* MAIN */}
+      <div className="flex-1 min-w-0">
+        <header className="sticky top-0 z-20 glass-strong border-b border-ink-200/60 dark:border-ink-800 h-16 flex items-center px-4 sm:px-6 gap-3">
+          <button onClick={() => setOpen(true)} className="cursor-grow lg:hidden w-9 h-9 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 grid place-items-center">
+            <I.Sparkle size={20}/>
+          </button>
+          <div className="min-w-0">
+            <h1 className="font-display font-extrabold text-lg sm:text-xl truncate">{title}</h1>
+            {subtitle && <div className="text-xs text-ink-500 truncate">{subtitle}</div>}
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <span className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 text-xs font-bold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Synchronisé en direct
+            </span>
+            <img src="https://i.pravatar.cc/64?img=11" className="w-9 h-9 rounded-xl object-cover border-2 border-white dark:border-ink-800"/>
+          </div>
+        </header>
+
+        <div className="p-4 sm:p-6">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/* === SVG Charts === */
+function LineChart({ data, height=180, color='#f97316', color2='#ec4899' }) {
+  const max = Math.max(...data, 1);
+  const w = 100;
+  const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${100 - (v / max) * 90 - 5}`);
+  const path = `M ${points.join(' L ')}`;
+  const area = `M 0,100 L ${points.join(' L ')} L ${w},100 Z`;
+  const id = 'chart-' + Math.random().toString(36).slice(2);
+  return (
+    <svg viewBox={`0 0 ${w} 100`} preserveAspectRatio="none" style={{ height, width:'100%' }}>
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor={color} stopOpacity="0.45"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0"/>
+        </linearGradient>
+        <linearGradient id={id+'-l'} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stopColor={color}/>
+          <stop offset="100%" stopColor={color2}/>
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#${id})`}/>
+      <path d={path} fill="none" stroke={`url(#${id}-l)`} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke"/>
+      {points.map((p, i) => {
+        const [x, y] = p.split(',');
+        return <circle key={i} cx={x} cy={y} r="1.4" fill="white" stroke={color} strokeWidth="0.5" vectorEffect="non-scaling-stroke"/>;
+      })}
+    </svg>
+  );
+}
+
+function BarChart({ data, labels, color1='from-violet-500', color2='to-fuchsia-400' }) {
+  const max = Math.max(...data, 1);
+  return (
+    <div className="h-44 flex items-end gap-2">
+      {data.map((v, i) => (
+        <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
+          <div className="text-[10px] font-bold text-ink-500 dark:text-ink-400 opacity-0 group-hover:opacity-100 transition">{v}</div>
+          <div className={`w-full rounded-t-xl bg-gradient-to-t ${color1} ${color2} transition-all hover:opacity-80 cursor-grow shadow-md`}
+            style={{ height: `${(v / max) * 100}%`, minHeight: '6px' }}>
+          </div>
+          <div className="text-[10px] text-ink-500">{labels[i]}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DonutChart({ data, colors, size=180 }) {
+  const total = data.reduce((s, d) => s + d.value, 0) || 1;
+  let acc = 0;
+  const r = 38, c = 2 * Math.PI * r;
+  return (
+    <div className="relative" style={{ width:size, height:size }}>
+      <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+        <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(127,127,127,0.12)" strokeWidth="14"/>
+        {data.map((d, i) => {
+          const length = (d.value / total) * c;
+          const dasharray = `${length} ${c - length}`;
+          const dashoffset = -((acc / total) * c);
+          acc += d.value;
+          return (
+            <circle key={i} cx="50" cy="50" r={r} fill="none" stroke={colors[i]} strokeWidth="14"
+              strokeDasharray={dasharray} strokeDashoffset={dashoffset} strokeLinecap="butt"/>
+          );
+        })}
+      </svg>
+      <div className="absolute inset-0 grid place-items-center">
+        <div className="text-center">
+          <div className="font-display font-black text-2xl">{total}</div>
+          <div className="text-xs text-ink-500">Total</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* === Stat Card === */
+function StatCard({ label, value, sub, icon, color='from-brand-500 to-pink-500', trend }) {
+  return (
+    <div className="relative p-5 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card overflow-hidden spotlight"
+      onMouseMove={spotlightHandler}>
+      <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full bg-gradient-to-br ${color} opacity-10 blur-2xl`}></div>
+      <div className="relative flex items-start justify-between">
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-wider text-ink-500">{label}</div>
+          <div className="mt-1 font-display font-black text-2xl sm:text-3xl">{value}</div>
+          {sub && <div className="mt-1 text-xs text-ink-500">{sub}</div>}
+        </div>
+        <span className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} text-white grid place-items-center shadow-md shrink-0`}>{icon}</span>
+      </div>
+      {trend !== undefined && (
+        <div className={`relative mt-3 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold ${trend >= 0 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'}`}>
+          {trend >= 0 ? '▲' : '▼'} {Math.abs(trend)}%
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* === Status Pill === */
+function StatusPill({ status }) {
+  const s = ORDER_STATES[status] || { label:status, color:'bg-ink-500', text:'text-ink-700' };
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-opacity-10 ${s.text}`} style={{ backgroundColor: 'rgb(' + (s.color.includes('amber') ? '254 243 199' : s.color.includes('sky') ? '224 242 254' : s.color.includes('violet') ? '237 233 254' : s.color.includes('emerald') ? '209 250 229' : s.color.includes('pink') ? '252 231 243' : '241 245 249') + ')' }}>
+      <span className={`w-1.5 h-1.5 rounded-full ${s.color}`}></span>
+      {s.label}
+    </span>
+  );
+}
+
+/* ============================================================================
+   ADMIN DASHBOARD
+============================================================================ */
+function AdminDashboard({ goto, dark, setDark }) {
+  const [current, setCurrent] = useState('overview');
+  const { orders } = useOrders();
+
+  const titles = {
+    overview:'Tableau de bord',
+    orders:'Toutes les commandes',
+    restaurants:'Restaurants',
+    couriers:'Livreurs',
+    revenue:'Revenus & Bénéfices',
+  };
+
+  return (
+    <DashLayout kind="admin" current={current} setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
+      title={titles[current]} subtitle="Vue d'ensemble de la plateforme YoHa">
+      {current === 'overview'    && <AdminOverview orders={orders}/>}
+      {current === 'orders'      && <AdminOrders orders={orders}/>}
+      {current === 'restaurants' && <AdminRestaurants/>}
+      {current === 'couriers'    && <AdminCouriers orders={orders}/>}
+      {current === 'revenue'     && <AdminRevenue orders={orders}/>}
+    </DashLayout>
+  );
+}
+
+function AdminOverview({ orders }) {
+  const today    = orders.filter(o => Date.now() - o.createdAt < 1000*60*60*24);
+  const active   = orders.filter(o => o.status !== 'delivered');
+  const totalRev = orders.reduce((s,o) => s + o.totalDh, 0);
+  const totalProf = orders.reduce((s,o) => s + o.netDh, 0);
+  const grossProf = orders.reduce((s,o) => s + o.profitDh, 0);
+  const totalCharges = orders.length * DELIVERY_FEE_DH;
+
+  /* fake 7-day data */
+  const rev7 = [4200, 5100, 4800, 6300, 7200, 6800, 8100];
+  const ord7 = [12, 18, 14, 21, 24, 22, 28];
+  const days = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+
+  /* restaurant activity */
+  const byResto = {};
+  orders.forEach(o => { byResto[o.restaurantName] = (byResto[o.restaurantName] || 0) + 1; });
+  const donut = Object.entries(byResto).slice(0,5).map(([k,v]) => ({ label:k, value:v }));
+  const donutColors = ['#f97316','#ec4899','#8b5cf6','#3b82f6','#10b981'];
+
+  return (
+    <div className="space-y-6">
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+        <StatCard label="Commandes total"   value={orders.length}                            sub="Cumulé"          icon={<I.Bag size={18}/>}    color="from-brand-500 to-orange-500"  trend={12}/>
+        <StatCard label="Aujourd'hui"        value={today.length}                              sub="Dernières 24h"   icon={<I.Bell size={18}/>}   color="from-pink-500 to-rose-500"     trend={8}/>
+        <StatCard label="Revenus totaux"     value={`${totalRev.toFixed(0)} DH`}              sub="Toutes les commandes" icon={<I.Star size={18}/>} color="from-violet-500 to-fuchsia-500" trend={15}/>
+        <StatCard label="Livraisons actives" value={active.length}                             sub="En cours"        icon={<I.Bike size={18}/>}   color="from-sky-500 to-indigo-500"    trend={-3}/>
+        <StatCard label="Restaurants actifs" value={RESTAURANTS.length}                        sub="Partenaires"     icon={<I.Chef size={18}/>}   color="from-emerald-500 to-teal-500"  trend={5}/>
+      </div>
+
+      {/* Charts row */}
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 p-5 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-ink-500">Revenus 7 derniers jours</div>
+              <div className="font-display font-extrabold text-2xl mt-1">{rev7.reduce((a,b)=>a+b,0).toLocaleString('fr-FR')} DH</div>
+            </div>
+            <span className="text-xs font-bold px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-600">▲ 18%</span>
+          </div>
+          <LineChart data={rev7} color="#f97316" color2="#ec4899"/>
+          <div className="grid grid-cols-7 gap-1 text-[10px] text-ink-500 mt-2">
+            {days.map(d => <div key={d} className="text-center">{d}</div>)}
+          </div>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card">
+          <div className="text-xs font-semibold uppercase tracking-wider text-ink-500 mb-2">Activité par resto</div>
+          <div className="flex items-center gap-4">
+            <DonutChart data={donut} colors={donutColors}/>
+            <div className="flex-1 space-y-1.5 text-xs">
+              {donut.map((d, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: donutColors[i] }}></span>
+                  <span className="truncate">{d.label}</span>
+                  <span className="ml-auto font-bold">{d.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 p-5 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-xs font-semibold uppercase tracking-wider text-ink-500">Commandes par jour</div>
+            <span className="text-xs font-bold px-2 py-1 rounded-md bg-brand-500/10 text-brand-600">7j · {ord7.reduce((a,b)=>a+b,0)}</span>
+          </div>
+          <BarChart data={ord7} labels={days}/>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-ink-900 via-ink-800 to-ink-900 dark:from-black text-white border border-ink-800 shadow-card relative overflow-hidden">
+          <div className="absolute -bottom-10 -right-10 w-40 h-40 rounded-full bg-brand-500/40 blur-3xl"></div>
+          <div className="text-xs font-semibold uppercase tracking-wider opacity-70">Bénéfice net cumulé</div>
+          <div className="font-display font-black text-4xl mt-2 text-gradient">{totalProf.toFixed(0)} DH</div>
+          <div className="mt-4 space-y-2 text-sm">
+            <div className="flex justify-between"><span className="opacity-70">Bénéfice brut</span><b>{grossProf.toFixed(0)} DH</b></div>
+            <div className="flex justify-between"><span className="opacity-70">Charges livraison</span><b>-{totalCharges} DH</b></div>
+            <div className="border-t border-white/10 pt-2 flex justify-between"><span>Net</span><b className="text-emerald-400">{totalProf.toFixed(0)} DH</b></div>
+          </div>
+          <div className="mt-3 text-[10px] opacity-60 leading-relaxed">Profit = total × 20% + 12 DH · Charge = 16 DH/livraison</div>
+        </div>
+      </div>
+
+      <RecentOrdersTable orders={orders.slice(0, 8)} title="Dernières commandes"/>
+    </div>
+  );
+}
+
+function AdminOrders({ orders }) {
+  const [filter, setFilter] = useState('all');
+  const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter);
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        <FilterChip active={filter==='all'} onClick={() => setFilter('all')}>Toutes ({orders.length})</FilterChip>
+        {Object.entries(ORDER_STATES).map(([k, s]) => {
+          const count = orders.filter(o => o.status === k).length;
+          return (
+            <FilterChip key={k} active={filter===k} onClick={() => setFilter(k)}>{s.label} ({count})</FilterChip>
+          );
+        })}
+      </div>
+      <RecentOrdersTable orders={filtered} title={`${filtered.length} commandes`} full/>
+    </div>
+  );
+}
+
+function FilterChip({ active, onClick, children }) {
+  return (
+    <button onClick={onClick}
+      className={`cursor-grow px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${active
+        ? 'bg-ink-900 text-white dark:bg-white dark:text-ink-900 shadow-md'
+        : 'bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 hover:border-brand-500'}`}>
+      {children}
+    </button>
+  );
+}
+
+function RecentOrdersTable({ orders, title, full }) {
+  return (
+    <div className="rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card overflow-hidden">
+      <div className="px-5 py-4 border-b border-ink-200/60 dark:border-ink-800 flex items-center justify-between">
+        <h3 className="font-display font-bold">{title}</h3>
+        <button className="cursor-grow text-xs font-bold text-brand-600">Tout voir</button>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-ink-50 dark:bg-ink-950/50 text-xs uppercase tracking-wider text-ink-500">
+            <tr>
+              <th className="px-5 py-3 text-left">Commande</th>
+              <th className="px-5 py-3 text-left">Client</th>
+              <th className="px-5 py-3 text-left">Restaurant</th>
+              <th className="px-5 py-3 text-left">Livreur</th>
+              <th className="px-5 py-3 text-right">Total</th>
+              {full && <th className="px-5 py-3 text-right">Profit net</th>}
+              <th className="px-5 py-3 text-left">Statut</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-ink-100 dark:divide-ink-800">
+            {orders.map(o => (
+              <tr key={o.id} className="hover:bg-ink-50 dark:hover:bg-ink-950/30 transition">
+                <td className="px-5 py-3 font-bold">#{o.id}</td>
+                <td className="px-5 py-3">{o.customer?.name || '—'}</td>
+                <td className="px-5 py-3">{o.restaurantName}</td>
+                <td className="px-5 py-3 text-ink-500">{o.courierName || '—'}</td>
+                <td className="px-5 py-3 text-right font-bold">{o.totalDh.toFixed(0)} DH</td>
+                {full && <td className="px-5 py-3 text-right font-bold text-emerald-600">+{o.netDh.toFixed(0)} DH</td>}
+                <td className="px-5 py-3"><StatusPill status={o.status}/></td>
+              </tr>
+            ))}
+            {orders.length === 0 && (
+              <tr><td colSpan={full ? 7 : 6} className="px-5 py-12 text-center text-ink-400">Aucune commande</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function AdminRestaurants() {
+  return (
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {RESTAURANTS.map(r => (
+        <div key={r.id} className="rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card overflow-hidden">
+          <img src={r.cover} className="h-32 w-full object-cover"/>
+          <div className="p-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-display font-bold">{r.name}</h3>
+              <span className="px-2 py-1 rounded-md text-xs font-bold bg-emerald-500/10 text-emerald-600">⭐ {r.rating.toString().replace('.', ',')}</span>
+            </div>
+            <div className="mt-1 text-xs text-ink-500">{r.tags.join(' · ')}</div>
+            <div className="mt-3 grid grid-cols-3 text-xs gap-2">
+              <div className="p-2 rounded-lg bg-ink-50 dark:bg-ink-950">
+                <div className="text-[10px] text-ink-500">ETA</div>
+                <div className="font-bold">{r.eta}</div>
+              </div>
+              <div className="p-2 rounded-lg bg-ink-50 dark:bg-ink-950">
+                <div className="text-[10px] text-ink-500">Avis</div>
+                <div className="font-bold">{r.reviews}</div>
+              </div>
+              <div className="p-2 rounded-lg bg-ink-50 dark:bg-ink-950">
+                <div className="text-[10px] text-ink-500">Distance</div>
+                <div className="font-bold">{r.distance}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AdminCouriers({ orders }) {
+  return (
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {COURIERS.map(c => {
+        const myOrders = orders.filter(o => o.courierId === c.id);
+        const earnings = myOrders.length * DELIVERY_FEE_DH * 1.5; // mock
+        return (
+          <div key={c.id} className="p-5 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card">
+            <div className="flex items-center gap-3">
+              <img src={c.avatar} className="w-14 h-14 rounded-2xl object-cover"/>
+              <div className="flex-1">
+                <div className="font-bold">{c.name}</div>
+                <div className="text-xs text-ink-500 flex items-center gap-1"><I.Star size={11} className="fill-amber-400 text-amber-400"/> {c.rating} · {c.vehicle}</div>
+              </div>
+              <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+              <div className="p-2 rounded-lg bg-ink-50 dark:bg-ink-950">
+                <div className="text-[10px] text-ink-500">Livraisons</div>
+                <div className="font-bold">{myOrders.length}</div>
+              </div>
+              <div className="p-2 rounded-lg bg-ink-50 dark:bg-ink-950">
+                <div className="text-[10px] text-ink-500">Gains</div>
+                <div className="font-bold text-emerald-600">{earnings.toFixed(0)} DH</div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function AdminRevenue({ orders }) {
+  const totalRev   = orders.reduce((s,o) => s + o.totalDh, 0);
+  const grossProf  = orders.reduce((s,o) => s + o.profitDh, 0);
+  const totalCharges = orders.length * DELIVERY_FEE_DH;
+  const netProf    = grossProf - totalCharges;
+  const margin     = ((netProf / totalRev) * 100).toFixed(1);
+
+  return (
+    <div className="space-y-6">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="Chiffre d'affaires" value={`${totalRev.toFixed(0)} DH`} icon={<I.Star size={18}/>} color="from-brand-500 to-pink-500"/>
+        <StatCard label="Bénéfice brut"      value={`${grossProf.toFixed(0)} DH`} sub="20% × CA + 12 DH/cmd" icon={<I.Sparkle size={18}/>} color="from-violet-500 to-fuchsia-500"/>
+        <StatCard label="Charges livraison"  value={`-${totalCharges} DH`} sub={`${DELIVERY_FEE_DH} DH × ${orders.length} cmd`} icon={<I.Bike size={18}/>} color="from-sky-500 to-indigo-500"/>
+        <StatCard label="Bénéfice net"       value={`${netProf.toFixed(0)} DH`} sub={`Marge ${margin}%`} icon={<I.Award size={18}/>} color="from-emerald-500 to-teal-500"/>
+      </div>
+
+      <div className="rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card p-5">
+        <h3 className="font-display font-bold mb-4">Détail par commande · calcul des profits</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-ink-50 dark:bg-ink-950/50 text-xs uppercase tracking-wider text-ink-500">
+              <tr>
+                <th className="px-4 py-3 text-left">Cmd</th>
+                <th className="px-4 py-3 text-right">Total</th>
+                <th className="px-4 py-3 text-right">Brut (20%+12)</th>
+                <th className="px-4 py-3 text-right">Charges</th>
+                <th className="px-4 py-3 text-right">Net</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-ink-100 dark:divide-ink-800">
+              {orders.slice(0, 10).map(o => (
+                <tr key={o.id}>
+                  <td className="px-4 py-2 font-bold">#{o.id}</td>
+                  <td className="px-4 py-2 text-right">{o.totalDh.toFixed(0)} DH</td>
+                  <td className="px-4 py-2 text-right text-violet-600 font-bold">+{o.profitDh.toFixed(2)} DH</td>
+                  <td className="px-4 py-2 text-right text-red-500">-{DELIVERY_FEE_DH} DH</td>
+                  <td className="px-4 py-2 text-right text-emerald-600 font-bold">{o.netDh.toFixed(2)} DH</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================================
+   DELIVERY DASHBOARD
+============================================================================ */
+function DeliveryDashboard({ goto, dark, setDark }) {
+  const [current, setCurrent] = useState('available');
+  const { orders } = useOrders();
+  const COURIER_ME = COURIERS[0]; // Yacine
+
+  const titles = {
+    available:'Commandes disponibles',
+    mine:'Mes courses en cours',
+    history:'Historique',
+    earnings:'Mes gains',
+  };
+
+  return (
+    <DashLayout kind="delivery" current={current} setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
+      title={titles[current]} subtitle={`Connecté en tant que ${COURIER_ME.name}`}>
+      {current === 'available' && <DeliveryAvailable courier={COURIER_ME}/>}
+      {current === 'mine'      && <DeliveryMine courier={COURIER_ME}/>}
+      {current === 'history'   && <DeliveryHistory courier={COURIER_ME}/>}
+      {current === 'earnings'  && <DeliveryEarnings courier={COURIER_ME}/>}
+    </DashLayout>
+  );
+}
+
+function DeliveryAvailable({ courier }) {
+  const { orders, assignCourier } = useOrders();
+  const available = orders.filter(o => o.status === 'placed');
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 text-white p-5 shadow-glow-lg flex items-center gap-4">
+        <span className="w-12 h-12 rounded-2xl bg-white/15 grid place-items-center text-xl">🛵</span>
+        <div className="flex-1">
+          <div className="font-display font-extrabold text-xl">{available.length} commande{available.length > 1 ? 's' : ''} en attente</div>
+          <div className="text-white/80 text-sm">Cliquez sur "Confirm Pickup" pour prendre une commande.</div>
+        </div>
+      </div>
+
+      {available.length === 0 ? (
+        <div className="text-center py-20 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800">
+          <div className="text-6xl mb-4 animate-float-med">🍕</div>
+          <h3 className="font-display font-bold text-xl">Pause bien méritée</h3>
+          <p className="mt-1 text-ink-500">Aucune commande disponible pour l'instant.</p>
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 gap-4">
+          {available.map(o => (
+            <DeliveryOrderCard key={o.id} order={o} action={
+              <Button onClick={() => assignCourier(o.id, courier)} variant="primary" size="lg" className="w-full justify-center">
+                ✅ Confirm Pickup
+              </Button>
+            }/>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DeliveryMine({ courier }) {
+  const { orders, updateOrderStatus } = useOrders();
+  const mine = orders.filter(o => o.courierId === courier.id && o.status !== 'delivered');
+
+  return (
+    <div className="space-y-4">
+      {mine.length === 0 ? (
+        <div className="text-center py-20 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800">
+          <div className="text-6xl mb-4 animate-wiggle">📍</div>
+          <h3 className="font-display font-bold text-xl">Aucune course en cours</h3>
+          <p className="mt-1 text-ink-500">Allez prendre une commande dans "Disponibles".</p>
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 gap-4">
+          {mine.map(o => (
+            <DeliveryOrderCard key={o.id} order={o} showMap action={
+              <div className="space-y-2">
+                {o.status === 'pickup_confirmed' && (
+                  <div className="px-4 py-3 rounded-xl bg-amber-500/10 text-amber-600 text-sm font-semibold flex items-center gap-2">
+                    <Loader/> En attente du restaurant…
+                  </div>
+                )}
+                {o.status === 'preparing' && (
+                  <div className="px-4 py-3 rounded-xl bg-violet-500/10 text-violet-600 text-sm font-semibold flex items-center gap-2">
+                    👨‍🍳 Le restaurant prépare la commande
+                  </div>
+                )}
+                {o.status === 'ready' && (
+                  <Button onClick={() => updateOrderStatus(o.id, 'delivering')} variant="primary" size="lg" className="w-full justify-center">
+                    🛵 Démarrer la livraison
+                  </Button>
+                )}
+                {o.status === 'delivering' && (
+                  <Button onClick={() => updateOrderStatus(o.id, 'delivered')} variant="primary" size="lg" className="w-full justify-center bg-gradient-to-r from-emerald-500 to-teal-500">
+                    ✅ Marquer comme livré
+                  </Button>
+                )}
+              </div>
+            }/>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DeliveryHistory({ courier }) {
+  const { orders } = useOrders();
+  const done = orders.filter(o => o.courierId === courier.id && o.status === 'delivered');
+  return <RecentOrdersTable orders={done} title={`${done.length} livraisons effectuées`} full/>;
+}
+
+function DeliveryEarnings({ courier }) {
+  const { orders } = useOrders();
+  const done = orders.filter(o => o.courierId === courier.id && o.status === 'delivered');
+  const earnings = done.length * DELIVERY_FEE_DH * 1.5;
+  const tips = done.length * 3;
+
+  return (
+    <div className="space-y-4">
+      <div className="grid sm:grid-cols-3 gap-4">
+        <StatCard label="Livraisons" value={done.length} icon={<I.Bike size={18}/>} color="from-violet-500 to-fuchsia-500"/>
+        <StatCard label="Gains" value={`${earnings.toFixed(0)} DH`} icon={<I.Star size={18}/>} color="from-brand-500 to-pink-500"/>
+        <StatCard label="Pourboires" value={`+${tips} DH`} icon={<I.Sparkle size={18}/>} color="from-emerald-500 to-teal-500"/>
+      </div>
+      <div className="p-5 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card">
+        <h3 className="font-display font-bold mb-3">Évolution sur 7 jours</h3>
+        <LineChart data={[180, 240, 220, 310, 290, 360, 410]} color="#8b5cf6" color2="#ec4899"/>
+      </div>
+    </div>
+  );
+}
+
+function DeliveryOrderCard({ order, action, showMap }) {
+  return (
+    <div className="rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card overflow-hidden lift-on-hover spotlight"
+      onMouseMove={spotlightHandler}>
+      <div className="p-5">
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="font-display font-extrabold text-xl">#{order.id}</div>
+            <div className="text-xs text-ink-500">{order.restaurantName}</div>
+          </div>
+          <StatusPill status={order.status}/>
+        </div>
+
+        {showMap && (
+          <div className="mt-4 relative h-32 rounded-xl overflow-hidden bg-gradient-to-br from-sky-100 to-indigo-100 dark:from-sky-900/40 dark:to-indigo-900/40 border border-ink-200/60 dark:border-ink-800">
+            <svg viewBox="0 0 300 120" className="absolute inset-0 w-full h-full">
+              <defs>
+                <pattern id="g1" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(100,116,139,.2)" strokeWidth="0.5"/>
+                </pattern>
+              </defs>
+              <rect width="300" height="120" fill="url(#g1)"/>
+              <path d="M 20 80 Q 90 30, 160 60 T 280 30" stroke="#f97316" strokeWidth="3" fill="none" strokeLinecap="round" strokeDasharray="6 6"/>
+              <circle cx="20" cy="80" r="6" fill="#ec4899"/>
+              <text x="20" y="103" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#ec4899">Resto</text>
+              <circle cx="280" cy="30" r="6" fill="#10b981"/>
+              <text x="280" y="20" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#10b981">Client</text>
+              <g style={{ offsetPath:"path('M 20 80 Q 90 30, 160 60 T 280 30')", animation:'bike-go 3s ease-in-out infinite alternate' }}>
+                <circle r="10" fill="white" stroke="#f97316" strokeWidth="2"/>
+                <text textAnchor="middle" y="3" fontSize="10">🛵</text>
+              </g>
+            </svg>
+          </div>
+        )}
+
+        <div className="mt-4 space-y-2 text-sm">
+          <div className="flex items-start gap-2">
+            <span className="w-7 h-7 rounded-lg bg-pink-500/10 text-pink-600 grid place-items-center shrink-0"><I.Chef size={14}/></span>
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-ink-500">Récupérer</div>
+              <div className="font-semibold">{order.restaurantName}</div>
+            </div>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 grid place-items-center shrink-0"><I.MapPin size={14}/></span>
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-ink-500">Livrer à</div>
+              <div className="font-semibold">{order.customer?.name} · {order.customer?.address}</div>
+              <div className="text-xs text-ink-500">{order.customer?.phone}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-dashed border-ink-200 dark:border-ink-800 flex items-center justify-between">
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-ink-500">Articles</div>
+            <div className="font-bold">{order.items.reduce((s,i) => s + i.qty, 0)} × {order.totalDh.toFixed(0)} DH</div>
+          </div>
+          <div className="text-right">
+            <div className="text-[10px] uppercase tracking-wider text-ink-500">Vous gagnez</div>
+            <div className="font-bold text-emerald-600">+{(DELIVERY_FEE_DH * 1.5).toFixed(0)} DH</div>
+          </div>
+        </div>
+
+        <div className="mt-4">{action}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================================
+   RESTAURANT DASHBOARD
+============================================================================ */
+function RestaurantDashboard({ goto, dark, setDark }) {
+  const [current, setCurrent] = useState('incoming');
+  const RESTO_ID = 'pizza-palace';
+  const titles = {
+    incoming:'Commandes entrantes',
+    menu:'Mon menu',
+    stats:'Statistiques',
+  };
+  return (
+    <DashLayout kind="restaurant" current={current} setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
+      title={titles[current]} subtitle={`Connecté en tant que ${RESTAURANTS.find(r => r.id === RESTO_ID).name}`}>
+      {current === 'incoming' && <RestoIncoming restoId={RESTO_ID}/>}
+      {current === 'menu'     && <RestoMenu restoId={RESTO_ID}/>}
+      {current === 'stats'    && <RestoStats restoId={RESTO_ID}/>}
+    </DashLayout>
+  );
+}
+
+function RestoIncoming({ restoId }) {
+  const { orders, updateOrderStatus } = useOrders();
+  const myOrders = orders.filter(o => o.restaurantId === restoId && o.status !== 'delivered' && o.status !== 'placed');
+
+  /* Group by status */
+  const buckets = {
+    pickup_confirmed: myOrders.filter(o => o.status === 'pickup_confirmed'),
+    preparing:        myOrders.filter(o => o.status === 'preparing'),
+    ready:            myOrders.filter(o => o.status === 'ready'),
+    delivering:       myOrders.filter(o => o.status === 'delivering'),
+  };
+
+  const Col = ({ status, title, color, action }) => (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className={`font-display font-bold flex items-center gap-2 ${color}`}>
+          <span className={`w-2 h-2 rounded-full ${color.replace('text-','bg-')}`}></span>
+          {title}
+        </h3>
+        <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-ink-100 dark:bg-ink-800">{buckets[status].length}</span>
+      </div>
+      <div className="space-y-3 min-h-[200px]">
+        {buckets[status].length === 0 ? (
+          <div className="rounded-xl border-2 border-dashed border-ink-200 dark:border-ink-800 p-6 text-center text-xs text-ink-400">Vide</div>
+        ) : buckets[status].map(o => (
+          <RestoOrderCard key={o.id} order={o} action={action(o)}/>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="grid sm:grid-cols-4 gap-4">
+        <StatCard label="Nouvelles" value={buckets.pickup_confirmed.length} icon={<I.Bell size={18}/>} color="from-sky-500 to-indigo-500"/>
+        <StatCard label="En préparation" value={buckets.preparing.length}   icon={<I.Chef size={18}/>} color="from-violet-500 to-fuchsia-500"/>
+        <StatCard label="Prêtes" value={buckets.ready.length}                icon={<I.Sparkle size={18}/>} color="from-emerald-500 to-teal-500"/>
+        <StatCard label="En livraison" value={buckets.delivering.length}    icon={<I.Bike size={18}/>} color="from-pink-500 to-rose-500"/>
+      </div>
+
+      <div className="grid lg:grid-cols-4 gap-5">
+        <Col status="pickup_confirmed" title="Nouvelles commandes" color="text-sky-600" action={(o) => (
+          <Button onClick={() => updateOrderStatus(o.id, 'preparing')} variant="primary" size="md" className="w-full justify-center">
+            ✅ Accepter & Préparer
+          </Button>
+        )}/>
+        <Col status="preparing" title="En préparation" color="text-violet-600" action={(o) => (
+          <Button onClick={() => updateOrderStatus(o.id, 'ready')} variant="primary" size="md" className="w-full justify-center bg-gradient-to-r from-emerald-500 to-teal-500">
+            🍽️ Marquer comme prête
+          </Button>
+        )}/>
+        <Col status="ready" title="Prêtes" color="text-emerald-600" action={(o) => (
+          <div className="px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-600 text-xs font-bold text-center">
+            En attente du livreur 🚴
+          </div>
+        )}/>
+        <Col status="delivering" title="En livraison" color="text-pink-600" action={(o) => (
+          <div className="px-3 py-2 rounded-xl bg-pink-500/10 text-pink-600 text-xs font-bold text-center">
+            🛵 En route vers client
+          </div>
+        )}/>
+      </div>
+    </div>
+  );
+}
+
+function RestoOrderCard({ order, action }) {
+  return (
+    <div className="rounded-xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 p-3 shadow-card lift-on-hover">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <div className="font-bold text-sm">#{order.id}</div>
+          <div className="text-[11px] text-ink-500">{order.customer?.name}</div>
+        </div>
+        <div className="text-right">
+          <div className="font-bold text-sm">{order.totalDh.toFixed(0)} DH</div>
+          <div className="text-[10px] text-ink-500">{order.items.reduce((s,i) => s+i.qty, 0)} art.</div>
+        </div>
+      </div>
+      <div className="mt-2 space-y-1">
+        {order.items.map(it => (
+          <div key={it.id} className="flex items-center gap-2 text-xs">
+            <span className="font-bold text-brand-600">{it.qty}×</span>
+            <span className="truncate flex-1">{it.name}</span>
+          </div>
+        ))}
+      </div>
+      {order.courierName && (
+        <div className="mt-2 text-[10px] text-ink-500 flex items-center gap-1"><I.Bike size={10}/> {order.courierName}</div>
+      )}
+      <div className="mt-3">{action}</div>
+    </div>
+  );
+}
+
+function RestoMenu({ restoId }) {
+  const { restaurants, setRestaurants } = useOrders();
+  const resto = restaurants.find(r => r.id === restoId);
+  const [editing, setEditing] = useState(null);
+  const [adding, setAdding] = useState(false);
+
+  const updateItem = (catIdx, itemId, patch) => {
+    setRestaurants(prev => prev.map(r => r.id !== restoId ? r : ({
+      ...r,
+      menu: r.menu.map((c, i) => i !== catIdx ? c : ({
+        ...c,
+        items: c.items.map(it => it.id !== itemId ? it : ({ ...it, ...patch })),
+      })),
+    })));
+  };
+  const removeItem = (catIdx, itemId) => {
+    setRestaurants(prev => prev.map(r => r.id !== restoId ? r : ({
+      ...r,
+      menu: r.menu.map((c, i) => i !== catIdx ? c : ({
+        ...c,
+        items: c.items.filter(it => it.id !== itemId),
+      })),
+    })));
+  };
+  const addItem = (catIdx, item) => {
+    const newItem = { ...item, id: 'new-' + Date.now() };
+    setRestaurants(prev => prev.map(r => r.id !== restoId ? r : ({
+      ...r,
+      menu: r.menu.map((c, i) => i !== catIdx ? c : ({
+        ...c,
+        items: [...c.items, newItem],
+      })),
+    })));
+  };
+
+  return (
+    <div className="space-y-6">
+      {resto.menu.map((cat, catIdx) => (
+        <div key={cat.category}>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-display font-extrabold text-xl">{cat.category}</h2>
+            <button onClick={() => setAdding({ catIdx, name:'', desc:'', price:0, img:'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400' })}
+              className="cursor-grow inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-500 text-white text-xs font-bold hover:bg-brand-600 transition">
+              <I.Plus size={14} stroke={3}/> Ajouter un plat
+            </button>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {cat.items.map(it => (
+              <div key={it.id} className="rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card overflow-hidden lift-on-hover">
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <img src={it.img} className="w-full h-full object-cover"/>
+                  <div className="absolute top-2 right-2 flex gap-1">
+                    <button onClick={() => setEditing({ catIdx, ...it })} className="cursor-grow w-8 h-8 rounded-lg bg-white/90 grid place-items-center shadow hover:scale-110 transition">
+                      ✏️
+                    </button>
+                    <button onClick={() => removeItem(catIdx, it.id)} className="cursor-grow w-8 h-8 rounded-lg bg-red-500 text-white grid place-items-center shadow hover:scale-110 transition">
+                      <I.Trash size={14}/>
+                    </button>
+                  </div>
+                </div>
+                <div className="p-3">
+                  <div className="font-display font-bold">{it.name}</div>
+                  <div className="text-xs text-ink-500 line-clamp-2">{it.desc}</div>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="font-display font-extrabold text-brand-600">{it.price.toFixed(2).replace('.', ',')} €</span>
+                    <span className="text-[10px] text-emerald-600 font-bold uppercase">Actif</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {/* Edit modal */}
+      {editing && (
+        <ModalOverlay onClose={() => setEditing(null)}>
+          <h3 className="font-display font-bold text-xl mb-4">Modifier le plat</h3>
+          <div className="space-y-3">
+            <Input label="Nom"   value={editing.name}  onChange={v => setEditing({ ...editing, name:v })}/>
+            <Input label="Description" value={editing.desc} onChange={v => setEditing({ ...editing, desc:v })}/>
+            <Input label="Prix (€)" value={editing.price} onChange={v => setEditing({ ...editing, price: parseFloat(v) || 0 })}/>
+            <div className="rounded-xl border-2 border-dashed border-ink-200 dark:border-ink-800 p-6 text-center cursor-pointer hover:border-brand-500 transition">
+              <div className="text-3xl mb-2">📷</div>
+              <div className="text-xs text-ink-500">Glisser-déposer une image (mock)</div>
+            </div>
+          </div>
+          <div className="mt-5 flex gap-2 justify-end">
+            <Button variant="ghost" onClick={() => setEditing(null)}>Annuler</Button>
+            <Button variant="primary" onClick={() => { updateItem(editing.catIdx, editing.id, { name:editing.name, desc:editing.desc, price:editing.price }); setEditing(null); }}>Enregistrer</Button>
+          </div>
+        </ModalOverlay>
+      )}
+
+      {/* Add modal */}
+      {adding && (
+        <ModalOverlay onClose={() => setAdding(null)}>
+          <h3 className="font-display font-bold text-xl mb-4">Nouveau plat</h3>
+          <div className="space-y-3">
+            <Input label="Nom"   value={adding.name}  onChange={v => setAdding({ ...adding, name:v })}/>
+            <Input label="Description" value={adding.desc} onChange={v => setAdding({ ...adding, desc:v })}/>
+            <Input label="Prix (€)" value={adding.price} onChange={v => setAdding({ ...adding, price: parseFloat(v) || 0 })}/>
+            <div className="rounded-xl border-2 border-dashed border-ink-200 dark:border-ink-800 p-6 text-center cursor-pointer hover:border-brand-500 transition">
+              <div className="text-3xl mb-2">📷</div>
+              <div className="text-xs text-ink-500">Glisser-déposer une image (mock)</div>
+            </div>
+          </div>
+          <div className="mt-5 flex gap-2 justify-end">
+            <Button variant="ghost" onClick={() => setAdding(null)}>Annuler</Button>
+            <Button variant="primary" onClick={() => { addItem(adding.catIdx, { name:adding.name||'Nouveau plat', desc:adding.desc||'Description', price:adding.price||0, img:adding.img }); setAdding(null); }}>Ajouter</Button>
+          </div>
+        </ModalOverlay>
+      )}
+    </div>
+  );
+}
+
+function ModalOverlay({ children, onClose }) {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-950/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+      <div onClick={e => e.stopPropagation()} className="w-full max-w-md bg-white dark:bg-ink-900 rounded-3xl p-6 shadow-cardhover animate-scale-in border border-ink-200/60 dark:border-ink-800">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function RestoStats({ restoId }) {
+  const { orders } = useOrders();
+  const myOrders = orders.filter(o => o.restaurantId === restoId);
+  const totalRev = myOrders.reduce((s,o) => s + o.totalDh, 0);
+  const completed = myOrders.filter(o => o.status === 'delivered').length;
+
+  return (
+    <div className="space-y-6">
+      <div className="grid sm:grid-cols-4 gap-4">
+        <StatCard label="Commandes" value={myOrders.length} icon={<I.Bag size={18}/>} color="from-sky-500 to-indigo-500"/>
+        <StatCard label="Livrées"   value={completed}        icon={<I.Check size={18}/>} color="from-emerald-500 to-teal-500"/>
+        <StatCard label="CA"        value={`${totalRev.toFixed(0)} DH`} icon={<I.Star size={18}/>} color="from-brand-500 to-pink-500"/>
+        <StatCard label="Note"      value="4,8 ⭐"           icon={<I.Sparkle size={18}/>} color="from-amber-500 to-orange-500"/>
+      </div>
+      <div className="grid lg:grid-cols-2 gap-4">
+        <div className="p-5 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card">
+          <h3 className="font-display font-bold mb-3">Commandes par jour</h3>
+          <BarChart data={[8,12,9,16,18,22,25]} labels={['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']} color1="from-sky-500" color2="to-indigo-400"/>
+        </div>
+        <div className="p-5 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card">
+          <h3 className="font-display font-bold mb-3">CA sur 7 jours</h3>
+          <LineChart data={[850, 1200, 980, 1640, 1820, 2100, 2350]} color="#3b82f6" color2="#06b6d4"/>
+        </div>
+      </div>
+    </div>
+  );
+}
