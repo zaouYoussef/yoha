@@ -4,7 +4,7 @@ import { startOfDay, DAY_MS } from './chartMocks.js';
 
 export function generateMockOrders() {
   const customers = [
-    { name:'Nouha Bourouhou',    address:'Résidence A · Ch. 312', phone:'+212 6 11 22 33 44' },
+    { name:'X Y',    address:'Résidence A · Ch. 312', phone:'+212 6 11 22 33 44' },
     { name:'Yassine El Idrissi',address:'Pavillon C · Ch. 207',  phone:'+212 6 22 33 44 55' },
     { name:'Dr. Karim Naciri', address:'CHU · Aile B · 4e étage', phone:'+212 6 33 44 55 66' },
     { name:'Lina Tazi',        address:'Cité U · Bât. 7 · Ch. 18', phone:'+212 6 44 55 66 77' },

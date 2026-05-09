@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { I } from '../../icons/Icons.jsx';
 
 const FIRST_NAMES = [
-  'Nouha',
+  'X Y',
   'Sarah',
   'Yassine',
   'Driss',
@@ -28,7 +28,7 @@ function pickRandom(arr) {
  */
 export function SocialOrderPopup({ visible }) {
   const [open, setOpen] = useState(false);
-  const [payload, setPayload] = useState({ name: 'Nouha', minutes: 10 });
+  const [payload, setPayload] = useState({ name: 'X Y', minutes: 10 });
   const hideTimerRef = useRef(null);
 
   const flashOnce = useCallback(() => {

@@ -11,7 +11,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder }) {
   const { user } = useAuth();
   const [address, setAddress] = useState('CHU-Tanger');
   const [phone, setPhone] = useState('+212 6 12 34 56 78');
-  const [name, setName] = useState('Nouha Bourouhou');
+  const [name, setName] = useState('X Y');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
