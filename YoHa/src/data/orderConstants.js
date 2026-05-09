@@ -40,10 +40,10 @@ export function computeNet(totalDh) {
 
 /** Seuil au-delà duquel les frais de service passent au tarif élevé */
 export const SERVICE_FEE_THRESHOLD_MAD = 3000;
-export const SERVICE_FEE_LOW_MAD = 120;
-export const SERVICE_FEE_HIGH_MAD = 300;
+export const SERVICE_FEE_LOW_MAD = 12;
+export const SERVICE_FEE_HIGH_MAD = 30;
 
-/** Frais de service checkout : 120 MAD par défaut, 300 MAD si sous-total > 3000 MAD */
+/** Frais de service checkout : 12 MAD par défaut, 30 MAD si sous-total > 3000 MAD */
 export function getServiceFeeMad(subtotal) {
   const s = typeof subtotal === 'number' ? subtotal : parseFloat(subtotal);
   if (!Number.isFinite(s)) return SERVICE_FEE_LOW_MAD;
