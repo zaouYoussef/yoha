@@ -34,9 +34,9 @@ export function Navbar({
 
   return (
     <header className="fixed top-0 inset-x-0 z-40 transition-all duration-500 pointer-events-none">
-      <div className={`mx-auto flex h-16 min-w-0 items-center gap-2 transition-all duration-500 pointer-events-auto ${
+      <div className={`mx-auto flex h-14 sm:h-16 min-w-0 items-center gap-1 sm:gap-2 transition-all duration-500 pointer-events-auto ${
         scrolled 
-          ? 'w-[calc(100%-2rem)] max-w-6xl mt-3 px-6 rounded-2xl glass-card-premium shadow-cardhover border border-white/20 dark:border-white/5' 
+          ? 'w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] max-w-6xl mt-2 sm:mt-3 px-3 sm:px-6 rounded-2xl glass-card-premium shadow-cardhover border border-white/20 dark:border-white/5' 
           : 'w-full max-w-7xl px-3 sm:px-6 bg-transparent border-transparent'
       }`}>
         <button onClick={onLogo} className="group flex min-w-0 shrink cursor-grow items-center gap-2">
@@ -66,7 +66,7 @@ export function Navbar({
           <span>🥐</span> Pâtisseries
         </button>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex min-w-0 items-center gap-1 sm:gap-2">
           {(!user || user.role === 'client') && (
             <button
               type="button"
@@ -84,14 +84,14 @@ export function Navbar({
               type="button"
               onClick={onLiveOrder}
               title="Suivi de commande"
-              className="cursor-grow flex min-w-0 max-w-[min(100%,14rem)] items-center gap-2 pl-2 pr-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-xs font-semibold text-emerald-800 dark:text-emerald-200 hover:bg-emerald-500/25 transition"
+              className="cursor-grow flex min-w-0 max-w-[9rem] sm:max-w-[14rem] items-center gap-1.5 sm:gap-2 pl-2 pr-2 sm:pr-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-[10px] sm:text-xs font-semibold text-emerald-800 dark:text-emerald-200 hover:bg-emerald-500/25 transition"
             >
               <span className="relative flex h-2 w-2 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"/>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"/>
               </span>
               <span className="truncate">{ORDER_STATES[liveOrder.status]?.label ?? liveOrder.status}</span>
-              <span className="opacity-70 shrink-0 hidden sm:inline">{liveOrder.id}</span>
+              <span className="opacity-70 shrink-0 hidden md:inline">{liveOrder.id}</span>
             </button>
           )}
 

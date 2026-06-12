@@ -44,6 +44,9 @@ export default {
         card: '0 4px 20px -2px rgba(15,23,42,.08)',
         cardhover: '0 24px 50px -12px rgba(15,23,42,.18)',
       },
+      spacing: {
+        'safe-nav': 'calc(4rem + env(safe-area-inset-bottom, 0px))',
+      },
       animation: {
         'gradient-x': 'gradient-x 12s ease infinite',
         'gradient-fast': 'gradient-x 4s ease infinite',

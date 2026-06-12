@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 
-export function Magnetic({ children, strength = 25 }) {
+export function Magnetic({ children, strength = 25, className = '' }) {
   const ref = useRef();
   useEffect(() => {
     const el = ref.current; if (!el) return;
@@ -18,5 +18,5 @@ export function Magnetic({ children, strength = 25 }) {
     el.addEventListener('mouseleave', onLeave);
     return () => { el.removeEventListener('mousemove', onMove); el.removeEventListener('mouseleave', onLeave); };
   }, [strength]);
-  return <div ref={ref} className="magnetic inline-block">{children}</div>;
+  return <div ref={ref} className={`magnetic inline-block ${className}`}>{children}</div>;
 }

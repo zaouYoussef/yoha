@@ -82,6 +82,33 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
+  .glass-card-premium {
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: saturate(180%) blur(22px);
+    -webkit-backdrop-filter: saturate(180%) blur(22px);
+  }
+  .dark .glass-card-premium {
+    background: rgba(15, 23, 42, 0.72);
+  }
+
+  .card-glow-hover {
+    transition: box-shadow 0.35s ease, transform 0.35s ease, border-color 0.35s ease;
+  }
+  .card-glow-hover:hover {
+    box-shadow: 0 22px 55px -14px var(--glow-color, rgba(249, 115, 22, 0.28));
+  }
+
+  .browse-grid-bg {
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(249, 115, 22, 0.07) 0%, transparent 45%),
+      radial-gradient(circle at 80% 0%, rgba(236, 72, 153, 0.06) 0%, transparent 40%);
+  }
+  .dark .browse-grid-bg {
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(249, 115, 22, 0.12) 0%, transparent 45%),
+      radial-gradient(circle at 80% 0%, rgba(139, 92, 246, 0.1) 0%, transparent 40%);
+  }
+
   .text-gradient {
     background: linear-gradient(120deg, #f97316 0%, #ec4899 35%, #8b5cf6 70%, #3b82f6 100%);
     background-size: 200% 200%;
@@ -305,8 +332,8 @@
 
   .orbit-container {
     position: relative;
-    width: 280px;
-    height: 280px;
+    width: min(280px, 80vw);
+    height: min(280px, 80vw);
   }
   .orbit-item {
     position: absolute;
@@ -337,10 +364,7 @@
     height: 100%;
     transform-style: preserve-3d;
     animation: spin-3d-carousel 38s linear infinite;
-    transition: animation-play-state 0.3s;
-  }
-  .carousel-3d:hover .carousel-3d-inner {
-    animation-play-state: paused;
+    will-change: transform;
   }
   .carousel-3d-card {
     position: absolute;
@@ -352,6 +376,17 @@
     border-radius: 1.5rem;
     overflow: hidden;
     box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.4);
+  }
+  @media (max-width: 1279px) {
+    .carousel-3d-card {
+      width: 200px;
+      height: 270px;
+      margin: -135px 0 0 -100px;
+    }
+  }
+
+  .dash-bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   @keyframes spin-3d-carousel {

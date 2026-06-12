@@ -68,7 +68,7 @@ function DashMobileTabBar({ links, current, setCurrent, accent }) {
   return (
     <nav
       aria-label="Navigation dashboard"
-      className="dash-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-ink-200/60 bg-white/95 backdrop-blur-xl dark:border-ink-800/60 dark:bg-ink-950/95 lg:hidden"
+      className="dash-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-ink-200/60 bg-white/95 backdrop-blur-xl dark:border-ink-800/60 dark:bg-ink-950/95 lg:hidden pb-[env(safe-area-inset-bottom,0px)]"
     >
       <div
         className="grid h-16"

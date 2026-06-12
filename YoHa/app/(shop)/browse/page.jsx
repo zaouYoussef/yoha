@@ -4,7 +4,6 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { Home } from '@/views/BrowseViews.jsx';
 import { useYohaNav } from '@/contexts/YohaNavContext.jsx';
-import { CampusHospitalsSection } from '@/views/landing/LandingViews.jsx';
 
 function BrowseInner() {
   const searchParams = useSearchParams();
@@ -12,16 +11,11 @@ function BrowseInner() {
   const { goto } = useYohaNav();
 
   return (
-    <>
-      <Home
-        key={filter}
-        initialFilter={filter}
-        onPickRestaurant={(r) => goto('restaurant', { restaurant: r })}
-      />
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 pb-10 sm:pb-14">
-        <CampusHospitalsSection />
-      </div>
-    </>
+    <Home
+      key={filter}
+      initialFilter={filter}
+      onPickRestaurant={(r) => goto('restaurant', { restaurant: r })}
+    />
   );
 }
 

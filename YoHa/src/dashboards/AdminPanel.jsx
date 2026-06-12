@@ -75,7 +75,7 @@ export function AdminOverview({ orders, restaurantCount = 0 }) {
   return (
     <div className="space-y-6">
       {/* Stats grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         <StatCard label="Commandes total"   value={orders.length}                            sub="Cumulé"          icon={<I.Bag size={18}/>}    color="from-brand-500 to-orange-500"/>
         <StatCard label="Aujourd'hui"        value={today.length}                              sub="Dernières 24 h"   icon={<I.Bell size={18}/>}   color="from-pink-500 to-rose-500"/>
         <StatCard label="Revenus totaux"     value={`${totalRev.toLocaleString('fr-FR')} MAD`}              sub="Somme des commandes" icon={<I.Star size={18}/>} color="from-violet-500 to-fuchsia-500"/>

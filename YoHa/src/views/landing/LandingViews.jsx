@@ -59,12 +59,12 @@ export function Landing({ onStart }) {
     <div className="page-enter">
       <Hero onStart={onStart} onHowItWorks={scrollToHowItWorks} />
       <PartnersMarquee />
+      <PizzaAssemblySection />
+      <ShowcaseSection />
       <PartnerCategoriesSection />
       <Carousel3DSection />
-      <PizzaAssemblySection />
       <FeaturesSection />
       <HowItWorksSection />
-      <ShowcaseSection />
       <TestimonialsSection />
       <FinalCTA onStart={onStart} />
     </div>
@@ -102,7 +102,9 @@ export function Hero({ onStart, onHowItWorks }) {
   const progress = useSectionScrollProgress(heroRef);
 
   useEffect(() => {
-    const el = heroRef.current; if (!el) return;
+    const el = heroRef.current;
+    if (!el) return;
+    if (window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 1024) return;
     const onMove = e => {
       const r = el.getBoundingClientRect();
       const xPct = (e.clientX - r.left) / r.width;
@@ -123,76 +125,78 @@ export function Hero({ onStart, onHowItWorks }) {
     <section ref={heroRef} className="relative overflow-hidden hero-spot">
       {/* Animated blobs */}
       <div aria-hidden className="absolute inset-0 -z-10">
-        <div className="absolute top-[-10%] left-[-10%] w-[42rem] h-[42rem] rounded-full bg-brand-400/40 blur-3xl animate-blob"></div>
-        <div className="absolute top-[10%] right-[-15%] w-[36rem] h-[36rem] rounded-full bg-fuchsia-400/40 blur-3xl animate-blob" style={{ animationDelay:'4s' }}></div>
-        <div className="absolute bottom-[-20%] left-[20%] w-[44rem] h-[44rem] rounded-full bg-violet-400/30 blur-3xl animate-blob" style={{ animationDelay:'8s' }}></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[16rem] sm:w-[32rem] lg:w-[42rem] h-[16rem] sm:h-[32rem] lg:h-[42rem] rounded-full bg-brand-400/40 blur-3xl animate-blob"></div>
+        <div className="absolute top-[10%] right-[-15%] w-[14rem] sm:w-[28rem] lg:w-[36rem] h-[14rem] sm:h-[28rem] lg:h-[36rem] rounded-full bg-fuchsia-400/40 blur-3xl animate-blob" style={{ animationDelay:'4s' }}></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-[18rem] sm:w-[34rem] lg:w-[44rem] h-[18rem] sm:h-[34rem] lg:h-[44rem] rounded-full bg-violet-400/30 blur-3xl animate-blob" style={{ animationDelay:'8s' }}></div>
         <div className="absolute inset-0 mesh-bg opacity-70"></div>
         <div className="mesh-conic-glow"></div>
         <div className="absolute inset-0 grid-bg"></div>
       </div>
 
-      {/* Canvas particle network — overlays everything but pointer-events allowed */}
-      <div className="absolute inset-0 -z-[5] pointer-events-none">
+      {/* Particules — desktop uniquement */}
+      <div className="absolute inset-0 -z-[5] pointer-events-none hidden md:block">
         <div className="absolute inset-0 pointer-events-auto">
           <ParticleCanvas />
         </div>
       </div>
 
-
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-28 grid lg:grid-cols-2 gap-12 items-center">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-12 lg:pt-20 pb-10 sm:pb-16 lg:pb-28 grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
         {/* LEFT */}
-        <div ref={textRef} className="relative z-10 transition-transform duration-300 ease-out" style={{ pointerEvents:'auto' }}>
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 dark:bg-ink-900/60 backdrop-blur text-xs font-semibold tracking-wider uppercase animate-fade-up border border-brand-500/25 shadow-[0_0_15px_rgba(249,115,22,0.1)] hover:border-brand-500/50 hover:shadow-[0_0_20px_rgba(249,115,22,0.25)] transition-all duration-500">
-            <span className="relative flex h-2.5 w-2.5">
+        <div ref={textRef} className="relative z-10 min-w-0 transition-transform duration-300 ease-out lg:[transform:none]" style={{ pointerEvents:'auto' }}>
+          <span className="inline-flex max-w-full items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-white/60 dark:bg-ink-900/60 backdrop-blur text-[10px] sm:text-xs font-semibold tracking-wider uppercase animate-fade-up border border-brand-500/25 shadow-[0_0_15px_rgba(249,115,22,0.1)]">
+            <span className="relative flex h-2.5 w-2.5 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-500"></span>
             </span>
-            En direct sur les campus & hôpitaux
+            <span className="truncate">En direct · campus & CHU</span>
           </span>
 
-          <h1 className="mt-6 font-display font-black tracking-tight text-5xl sm:text-6xl lg:text-7xl leading-[0.95]">
+          <h1 className="mt-4 sm:mt-6 font-display font-black tracking-tight text-[1.85rem] leading-[1.05] sm:text-5xl lg:text-7xl sm:leading-[0.95]">
             <AnimatedHeading text="YouHa." gradient />
-            <span className="block mt-3 text-ink-900 dark:text-ink-50 min-h-[1.15em] text-glow">
+            <span className="block mt-2 sm:mt-3 text-ink-900 dark:text-ink-50 min-h-[2.6em] sm:min-h-[1.2em] lg:min-h-[1.15em] text-glow text-[1.35rem] sm:text-[inherit] leading-snug">
               {typed}
               <span className="caret align-baseline" style={{ height:'0.85em' }}></span>
             </span>
           </h1>
 
-          <p className="mt-6 max-w-xl text-lg text-ink-600 dark:text-ink-300 leading-relaxed animate-fade-up" style={{ animationDelay:'600ms' }}>
-            Commandez auprès de vos cuisines préférées et faites-vous livrer directement à votre chambre, à l'aile hospitalière ou à la BU — en moins de 30 minutes. Aucun détour.
+          <p className="mt-4 sm:mt-6 max-w-xl text-sm sm:text-base lg:text-lg text-ink-600 dark:text-ink-300 leading-relaxed animate-fade-up" style={{ animationDelay:'600ms' }}>
+            <span className="sm:hidden">Commandez et faites-vous livrer à la chambre, à l&apos;aile ou à la BU — en moins de 30 min.</span>
+            <span className="hidden sm:inline">Commandez auprès de vos cuisines préférées et faites-vous livrer directement à votre chambre, à l&apos;aile hospitalière ou à la BU — en moins de 30 minutes. Aucun détour.</span>
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3 animate-fade-up" style={{ animationDelay:'750ms' }}>
-            <Magnetic strength={20}>
-              <Button onClick={onStart} variant="primary" size="lg">
+          <div className="mt-5 sm:mt-8 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 animate-fade-up" style={{ animationDelay:'750ms' }}>
+            <Magnetic strength={20} className="block w-full sm:inline-block sm:w-auto">
+              <Button onClick={onStart} variant="primary" size="lg" className="w-full sm:w-auto">
                 Commander maintenant <I.Right size={18}/>
               </Button>
             </Magnetic>
-            <Button type="button" variant="ghost" size="lg" onClick={onHowItWorks}>
+            <Button type="button" variant="ghost" size="lg" onClick={onHowItWorks} className="w-full sm:w-auto">
               <I.Bike size={18}/> Comment ça marche
             </Button>
           </div>
 
-          <div className="mt-10 flex items-center gap-6 animate-fade-up" style={{ animationDelay:'900ms' }}>
-            <div className="flex -space-x-2">
+          <div className="mt-6 sm:mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 animate-fade-up" style={{ animationDelay:'900ms' }}>
+            <div className="flex -space-x-2 shrink-0">
               {[1,2,3,4].map(i => (
                 <img key={i} src={`https://i.pravatar.cc/64?img=${i+10}`} alt=""
-                  className="w-9 h-9 rounded-full border-2 border-white dark:border-ink-900 object-cover" />
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-white dark:border-ink-900 object-cover" />
               ))}
             </div>
-            <div className="text-sm">
+            <div className="text-xs sm:text-sm min-w-0">
               <div className="flex items-center gap-1 text-amber-500">
-                {[1,2,3,4,5].map(i => <I.Star key={i} size={14} stroke={2.4} className="fill-amber-400" />)}
+                {[1,2,3,4,5].map(i => <I.Star key={i} size={13} stroke={2.4} className="fill-amber-400 sm:w-3.5 sm:h-3.5" />)}
                 <span className="ml-1 font-semibold text-ink-900 dark:text-ink-50">4,9</span>
               </div>
-              <div className="text-ink-500 dark:text-ink-400">Adoré par 12 000+ étudiants & soignants</div>
+              <div className="text-ink-500 dark:text-ink-400 leading-snug">
+                <span className="sm:hidden">12 000+ utilisateurs satisfaits</span>
+                <span className="hidden sm:inline">Adoré par 12 000+ étudiants & soignants</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* RIGHT — Bento layout */}
-        <div className="relative">
+        <div className="relative min-w-0 w-full">
           <BentoHero />
         </div>
       </div>
@@ -223,6 +227,40 @@ export function AnimatedHeading({ text, gradient }) {
 }
 
 /* === Bento layout for hero right === */
+function BentoSpotlightCard({ spot, spotFade, n, restaurants, spotIdx, onSelectSpot }) {
+  return (
+    <div className="cursor-grow group relative h-full min-h-[200px] sm:min-h-[220px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-cardhover spotlight border border-ink-200/20 dark:border-ink-800/80 transition-all duration-300"
+      onMouseMove={spotlightHandler}>
+      <div className={`absolute inset-0 transition-opacity duration-300 ease-out ${spotFade ? 'opacity-100' : 'opacity-0'}`}>
+        <img src={restaurantCover(spot.cover)} alt={spot.name}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
+        <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/40 to-transparent"></div>
+        <div className="absolute top-3 left-3 right-3 sm:right-14 px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-white/95 text-ink-900 shadow flex items-center gap-1 w-fit max-w-[calc(100%-1.5rem)]">
+          <I.Flame size={12} className="text-brand-500 shrink-0"/>
+          <span className="truncate">{spot.tags[0] ?? 'Partenaire'}</span>
+        </div>
+        <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 text-white z-10">
+          {n > 1 && (
+            <div className="flex justify-center gap-1.5 mb-2 sm:mb-3" role="tablist" aria-label="Restaurants à l'affiche">
+              {restaurants.map((r, i) => (
+                <button
+                  key={r.id}
+                  type="button"
+                  aria-label={r.name}
+                  aria-current={i === spotIdx ? 'true' : undefined}
+                  onClick={() => onSelectSpot(i)}
+                  className={`h-1.5 rounded-full transition-all ${i === spotIdx ? 'w-6 bg-white' : 'w-1.5 bg-white/45 hover:bg-white/75'}`}
+                />
+              ))}
+            </div>
+          )}
+          <div className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl leading-tight line-clamp-2">{spot.name}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function BentoHero() {
   const { restaurants } = useOrders();
   const n = restaurants.length;
@@ -248,43 +286,62 @@ export function BentoHero() {
   const spot = restaurants[spotIdx] ?? restaurants[0];
   if (!spot) return null;
 
+  const selectSpot = (i) => {
+    if (i === spotIdx) return;
+    setSpotFade(false);
+    setTimeout(() => { setSpotIdx(i); setSpotFade(true); }, 200);
+  };
+
   return (
-    <div className="grid grid-cols-6 grid-rows-6 gap-3 h-[520px] sm:h-[600px] lg:h-[640px]">
-      <Tilt className="col-span-4 row-span-3">
-        <div className="cursor-grow group relative h-full rounded-3xl overflow-hidden shadow-cardhover spotlight border border-ink-200/20 dark:border-ink-800/80 transition-all duration-300"
-          onMouseMove={spotlightHandler}>
-          <div
-            className={`absolute inset-0 transition-opacity duration-300 ease-out ${spotFade ? 'opacity-100' : 'opacity-0'}`}
-          >
-            <img src={restaurantCover(spot.cover)} alt={spot.name}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
-            <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/30 to-transparent"></div>
-            <div className="absolute top-3 left-3 right-14 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/95 text-ink-900 shadow flex items-center gap-1 max-w-[min(100%,14rem)]">
-              <I.Flame size={12} className="text-brand-500 shrink-0"/> <span className="truncate">{spot.tags[0] ?? 'Partenaire'}</span>
-            </div>
-            <div className="absolute bottom-4 left-4 right-4 text-white z-10">
-              {n > 1 && (
-                <div className="flex justify-center gap-1.5 mb-3" role="tablist" aria-label="Restaurants à l’affiche">
-                  {restaurants.map((r, i) => (
-                    <button
-                      key={r.id}
-                      type="button"
-                      aria-label={r.name}
-                      aria-current={i === spotIdx ? 'true' : undefined}
-                      onClick={() => {
-                        if (i === spotIdx) return;
-                        setSpotFade(false);
-                        setTimeout(() => { setSpotIdx(i); setSpotFade(true); }, 200);
-                      }}
-                      className={`h-1.5 rounded-full transition-all ${i === spotIdx ? 'w-6 bg-white' : 'w-1.5 bg-white/45 hover:bg-white/75'}`}
-                    />
-                  ))}
-                </div>
-              )}
-              <div className="font-display font-extrabold text-2xl sm:text-3xl leading-tight">{spot.name}</div>
-            </div>
+    <>
+      {/* Mobile — layout simplifié et lisible */}
+      <div className="lg:hidden space-y-3">
+        <BentoSpotlightCard
+          spot={spot}
+          spotFade={spotFade}
+          n={n}
+          restaurants={restaurants}
+          spotIdx={spotIdx}
+          onSelectSpot={selectSpot}
+        />
+
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-2xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 p-3 text-white text-center border border-white/20 shadow-glow">
+            <div className="text-[9px] font-semibold uppercase tracking-wider opacity-90">Délai</div>
+            <div className="font-display font-black text-2xl leading-none mt-0.5">26<span className="text-xs font-bold">min</span></div>
+          </div>
+          <div className="rounded-2xl glass-card-premium p-3 text-center border border-white/20 dark:border-white/5">
+            <div className="text-[9px] font-semibold uppercase tracking-wider text-ink-500">Communauté</div>
+            <div className="font-display font-black text-xl sm:text-2xl text-gradient mt-0.5">12k+</div>
+          </div>
+          <div className="rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/5 p-3 text-center border border-emerald-500/20">
+            <div className="text-lg leading-none">🎁</div>
+            <div className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300 mt-1 leading-tight">Livraison offerte</div>
           </div>
         </div>
+
+        <div className="rounded-2xl bg-gradient-to-r from-ink-950 to-ink-900 p-4 text-white border border-white/10 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"/> Suivi en direct
+            </div>
+            <div className="font-semibold text-sm mt-1 truncate">Yacine · arrivée dans 4 min</div>
+          </div>
+          <span className="text-2xl shrink-0">🛵</span>
+        </div>
+      </div>
+
+      {/* Desktop — grille bento complète */}
+      <div className="hidden lg:grid grid-cols-6 grid-rows-6 gap-3 h-[640px]">
+      <Tilt className="col-span-4 row-span-3">
+        <BentoSpotlightCard
+          spot={spot}
+          spotFade={spotFade}
+          n={n}
+          restaurants={restaurants}
+          spotIdx={spotIdx}
+          onSelectSpot={selectSpot}
+        />
       </Tilt>
 
       <Tilt className="col-span-2 row-span-3" max={5}>
@@ -344,8 +401,8 @@ export function BentoHero() {
 
       <Tilt className="col-span-3 row-span-1">
         <div className="h-full rounded-3xl bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-500/20 dark:border-emerald-500/10 px-4 flex items-center gap-3 shadow-sm hover:bg-emerald-500/15 dark:hover:bg-emerald-500/10 transition-all duration-300 hover:border-emerald-500/30 hover:scale-[1.02] cursor-pointer">
-          <span className="w-9 h-9 rounded-xl bg-emerald-500 text-white grid place-items-center shadow-sm"><I.Bike size={18}/></span>
-          <div className="text-sm">
+          <span className="w-9 h-9 rounded-xl bg-emerald-500 text-white grid place-items-center shadow-sm shrink-0"><I.Bike size={18}/></span>
+          <div className="text-sm min-w-0">
             <div className="font-bold text-emerald-800 dark:text-emerald-300">Livraison offerte</div>
             <div className="text-ink-500 dark:text-ink-400 text-xs">Sur tout le campus & CHU</div>
           </div>
@@ -354,14 +411,15 @@ export function BentoHero() {
 
       <Tilt className="col-span-3 row-span-1">
         <div className="h-full rounded-3xl glass-card-premium border border-white/20 dark:border-white/5 px-4 flex items-center gap-3 shadow-card hover:shadow-cardhover transition-all duration-300 hover:scale-[1.02] hover:border-brand-500/20 cursor-pointer">
-          <span className="w-9 h-9 rounded-xl bg-brand-500 text-white grid place-items-center text-lg shadow-sm">🍽️</span>
-          <div className="text-sm">
+          <span className="w-9 h-9 rounded-xl bg-brand-500 text-white grid place-items-center text-lg shadow-sm shrink-0">🍽️</span>
+          <div className="text-sm min-w-0">
             <div className="font-bold">Campus & CHU</div>
             <div className="text-ink-500 dark:text-ink-400 text-xs">Livraison prioritaire 24h/24</div>
           </div>
         </div>
       </Tilt>
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -486,13 +544,13 @@ export function PartnerCategoriesSection() {
               <button
                 type="button"
                 onClick={() => goto('home', { browseFilter: r.browseFilter })}
-                className={`relative overflow-hidden group h-full w-full text-left p-8 rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${r.hoverBorder} transition-all duration-500 shadow-card ${r.hoverShadow} hover:-translate-y-1.5 flex flex-col justify-between min-h-[300px] cursor-pointer`}
+                className={`relative overflow-hidden group h-full w-full text-left p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${r.hoverBorder} transition-all duration-500 shadow-card ${r.hoverShadow} hover:-translate-y-1.5 flex flex-col justify-between min-h-[240px] sm:min-h-[280px] lg:min-h-[300px] cursor-pointer`}
               >
                 {/* Glowing background orb */}
                 <div className={`absolute -right-10 -bottom-10 w-28 h-28 rounded-full bg-gradient-to-br ${r.color} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 blur-xl transition-all duration-500 scale-50 group-hover:scale-100`}></div>
                 
                 <div>
-                  <div className="flex justify-between items-start">
+                  <div className="flex flex-wrap justify-between items-start gap-2">
                     {/* Glowing Emoji Container */}
                     <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${r.color} text-white flex items-center justify-center text-3xl shadow-glow relative group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
                       {r.emoji}
@@ -528,46 +586,80 @@ export function PartnerCategoriesSection() {
 }
 
 /* === 3D AUTO-ROTATING CAROUSEL === */
+function CarouselPartnerCard({ restaurant, className = '' }) {
+  const tags = Array.isArray(restaurant.tags) ? restaurant.tags : [];
+  return (
+    <div className={`relative w-full h-full overflow-hidden rounded-2xl sm:rounded-3xl border border-white/10 dark:border-ink-800/80 shadow-glow ${className}`}>
+      <img src={restaurantCover(restaurant.cover)} alt={restaurant.name} className="absolute inset-0 w-full h-full object-cover"/>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"/>
+      <div className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 backdrop-blur-md text-white border border-white/20 flex items-center gap-1">
+        ★ 4.9
+      </div>
+      <div className="absolute bottom-4 left-4 right-4 text-white">
+        <span className="inline-block px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider bg-brand-500/80 text-white mb-2">{tags[0] || 'Partenaire'}</span>
+        <div className="font-display font-extrabold text-base sm:text-lg lg:text-xl mt-0.5 line-clamp-2">{restaurant.name}</div>
+      </div>
+    </div>
+  );
+}
+
+function useCarouselRadius() {
+  const [radius, setRadius] = useState(360);
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      if (w < 1280) setRadius(Math.min(280, w * 0.38));
+      else setRadius(360);
+    };
+    update();
+    window.addEventListener('resize', update, { passive: true });
+    return () => window.removeEventListener('resize', update);
+  }, []);
+  return radius;
+}
+
 export function Carousel3DSection() {
   const { restaurants } = useOrders();
   const items = restaurants.slice(0, 6);
-  const radius = 360;
-  const angleStep = 360 / items.length;
+  const count = Math.max(items.length, 1);
+  const angleStep = 360 / count;
+  const radius = useCarouselRadius();
 
   return (
-    <section className="relative overflow-hidden py-16 sm:py-24">
-      {/* Ambient glowing spotlight behind carousel */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[320px] rounded-full bg-brand-500/10 blur-[130px] pointer-events-none -z-10" />
+    <section className="relative overflow-hidden py-12 sm:py-16 lg:py-24">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(550px,90vw)] h-[320px] rounded-full bg-brand-500/10 blur-[130px] pointer-events-none -z-10" />
       <div className="absolute inset-0 -z-20 mesh-conic opacity-50"></div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center mb-10">
-        <span className="text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">À découvrir</span>
-        <h2 className="mt-3 font-display font-extrabold text-4xl sm:text-5xl tracking-tight">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center mb-8 sm:mb-10">
+        <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">À découvrir</span>
+        <h2 className="mt-3 font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight px-2">
           Un univers culinaire <span className="text-gradient animate-text-glow-slow">à 360°</span>
         </h2>
-        <p className="mt-3 text-ink-500 dark:text-ink-400">
+        <p className="mt-3 text-sm sm:text-base text-ink-500 dark:text-ink-400 px-2">
           Tour complet à 360° sur nos restaurants partenaires.
         </p>
       </div>
 
-      <div className="carousel-3d relative h-[420px]">
+      {/* Mobile / tablette : défilement horizontal */}
+      <div className="lg:hidden -mx-4 px-4 sm:mx-0 sm:px-6">
+        <div className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2">
+          {items.map((r) => (
+            <div key={r.id} className="snap-center shrink-0 w-[78vw] max-w-[280px] aspect-[3/4]">
+              <CarouselPartnerCard restaurant={r} className="group-hover:border-brand-500/30 transition-all duration-500"/>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop : carrousel 3D */}
+      <div className="carousel-3d relative hidden lg:block h-[380px] xl:h-[420px]">
         <div className="carousel-3d-inner">
           {items.map((r, i) => {
             const angle = i * angleStep;
             return (
               <div key={r.id} className="carousel-3d-card cursor-grow group"
                 style={{ transform: `rotateY(${angle}deg) translateZ(${radius}px)` }}>
-                <div className="relative w-full h-full overflow-hidden rounded-3xl border border-white/10 dark:border-ink-800/80 group-hover:border-brand-500/30 shadow-glow transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]">
-                  <img src={restaurantCover(r.cover)} alt={r.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
-                  <div className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 backdrop-blur-md text-white border border-white/20 flex items-center gap-1">
-                    ★ 4.9
-                  </div>
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <span className="inline-block px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider bg-brand-500/80 text-white mb-2">{r.tags[0] || 'Partenaire'}</span>
-                    <div className="font-display font-extrabold text-lg sm:text-xl mt-0.5">{r.name}</div>
-                  </div>
-                </div>
+                <CarouselPartnerCard restaurant={r} className="group-hover:border-brand-500/30 transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]"/>
               </div>
             );
           })}
@@ -618,7 +710,7 @@ export function FeaturesSection() {
           return (
             <Reveal key={f.title} delay={i * 80}>
               <Tilt max={8} className="h-full">
-                <div className={`group relative h-full p-8 rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} shadow-card ${hoverShadowClass} hover:-translate-y-1.5 transition-all duration-500 overflow-hidden spotlight flex flex-col justify-between min-h-[240px]`}
+                <div className={`group relative h-full p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} shadow-card ${hoverShadowClass} hover:-translate-y-1.5 transition-all duration-500 overflow-hidden spotlight flex flex-col justify-between min-h-[200px] sm:min-h-[240px]`}
                   onMouseMove={spotlightHandler}>
                   
                   {/* Glowing background corner orb */}
@@ -686,9 +778,9 @@ export function HowItWorksSection() {
             <React.Fragment key={s.num}>
               <div className="flex-1 w-full">
                 <Reveal delay={i * 150}>
-                  <div className={`relative overflow-hidden group h-full p-8 rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} transition-all duration-500 shadow-card ${hoverShadowClass} hover:-translate-y-1.5 flex flex-col justify-between min-h-[260px]`}>
+                  <div className={`relative overflow-hidden group h-full p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} transition-all duration-500 shadow-card ${hoverShadowClass} hover:-translate-y-1.5 flex flex-col justify-between min-h-[220px] sm:min-h-[260px]`}>
                     {/* Giant Backdrop Number */}
-                    <span className={`absolute -right-3 -bottom-5 font-display font-black text-9xl text-transparent bg-gradient-to-br ${s.color} bg-clip-text opacity-[0.08] dark:opacity-[0.14] select-none pointer-events-none group-hover:scale-110 group-hover:opacity-[0.22] transition-all duration-500`}>
+                    <span className={`absolute -right-4 sm:-right-3 -bottom-4 sm:-bottom-5 font-display font-black text-7xl sm:text-9xl text-transparent bg-gradient-to-br ${s.color} bg-clip-text opacity-[0.08] dark:opacity-[0.14] select-none pointer-events-none group-hover:scale-110 group-hover:opacity-[0.22] transition-all duration-500`}>
                       {s.num}
                     </span>
  
@@ -831,7 +923,7 @@ export function ShowcaseSection() {
   return (
     <section 
       ref={sectionRef} 
-      className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-[#fffcf6] to-[#fdf4e3] text-slate-900 py-16 sm:py-20 my-16 rounded-[3rem] max-w-7xl mx-auto px-8 sm:px-12 border border-amber-100 shadow-xl"
+      className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-[#fffcf6] to-[#fdf4e3] text-slate-900 py-12 sm:py-16 lg:py-20 my-8 sm:my-12 lg:my-16 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] max-w-7xl mx-4 sm:mx-6 lg:mx-auto px-5 sm:px-8 lg:px-12 border border-amber-100 shadow-xl"
     >
       {/* Premium Background Effects */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -955,17 +1047,17 @@ export function TestimonialsSection() {
         <div className="marquee-mask -mx-4 sm:mx-0 px-4 sm:px-0">
           <div className="mt-10 testi-track flex gap-5 overflow-x-auto no-scrollbar pb-6">
             {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="cursor-grow shrink-0 w-[85%] sm:w-[420px] rounded-3xl p-6 glass-card-premium border border-white/20 dark:border-white/5 shadow-card hover:shadow-cardhover hover:shadow-[0_20px_50px_rgba(249,115,22,0.08)] transition-all duration-300 relative overflow-hidden spotlight hover:scale-[1.02] hover:border-brand-500/20"
+              <div key={t.name} className="cursor-grow shrink-0 w-[88%] sm:w-[380px] lg:w-[420px] rounded-2xl sm:rounded-3xl p-5 sm:p-6 glass-card-premium border border-white/20 dark:border-white/5 shadow-card hover:shadow-cardhover hover:shadow-[0_20px_50px_rgba(249,115,22,0.08)] transition-all duration-300 relative overflow-hidden spotlight hover:scale-[1.02] hover:border-brand-500/20"
                 onMouseMove={spotlightHandler}>
                 <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br ${t.color} opacity-20 blur-2xl`}></div>
                 
                 {/* Verified Badge */}
-                <div className="absolute top-6 right-6 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
-                  <span className="text-xs">✓</span> Achat vérifié
+                <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
+                  <span className="text-xs">✓</span> <span className="hidden sm:inline">Achat vérifié</span><span className="sm:hidden">Vérifié</span>
                 </div>
 
-                <div className="text-5xl text-brand-500/30 leading-none font-serif">“</div>
-                <p className="mt-1 text-ink-700 dark:text-ink-200 leading-relaxed text-sm sm:text-base pr-12">{t.text}</p>
+                <div className="text-3xl sm:text-5xl text-brand-500/30 leading-none font-serif">“</div>
+                <p className="mt-1 text-ink-700 dark:text-ink-200 leading-relaxed text-sm sm:text-base pr-4 sm:pr-12">{t.text}</p>
                 <div className="mt-5 flex items-center gap-3">
                   <img src={t.avatar} alt="" className="w-11 h-11 rounded-full object-cover border border-white/20 dark:border-white/10 shadow-sm"/>
                   <div>

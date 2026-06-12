@@ -8,5 +8,6 @@ export const CATEGORIES_BANNERS = [
   { label:'Asiatique',gradient:'from-fuchsia-400 to-purple-500', emoji:'🍜', id:'asian' },
   { label:'MedEat',   gradient:'from-sky-400 to-indigo-500',     emoji:'🏥', id:'medical' },
   { label:'Dessert',  gradient:'from-pink-400 to-fuchsia-500',   emoji:'🍰', id:'dessert' },
+  { label:'Pharmacie', gradient:'from-emerald-400 to-teal-600',  emoji:'💊', id:'pharmacy' },
   { label:'Boissons', gradient:'from-cyan-400 to-blue-500',      emoji:'🥤', id:'drinks' },
 ];
