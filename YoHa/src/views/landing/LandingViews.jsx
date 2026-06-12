@@ -49,48 +49,6 @@ function useSectionScrollProgress(ref) {
   return progress;
 }
 
-export function ScrollIngredient({ src, className = '', style = {}, progress, speedY = 100, speedX = 0, rotateSpeed = 180, scaleSpeed = 0, initialX = 0, initialY = 0, initialRotate = 0, initialScale = 1 }) {
-  const y = initialY + (progress - 0.5) * speedY;
-  const x = initialX + (progress - 0.5) * speedX;
-  const rotate = initialRotate + (progress - 0.5) * rotateSpeed;
-  const scale = initialScale + (progress - 0.5) * scaleSpeed;
-
-  return (
-    <img
-      src={src}
-      alt=""
-      className={`bg-ingredient ${className}`}
-      style={{
-        transform: `translate3d(${x}px, ${y}px, 0) rotate(${rotate}deg) scale(${scale})`,
-        ...style,
-      }}
-    />
-  );
-}
-
-export function ConvergingIngredient({ src, className = '', style = {}, progress, targetX, targetY, scatterX, scatterY, initialRotate = 0, targetRotate = 0 }) {
-  const factor = Math.sin(progress * Math.PI);
-  const x = scatterX + (targetX - scatterX) * factor;
-  const y = scatterY + (targetY - scatterY) * factor;
-  const rotate = initialRotate + (targetRotate - initialRotate) * factor;
-  const opacity = 0.15 + 0.85 * factor;
-
-  return (
-    <img
-      src={src}
-      alt=""
-      className={`bg-ingredient ${className}`}
-      style={{
-        left: '50%',
-        top: '50%',
-        transform: `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), 0) rotate(${rotate}deg)`,
-        opacity,
-        ...style,
-      }}
-    />
-  );
-}
-
 export function Landing({ onStart }) {
   const scrollToHowItWorks = () => {
     document.getElementById('comment-ca-marche')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -106,7 +64,6 @@ export function Landing({ onStart }) {
       <FeaturesSection />
       <HowItWorksSection />
       <ShowcaseSection />
-      <FlyingBurgerShowcase />
       <TestimonialsSection />
       <FinalCTA onStart={onStart} />
     </div>
@@ -180,57 +137,7 @@ export function Hero({ onStart, onHowItWorks }) {
         </div>
       </div>
 
-      {/* Scroll-triggered floating background ingredients */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-        {/* Left side floaters */}
-        <ScrollIngredient
-          src="/pizza-img/section_1_09.webp"
-          progress={progress}
-          speedY={-140}
-          speedX={40}
-          rotateSpeed={120}
-          className="hidden md:block"
-          style={{ top: '15%', left: '8%', width: '80px', height: '80px', opacity: 0.7 }}
-        />
-        <ScrollIngredient
-          src="/pizza-img/section_1_01.webp"
-          progress={progress}
-          speedY={-90}
-          speedX={-20}
-          rotateSpeed={-90}
-          className="hidden md:block"
-          style={{ top: '42%', left: '3%', width: '55px', height: '55px', opacity: 0.65 }}
-        />
-        <ScrollIngredient
-          src="/pizza-img/section_1_02.webp"
-          progress={progress}
-          speedY={-160}
-          speedX={30}
-          rotateSpeed={160}
-          className="hidden md:block"
-          style={{ top: '70%', left: '11%', width: '70px', height: '70px', opacity: 0.8 }}
-        />
 
-        {/* Right side floaters */}
-        <ScrollIngredient
-          src="/pizza-img/section_1_08.webp"
-          progress={progress}
-          speedY={-110}
-          speedX={-30}
-          rotateSpeed={-115}
-          className="hidden lg:block"
-          style={{ top: '24%', right: '5%', width: '85px', height: '85px', opacity: 0.7 }}
-        />
-        <ScrollIngredient
-          src="/pizza-img/section_1_04.webp"
-          progress={progress}
-          speedY={-150}
-          speedX={10}
-          rotateSpeed={140}
-          className="hidden lg:block"
-          style={{ top: '68%', right: '7%', width: '75px', height: '75px', opacity: 0.75 }}
-        />
-      </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-28 grid lg:grid-cols-2 gap-12 items-center">
         {/* LEFT */}
@@ -543,23 +450,7 @@ export function PartnerCategoriesSection() {
 
   return (
     <section ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28 overflow-visible">
-      {/* Scroll-triggered floating background ingredients */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-        <ScrollIngredient
-          src="/pizza-img/section_1_06.webp"
-          progress={progress}
-          speedY={-120}
-          rotateSpeed={100}
-          style={{ top: '15%', left: '2%', width: '70px', height: '70px', opacity: 0.5 }}
-        />
-        <ScrollIngredient
-          src="/pizza-img/section_1_03.webp"
-          progress={progress}
-          speedY={-140}
-          rotateSpeed={-130}
-          style={{ top: '65%', right: '2%', width: '45px', height: '45px', opacity: 0.55 }}
-        />
-      </div>
+
 
       <Reveal>
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -674,23 +565,7 @@ export function FeaturesSection() {
 
   return (
     <section ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 sm:py-32 overflow-visible">
-      {/* Scroll-triggered floating background ingredients */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-        <ScrollIngredient
-          src="/pizza-img/section_1_09.webp"
-          progress={progress}
-          speedY={-130}
-          rotateSpeed={80}
-          style={{ top: '15%', right: '2%', width: '80px', height: '80px', opacity: 0.5 }}
-        />
-        <ScrollIngredient
-          src="/pizza-img/section_1_05.webp"
-          progress={progress}
-          speedY={-100}
-          rotateSpeed={-120}
-          style={{ top: '65%', left: '2%', width: '65px', height: '65px', opacity: 0.5 }}
-        />
-      </div>
+
       <div className="max-w-2xl mb-16">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
           ✨ Avantages
@@ -755,23 +630,7 @@ export function HowItWorksSection() {
 
   return (
     <section ref={sectionRef} id="comment-ca-marche" className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 scroll-mt-24 overflow-visible" aria-labelledby="how-it-works-heading">
-      {/* Scroll-triggered floating background ingredients */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-        <ScrollIngredient
-          src="/pizza-img/section_1_08.webp"
-          progress={progress}
-          speedY={-120}
-          rotateSpeed={140}
-          style={{ top: '25%', left: '2%', width: '75px', height: '75px', opacity: 0.55 }}
-        />
-        <ScrollIngredient
-          src="/pizza-img/section_1_04.webp"
-          progress={progress}
-          speedY={-110}
-          rotateSpeed={-100}
-          style={{ top: '65%', right: '2%', width: '70px', height: '70px', opacity: 0.5 }}
-        />
-      </div>
+
       <div className="text-center max-w-2xl mx-auto mb-16">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
           📌 Fonctionnement
@@ -938,37 +797,70 @@ export function PizzaCookingStage({ progress }) {
 /* === Showcase === */
 export function ShowcaseSection() {
   const sectionRef = useRef(null);
-  const progress = useSectionScrollProgress(sectionRef);
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-[#ffb833] dark:bg-[#18110a] text-slate-900 dark:text-white transition-colors duration-500 py-20 sm:py-28 my-12 rounded-[3rem] max-w-7xl mx-auto px-6 sm:px-10 flex flex-col items-center text-center">
-      {/* Background decorations */}
-      <div className="absolute inset-0 opacity-10 dark:opacity-20 pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" />
+    <section 
+      ref={sectionRef} 
+      className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-[#fffcf6] to-[#fdf4e3] text-slate-900 py-16 sm:py-20 my-16 rounded-[3rem] max-w-7xl mx-auto px-8 sm:px-12 border border-amber-100 shadow-xl"
+    >
+      {/* Premium Background Effects */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Soft glowing mesh gradient blobs */}
+        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-amber-200/40 blur-[100px]" />
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-rose-200/30 blur-[100px]" />
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.015)_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_at_center,black_60%,transparent_100%)]" />
       </div>
 
-      <div className="relative z-10 max-w-3xl mx-auto">
-        <Reveal>
-          <div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/10 dark:bg-white/10 text-slate-900 dark:text-amber-400 text-xs font-semibold uppercase tracking-widest w-fit mx-auto">
-              ✨ Technologie & Expérience
-            </span>
-            <h2 className="mt-6 font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-none text-slate-900 dark:text-white">
-              Une expérience <br />
-              <span className="text-slate-800 dark:text-amber-500 text-glow">extraordinairement fluide.</span>
-            </h2>
-            <p className="mt-6 text-base sm:text-lg lg:text-xl text-slate-800/90 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Tout a été méticuleusement conçu pour éliminer l'attente et vous offrir le meilleur de vos campus.
-            </p>
+      <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center">
+        {/* LEFT COLUMN: Text and highlights */}
+        <div className="lg:col-span-7 text-left flex flex-col justify-center">
+          <Reveal>
+            <div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 text-xs font-semibold uppercase tracking-widest border border-brand-500/20">
+                ✨ Technologie & Expérience
+              </span>
+              <h2 className="mt-6 font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.05] text-slate-900">
+                Une expérience <br />
+                <span className="bg-gradient-to-r from-amber-600 via-brand-500 to-rose-500 bg-clip-text text-transparent text-glow">
+                  extraordinairement fluide.
+                </span>
+              </h2>
+              <p className="mt-6 text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed">
+                Tout a été méticuleusement conçu pour éliminer l'attente et vous offrir le meilleur de vos campus.
+              </p>
+            </div>
+          </Reveal>
+
+          {/* Premium Highlights Grid */}
+          <div className="mt-10 grid sm:grid-cols-2 gap-4">
+            {[
+              { icon: '⚡', title: '14 min de livraison', desc: 'Moyenne record sur le campus' },
+              { icon: '🍔', title: 'Gourmet & Ultra-frais', desc: 'Préparé sous vos yeux' },
+              { icon: '🛵', title: 'Suivi live interactif', desc: 'Savoir exactement où est le livreur' },
+              { icon: '🔒', title: 'Zéro friction', desc: 'Commande en 3 clics sans friction' }
+            ].map((item, idx) => (
+              <Reveal key={item.title} delay={100 + idx * 80}>
+                <div className="p-4 rounded-2xl bg-white/60 border border-amber-100 hover:border-brand-500/20 hover:bg-white transition-all duration-300 flex items-start gap-3.5 group shadow-sm hover:shadow-md">
+                  <span className="w-10 h-10 rounded-xl bg-amber-100/50 text-amber-800 group-hover:bg-brand-500/20 group-hover:text-brand-600 group-hover:scale-110 transition-all duration-300 flex items-center justify-center text-lg shrink-0">
+                    {item.icon}
+                  </span>
+                  <div>
+                    <h4 className="font-bold text-sm text-slate-900 group-hover:text-brand-600 transition-colors">{item.title}</h4>
+                    <p className="text-xs text-slate-500 mt-1">{item.desc}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
           </div>
-        </Reveal>
-      </div>
+        </div>
 
-      {/* CENTER: Pizza Exploded Stage */}
-      <div className="relative z-10 mt-12 sm:mt-16 w-full flex justify-center items-center min-h-[580px]">
-        <Reveal delay={200}>
-          <PizzaExplodedStage progress={progress} />
-        </Reveal>
+        {/* RIGHT COLUMN: Interactive Exploded Burger */}
+        <div className="lg:col-span-5 flex justify-center items-center relative min-h-[380px] lg:min-h-[480px]">
+          <Reveal delay={200} className="w-full flex justify-center">
+            <InteractiveBurger3D />
+          </Reveal>
+        </div>
       </div>
     </section>
   );
@@ -1019,23 +911,7 @@ export function TestimonialsSection() {
 
   return (
     <section ref={sectionRef} className="relative py-20 overflow-visible">
-      {/* Scroll-triggered floating background ingredients */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-        <ScrollIngredient
-          src="/pizza-img/section_1_01.webp"
-          progress={progress}
-          speedY={-120}
-          rotateSpeed={100}
-          style={{ top: '25%', right: '2%', width: '60px', height: '60px', opacity: 0.55 }}
-        />
-        <ScrollIngredient
-          src="/pizza-img/section_1_02.webp"
-          progress={progress}
-          speedY={-80}
-          rotateSpeed={-90}
-          style={{ top: '70%', left: '2%', width: '65px', height: '65px', opacity: 0.5 }}
-        />
-      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-end justify-between flex-wrap gap-4">
           <div className="max-w-2xl">
@@ -1273,8 +1149,8 @@ export function FlyingBurgerShowcase() {
 }
 
 /* === Interactive 3D Exploded Burger (WebP Frame Sequence) === */
-export function InteractiveBurger3D({ progress }) {
-  const [hovered, setHovered] = useState(false);
+export function InteractiveBurger3D() {
+  const [frameIndex, setFrameIndex] = useState(59);
   const [coords, setCoords] = useState({ x: 0, y: 0 });
 
   // Preload all 60 frames on mount to avoid flickering
@@ -1293,38 +1169,34 @@ export function InteractiveBurger3D({ progress }) {
   };
 
   const handleMouseLeave = () => {
-    setHovered(false);
     setCoords({ x: 0, y: 0 });
   };
 
-  // Calculate the frame index
-  let frameIndex = 59;
-  const startAssembling = 0.05;
-  const endAssembling = 0.55;
-
-  if (progress < startAssembling) {
-    frameIndex = 0;
-  } else if (progress > endAssembling) {
-    frameIndex = 59;
-  } else {
-    const pct = (progress - startAssembling) / (endAssembling - startAssembling);
-    frameIndex = Math.min(59, Math.max(0, Math.floor(pct * 59)));
-  }
-
-  // Scrub using mouse movement if hovered
-  if (hovered) {
-    // coords.y goes from -0.5 (top) to 0.5 (bottom)
-    // map to [0, 59]
-    const hoverPct = coords.y + 0.5;
-    frameIndex = Math.min(59, Math.max(0, Math.floor(hoverPct * 59)));
-  }
+  // Continuous auto-playing ping-pong loop (exploded -> assembled -> exploded)
+  useEffect(() => {
+    let direction = -1; // Start by exploding (decreasing index)
+    const intervalId = setInterval(() => {
+      setFrameIndex((prev) => {
+        let next = prev + direction;
+        if (next >= 59) {
+          next = 59;
+          direction = -1; // Reverse to explode
+        } else if (next <= 0) {
+          next = 0;
+          direction = 1; // Reverse to assemble
+        }
+        return next;
+      });
+    }, 45); // ~22 FPS loop, smooth and gentle
+    
+    return () => clearInterval(intervalId);
+  }, []);
 
   const frameSrc = `/burger-frames/burger_${String(frameIndex).padStart(2, '0')}.webp`;
 
   return (
     <div
-      className="relative mx-auto w-full max-w-[280px] sm:max-w-[320px] aspect-[568/845] flex items-center justify-center cursor-ns-resize select-none"
-      onMouseEnter={() => setHovered(true)}
+      className="relative mx-auto w-full max-w-[280px] sm:max-w-[320px] aspect-[568/845] flex items-center justify-center cursor-pointer select-none"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ perspective: '1200px' }}
@@ -1333,7 +1205,7 @@ export function InteractiveBurger3D({ progress }) {
       <div 
         className="absolute inset-8 rounded-full bg-gradient-to-tr from-brand-500/20 via-pink-500/10 to-transparent blur-3xl opacity-75 pointer-events-none transition-transform duration-500"
         style={{
-          transform: `translate3d(${coords.x * 40}px, ${coords.y * 40}px, 0) scale(${hovered ? 1.15 : 1.0})`,
+          transform: `translate3d(${coords.x * 40}px, ${coords.y * 40}px, 0)`,
         }}
       />
 
@@ -1356,16 +1228,7 @@ export function InteractiveBurger3D({ progress }) {
           transformStyle: 'preserve-3d',
         }}
       />
-
-      {/* Hover Instruction Overlay */}
-      <div 
-        className="absolute bottom-16 px-4 py-2 rounded-full glass border border-white/10 text-[10px] font-bold tracking-wider uppercase text-ink-600 dark:text-ink-300 transition-opacity duration-300 pointer-events-none flex items-center gap-1.5 shadow-lg"
-        style={{
-          opacity: hovered ? 1 : 0,
-        }}
-      >
-        <span className="animate-pulse">↕ Glissez pour disséquer</span>
-      </div>
     </div>
   );
 }
+
