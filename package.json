@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "npm run dev --prefix YoHa",
+    "dev:clean": "npm run dev:clean --prefix YoHa",
+    "dev:all": "npm run dev:all --prefix YoHa",
     "build": "npm run build --prefix YoHa",
     "start": "npm run start --prefix YoHa",
     "backend": "cd backend && python manage.py runserver",

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, Fragment } from 'react';
+import React, { useState, useEffect, useMemo, Fragment, useRef } from 'react';
 import { I } from '../../icons/Icons.jsx';
 import { useOrders } from '../../contexts/AppContexts.jsx';
 import { FEATURES } from '../../data/features.jsx';
@@ -15,6 +15,82 @@ import { Reveal } from '../../components/ui/Reveal.jsx';
 import { restaurantCover } from '../../components/ui/MenuItemImage.jsx';
 import { spotlightHandler } from '../../utils/spotlight.js';
 
+/* === SCROLL ENGINE HOOK & COMPONENTS === */
+function useSectionScrollProgress(ref) {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const rect = el.getBoundingClientRect();
+          const viewportHeight = window.innerHeight;
+          const start = rect.top - viewportHeight;
+          const total = rect.height + viewportHeight;
+          const current = -start;
+          const rawProgress = current / total;
+          setProgress(Math.max(0, Math.min(1, rawProgress)));
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [ref]);
+
+  return progress;
+}
+
+export function ScrollIngredient({ src, className = '', style = {}, progress, speedY = 100, speedX = 0, rotateSpeed = 180, scaleSpeed = 0, initialX = 0, initialY = 0, initialRotate = 0, initialScale = 1 }) {
+  const y = initialY + (progress - 0.5) * speedY;
+  const x = initialX + (progress - 0.5) * speedX;
+  const rotate = initialRotate + (progress - 0.5) * rotateSpeed;
+  const scale = initialScale + (progress - 0.5) * scaleSpeed;
+
+  return (
+    <img
+      src={src}
+      alt=""
+      className={`bg-ingredient ${className}`}
+      style={{
+        transform: `translate3d(${x}px, ${y}px, 0) rotate(${rotate}deg) scale(${scale})`,
+        ...style,
+      }}
+    />
+  );
+}
+
+export function ConvergingIngredient({ src, className = '', style = {}, progress, targetX, targetY, scatterX, scatterY, initialRotate = 0, targetRotate = 0 }) {
+  const factor = Math.sin(progress * Math.PI);
+  const x = scatterX + (targetX - scatterX) * factor;
+  const y = scatterY + (targetY - scatterY) * factor;
+  const rotate = initialRotate + (targetRotate - initialRotate) * factor;
+  const opacity = 0.15 + 0.85 * factor;
+
+  return (
+    <img
+      src={src}
+      alt=""
+      className={`bg-ingredient ${className}`}
+      style={{
+        left: '50%',
+        top: '50%',
+        transform: `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), 0) rotate(${rotate}deg)`,
+        opacity,
+        ...style,
+      }}
+    />
+  );
+}
+
 export function Landing({ onStart }) {
   const scrollToHowItWorks = () => {
     document.getElementById('comment-ca-marche')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -26,9 +102,11 @@ export function Landing({ onStart }) {
       <PartnersMarquee />
       <PartnerCategoriesSection />
       <Carousel3DSection />
+      <PizzaAssemblySection />
       <FeaturesSection />
       <HowItWorksSection />
       <ShowcaseSection />
+      <FlyingBurgerShowcase />
       <TestimonialsSection />
       <FinalCTA onStart={onStart} />
     </div>
@@ -59,8 +137,32 @@ export function Hero({ onStart, onHowItWorks }) {
     return () => clearTimeout(t);
   }, [sloganIdx]);
 
+  /* spotlight follows cursor */
+  const heroRef = useRef();
+  /* parallax on text */
+  const textRef = useRef();
+  const progress = useSectionScrollProgress(heroRef);
+
+  useEffect(() => {
+    const el = heroRef.current; if (!el) return;
+    const onMove = e => {
+      const r = el.getBoundingClientRect();
+      const xPct = (e.clientX - r.left) / r.width;
+      const yPct = (e.clientY - r.top ) / r.height;
+      el.style.setProperty('--mx', (xPct * 100) + '%');
+      el.style.setProperty('--my', (yPct * 100) + '%');
+      if (textRef.current) {
+        const tx = (xPct - 0.5) * 14;
+        const ty = (yPct - 0.5) * 14;
+        textRef.current.style.transform = `translate(${tx}px, ${ty}px)`;
+      }
+    };
+    el.addEventListener('mousemove', onMove);
+    return () => el.removeEventListener('mousemove', onMove);
+  }, []);
+
   return (
-    <section className="relative overflow-hidden hero-spot">
+    <section ref={heroRef} className="relative overflow-hidden hero-spot">
       {/* Animated blobs */}
       <div aria-hidden className="absolute inset-0 -z-10">
         <div className="absolute top-[-10%] left-[-10%] w-[42rem] h-[42rem] rounded-full bg-brand-400/40 blur-3xl animate-blob"></div>
@@ -78,9 +180,61 @@ export function Hero({ onStart, onHowItWorks }) {
         </div>
       </div>
 
+      {/* Scroll-triggered floating background ingredients */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+        {/* Left side floaters */}
+        <ScrollIngredient
+          src="/pizza-img/section_1_09.webp"
+          progress={progress}
+          speedY={-140}
+          speedX={40}
+          rotateSpeed={120}
+          className="hidden md:block"
+          style={{ top: '15%', left: '8%', width: '80px', height: '80px', opacity: 0.7 }}
+        />
+        <ScrollIngredient
+          src="/pizza-img/section_1_01.webp"
+          progress={progress}
+          speedY={-90}
+          speedX={-20}
+          rotateSpeed={-90}
+          className="hidden md:block"
+          style={{ top: '42%', left: '3%', width: '55px', height: '55px', opacity: 0.65 }}
+        />
+        <ScrollIngredient
+          src="/pizza-img/section_1_02.webp"
+          progress={progress}
+          speedY={-160}
+          speedX={30}
+          rotateSpeed={160}
+          className="hidden md:block"
+          style={{ top: '70%', left: '11%', width: '70px', height: '70px', opacity: 0.8 }}
+        />
+
+        {/* Right side floaters */}
+        <ScrollIngredient
+          src="/pizza-img/section_1_08.webp"
+          progress={progress}
+          speedY={-110}
+          speedX={-30}
+          rotateSpeed={-115}
+          className="hidden lg:block"
+          style={{ top: '24%', right: '5%', width: '85px', height: '85px', opacity: 0.7 }}
+        />
+        <ScrollIngredient
+          src="/pizza-img/section_1_04.webp"
+          progress={progress}
+          speedY={-150}
+          speedX={10}
+          rotateSpeed={140}
+          className="hidden lg:block"
+          style={{ top: '68%', right: '7%', width: '75px', height: '75px', opacity: 0.75 }}
+        />
+      </div>
+
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-28 grid lg:grid-cols-2 gap-12 items-center">
         {/* LEFT */}
-        <div className="relative z-10" style={{ pointerEvents:'auto' }}>
+        <div ref={textRef} className="relative z-10 transition-transform duration-300 ease-out" style={{ pointerEvents:'auto' }}>
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-xs font-semibold tracking-wider uppercase animate-fade-up">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
@@ -90,7 +244,7 @@ export function Hero({ onStart, onHowItWorks }) {
           </span>
 
           <h1 className="mt-6 font-display font-black tracking-tight text-5xl sm:text-6xl lg:text-7xl leading-[0.95]">
-            <span className="block text-gradient text-glow animate-pulse-slow">YouHa.</span>
+            <AnimatedHeading text="YouHa." gradient />
             <span className="block mt-3 text-ink-900 dark:text-ink-50 min-h-[1.15em] text-glow">
               {typed}
               <span className="caret align-baseline" style={{ height:'0.85em' }}></span>
@@ -98,13 +252,15 @@ export function Hero({ onStart, onHowItWorks }) {
           </h1>
 
           <p className="mt-6 max-w-xl text-lg text-ink-600 dark:text-ink-300 leading-relaxed animate-fade-up" style={{ animationDelay:'600ms' }}>
-            Commandez auprès de vos cuisines préférées et faites-vous livrer directement à votre chambre ou à l'aile hospitalière — en moins de 30 minutes. Aucun détour.
+            Commandez auprès de vos cuisines préférées et faites-vous livrer directement à votre chambre, à l'aile hospitalière ou à la BU — en moins de 30 minutes. Aucun détour.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3 animate-fade-up" style={{ animationDelay:'750ms' }}>
-            <Button onClick={onStart} variant="primary" size="lg">
-              Commander maintenant <I.Right size={18}/>
-            </Button>
+            <Magnetic strength={20}>
+              <Button onClick={onStart} variant="primary" size="lg">
+                Commander maintenant <I.Right size={18}/>
+              </Button>
+            </Magnetic>
             <Button type="button" variant="ghost" size="lg" onClick={onHowItWorks}>
               <I.Bike size={18}/> Comment ça marche
             </Button>
@@ -142,157 +298,19 @@ export function Hero({ onStart, onHowItWorks }) {
   );
 }
 
-export function HeroBurgerAnimation() {
-  const [hovered, setHovered] = useState(false);
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
-
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5; // -0.5 to 0.5
-    const y = (e.clientY - rect.top) / rect.height - 0.5; // -0.5 to 0.5
-    setCoords({ x, y });
-  };
-
-  const handleMouseLeave = () => {
-    setHovered(false);
-    setCoords({ x: 0, y: 0 });
-  };
-
+/* === Animated heading — char-by-char reveal === */
+export function AnimatedHeading({ text, gradient }) {
+  const chars = text.split('');
   return (
-    <div
-      className="relative mx-auto w-full max-w-[390px] aspect-square flex items-center justify-center cursor-pointer select-none"
-      onMouseEnter={() => setHovered(true)}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ perspective: '1000px' }}
-    >
-      {/* Floating Shadow */}
-      <div 
-        className="absolute bottom-4 w-48 h-5 rounded-full bg-black/20 blur-md transition-all duration-500 ease-out"
-        style={{
-          transform: `scaleX(${hovered ? 0.75 : 1.15}) scaleY(${hovered ? 0.6 : 1}) translate3d(0, 0, 0)`,
-          opacity: hovered ? 0.4 : 0.85,
-        }}
-      />
-
-      {/* Main Exploded Container */}
-      <div
-        className="relative w-full h-full flex flex-col items-center justify-center transition-transform duration-700 ease-out"
-        style={{
-          transform: `rotateX(${coords.y * -30}deg) rotateY(${coords.x * 30}deg) translateZ(20px)`,
-          transformStyle: 'preserve-3d',
-        }}
-      >
-        {/* Steam rising particles */}
-        <div className="absolute top-[10%] flex justify-between w-24 opacity-60">
-          <div className="w-1.5 h-8 bg-white/40 blur-[3px] rounded-full animate-steam" style={{ animationDelay: '0s' }} />
-          <div className="w-2 h-10 bg-white/50 blur-[4px] rounded-full animate-steam" style={{ animationDelay: '0.4s' }} />
-          <div className="w-1.5 h-8 bg-white/40 blur-[3px] rounded-full animate-steam" style={{ animationDelay: '0.8s' }} />
-        </div>
-
-        {/* Photorealistic Exploded Burger Base Backdrop */}
-        <div 
-          className="absolute inset-0 bg-contain bg-center bg-no-repeat transition-all duration-700 ease-out select-none pointer-events-none mix-blend-multiply dark:mix-blend-normal"
-          style={{
-            backgroundImage: "url('/burger_exploded.png')",
-            opacity: hovered ? 0.05 : 0.95,
-            transform: `scale(${hovered ? 0.95 : 1})`,
-          }}
-        />
-
-        {/* Separated Mid-Air Vector Layer Animation on Hover */}
-        <div 
-          className="relative w-72 h-72 flex flex-col justify-between items-center transition-all duration-700 ease-out"
-          style={{
-            opacity: hovered ? 1 : 0,
-            pointerEvents: hovered ? 'auto' : 'none',
-            transform: `scale(${hovered ? 1.05 : 0.9})`,
-          }}
-        >
-          {/* LAYER 1: Top Bun */}
-          <div 
-            className="transition-transform duration-700 ease-out z-40 drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)]"
-            style={{
-              transform: `translate3d(${coords.x * 12}px, ${hovered ? -55 : 0}px, 60px) rotate(${hovered ? -4 : 0}deg)`,
-            }}
-          >
-            <div className="relative w-32 h-16 bg-gradient-to-b from-[#e39c52] to-[#c77a2e] rounded-t-[4rem] rounded-b-[1.5rem] shadow-inner border border-[#f0b575]/40 flex items-center justify-center overflow-hidden">
-              <div className="absolute inset-0 opacity-80 bg-[radial-gradient(circle_at_50%_20%,#fff_2px,transparent_3px)] bg-[size:16px_16px]" />
-              <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_30%_60%,#fff_1.5px,transparent_2.5px)] bg-[size:20px_20px]" />
-            </div>
-          </div>
-
-          {/* LAYER 2: Fresh Red Onion & Tomato */}
-          <div 
-            className="transition-transform duration-700 ease-out z-35 flex justify-center gap-2 drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]"
-            style={{
-              transform: `translate3d(${coords.x * -6}px, ${hovered ? -30 : 0}px, 45px) rotate(${hovered ? 5 : 0}deg)`,
-            }}
-          >
-            <div className="w-14 h-5 bg-gradient-to-r from-red-600 to-red-500 rounded-full border border-red-400/30 flex items-center justify-between px-2 overflow-hidden">
-              <div className="w-3.5 h-3.5 bg-red-700 rounded-full opacity-60 blur-[1px]" />
-              <div className="w-3.5 h-3.5 bg-red-700 rounded-full opacity-60 blur-[1px]" />
-            </div>
-            <div className="w-12 h-5 border-4 border-purple-700/80 bg-purple-500/20 rounded-full flex items-center justify-center">
-              <div className="w-6 h-1.5 border border-purple-800/40 rounded-full" />
-            </div>
-          </div>
-
-          {/* LAYER 3: Melted Cheddar stretching */}
-          <div 
-            className="transition-transform duration-700 ease-out z-30 drop-shadow-[0_8px_16px_rgba(0,0,0,0.12)]"
-            style={{
-              transform: `translate3d(${coords.x * 6}px, ${hovered ? -8 : 0}px, 35px)`,
-            }}
-          >
-            <div className="relative w-32 h-6 bg-amber-400 rounded-lg transform rotate-[-2deg] flex items-center justify-around border-t border-amber-300">
-              <div className="absolute -bottom-3 left-6 w-2.5 h-5 bg-amber-400 rounded-b-full shadow-md animate-drip" />
-              <div className="absolute -bottom-1.5 left-14 w-2.5 h-3.5 bg-amber-400 rounded-b-full shadow-sm" />
-              <div className="absolute -bottom-2.5 right-6 w-3 h-4 bg-amber-400 rounded-b-full shadow-md animate-drip" style={{ animationDelay: '0.3s' }} />
-            </div>
-          </div>
-
-          {/* LAYER 4: Juicy Beef Patty with Grill Marks */}
-          <div 
-            className="transition-transform duration-700 ease-out z-25 drop-shadow-[0_14px_24px_rgba(0,0,0,0.22)]"
-            style={{
-              transform: `translate3d(${coords.x * -10}px, ${hovered ? 15 : 0}px, 20px) rotate(${hovered ? 2 : 0}deg)`,
-            }}
-          >
-            <div className="w-36 h-8 bg-gradient-to-b from-[#4a2e1d] via-[#3a2012] to-[#241208] rounded-2xl border border-amber-950/20 flex flex-col justify-around py-1 shadow-inner overflow-hidden">
-              <div className="w-full h-0.5 bg-[#170904] opacity-80 transform rotate-12" />
-              <div className="w-full h-0.5 bg-[#170904] opacity-80 transform rotate-12" />
-              <div className="absolute -bottom-2.5 left-10 w-2 h-3 bg-orange-600/90 rounded-b-full shadow-md animate-drip" style={{ animationDelay: '0.6s' }} />
-            </div>
-          </div>
-
-          {/* LAYER 5: Fresh Lettuce Leaf */}
-          <div 
-            className="transition-transform duration-700 ease-out z-20 drop-shadow-[0_6px_12px_rgba(0,0,0,0.1)]"
-            style={{
-              transform: `translate3d(${coords.x * 4}px, ${hovered ? 38 : 0}px, 15px) rotate(${hovered ? -3 : 0}deg)`,
-            }}
-          >
-            <div className="w-32 h-5 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 rounded-full border border-emerald-400/20 flex items-center justify-around">
-              <div className="w-1.5 h-1.5 bg-green-400/60 rounded-full" />
-              <div className="w-1.5 h-1.5 bg-green-400/60 rounded-full" />
-            </div>
-          </div>
-
-          {/* LAYER 6: Bottom Bun (Toasted) */}
-          <div 
-            className="transition-transform duration-700 ease-out z-10 drop-shadow-[0_16px_28px_rgba(0,0,0,0.2)]"
-            style={{
-              transform: `translate3d(${coords.x * -4}px, ${hovered ? 60 : 0}px, 10px)`,
-            }}
-          >
-            <div className="w-34 h-8 bg-gradient-to-b from-[#e39c52] to-[#ab6521] rounded-b-[3rem] rounded-t-lg shadow-inner border border-[#f0b575]/30 relative">
-              <div className="absolute inset-x-2 top-0 h-1 bg-[#854508]/20 rounded-full" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <span className={`block ${gradient ? 'text-gradient text-glow' : ''}`}>
+      <span className="word-anim">
+        {chars.map((c, i) => (
+          <span key={i} className="animate-char-up" style={{ animationDelay: (i * 70) + 'ms' }}>
+            {c === ' ' ? ' ' : c}
+          </span>
+        ))}
+      </span>
+    </span>
   );
 }
 
@@ -490,6 +508,9 @@ export function PartnersMarquee() {
 
 /* === Restaurants · Pâtisseries · Pharmacies === */
 export function PartnerCategoriesSection() {
+  const sectionRef = useRef(null);
+  const progress = useSectionScrollProgress(sectionRef);
+
   const rows = [
     {
       emoji: '🍽️',
@@ -521,7 +542,25 @@ export function PartnerCategoriesSection() {
   ];
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
+    <section ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28 overflow-visible">
+      {/* Scroll-triggered floating background ingredients */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+        <ScrollIngredient
+          src="/pizza-img/section_1_06.webp"
+          progress={progress}
+          speedY={-120}
+          rotateSpeed={100}
+          style={{ top: '15%', left: '2%', width: '70px', height: '70px', opacity: 0.5 }}
+        />
+        <ScrollIngredient
+          src="/pizza-img/section_1_03.webp"
+          progress={progress}
+          speedY={-140}
+          rotateSpeed={-130}
+          style={{ top: '65%', right: '2%', width: '45px', height: '45px', opacity: 0.55 }}
+        />
+      </div>
+
       <Reveal>
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
@@ -630,8 +669,28 @@ export function Carousel3DSection() {
 
 /* === Features === */
 export function FeaturesSection() {
+  const sectionRef = useRef(null);
+  const progress = useSectionScrollProgress(sectionRef);
+
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-24 sm:py-32">
+    <section ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 sm:py-32 overflow-visible">
+      {/* Scroll-triggered floating background ingredients */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+        <ScrollIngredient
+          src="/pizza-img/section_1_09.webp"
+          progress={progress}
+          speedY={-130}
+          rotateSpeed={80}
+          style={{ top: '15%', right: '2%', width: '80px', height: '80px', opacity: 0.5 }}
+        />
+        <ScrollIngredient
+          src="/pizza-img/section_1_05.webp"
+          progress={progress}
+          speedY={-100}
+          rotateSpeed={-120}
+          style={{ top: '65%', left: '2%', width: '65px', height: '65px', opacity: 0.5 }}
+        />
+      </div>
       <div className="max-w-2xl mb-16">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
           ✨ Avantages
@@ -691,8 +750,28 @@ export function FeaturesSection() {
 
 /* === How It Works === */
 export function HowItWorksSection() {
+  const sectionRef = useRef(null);
+  const progress = useSectionScrollProgress(sectionRef);
+
   return (
-    <section id="comment-ca-marche" className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 scroll-mt-24" aria-labelledby="how-it-works-heading">
+    <section ref={sectionRef} id="comment-ca-marche" className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 scroll-mt-24 overflow-visible" aria-labelledby="how-it-works-heading">
+      {/* Scroll-triggered floating background ingredients */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+        <ScrollIngredient
+          src="/pizza-img/section_1_08.webp"
+          progress={progress}
+          speedY={-120}
+          rotateSpeed={140}
+          style={{ top: '25%', left: '2%', width: '75px', height: '75px', opacity: 0.55 }}
+        />
+        <ScrollIngredient
+          src="/pizza-img/section_1_04.webp"
+          progress={progress}
+          speedY={-110}
+          rotateSpeed={-100}
+          style={{ top: '65%', right: '2%', width: '70px', height: '70px', opacity: 0.5 }}
+        />
+      </div>
       <div className="text-center max-w-2xl mx-auto mb-16">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
           📌 Fonctionnement
@@ -763,85 +842,34 @@ export function HowItWorksSection() {
   );
 }
 
-/* === Showcase === */
-export function ShowcaseSection() {
+/* === Pizza Assembly Section === */
+export function PizzaAssemblySection() {
+  const sectionRef = useRef(null);
+  const progress = useSectionScrollProgress(sectionRef);
+
   return (
-    <section className="relative overflow-hidden bg-[#ffb833] dark:bg-[#18110a] text-slate-900 dark:text-white transition-colors duration-500 py-16 sm:py-24 my-12 rounded-[3rem] max-w-7xl mx-auto px-6 sm:px-10">
-      {/* Background decorations */}
-      <div className="absolute inset-0 opacity-10 dark:opacity-20 pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" />
-      </div>
+    <section ref={sectionRef} className="relative overflow-hidden bg-slate-50 dark:bg-ink-950 py-20 border-y border-ink-200/40 dark:border-ink-800/40">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
+        {/* LEFT: Text */}
+        <Reveal>
+          <div className="text-left">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
+              🍕 Ingrédients Sélectionnés
+            </span>
+            <h2 className="mt-4 font-display font-extrabold text-4xl sm:text-5xl tracking-tight leading-tight">
+              Une préparation fraîche, <br />
+              <span className="text-gradient">assemblée sous vos yeux.</span>
+            </h2>
+            <p className="mt-4 text-base sm:text-lg text-ink-600 dark:text-ink-400 leading-relaxed">
+              Faites défiler pour voir nos ingrédients frais (champignons, pepperoni, olives fraîches, feuilles de basilic odorantes et oignons) s'assembler et atterrir directement sur notre pâte artisanale cuite sur pierre.
+            </p>
+          </div>
+        </Reveal>
 
-      <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center">
-        {/* LEFT: Exploded Burger Stage */}
-        <div className="lg:col-span-5 flex justify-center order-2 lg:order-1">
-          <Reveal>
-            <PhoneMockup />
-          </Reveal>
-        </div>
-
-        {/* RIGHT: High-End Feature Grid */}
-        <div className="lg:col-span-7 order-1 lg:order-2">
-          <Reveal delay={120}>
-            <div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/10 dark:bg-white/10 text-slate-900 dark:text-amber-400 text-xs font-semibold uppercase tracking-widest w-fit">
-                ✨ Technologie & Expérience
-              </span>
-              <h2 className="mt-4 font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-none text-slate-900 dark:text-white">
-                Une expérience <br />
-                <span className="text-slate-800 dark:text-amber-500 text-glow">extraordinairement fluide.</span>
-              </h2>
-              <p className="mt-4 text-base sm:text-lg text-slate-800/95 dark:text-slate-300 max-w-xl">
-                Tout a été méticuleusement conçu pour éliminer l'attente et vous offrir le meilleur de vos campus.
-              </p>
-              
-              <div className="mt-8 grid sm:grid-cols-2 gap-4">
-                {[
-                  {
-                    title: 'Suivi en temps réel',
-                    desc: 'Suivez le trajet de votre livreur étape par étape en direct sur la carte.',
-                    icon: <I.MapPin size={20} />,
-                    bg: 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-900 dark:text-white'
-                  },
-                  {
-                    title: 'Dernières commandes',
-                    desc: 'Accédez instantanément à votre historique et recommandez en un seul clic.',
-                    icon: <I.Zap size={20} />,
-                    bg: 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-900 dark:text-white'
-                  },
-                  {
-                    title: 'IA Smart Suggest',
-                    desc: 'Des plats recommandés selon votre emploi du temps, vos cours ou vos gardes.',
-                    icon: <I.Sparkle size={20} />,
-                    bg: 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-900 dark:text-white'
-                  },
-                  {
-                    title: 'Commande multi-restos',
-                    desc: 'Mixez plusieurs cuisines de différents établissements dans un seul panier.',
-                    icon: <I.Chef size={20} />,
-                    bg: 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-900 dark:text-white'
-                  }
-                ].map((item, idx) => (
-                  <Reveal key={item.title} delay={180 + idx * 80}>
-                    <div className="group p-5 rounded-2xl bg-white/95 dark:bg-ink-900 border border-black/5 dark:border-white/5 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between h-full hover:shadow-lg">
-                      <div className="flex items-start gap-4">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${item.bg}`}>
-                          {item.icon}
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-slate-900 dark:text-white text-base group-hover:text-[#faba30] dark:group-hover:text-amber-500 transition-colors duration-200">
-                            {item.title}
-                          </h3>
-                          <p className="mt-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                            {item.desc}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-            </div>
+        {/* RIGHT: Top-Down Pizza Assembly Stage */}
+        <div className="relative flex justify-center items-center">
+          <Reveal delay={200}>
+            <PizzaCookingStage progress={progress} />
           </Reveal>
         </div>
       </div>
@@ -849,155 +877,136 @@ export function ShowcaseSection() {
   );
 }
 
-export function PhoneMockup() {
-  const [hovered, setHovered] = useState(false);
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
-
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5; // -0.5 to 0.5
-    const y = (e.clientY - rect.top) / rect.height - 0.5; // -0.5 to 0.5
-    setCoords({ x, y });
+/* === Pizza Cooking Stage === */
+export function PizzaCookingStage({ progress }) {
+  // progress goes from 0 to 1
+  // We want 4 layers to fade in sequentially.
+  const getOpacity = (p, start, end) => {
+    if (p < start) return 0;
+    if (p > end) return 1;
+    return (p - start) / (end - start);
   };
 
-  const handleMouseLeave = () => {
-    setHovered(false);
-    setCoords({ x: 0, y: 0 });
-  };
+  const opacity2 = getOpacity(progress, 0.05, 0.22);
+  const opacity3 = getOpacity(progress, 0.22, 0.40);
+  const opacity4 = getOpacity(progress, 0.40, 0.58);
+
+  const scale = 1 + (progress - 0.5) * 0.05;
 
   return (
-    <div
-      className="relative mx-auto w-full max-w-[390px] aspect-square flex items-center justify-center cursor-pointer select-none"
-      onMouseEnter={() => setHovered(true)}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ perspective: '1000px' }}
-    >
-      {/* Floating Shadow */}
+    <div className="relative mx-auto w-full max-w-[450px] aspect-square select-none flex items-center justify-center">
       <div 
-        className="absolute bottom-4 w-48 h-5 rounded-full bg-black/20 blur-md transition-all duration-500 ease-out"
-        style={{
-          transform: `scaleX(${hovered ? 0.75 : 1.15}) scaleY(${hovered ? 0.6 : 1}) translate3d(0, 0, 0)`,
-          opacity: hovered ? 0.4 : 0.85,
-        }}
-      />
-
-      {/* Main Exploded Container */}
-      <div
-        className="relative w-full h-full flex flex-col items-center justify-center transition-transform duration-700 ease-out"
-        style={{
-          transform: `rotateX(${coords.y * -30}deg) rotateY(${coords.x * 30}deg) translateZ(20px)`,
-          transformStyle: 'preserve-3d',
-        }}
+        className="relative w-[400px] h-[400px] flex items-center justify-center transition-transform duration-150 ease-out will-change-transform"
+        style={{ transform: `scale(${scale})` }}
       >
-        {/* Steam rising particles */}
-        <div className="absolute top-[10%] flex justify-between w-24 opacity-60">
-          <div className="w-1.5 h-8 bg-white/40 blur-[3px] rounded-full animate-steam" style={{ animationDelay: '0s' }} />
-          <div className="w-2 h-10 bg-white/50 blur-[4px] rounded-full animate-steam" style={{ animationDelay: '0.4s' }} />
-          <div className="w-1.5 h-8 bg-white/40 blur-[3px] rounded-full animate-steam" style={{ animationDelay: '0.8s' }} />
-        </div>
-
-        {/* Photorealistic Exploded Burger Base Backdrop */}
-        <div 
-          className="absolute inset-0 bg-contain bg-center bg-no-repeat transition-all duration-700 ease-out select-none pointer-events-none mix-blend-multiply dark:mix-blend-normal"
-          style={{
-            backgroundImage: "url('/burger_exploded.png')",
-            opacity: hovered ? 0.05 : 0.95,
-            transform: `scale(${hovered ? 0.95 : 1})`,
-          }}
+        {/* Layer 1: Dough */}
+        <img
+          src="/pizza-img/section_4_01.webp"
+          alt="Pizza Step 1"
+          className="absolute w-full h-full object-contain"
+          style={{ zIndex: 10 }}
         />
+        
+        {/* Layer 2: Dough + Sauce */}
+        <img
+          src="/pizza-img/section_4_02.webp"
+          alt="Pizza Step 2"
+          className="absolute w-full h-full object-contain transition-opacity duration-150 ease-out"
+          style={{ zIndex: 11, opacity: opacity2 }}
+        />
+        
+        {/* Layer 3: Pizza with cheese and toppings */}
+        <img
+          src="/pizza-img/section_4_03.webp"
+          alt="Pizza Step 3"
+          className="absolute w-full h-full object-contain transition-opacity duration-150 ease-out"
+          style={{ zIndex: 12, opacity: opacity3 }}
+        />
+        
+        {/* Layer 4: Cooked Pizza */}
+        <img
+          src="/pizza-img/section_4_04.webp"
+          alt="Pizza Step 4"
+          className="absolute w-full h-full object-contain transition-opacity duration-150 ease-out"
+          style={{ zIndex: 13, opacity: opacity4 }}
+        />
+      </div>
+    </div>
+  );
+}
 
-        {/* Separated Mid-Air Vector Layer Animation on Hover */}
-        <div 
-          className="relative w-72 h-72 flex flex-col justify-between items-center transition-all duration-700 ease-out"
-          style={{
-            opacity: hovered ? 1 : 0,
-            pointerEvents: hovered ? 'auto' : 'none',
-            transform: `scale(${hovered ? 1.05 : 0.9})`,
-          }}
-        >
-          {/* LAYER 1: Top Bun */}
-          <div 
-            className="transition-transform duration-700 ease-out z-40 drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)]"
-            style={{
-              transform: `translate3d(${coords.x * 12}px, ${hovered ? -55 : 0}px, 60px) rotate(${hovered ? -4 : 0}deg)`,
-            }}
-          >
-            <div className="relative w-32 h-16 bg-gradient-to-b from-[#e39c52] to-[#c77a2e] rounded-t-[4rem] rounded-b-[1.5rem] shadow-inner border border-[#f0b575]/40 flex items-center justify-center overflow-hidden">
-              <div className="absolute inset-0 opacity-80 bg-[radial-gradient(circle_at_50%_20%,#fff_2px,transparent_3px)] bg-[size:16px_16px]" />
-              <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_30%_60%,#fff_1.5px,transparent_2.5px)] bg-[size:20px_20px]" />
-            </div>
-          </div>
+/* === Showcase === */
+export function ShowcaseSection() {
+  const sectionRef = useRef(null);
+  const progress = useSectionScrollProgress(sectionRef);
 
-          {/* LAYER 2: Fresh Red Onion & Tomato */}
-          <div 
-            className="transition-transform duration-700 ease-out z-35 flex justify-center gap-2 drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]"
-            style={{
-              transform: `translate3d(${coords.x * -6}px, ${hovered ? -30 : 0}px, 45px) rotate(${hovered ? 5 : 0}deg)`,
-            }}
-          >
-            <div className="w-14 h-5 bg-gradient-to-r from-red-600 to-red-500 rounded-full border border-red-400/30 flex items-center justify-between px-2 overflow-hidden">
-              <div className="w-3.5 h-3.5 bg-red-700 rounded-full opacity-60 blur-[1px]" />
-              <div className="w-3.5 h-3.5 bg-red-700 rounded-full opacity-60 blur-[1px]" />
-            </div>
-            <div className="w-12 h-5 border-4 border-purple-700/80 bg-purple-500/20 rounded-full flex items-center justify-center">
-              <div className="w-6 h-1.5 border border-purple-800/40 rounded-full" />
-            </div>
-          </div>
+  return (
+    <section ref={sectionRef} className="relative overflow-hidden bg-[#ffb833] dark:bg-[#18110a] text-slate-900 dark:text-white transition-colors duration-500 py-20 sm:py-28 my-12 rounded-[3rem] max-w-7xl mx-auto px-6 sm:px-10 flex flex-col items-center text-center">
+      {/* Background decorations */}
+      <div className="absolute inset-0 opacity-10 dark:opacity-20 pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" />
+      </div>
 
-          {/* LAYER 3: Melted Cheddar stretching */}
-          <div 
-            className="transition-transform duration-700 ease-out z-30 drop-shadow-[0_8px_16px_rgba(0,0,0,0.12)]"
-            style={{
-              transform: `translate3d(${coords.x * 6}px, ${hovered ? -8 : 0}px, 35px)`,
-            }}
-          >
-            <div className="relative w-32 h-6 bg-amber-400 rounded-lg transform rotate-[-2deg] flex items-center justify-around border-t border-amber-300">
-              <div className="absolute -bottom-3 left-6 w-2.5 h-5 bg-amber-400 rounded-b-full shadow-md animate-drip" />
-              <div className="absolute -bottom-1.5 left-14 w-2.5 h-3.5 bg-amber-400 rounded-b-full shadow-sm" />
-              <div className="absolute -bottom-2.5 right-6 w-3 h-4 bg-amber-400 rounded-b-full shadow-md animate-drip" style={{ animationDelay: '0.3s' }} />
-            </div>
+      <div className="relative z-10 max-w-3xl mx-auto">
+        <Reveal>
+          <div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/10 dark:bg-white/10 text-slate-900 dark:text-amber-400 text-xs font-semibold uppercase tracking-widest w-fit mx-auto">
+              ✨ Technologie & Expérience
+            </span>
+            <h2 className="mt-6 font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-none text-slate-900 dark:text-white">
+              Une expérience <br />
+              <span className="text-slate-800 dark:text-amber-500 text-glow">extraordinairement fluide.</span>
+            </h2>
+            <p className="mt-6 text-base sm:text-lg lg:text-xl text-slate-800/90 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+              Tout a été méticuleusement conçu pour éliminer l'attente et vous offrir le meilleur de vos campus.
+            </p>
           </div>
+        </Reveal>
+      </div>
 
-          {/* LAYER 4: Juicy Beef Patty with Grill Marks */}
-          <div 
-            className="transition-transform duration-700 ease-out z-25 drop-shadow-[0_14px_24px_rgba(0,0,0,0.22)]"
-            style={{
-              transform: `translate3d(${coords.x * -10}px, ${hovered ? 15 : 0}px, 20px) rotate(${hovered ? 2 : 0}deg)`,
-            }}
-          >
-            <div className="w-36 h-8 bg-gradient-to-b from-[#4a2e1d] via-[#3a2012] to-[#241208] rounded-2xl border border-amber-950/20 flex flex-col justify-around py-1 shadow-inner overflow-hidden">
-              <div className="w-full h-0.5 bg-[#170904] opacity-80 transform rotate-12" />
-              <div className="w-full h-0.5 bg-[#170904] opacity-80 transform rotate-12" />
-              <div className="absolute -bottom-2.5 left-10 w-2 h-3 bg-orange-600/90 rounded-b-full shadow-md animate-drip" style={{ animationDelay: '0.6s' }} />
-            </div>
-          </div>
+      {/* CENTER: Pizza Exploded Stage */}
+      <div className="relative z-10 mt-12 sm:mt-16 w-full flex justify-center items-center min-h-[580px]">
+        <Reveal delay={200}>
+          <PizzaExplodedStage progress={progress} />
+        </Reveal>
+      </div>
+    </section>
+  );
+}
 
-          {/* LAYER 5: Fresh Lettuce Leaf */}
-          <div 
-            className="transition-transform duration-700 ease-out z-20 drop-shadow-[0_6px_12px_rgba(0,0,0,0.1)]"
-            style={{
-              transform: `translate3d(${coords.x * 4}px, ${hovered ? 38 : 0}px, 15px) rotate(${hovered ? -3 : 0}deg)`,
-            }}
-          >
-            <div className="w-32 h-5 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 rounded-full border border-emerald-400/20 flex items-center justify-around">
-              <div className="w-1.5 h-1.5 bg-green-400/60 rounded-full" />
-              <div className="w-1.5 h-1.5 bg-green-400/60 rounded-full" />
-            </div>
-          </div>
+/* === Pizza Exploded Stage === */
+export function PizzaExplodedStage({ progress }) {
+  const factor = Math.sin(progress * Math.PI);
 
-          {/* LAYER 6: Bottom Bun (Toasted) */}
-          <div 
-            className="transition-transform duration-700 ease-out z-10 drop-shadow-[0_16px_28px_rgba(0,0,0,0.2)]"
-            style={{
-              transform: `translate3d(${coords.x * -4}px, ${hovered ? 60 : 0}px, 10px)`,
-            }}
-          >
-            <div className="w-34 h-8 bg-gradient-to-b from-[#e39c52] to-[#ab6521] rounded-b-[3rem] rounded-t-lg shadow-inner border border-[#f0b575]/30 relative">
-              <div className="absolute inset-x-2 top-0 h-1 bg-[#854508]/20 rounded-full" />
-            </div>
-          </div>
-        </div>
+  const layers = [
+    { src: '/pizza-img/section_3_06.webp', targetY: 260 },
+    { src: '/pizza-img/section_3_05.webp', targetY: 190 },
+    { src: '/pizza-img/section_3_04.webp', targetY: 0 },
+    { src: '/pizza-img/section_3_03.webp', targetY: -100 },
+    { src: '/pizza-img/section_3_02.webp', targetY: -190 },
+    { src: '/pizza-img/section_3_01.webp', targetY: -260 },
+  ];
+
+  return (
+    <div className="relative mx-auto w-full max-w-[480px] h-[580px] select-none flex items-center justify-center">
+      <div className="relative w-[340px] h-[340px] flex items-center justify-center">
+        {layers.map((layer, idx) => {
+          const y = layer.targetY * factor;
+          const rotate = (idx % 2 === 0 ? 12 : -12) * (1 - factor);
+
+          return (
+            <img
+              key={idx}
+              src={layer.src}
+              alt=""
+              className="absolute w-full h-auto object-contain transition-transform duration-150 ease-out will-change-transform"
+              style={{
+                transform: `translate3d(0, ${y}px, 0) rotate(${rotate}deg)`,
+                zIndex: idx + 5,
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );
@@ -1005,8 +1014,28 @@ export function PhoneMockup() {
 
 /* === Testimonials === */
 export function TestimonialsSection() {
+  const sectionRef = useRef(null);
+  const progress = useSectionScrollProgress(sectionRef);
+
   return (
-    <section className="relative py-20 overflow-hidden">
+    <section ref={sectionRef} className="relative py-20 overflow-visible">
+      {/* Scroll-triggered floating background ingredients */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+        <ScrollIngredient
+          src="/pizza-img/section_1_01.webp"
+          progress={progress}
+          speedY={-120}
+          rotateSpeed={100}
+          style={{ top: '25%', right: '2%', width: '60px', height: '60px', opacity: 0.55 }}
+        />
+        <ScrollIngredient
+          src="/pizza-img/section_1_02.webp"
+          progress={progress}
+          speedY={-80}
+          rotateSpeed={-90}
+          style={{ top: '70%', left: '2%', width: '65px', height: '65px', opacity: 0.5 }}
+        />
+      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-end justify-between flex-wrap gap-4">
           <div className="max-w-2xl">
@@ -1143,5 +1172,200 @@ export function CampusHospitalsSection() {
         </div>
       </Reveal>
     </section>
+  );
+}
+
+/* === Flying Burger Concept Showcase === */
+export function FlyingBurgerShowcase() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const containerRef = useRef(null);
+  const progress = useSectionScrollProgress(containerRef);
+
+  const handleMouseMove = (e) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setMousePos({ x, y });
+  };
+
+  const handleMouseLeave = () => {
+    setMousePos({ x: 0, y: 0 });
+  };
+
+  return (
+    <section 
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative overflow-visible py-20 bg-slate-50 dark:bg-ink-950/40 border-y border-ink-200/40 dark:border-ink-800/40"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-16 items-center">
+        {/* LEFT: 3D Stacked Figma screens */}
+        <div className="relative flex justify-center items-center h-[420px]" style={{ perspective: '1200px' }}>
+          <div className="relative w-full max-w-[420px] h-full flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
+            {/* Desktop Mockup Card */}
+            <div 
+              className="absolute w-[360px] aspect-[16/10] rounded-2xl overflow-hidden shadow-2xl border border-white/20 dark:border-ink-800/80 bg-ink-900 transition-transform duration-500 ease-out"
+              style={{
+                transform: `rotateY(${mousePos.x * 20}deg) rotateX(${mousePos.y * -20}deg) translate3d(0, -40px, -50px)`,
+                zIndex: 10,
+              }}
+            >
+              <div className="w-full h-3 bg-white/10 dark:bg-ink-950/60 border-b border-white/5 flex items-center gap-1.5 px-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500/60" />
+                <span className="w-1.5 h-1.5 rounded-full bg-yellow-500/60" />
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500/60" />
+              </div>
+              <img 
+                src="/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d.png" 
+                alt="Figma Desktop Mockup" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Mobile Mockup Card */}
+            <div 
+              className="absolute w-[170px] aspect-[9/19] rounded-[2.2rem] overflow-hidden shadow-2xl border-4 border-slate-800 dark:border-ink-950 bg-ink-900 transition-transform duration-500 ease-out"
+              style={{
+                transform: `rotateY(${mousePos.x * 30}deg) rotateX(${mousePos.y * -30}deg) translate3d(70px, 30px, 60px)`,
+                zIndex: 20,
+              }}
+            >
+              {/* Speaker/camera notch */}
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-3 bg-slate-800 dark:bg-ink-950 rounded-full z-30 flex items-center justify-center">
+                <span className="w-6 h-0.5 bg-white/10 rounded-full" />
+              </div>
+              <img 
+                src="/burger-img/e2b24f321f9ea9e999a0c4675aa5c3c96f9ef6ca.png" 
+                alt="Figma Mobile Mockup" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT: Text content and Exploded Burger */}
+        <div className="flex flex-col md:flex-row gap-8 items-center text-left">
+          <div className="flex-1">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
+              🍔 Exclusivité YouHa
+            </span>
+            <h2 className="mt-4 font-display font-extrabold text-3xl sm:text-4xl tracking-tight leading-tight">
+              Le Flying Burger <br />
+              <span className="text-gradient">Concept 3D</span>
+            </h2>
+            <p className="mt-4 text-sm sm:text-base text-ink-600 dark:text-ink-300 leading-relaxed">
+              Modélisé à partir de l'animation originale du projet Figma &quot;Hamburger Homepage&quot;. Glissez votre souris verticalement sur le burger à droite pour écarter et disséquer manuellement ses ingrédients gourmet en 3D.
+            </p>
+            <p className="mt-3 text-xs sm:text-sm text-ink-500 dark:text-ink-400">
+              Au défilement, le burger s'assemble automatiquement. Les maquettes Figma à gauche s'inclinent en parallax dynamique au mouvement du curseur.
+            </p>
+          </div>
+
+          <div className="shrink-0 flex justify-center items-center w-full md:w-auto">
+            <InteractiveBurger3D progress={progress} />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* === Interactive 3D Exploded Burger (WebP Frame Sequence) === */
+export function InteractiveBurger3D({ progress }) {
+  const [hovered, setHovered] = useState(false);
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+
+  // Preload all 60 frames on mount to avoid flickering
+  useEffect(() => {
+    for (let i = 0; i < 60; i++) {
+      const img = new Image();
+      img.src = `/burger-frames/burger_${String(i).padStart(2, '0')}.webp`;
+    }
+  }, []);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setCoords({ x, y });
+  };
+
+  const handleMouseLeave = () => {
+    setHovered(false);
+    setCoords({ x: 0, y: 0 });
+  };
+
+  // Calculate the frame index
+  let frameIndex = 59;
+  const startAssembling = 0.05;
+  const endAssembling = 0.55;
+
+  if (progress < startAssembling) {
+    frameIndex = 0;
+  } else if (progress > endAssembling) {
+    frameIndex = 59;
+  } else {
+    const pct = (progress - startAssembling) / (endAssembling - startAssembling);
+    frameIndex = Math.min(59, Math.max(0, Math.floor(pct * 59)));
+  }
+
+  // Scrub using mouse movement if hovered
+  if (hovered) {
+    // coords.y goes from -0.5 (top) to 0.5 (bottom)
+    // map to [0, 59]
+    const hoverPct = coords.y + 0.5;
+    frameIndex = Math.min(59, Math.max(0, Math.floor(hoverPct * 59)));
+  }
+
+  const frameSrc = `/burger-frames/burger_${String(frameIndex).padStart(2, '0')}.webp`;
+
+  return (
+    <div
+      className="relative mx-auto w-full max-w-[280px] sm:max-w-[320px] aspect-[568/845] flex items-center justify-center cursor-ns-resize select-none"
+      onMouseEnter={() => setHovered(true)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ perspective: '1200px' }}
+    >
+      {/* Glow Spotlight Behind */}
+      <div 
+        className="absolute inset-8 rounded-full bg-gradient-to-tr from-brand-500/20 via-pink-500/10 to-transparent blur-3xl opacity-75 pointer-events-none transition-transform duration-500"
+        style={{
+          transform: `translate3d(${coords.x * 40}px, ${coords.y * 40}px, 0) scale(${hovered ? 1.15 : 1.0})`,
+        }}
+      />
+
+      {/* Floating Shadow at the bottom */}
+      <div 
+        className="absolute bottom-6 w-48 h-4 bg-black/15 dark:bg-black/45 rounded-full blur-md transition-all duration-300 ease-out pointer-events-none"
+        style={{
+          transform: `scaleX(${1.1 - (59 - frameIndex) * 0.005}) scaleY(${1.0 - (59 - frameIndex) * 0.003})`,
+          opacity: 0.25 + (frameIndex / 59) * 0.5,
+        }}
+      />
+
+      {/* Main Image Sequence frame */}
+      <img
+        src={frameSrc}
+        alt="Interactive 3D Flying Burger"
+        className="relative max-w-full h-auto object-contain transition-transform duration-150 ease-out pointer-events-none select-none"
+        style={{
+          transform: `rotateX(${coords.y * -25}deg) rotateY(${coords.x * 25}deg) translateZ(15px)`,
+          transformStyle: 'preserve-3d',
+        }}
+      />
+
+      {/* Hover Instruction Overlay */}
+      <div 
+        className="absolute bottom-16 px-4 py-2 rounded-full glass border border-white/10 text-[10px] font-bold tracking-wider uppercase text-ink-600 dark:text-ink-300 transition-opacity duration-300 pointer-events-none flex items-center gap-1.5 shadow-lg"
+        style={{
+          opacity: hovered ? 1 : 0,
+        }}
+      >
+        <span className="animate-pulse">↕ Glissez pour disséquer</span>
+      </div>
+    </div>
   );
 }
