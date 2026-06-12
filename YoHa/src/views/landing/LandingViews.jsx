@@ -14,6 +14,7 @@ import { Tilt } from '../../components/ui/Tilt.jsx';
 import { Reveal } from '../../components/ui/Reveal.jsx';
 import { restaurantCover } from '../../components/ui/MenuItemImage.jsx';
 import { spotlightHandler } from '../../utils/spotlight.js';
+import { useYohaNav } from '../../contexts/YohaNavContext.jsx';
 
 /* === SCROLL ENGINE HOOK & COMPONENTS === */
 function useSectionScrollProgress(ref) {
@@ -142,10 +143,10 @@ export function Hero({ onStart, onHowItWorks }) {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-28 grid lg:grid-cols-2 gap-12 items-center">
         {/* LEFT */}
         <div ref={textRef} className="relative z-10 transition-transform duration-300 ease-out" style={{ pointerEvents:'auto' }}>
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-xs font-semibold tracking-wider uppercase animate-fade-up">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 dark:bg-ink-900/60 backdrop-blur text-xs font-semibold tracking-wider uppercase animate-fade-up border border-brand-500/25 shadow-[0_0_15px_rgba(249,115,22,0.1)] hover:border-brand-500/50 hover:shadow-[0_0_20px_rgba(249,115,22,0.25)] transition-all duration-500">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-500"></span>
             </span>
             En direct sur les campus & hôpitaux
           </span>
@@ -310,8 +311,13 @@ export function BentoHero() {
         <div className="h-full rounded-3xl glass-card-premium p-5 shadow-cardhover border border-white/20 dark:border-white/5 hover:border-brand-500/20 transition-all duration-300 flex flex-col justify-between">
           <div>
             <div className="text-xs font-semibold text-ink-500 uppercase tracking-wider">Communauté</div>
-            <div className="mt-2 font-display font-black text-3xl sm:text-4xl text-gradient animate-pulse-slow">12 000+</div>
-            <div className="text-sm text-ink-600 dark:text-ink-300 leading-snug">étudiants & soignants nous font confiance</div>
+            <div className="mt-2 flex items-center gap-2">
+              <span className="font-display font-black text-3xl sm:text-4xl text-gradient animate-pulse-slow">12 000+</span>
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20 animate-pulse-slow">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span> En ligne
+              </span>
+            </div>
+            <div className="mt-1 text-sm text-ink-600 dark:text-ink-300 leading-snug">étudiants & soignants nous font confiance</div>
           </div>
           <div className="mt-3 flex -space-x-2.5">
             {[5,16,18,22,33].map(i => (
@@ -417,6 +423,7 @@ export function PartnersMarquee() {
 export function PartnerCategoriesSection() {
   const sectionRef = useRef(null);
   const progress = useSectionScrollProgress(sectionRef);
+  const { goto } = useYohaNav();
 
   const rows = [
     {
@@ -425,8 +432,10 @@ export function PartnerCategoriesSection() {
       line: 'Repas chauds, cuisines du monde, menus du jour préparés par nos chefs partenaires.',
       color: 'from-orange-500 to-amber-500',
       hoverBorder: 'hover:border-orange-500/30',
+      hoverShadow: 'hover:shadow-[0_20px_50px_rgba(249,115,22,0.15)] dark:hover:shadow-[0_20px_50px_rgba(249,115,22,0.25)]',
       textHover: 'group-hover:text-amber-500',
-      tag: 'Cuisines variées'
+      tag: 'Cuisines variées',
+      browseFilter: 'all',
     },
     {
       emoji: '🥐',
@@ -434,8 +443,10 @@ export function PartnerCategoriesSection() {
       line: 'Viennoiseries fraîches, gâteaux, desserts gourmands et pauses sucrées au quotidien.',
       color: 'from-pink-500 to-rose-500',
       hoverBorder: 'hover:border-pink-500/30',
+      hoverShadow: 'hover:shadow-[0_20px_50px_rgba(236,72,153,0.15)] dark:hover:shadow-[0_20px_50px_rgba(236,72,153,0.25)]',
       textHover: 'group-hover:text-pink-500',
-      tag: 'Douceurs & Cafés'
+      tag: 'Douceurs & Cafés',
+      browseFilter: 'dessert',
     },
     {
       emoji: '💊',
@@ -443,8 +454,10 @@ export function PartnerCategoriesSection() {
       line: 'Produits de parapharmacie, hygiène et soins de première urgence livrés discrètement.',
       color: 'from-emerald-500 to-teal-500',
       hoverBorder: 'hover:border-emerald-500/30',
+      hoverShadow: 'hover:shadow-[0_20px_50px_rgba(16,185,129,0.15)] dark:hover:shadow-[0_20px_50px_rgba(16,185,129,0.25)]',
       textHover: 'group-hover:text-emerald-500',
-      tag: 'Soin & Santé'
+      tag: 'Soin & Santé',
+      browseFilter: 'pharmacy',
     },
   ];
 
@@ -470,7 +483,11 @@ export function PartnerCategoriesSection() {
         {rows.map((r, i) => (
           <Reveal key={r.title} delay={i * 100}>
             <Tilt max={6} className="h-full">
-              <div className={`relative overflow-hidden group h-full p-8 rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${r.hoverBorder} transition-all duration-500 shadow-card hover:shadow-cardhover hover:-translate-y-1.5 flex flex-col justify-between min-h-[300px] cursor-pointer`}>
+              <button
+                type="button"
+                onClick={() => goto('home', { browseFilter: r.browseFilter })}
+                className={`relative overflow-hidden group h-full w-full text-left p-8 rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${r.hoverBorder} transition-all duration-500 shadow-card ${r.hoverShadow} hover:-translate-y-1.5 flex flex-col justify-between min-h-[300px] cursor-pointer`}
+              >
                 {/* Glowing background orb */}
                 <div className={`absolute -right-10 -bottom-10 w-28 h-28 rounded-full bg-gradient-to-br ${r.color} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 blur-xl transition-all duration-500 scale-50 group-hover:scale-100`}></div>
                 
@@ -497,11 +514,11 @@ export function PartnerCategoriesSection() {
                   </div>
                 </div>
 
-                <div className="mt-6 flex items-center gap-1 text-sm font-bold text-ink-500 group-hover:text-brand-500 transition-colors">
+                <div className={`mt-6 flex items-center gap-1 text-sm font-bold text-ink-500 transition-colors duration-300 ${r.textHover}`}>
                   <span>Découvrir la sélection</span>
-                  <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
+                  <span className="group-hover:translate-x-1.5 transition-transform duration-300">→</span>
                 </div>
-              </div>
+              </button>
             </Tilt>
           </Reveal>
         ))}
@@ -519,12 +536,14 @@ export function Carousel3DSection() {
 
   return (
     <section className="relative overflow-hidden py-16 sm:py-24">
-      <div className="absolute inset-0 -z-10 mesh-conic opacity-50"></div>
+      {/* Ambient glowing spotlight behind carousel */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[320px] rounded-full bg-brand-500/10 blur-[130px] pointer-events-none -z-10" />
+      <div className="absolute inset-0 -z-20 mesh-conic opacity-50"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center mb-10">
         <span className="text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">À découvrir</span>
         <h2 className="mt-3 font-display font-extrabold text-4xl sm:text-5xl tracking-tight">
-          Un univers culinaire <span className="text-gradient">à 360°</span>
+          Un univers culinaire <span className="text-gradient animate-text-glow-slow">à 360°</span>
         </h2>
         <p className="mt-3 text-ink-500 dark:text-ink-400">
           Tour complet à 360° sur nos restaurants partenaires.
@@ -581,10 +600,15 @@ export function FeaturesSection() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
         {FEATURES.map((f, i) => {
           const hoverBorderClass = 
-            i === 0 ? 'hover:border-orange-500/30' : 
-            i === 1 ? 'hover:border-fuchsia-500/30' : 
-            i === 2 ? 'hover:border-pink-500/30' : 
-            'hover:border-sky-500/30';
+            i === 0 ? 'hover:border-orange-500/35' : 
+            i === 1 ? 'hover:border-fuchsia-500/35' : 
+            i === 2 ? 'hover:border-pink-500/35' : 
+            'hover:border-sky-500/35';
+          const hoverShadowClass = 
+            i === 0 ? 'hover:shadow-[0_20px_50px_rgba(249,115,22,0.14)] dark:hover:shadow-[0_20px_50px_rgba(249,115,22,0.22)]' : 
+            i === 1 ? 'hover:shadow-[0_20px_50px_rgba(217,70,239,0.14)] dark:hover:shadow-[0_20px_50px_rgba(217,70,239,0.22)]' : 
+            i === 2 ? 'hover:shadow-[0_20px_50px_rgba(244,63,94,0.14)] dark:hover:shadow-[0_20px_50px_rgba(244,63,94,0.22)]' : 
+            'hover:shadow-[0_20px_50px_rgba(14,165,233,0.14)] dark:hover:shadow-[0_20px_50px_rgba(14,165,233,0.22)]';
           const textHoverClass = 
             i === 0 ? 'group-hover:text-amber-500' : 
             i === 1 ? 'group-hover:text-fuchsia-500' : 
@@ -594,14 +618,14 @@ export function FeaturesSection() {
           return (
             <Reveal key={f.title} delay={i * 80}>
               <Tilt max={8} className="h-full">
-                <div className={`group relative h-full p-8 rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} shadow-card hover:shadow-cardhover transition-all duration-500 overflow-hidden spotlight flex flex-col justify-between min-h-[240px]`}
+                <div className={`group relative h-full p-8 rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} shadow-card ${hoverShadowClass} hover:-translate-y-1.5 transition-all duration-500 overflow-hidden spotlight flex flex-col justify-between min-h-[240px]`}
                   onMouseMove={spotlightHandler}>
                   
                   {/* Glowing background corner orb */}
                   <div className={`absolute -right-8 -bottom-8 w-24 h-24 rounded-full bg-gradient-to-br ${f.from} ${f.to} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 blur-xl transition-all duration-500 scale-50 group-hover:scale-100`}></div>
                   
                   <div className="relative z-10">
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${f.from} ${f.to} text-white flex items-center justify-center shadow-glow relative group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${f.from} ${f.to} text-white flex items-center justify-center shadow-glow relative group-hover:scale-110 group-hover:rotate-[15deg] transition-all duration-500`}>
                       {f.icon}
                       <span className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-white to-white/0 opacity-25 border border-white/30"></span>
                     </div>
@@ -646,30 +670,34 @@ export function HowItWorksSection() {
       <div className="relative flex flex-col md:flex-row items-center md:items-stretch justify-between gap-6 md:gap-4">
         {HOW_STEPS.map((s, i) => {
           const hoverBorderClass = 
-            s.num === '01' ? 'hover:border-orange-500/30' : 
-            s.num === '02' ? 'hover:border-pink-500/30' : 
-            'hover:border-violet-500/30';
+            s.num === '01' ? 'hover:border-orange-500/35' : 
+            s.num === '02' ? 'hover:border-pink-500/35' : 
+            'hover:border-violet-500/35';
+          const hoverShadowClass = 
+            s.num === '01' ? 'hover:shadow-[0_20px_50px_rgba(249,115,22,0.14)] dark:hover:shadow-[0_20px_50px_rgba(249,115,22,0.22)]' : 
+            s.num === '02' ? 'hover:shadow-[0_20px_50px_rgba(236,72,153,0.14)] dark:hover:shadow-[0_20px_50px_rgba(236,72,153,0.22)]' : 
+            'hover:shadow-[0_20px_50px_rgba(139,92,246,0.14)] dark:hover:shadow-[0_20px_50px_rgba(139,92,246,0.22)]';
           const textHoverClass = 
             s.num === '01' ? 'group-hover:text-amber-500' : 
             s.num === '02' ? 'group-hover:text-pink-500' : 
             'group-hover:text-violet-500';
-
+ 
           return (
             <React.Fragment key={s.num}>
               <div className="flex-1 w-full">
                 <Reveal delay={i * 150}>
-                  <div className={`relative overflow-hidden group h-full p-8 rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} transition-all duration-500 shadow-card hover:shadow-cardhover hover:-translate-y-1.5 flex flex-col justify-between min-h-[260px]`}>
+                  <div className={`relative overflow-hidden group h-full p-8 rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} transition-all duration-500 shadow-card ${hoverShadowClass} hover:-translate-y-1.5 flex flex-col justify-between min-h-[260px]`}>
                     {/* Giant Backdrop Number */}
-                    <span className={`absolute -right-3 -bottom-5 font-display font-black text-9xl text-transparent bg-gradient-to-br ${s.color} bg-clip-text opacity-[0.06] dark:opacity-[0.1] select-none pointer-events-none group-hover:scale-105 group-hover:opacity-[0.12] transition-all duration-500`}>
+                    <span className={`absolute -right-3 -bottom-5 font-display font-black text-9xl text-transparent bg-gradient-to-br ${s.color} bg-clip-text opacity-[0.08] dark:opacity-[0.14] select-none pointer-events-none group-hover:scale-110 group-hover:opacity-[0.22] transition-all duration-500`}>
                       {s.num}
                     </span>
-
+ 
                     <div>
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.color} text-white flex items-center justify-center shadow-glow relative z-10 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.color} text-white flex items-center justify-center shadow-glow relative z-10 group-hover:scale-110 group-hover:rotate-[15deg] transition-all duration-500`}>
                         {s.icon}
                         <span className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-white to-white/0 opacity-25 border border-white/30"></span>
                       </div>
-
+ 
                       <div className="mt-6 relative z-10">
                         <h3 className={`font-display font-extrabold text-2xl text-ink-900 dark:text-white transition-colors duration-300 ${textHoverClass}`}>
                           {s.title}
@@ -682,14 +710,14 @@ export function HowItWorksSection() {
                   </div>
                 </Reveal>
               </div>
-
+ 
               {i < HOW_STEPS.length - 1 && (
                 <div className="flex items-center justify-center shrink-0 py-2 md:py-0 z-10">
-                  <span className={`font-display font-black text-3xl select-none animate-pulse-slow bg-gradient-to-r ${
+                  <span className={`font-display font-black text-3xl select-none bg-gradient-to-r ${
                     i === 0 ? 'from-orange-500 to-pink-500' : 'from-pink-500 to-violet-500'
                   } bg-clip-text text-transparent`}>
-                    <span className="hidden md:inline">→</span>
-                    <span className="inline md:hidden">↓</span>
+                    <span className="hidden md:inline-block animate-bounce-horizontal">→</span>
+                    <span className="inline-block md:hidden animate-bounce-vertical">↓</span>
                   </span>
                 </div>
               )}
@@ -726,10 +754,12 @@ export function PizzaAssemblySection() {
         </Reveal>
 
         {/* RIGHT: Top-Down Pizza Assembly Stage */}
-        <div className="relative flex justify-center items-center">
-          <Reveal delay={200}>
-            <PizzaCookingStage progress={progress} />
-          </Reveal>
+        <div className="relative flex justify-center items-center w-full min-h-[300px] sm:min-h-[420px] md:min-h-[500px] lg:min-h-[520px]">
+          <div className="w-full flex justify-center">
+            <Reveal delay={200}>
+              <PizzaCookingStage progress={progress} />
+            </Reveal>
+          </div>
         </div>
       </div>
     </section>
@@ -753,9 +783,9 @@ export function PizzaCookingStage({ progress }) {
   const scale = 1 + (progress - 0.5) * 0.05;
 
   return (
-    <div className="relative mx-auto w-full max-w-[450px] aspect-square select-none flex items-center justify-center">
+    <div className="relative mx-auto w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] md:w-[480px] md:h-[480px] lg:w-[500px] lg:h-[500px] xl:w-[560px] xl:h-[560px] max-w-full aspect-square select-none flex items-center justify-center">
       <div 
-        className="relative w-[400px] h-[400px] flex items-center justify-center transition-transform duration-150 ease-out will-change-transform"
+        className="relative w-full h-full flex items-center justify-center transition-transform duration-150 ease-out will-change-transform"
         style={{ transform: `scale(${scale})` }}
       >
         {/* Layer 1: Dough */}
@@ -925,11 +955,17 @@ export function TestimonialsSection() {
         <div className="marquee-mask -mx-4 sm:mx-0 px-4 sm:px-0">
           <div className="mt-10 testi-track flex gap-5 overflow-x-auto no-scrollbar pb-6">
             {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="cursor-grow shrink-0 w-[85%] sm:w-[420px] rounded-3xl p-6 glass-card-premium border border-white/20 dark:border-white/5 shadow-card hover:shadow-cardhover transition-all duration-300 relative overflow-hidden spotlight hover:scale-[1.02] hover:border-brand-500/20"
+              <div key={t.name} className="cursor-grow shrink-0 w-[85%] sm:w-[420px] rounded-3xl p-6 glass-card-premium border border-white/20 dark:border-white/5 shadow-card hover:shadow-cardhover hover:shadow-[0_20px_50px_rgba(249,115,22,0.08)] transition-all duration-300 relative overflow-hidden spotlight hover:scale-[1.02] hover:border-brand-500/20"
                 onMouseMove={spotlightHandler}>
                 <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br ${t.color} opacity-20 blur-2xl`}></div>
+                
+                {/* Verified Badge */}
+                <div className="absolute top-6 right-6 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
+                  <span className="text-xs">✓</span> Achat vérifié
+                </div>
+
                 <div className="text-5xl text-brand-500/30 leading-none font-serif">“</div>
-                <p className="mt-1 text-ink-700 dark:text-ink-200 leading-relaxed text-sm sm:text-base">{t.text}</p>
+                <p className="mt-1 text-ink-700 dark:text-ink-200 leading-relaxed text-sm sm:text-base pr-12">{t.text}</p>
                 <div className="mt-5 flex items-center gap-3">
                   <img src={t.avatar} alt="" className="w-11 h-11 rounded-full object-cover border border-white/20 dark:border-white/10 shadow-sm"/>
                   <div>
@@ -949,25 +985,94 @@ export function TestimonialsSection() {
 }
 
 /* === Final CTA === */
-export function FinalCTA({ onStart }) {
+/* === Pizza Exploded Stage (Mini) === */
+export function PizzaExplodedStageMini({ progress }) {
+  const factor = Math.sin(progress * Math.PI);
+
+  const layers = [
+    { src: '/pizza-img/section_3_06.webp', targetY: 130 },
+    { src: '/pizza-img/section_3_05.webp', targetY: 95 },
+    { src: '/pizza-img/section_3_04.webp', targetY: 0 },
+    { src: '/pizza-img/section_3_03.webp', targetY: -50 },
+    { src: '/pizza-img/section_3_02.webp', targetY: -95 },
+    { src: '/pizza-img/section_3_01.webp', targetY: -130 },
+  ];
+
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-24">
+    <div className="relative w-full max-w-[240px] h-[280px] select-none flex items-center justify-center overflow-visible">
+      <div className="relative w-[180px] h-[180px] flex items-center justify-center">
+        {layers.map((layer, idx) => {
+          const y = layer.targetY * factor;
+          const rotate = (idx % 2 === 0 ? 12 : -12) * (1 - factor);
+
+          return (
+            <img
+              key={idx}
+              src={layer.src}
+              alt=""
+              className="absolute w-full h-auto object-contain transition-transform duration-150 ease-out will-change-transform"
+              style={{
+                transform: `translate3d(0, ${y}px, 0) rotate(${rotate}deg)`,
+                zIndex: idx + 5,
+              }}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function FinalCTA({ onStart }) {
+  const sectionRef = useRef(null);
+  const progress = useSectionScrollProgress(sectionRef);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText('YOHA15');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <section ref={sectionRef} className="max-w-7xl mx-auto px-4 sm:px-6 pb-24">
       <Reveal>
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-ink-900 via-ink-800 to-ink-900 dark:from-black dark:via-ink-900 dark:to-black p-8 sm:p-14 text-white">
-          <div aria-hidden className="absolute -top-24 -right-24 w-[28rem] h-[28rem] rounded-full bg-brand-500/40 blur-3xl animate-pulse-slow"></div>
-          <div aria-hidden className="absolute -bottom-24 -left-24 w-[28rem] h-[28rem] rounded-full bg-fuchsia-500/40 blur-3xl animate-pulse-slow" style={{ animationDelay:'1s' }}></div>
-          <div className="absolute inset-0 grid-bg opacity-30"></div>
-          <div className="relative max-w-2xl">
-            <h3 className="font-display font-extrabold text-3xl sm:text-5xl tracking-tight">
-              Faim ? Votre chambre est à <span className="text-gradient">14 minutes</span> de quelque chose de génial.
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-50 via-[#fffcf5] to-orange-50/50 border border-amber-200/60 p-8 sm:p-14 text-slate-900 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
+          <div aria-hidden className="absolute -top-24 -right-24 w-[28rem] h-[28rem] rounded-full bg-amber-300/30 blur-3xl animate-pulse-slow"></div>
+          <div aria-hidden className="absolute -bottom-24 -left-24 w-[28rem] h-[28rem] rounded-full bg-rose-200/30 blur-3xl animate-pulse-slow" style={{ animationDelay:'1s' }}></div>
+          <div className="absolute inset-0 grid-bg opacity-[0.02]"></div>
+          
+          <div className="relative max-w-xl z-10 text-left">
+            <h3 className="font-display font-extrabold text-3xl sm:text-5xl tracking-tight text-slate-900 leading-tight">
+              Faim ? Votre chambre est à <span className="bg-gradient-to-r from-brand-600 to-rose-600 bg-clip-text text-transparent font-black">14 minutes</span> de quelque chose de génial.
             </h3>
-            <p className="mt-4 text-white/70 text-lg">Aucune app à télécharger. Ouvrez YouHa et commandez.</p>
-            <div className="mt-7 flex flex-wrap gap-3">
+            <p className="mt-4 text-slate-600 text-lg">Aucune app à télécharger. Ouvrez YouHa et commandez.</p>
+            
+            <div className="mt-6 flex flex-wrap gap-3">
+              <div 
+                onClick={handleCopy}
+                title="Cliquez pour copier"
+                className="group/promo cursor-pointer inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-700 hover:bg-brand-500/15 transition-all duration-300 shadow-sm active:scale-95"
+              >
+                <span className="text-xs font-bold uppercase tracking-wider">Code promo :</span>
+                <span className="font-mono font-black text-sm select-all">YOHA15</span>
+                <span className="text-[10px] bg-brand-500 text-white font-bold px-2 py-0.5 rounded-full transition-all group-hover/promo:scale-105">
+                  {copied ? 'Copié !' : '-15%'}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-3">
               <Magnetic strength={20}>
                 <Button onClick={onStart} variant="primary" size="lg">Commander maintenant <I.Right size={18}/></Button>
               </Magnetic>
-              <Button variant="glass" size="lg"><I.Headset size={18}/> Parler au support</Button>
+              <Button variant="outline" size="lg" className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900"><I.Headset size={18}/> Parler au support</Button>
             </div>
+          </div>
+
+          {/* Mini Pizza Exploded Animation */}
+          <div className="relative shrink-0 w-full md:w-[240px] h-[280px] flex items-center justify-center z-10 pointer-events-none select-none">
+            <PizzaExplodedStageMini progress={progress} />
           </div>
         </div>
       </Reveal>
@@ -1193,7 +1298,6 @@ export function InteractiveBurger3D() {
   }, []);
 
   const frameSrc = `/burger-frames/burger_${String(frameIndex).padStart(2, '0')}.webp`;
-
   return (
     <div
       className="relative mx-auto w-full max-w-[280px] sm:max-w-[320px] aspect-[568/845] flex items-center justify-center cursor-pointer select-none"
@@ -1222,7 +1326,7 @@ export function InteractiveBurger3D() {
       <img
         src={frameSrc}
         alt="Interactive 3D Flying Burger"
-        className="relative max-w-full h-auto object-contain transition-transform duration-150 ease-out pointer-events-none select-none"
+        className="relative max-w-full h-auto object-contain transition-transform duration-150 ease-out pointer-events-none select-none z-10"
         style={{
           transform: `rotateX(${coords.y * -25}deg) rotateY(${coords.x * 25}deg) translateZ(15px)`,
           transformStyle: 'preserve-3d',

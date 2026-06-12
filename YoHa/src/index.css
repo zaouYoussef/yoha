@@ -217,6 +217,10 @@
     width: max-content;
     animation: marquee 28s linear infinite;
   }
+  .marquee-mask {
+    mask-image: linear-gradient(to right, transparent, white 12%, white 88%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, white 12%, white 88%, transparent);
+  }
 
   .scroll-progress {
     position: fixed;
@@ -332,6 +336,10 @@
     height: 100%;
     transform-style: preserve-3d;
     animation: spin-3d-carousel 38s linear infinite;
+    transition: animation-play-state 0.3s;
+  }
+  .carousel-3d:hover .carousel-3d-inner {
+    animation-play-state: paused;
   }
   .carousel-3d-card {
     position: absolute;
@@ -578,5 +586,88 @@
 .dark .bg-ingredient {
   filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.35));
 }
+
+/* Premium micro-interactions & wow enhancements */
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: translateX(-140%);
+  pointer-events: none;
+  animation: auto-shimmer 6s ease-in-out infinite;
+}
+
+@keyframes auto-shimmer {
+  0%, 75% {
+    transform: translateX(-140%);
+  }
+  90%, 100% {
+    transform: translateX(250%);
+  }
+}
+
+.animate-border-glow {
+  animation: border-gradient-glow 3s ease-in-out infinite;
+}
+
+@keyframes border-gradient-glow {
+  0%, 100% {
+    border-color: rgba(249, 115, 22, 0.35);
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.15);
+  }
+  50% {
+    border-color: rgba(236, 72, 153, 0.6);
+    box-shadow: 0 0 25px rgba(236, 72, 153, 0.3);
+  }
+}
+
+.animate-text-glow-slow {
+  animation: text-glow-pulse 5s ease-in-out infinite;
+}
+
+@keyframes text-glow-pulse {
+  0%, 100% {
+    text-shadow: 0 0 8px rgba(249, 115, 22, 0.15);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(249, 115, 22, 0.45), 0 0 30px rgba(236, 72, 153, 0.25);
+  }
+}
+
+@keyframes bounce-x {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(8px);
+  }
+}
+.animate-bounce-horizontal {
+  display: inline-block;
+  animation: bounce-x 2s infinite ease-in-out;
+}
+
+@keyframes bounce-y-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+.animate-bounce-vertical {
+  display: inline-block;
+  animation: bounce-y-slow 2s infinite ease-in-out;
+}
+
 
 
