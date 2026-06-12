@@ -1,0 +1,1147 @@
+'use client';
+
+import React, { useState, useEffect, useMemo, Fragment } from 'react';
+import { I } from '../../icons/Icons.jsx';
+import { useOrders } from '../../contexts/AppContexts.jsx';
+import { FEATURES } from '../../data/features.jsx';
+import { HOW_STEPS } from '../../data/howSteps.jsx';
+import { TESTIMONIALS } from '../../data/testimonials.js';
+import { CAMPUS_HOSPITALS } from '../../data/campusHospitals.js';
+import { ParticleCanvas } from '../../components/effects/ParticleCanvas.jsx';
+import { Button } from '../../components/ui/Button.jsx';
+import { Magnetic } from '../../components/ui/Magnetic.jsx';
+import { Tilt } from '../../components/ui/Tilt.jsx';
+import { Reveal } from '../../components/ui/Reveal.jsx';
+import { restaurantCover } from '../../components/ui/MenuItemImage.jsx';
+import { spotlightHandler } from '../../utils/spotlight.js';
+
+export function Landing({ onStart }) {
+  const scrollToHowItWorks = () => {
+    document.getElementById('comment-ca-marche')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  return (
+    <div className="page-enter">
+      <Hero onStart={onStart} onHowItWorks={scrollToHowItWorks} />
+      <PartnersMarquee />
+      <PartnerCategoriesSection />
+      <Carousel3DSection />
+      <FeaturesSection />
+      <HowItWorksSection />
+      <ShowcaseSection />
+      <TestimonialsSection />
+      <FinalCTA onStart={onStart} />
+    </div>
+  );
+}
+
+/* === HERO === */
+export function Hero({ onStart, onHowItWorks }) {
+  const slogans = [
+    'Livraison intelligente',
+    'pour votre CHU',
+    'Pensé pour la vie de campus',
+    'Plus rapide que ta faim.',
+  ];
+  const [sloganIdx, setSloganIdx] = useState(0);
+  const [typed, setTyped] = useState('');
+
+  useEffect(() => {
+    let i = 0; let dir = 1; let t;
+    const target = slogans[sloganIdx];
+    const tick = () => {
+      i += dir; setTyped(target.slice(0, i));
+      if (i === target.length && dir === 1) { t = setTimeout(() => { dir = -1; tick(); }, 1600); }
+      else if (i === 0 && dir === -1)       { setSloganIdx(s => (s + 1) % slogans.length); }
+      else                                   { t = setTimeout(tick, dir === 1 ? 65 : 30); }
+    };
+    tick();
+    return () => clearTimeout(t);
+  }, [sloganIdx]);
+
+  return (
+    <section className="relative overflow-hidden hero-spot">
+      {/* Animated blobs */}
+      <div aria-hidden className="absolute inset-0 -z-10">
+        <div className="absolute top-[-10%] left-[-10%] w-[42rem] h-[42rem] rounded-full bg-brand-400/40 blur-3xl animate-blob"></div>
+        <div className="absolute top-[10%] right-[-15%] w-[36rem] h-[36rem] rounded-full bg-fuchsia-400/40 blur-3xl animate-blob" style={{ animationDelay:'4s' }}></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-[44rem] h-[44rem] rounded-full bg-violet-400/30 blur-3xl animate-blob" style={{ animationDelay:'8s' }}></div>
+        <div className="absolute inset-0 mesh-bg opacity-70"></div>
+        <div className="mesh-conic-glow"></div>
+        <div className="absolute inset-0 grid-bg"></div>
+      </div>
+
+      {/* Canvas particle network — overlays everything but pointer-events allowed */}
+      <div className="absolute inset-0 -z-[5] pointer-events-none">
+        <div className="absolute inset-0 pointer-events-auto">
+          <ParticleCanvas />
+        </div>
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-28 grid lg:grid-cols-2 gap-12 items-center">
+        {/* LEFT */}
+        <div className="relative z-10" style={{ pointerEvents:'auto' }}>
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-xs font-semibold tracking-wider uppercase animate-fade-up">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+            </span>
+            En direct sur les campus & hôpitaux
+          </span>
+
+          <h1 className="mt-6 font-display font-black tracking-tight text-5xl sm:text-6xl lg:text-7xl leading-[0.95]">
+            <span className="block text-gradient text-glow animate-pulse-slow">YouHa.</span>
+            <span className="block mt-3 text-ink-900 dark:text-ink-50 min-h-[1.15em] text-glow">
+              {typed}
+              <span className="caret align-baseline" style={{ height:'0.85em' }}></span>
+            </span>
+          </h1>
+
+          <p className="mt-6 max-w-xl text-lg text-ink-600 dark:text-ink-300 leading-relaxed animate-fade-up" style={{ animationDelay:'600ms' }}>
+            Commandez auprès de vos cuisines préférées et faites-vous livrer directement à votre chambre ou à l'aile hospitalière — en moins de 30 minutes. Aucun détour.
+          </p>
+
+          <div className="mt-8 flex flex-wrap items-center gap-3 animate-fade-up" style={{ animationDelay:'750ms' }}>
+            <Button onClick={onStart} variant="primary" size="lg">
+              Commander maintenant <I.Right size={18}/>
+            </Button>
+            <Button type="button" variant="ghost" size="lg" onClick={onHowItWorks}>
+              <I.Bike size={18}/> Comment ça marche
+            </Button>
+          </div>
+
+          <div className="mt-10 flex items-center gap-6 animate-fade-up" style={{ animationDelay:'900ms' }}>
+            <div className="flex -space-x-2">
+              {[1,2,3,4].map(i => (
+                <img key={i} src={`https://i.pravatar.cc/64?img=${i+10}`} alt=""
+                  className="w-9 h-9 rounded-full border-2 border-white dark:border-ink-900 object-cover" />
+              ))}
+            </div>
+            <div className="text-sm">
+              <div className="flex items-center gap-1 text-amber-500">
+                {[1,2,3,4,5].map(i => <I.Star key={i} size={14} stroke={2.4} className="fill-amber-400" />)}
+                <span className="ml-1 font-semibold text-ink-900 dark:text-ink-50">4,9</span>
+              </div>
+              <div className="text-ink-500 dark:text-ink-400">Adoré par 12 000+ étudiants & soignants</div>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT — Bento layout */}
+        <div className="relative">
+          <BentoHero />
+        </div>
+      </div>
+
+      {/* Scroll cue */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 text-ink-400 animate-pulse-slow">
+        <span className="text-xs uppercase tracking-widest">Défiler</span>
+        <I.ArrowDown size={18}/>
+      </div>
+    </section>
+  );
+}
+
+export function HeroBurgerAnimation() {
+  const [hovered, setHovered] = useState(false);
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5; // -0.5 to 0.5
+    const y = (e.clientY - rect.top) / rect.height - 0.5; // -0.5 to 0.5
+    setCoords({ x, y });
+  };
+
+  const handleMouseLeave = () => {
+    setHovered(false);
+    setCoords({ x: 0, y: 0 });
+  };
+
+  return (
+    <div
+      className="relative mx-auto w-full max-w-[390px] aspect-square flex items-center justify-center cursor-pointer select-none"
+      onMouseEnter={() => setHovered(true)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ perspective: '1000px' }}
+    >
+      {/* Floating Shadow */}
+      <div 
+        className="absolute bottom-4 w-48 h-5 rounded-full bg-black/20 blur-md transition-all duration-500 ease-out"
+        style={{
+          transform: `scaleX(${hovered ? 0.75 : 1.15}) scaleY(${hovered ? 0.6 : 1}) translate3d(0, 0, 0)`,
+          opacity: hovered ? 0.4 : 0.85,
+        }}
+      />
+
+      {/* Main Exploded Container */}
+      <div
+        className="relative w-full h-full flex flex-col items-center justify-center transition-transform duration-700 ease-out"
+        style={{
+          transform: `rotateX(${coords.y * -30}deg) rotateY(${coords.x * 30}deg) translateZ(20px)`,
+          transformStyle: 'preserve-3d',
+        }}
+      >
+        {/* Steam rising particles */}
+        <div className="absolute top-[10%] flex justify-between w-24 opacity-60">
+          <div className="w-1.5 h-8 bg-white/40 blur-[3px] rounded-full animate-steam" style={{ animationDelay: '0s' }} />
+          <div className="w-2 h-10 bg-white/50 blur-[4px] rounded-full animate-steam" style={{ animationDelay: '0.4s' }} />
+          <div className="w-1.5 h-8 bg-white/40 blur-[3px] rounded-full animate-steam" style={{ animationDelay: '0.8s' }} />
+        </div>
+
+        {/* Photorealistic Exploded Burger Base Backdrop */}
+        <div 
+          className="absolute inset-0 bg-contain bg-center bg-no-repeat transition-all duration-700 ease-out select-none pointer-events-none mix-blend-multiply dark:mix-blend-normal"
+          style={{
+            backgroundImage: "url('/burger_exploded.png')",
+            opacity: hovered ? 0.05 : 0.95,
+            transform: `scale(${hovered ? 0.95 : 1})`,
+          }}
+        />
+
+        {/* Separated Mid-Air Vector Layer Animation on Hover */}
+        <div 
+          className="relative w-72 h-72 flex flex-col justify-between items-center transition-all duration-700 ease-out"
+          style={{
+            opacity: hovered ? 1 : 0,
+            pointerEvents: hovered ? 'auto' : 'none',
+            transform: `scale(${hovered ? 1.05 : 0.9})`,
+          }}
+        >
+          {/* LAYER 1: Top Bun */}
+          <div 
+            className="transition-transform duration-700 ease-out z-40 drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)]"
+            style={{
+              transform: `translate3d(${coords.x * 12}px, ${hovered ? -55 : 0}px, 60px) rotate(${hovered ? -4 : 0}deg)`,
+            }}
+          >
+            <div className="relative w-32 h-16 bg-gradient-to-b from-[#e39c52] to-[#c77a2e] rounded-t-[4rem] rounded-b-[1.5rem] shadow-inner border border-[#f0b575]/40 flex items-center justify-center overflow-hidden">
+              <div className="absolute inset-0 opacity-80 bg-[radial-gradient(circle_at_50%_20%,#fff_2px,transparent_3px)] bg-[size:16px_16px]" />
+              <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_30%_60%,#fff_1.5px,transparent_2.5px)] bg-[size:20px_20px]" />
+            </div>
+          </div>
+
+          {/* LAYER 2: Fresh Red Onion & Tomato */}
+          <div 
+            className="transition-transform duration-700 ease-out z-35 flex justify-center gap-2 drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]"
+            style={{
+              transform: `translate3d(${coords.x * -6}px, ${hovered ? -30 : 0}px, 45px) rotate(${hovered ? 5 : 0}deg)`,
+            }}
+          >
+            <div className="w-14 h-5 bg-gradient-to-r from-red-600 to-red-500 rounded-full border border-red-400/30 flex items-center justify-between px-2 overflow-hidden">
+              <div className="w-3.5 h-3.5 bg-red-700 rounded-full opacity-60 blur-[1px]" />
+              <div className="w-3.5 h-3.5 bg-red-700 rounded-full opacity-60 blur-[1px]" />
+            </div>
+            <div className="w-12 h-5 border-4 border-purple-700/80 bg-purple-500/20 rounded-full flex items-center justify-center">
+              <div className="w-6 h-1.5 border border-purple-800/40 rounded-full" />
+            </div>
+          </div>
+
+          {/* LAYER 3: Melted Cheddar stretching */}
+          <div 
+            className="transition-transform duration-700 ease-out z-30 drop-shadow-[0_8px_16px_rgba(0,0,0,0.12)]"
+            style={{
+              transform: `translate3d(${coords.x * 6}px, ${hovered ? -8 : 0}px, 35px)`,
+            }}
+          >
+            <div className="relative w-32 h-6 bg-amber-400 rounded-lg transform rotate-[-2deg] flex items-center justify-around border-t border-amber-300">
+              <div className="absolute -bottom-3 left-6 w-2.5 h-5 bg-amber-400 rounded-b-full shadow-md animate-drip" />
+              <div className="absolute -bottom-1.5 left-14 w-2.5 h-3.5 bg-amber-400 rounded-b-full shadow-sm" />
+              <div className="absolute -bottom-2.5 right-6 w-3 h-4 bg-amber-400 rounded-b-full shadow-md animate-drip" style={{ animationDelay: '0.3s' }} />
+            </div>
+          </div>
+
+          {/* LAYER 4: Juicy Beef Patty with Grill Marks */}
+          <div 
+            className="transition-transform duration-700 ease-out z-25 drop-shadow-[0_14px_24px_rgba(0,0,0,0.22)]"
+            style={{
+              transform: `translate3d(${coords.x * -10}px, ${hovered ? 15 : 0}px, 20px) rotate(${hovered ? 2 : 0}deg)`,
+            }}
+          >
+            <div className="w-36 h-8 bg-gradient-to-b from-[#4a2e1d] via-[#3a2012] to-[#241208] rounded-2xl border border-amber-950/20 flex flex-col justify-around py-1 shadow-inner overflow-hidden">
+              <div className="w-full h-0.5 bg-[#170904] opacity-80 transform rotate-12" />
+              <div className="w-full h-0.5 bg-[#170904] opacity-80 transform rotate-12" />
+              <div className="absolute -bottom-2.5 left-10 w-2 h-3 bg-orange-600/90 rounded-b-full shadow-md animate-drip" style={{ animationDelay: '0.6s' }} />
+            </div>
+          </div>
+
+          {/* LAYER 5: Fresh Lettuce Leaf */}
+          <div 
+            className="transition-transform duration-700 ease-out z-20 drop-shadow-[0_6px_12px_rgba(0,0,0,0.1)]"
+            style={{
+              transform: `translate3d(${coords.x * 4}px, ${hovered ? 38 : 0}px, 15px) rotate(${hovered ? -3 : 0}deg)`,
+            }}
+          >
+            <div className="w-32 h-5 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 rounded-full border border-emerald-400/20 flex items-center justify-around">
+              <div className="w-1.5 h-1.5 bg-green-400/60 rounded-full" />
+              <div className="w-1.5 h-1.5 bg-green-400/60 rounded-full" />
+            </div>
+          </div>
+
+          {/* LAYER 6: Bottom Bun (Toasted) */}
+          <div 
+            className="transition-transform duration-700 ease-out z-10 drop-shadow-[0_16px_28px_rgba(0,0,0,0.2)]"
+            style={{
+              transform: `translate3d(${coords.x * -4}px, ${hovered ? 60 : 0}px, 10px)`,
+            }}
+          >
+            <div className="w-34 h-8 bg-gradient-to-b from-[#e39c52] to-[#ab6521] rounded-b-[3rem] rounded-t-lg shadow-inner border border-[#f0b575]/30 relative">
+              <div className="absolute inset-x-2 top-0 h-1 bg-[#854508]/20 rounded-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* === Bento layout for hero right === */
+export function BentoHero() {
+  const { restaurants } = useOrders();
+  const n = restaurants.length;
+  const [spotIdx, setSpotIdx] = useState(0);
+  const [spotFade, setSpotFade] = useState(true);
+
+  useEffect(() => {
+    if (n <= 1) return;
+    let timeoutId;
+    const iv = setInterval(() => {
+      setSpotFade(false);
+      timeoutId = setTimeout(() => {
+        setSpotIdx((i) => (i + 1) % n);
+        setSpotFade(true);
+      }, 280);
+    }, 5200);
+    return () => {
+      clearInterval(iv);
+      clearTimeout(timeoutId);
+    };
+  }, [n]);
+
+  const spot = restaurants[spotIdx] ?? restaurants[0];
+  if (!spot) return null;
+
+  return (
+    <div className="grid grid-cols-6 grid-rows-6 gap-3 h-[520px] sm:h-[600px] lg:h-[640px]">
+      <Tilt className="col-span-4 row-span-3">
+        <div className="cursor-grow group relative h-full rounded-3xl overflow-hidden shadow-cardhover spotlight border border-ink-200/20 dark:border-ink-800/80 transition-all duration-300"
+          onMouseMove={spotlightHandler}>
+          <div
+            className={`absolute inset-0 transition-opacity duration-300 ease-out ${spotFade ? 'opacity-100' : 'opacity-0'}`}
+          >
+            <img src={restaurantCover(spot.cover)} alt={spot.name}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
+            <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/30 to-transparent"></div>
+            <div className="absolute top-3 left-3 right-14 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/95 text-ink-900 shadow flex items-center gap-1 max-w-[min(100%,14rem)]">
+              <I.Flame size={12} className="text-brand-500 shrink-0"/> <span className="truncate">{spot.tags[0] ?? 'Partenaire'}</span>
+            </div>
+            <div className="absolute bottom-4 left-4 right-4 text-white z-10">
+              {n > 1 && (
+                <div className="flex justify-center gap-1.5 mb-3" role="tablist" aria-label="Restaurants à l’affiche">
+                  {restaurants.map((r, i) => (
+                    <button
+                      key={r.id}
+                      type="button"
+                      aria-label={r.name}
+                      aria-current={i === spotIdx ? 'true' : undefined}
+                      onClick={() => {
+                        if (i === spotIdx) return;
+                        setSpotFade(false);
+                        setTimeout(() => { setSpotIdx(i); setSpotFade(true); }, 200);
+                      }}
+                      className={`h-1.5 rounded-full transition-all ${i === spotIdx ? 'w-6 bg-white' : 'w-1.5 bg-white/45 hover:bg-white/75'}`}
+                    />
+                  ))}
+                </div>
+              )}
+              <div className="font-display font-extrabold text-2xl sm:text-3xl leading-tight">{spot.name}</div>
+            </div>
+          </div>
+        </div>
+      </Tilt>
+
+      <Tilt className="col-span-2 row-span-3" max={5}>
+        <div className="relative h-full rounded-3xl bg-gradient-to-br from-ink-950 via-ink-900 to-black p-4 text-white overflow-hidden shadow-cardhover border border-white/10 dark:border-ink-800/80">
+          <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-brand-500/30 blur-2xl"></div>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider opacity-80">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> En direct
+          </div>
+          <div className="mt-2 font-display font-bold text-lg">Suivi livraison</div>
+          <LiveTrackMini />
+          <div className="absolute bottom-3 left-4 right-4">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="w-7 h-7 rounded-full bg-white/15 grid place-items-center"><I.Bike size={14}/></span>
+              <div>
+                <div className="font-semibold leading-tight">Yacine, livreur</div>
+                <div className="text-[10px] opacity-70">Arrivée dans 4 min</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Tilt>
+
+      <Tilt className="col-span-3 row-span-2">
+        <div className="h-full rounded-3xl glass-card-premium p-5 shadow-cardhover border border-white/20 dark:border-white/5 hover:border-brand-500/20 transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div className="text-xs font-semibold text-ink-500 uppercase tracking-wider">Communauté</div>
+            <div className="mt-2 font-display font-black text-3xl sm:text-4xl text-gradient animate-pulse-slow">12 000+</div>
+            <div className="text-sm text-ink-600 dark:text-ink-300 leading-snug">étudiants & soignants nous font confiance</div>
+          </div>
+          <div className="mt-3 flex -space-x-2.5">
+            {[5,16,18,22,33].map(i => (
+              <img key={i} src={`https://i.pravatar.cc/48?img=${i}`} alt=""
+                className="w-8 h-8 rounded-full border-2 border-white dark:border-ink-950 object-cover hover:scale-110 hover:-translate-y-1 transition-all duration-300 cursor-pointer"/>
+            ))}
+          </div>
+        </div>
+      </Tilt>
+
+      <Tilt className="col-span-3 row-span-2">
+        <div className="relative h-full rounded-3xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 p-5 text-white shadow-glow border border-white/20 overflow-hidden hover:scale-[1.02] transition-all duration-300 flex flex-col justify-between">
+          <div className="absolute -bottom-8 -right-8 w-36 h-36 rounded-full bg-white/20 blur-2xl"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(at_10%_20%,rgba(255,255,255,0.15)_0,transparent_55%)]"></div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wider opacity-90">Livraison moyenne</div>
+            <div className="mt-2 font-display font-black text-5xl tracking-tight text-glow animate-pulse-slow">26<span className="text-2xl font-bold">min</span></div>
+          </div>
+          <div className="text-sm opacity-95 flex items-center gap-1.5 font-medium">
+            <span>⚡</span> Du clic à la fourchette
+          </div>
+        </div>
+      </Tilt>
+
+      <Tilt className="col-span-3 row-span-1">
+        <div className="h-full rounded-3xl bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-500/20 dark:border-emerald-500/10 px-4 flex items-center gap-3 shadow-sm hover:bg-emerald-500/15 dark:hover:bg-emerald-500/10 transition-all duration-300 hover:border-emerald-500/30 hover:scale-[1.02] cursor-pointer">
+          <span className="w-9 h-9 rounded-xl bg-emerald-500 text-white grid place-items-center shadow-sm"><I.Bike size={18}/></span>
+          <div className="text-sm">
+            <div className="font-bold text-emerald-800 dark:text-emerald-300">Livraison offerte</div>
+            <div className="text-ink-500 dark:text-ink-400 text-xs">Sur tout le campus & CHU</div>
+          </div>
+        </div>
+      </Tilt>
+
+      <Tilt className="col-span-3 row-span-1">
+        <div className="h-full rounded-3xl glass-card-premium border border-white/20 dark:border-white/5 px-4 flex items-center gap-3 shadow-card hover:shadow-cardhover transition-all duration-300 hover:scale-[1.02] hover:border-brand-500/20 cursor-pointer">
+          <span className="w-9 h-9 rounded-xl bg-brand-500 text-white grid place-items-center text-lg shadow-sm">🍽️</span>
+          <div className="text-sm">
+            <div className="font-bold">Campus & CHU</div>
+            <div className="text-ink-500 dark:text-ink-400 text-xs">Livraison prioritaire 24h/24</div>
+          </div>
+        </div>
+      </Tilt>
+    </div>
+  );
+}
+
+/* spotlight handler — sets CSS vars for radial gradient */
+
+/* Live track mini SVG */
+export function LiveTrackMini() {
+  return (
+    <svg viewBox="0 0 200 100" className="absolute inset-x-0 top-12 w-full h-24" fill="none">
+      <defs>
+        <linearGradient id="track" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#f97316"/>
+          <stop offset="100%" stopColor="#ec4899"/>
+        </linearGradient>
+        <filter id="glow-filter" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      <path d="M 10 60 Q 60 10, 110 50 T 195 30" stroke="rgba(255,255,255,.15)" strokeWidth="3" strokeLinecap="round" strokeDasharray="4 4"/>
+      <path d="M 10 60 Q 60 10, 110 50 T 195 30" stroke="url(#track)" strokeWidth="3.5" strokeLinecap="round" pathLength="100" filter="url(#glow-filter)"
+        style={{ strokeDasharray:'100', strokeDashoffset:'40', animation:'shimmer 3s linear infinite' }}/>
+      <circle cx="10" cy="60" r="5" fill="#fff" filter="url(#glow-filter)" />
+      <circle cx="195" cy="30" r="5" fill="#10b981" filter="url(#glow-filter)" />
+      <g style={{ offsetPath:"path('M 10 60 Q 60 10, 110 50 T 195 30')", animation:'bike-go 4s ease-in-out infinite alternate' }}>
+        <circle r="10" fill="#f97316" filter="url(#glow-filter)"/>
+        <circle r="10" fill="none" stroke="#fff" strokeWidth="2"/>
+        <text x="0" y="3.5" textAnchor="middle" fontSize="10">🛵</text>
+      </g>
+    </svg>
+  );
+}
+
+/* === Marquee === */
+export function PartnersMarquee() {
+  const items = [
+    '🏥 CHU Mohammed VI de Tanger',
+    '🎓 FMPT de Tanger',
+    '🎓 ISPITS Tanger',
+    '🏠 Résidence universitaire Alliance Tanger',
+  ];
+  return (
+    <section className="marquee-mask border-y border-ink-200/60 dark:border-ink-800/60 py-6 overflow-hidden bg-white/40 dark:bg-ink-900/40 backdrop-blur-md">
+      <div className="marquee gap-12 text-2xl sm:text-3xl font-display font-bold tracking-tight text-ink-400/70 dark:text-ink-500/75">
+        {[...Array(2)].map((_, k) => (
+          <Fragment key={k}>
+            {items.map(it => <span key={it+k} className="hover:text-brand-500 transition-colors duration-300">{it}</span>)}
+          </Fragment>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* === Restaurants · Pâtisseries · Pharmacies === */
+export function PartnerCategoriesSection() {
+  const rows = [
+    {
+      emoji: '🍽️',
+      title: 'Restaurants',
+      line: 'Repas chauds, cuisines du monde, menus du jour préparés par nos chefs partenaires.',
+      color: 'from-orange-500 to-amber-500',
+      hoverBorder: 'hover:border-orange-500/30',
+      textHover: 'group-hover:text-amber-500',
+      tag: 'Cuisines variées'
+    },
+    {
+      emoji: '🥐',
+      title: 'Pâtisseries',
+      line: 'Viennoiseries fraîches, gâteaux, desserts gourmands et pauses sucrées au quotidien.',
+      color: 'from-pink-500 to-rose-500',
+      hoverBorder: 'hover:border-pink-500/30',
+      textHover: 'group-hover:text-pink-500',
+      tag: 'Douceurs & Cafés'
+    },
+    {
+      emoji: '💊',
+      title: 'Pharmacies',
+      line: 'Produits de parapharmacie, hygiène et soins de première urgence livrés discrètement.',
+      color: 'from-emerald-500 to-teal-500',
+      hoverBorder: 'hover:border-emerald-500/30',
+      textHover: 'group-hover:text-emerald-500',
+      tag: 'Soin & Santé'
+    },
+  ];
+
+  return (
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
+      <Reveal>
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
+            🛍️ Services & Partenaires
+          </span>
+          <h2 className="mt-4 font-display font-extrabold text-4xl sm:text-5xl tracking-tight leading-tight">
+            Tout ce dont vous avez besoin, <span className="text-gradient text-glow">au même endroit.</span>
+          </h2>
+          <p className="mt-4 text-base sm:text-lg text-ink-600 dark:text-ink-400 leading-relaxed">
+            En plus des restaurants, YouHa regroupe les établissements partenaires essentiels pour votre quotidien au campus ou au CHU.
+          </p>
+        </div>
+      </Reveal>
+
+      <div className="grid md:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+        {rows.map((r, i) => (
+          <Reveal key={r.title} delay={i * 100}>
+            <Tilt max={6} className="h-full">
+              <div className={`relative overflow-hidden group h-full p-8 rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${r.hoverBorder} transition-all duration-500 shadow-card hover:shadow-cardhover hover:-translate-y-1.5 flex flex-col justify-between min-h-[300px] cursor-pointer`}>
+                {/* Glowing background orb */}
+                <div className={`absolute -right-10 -bottom-10 w-28 h-28 rounded-full bg-gradient-to-br ${r.color} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 blur-xl transition-all duration-500 scale-50 group-hover:scale-100`}></div>
+                
+                <div>
+                  <div className="flex justify-between items-start">
+                    {/* Glowing Emoji Container */}
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${r.color} text-white flex items-center justify-center text-3xl shadow-glow relative group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                      {r.emoji}
+                      <span className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-white to-white/0 opacity-25 border border-white/30"></span>
+                    </div>
+                    {/* Badge */}
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-ink-100 dark:bg-ink-800 text-ink-600 dark:text-ink-400 border border-ink-200/50 dark:border-ink-700/50 group-hover:border-brand-500/20 group-hover:bg-brand-500/5 transition-colors">
+                      {r.tag}
+                    </span>
+                  </div>
+
+                  <div className="mt-8">
+                    <h3 className={`font-display font-extrabold text-2xl text-ink-900 dark:text-white transition-colors duration-300 ${r.textHover}`}>
+                      {r.title}
+                    </h3>
+                    <p className="mt-3 text-ink-600 dark:text-ink-400 text-sm sm:text-base leading-relaxed">
+                      {r.line}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex items-center gap-1 text-sm font-bold text-ink-500 group-hover:text-brand-500 transition-colors">
+                  <span>Découvrir la sélection</span>
+                  <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
+                </div>
+              </div>
+            </Tilt>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* === 3D AUTO-ROTATING CAROUSEL === */
+export function Carousel3DSection() {
+  const { restaurants } = useOrders();
+  const items = restaurants.slice(0, 6);
+  const radius = 360;
+  const angleStep = 360 / items.length;
+
+  return (
+    <section className="relative overflow-hidden py-16 sm:py-24">
+      <div className="absolute inset-0 -z-10 mesh-conic opacity-50"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center mb-10">
+        <span className="text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">À découvrir</span>
+        <h2 className="mt-3 font-display font-extrabold text-4xl sm:text-5xl tracking-tight">
+          Un univers culinaire <span className="text-gradient">à 360°</span>
+        </h2>
+        <p className="mt-3 text-ink-500 dark:text-ink-400">
+          Tour complet à 360° sur nos restaurants partenaires.
+        </p>
+      </div>
+
+      <div className="carousel-3d relative h-[420px]">
+        <div className="carousel-3d-inner">
+          {items.map((r, i) => {
+            const angle = i * angleStep;
+            return (
+              <div key={r.id} className="carousel-3d-card cursor-grow group"
+                style={{ transform: `rotateY(${angle}deg) translateZ(${radius}px)` }}>
+                <div className="relative w-full h-full overflow-hidden rounded-3xl border border-white/10 dark:border-ink-800/80 group-hover:border-brand-500/30 shadow-glow transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]">
+                  <img src={restaurantCover(r.cover)} alt={r.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+                  <div className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 backdrop-blur-md text-white border border-white/20 flex items-center gap-1">
+                    ★ 4.9
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <span className="inline-block px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider bg-brand-500/80 text-white mb-2">{r.tags[0] || 'Partenaire'}</span>
+                    <div className="font-display font-extrabold text-lg sm:text-xl mt-0.5">{r.name}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* === Features === */
+export function FeaturesSection() {
+  return (
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-24 sm:py-32">
+      <div className="max-w-2xl mb-16">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
+          ✨ Avantages
+        </span>
+        <h2 className="mt-4 font-display font-extrabold text-4xl sm:text-5xl tracking-tight leading-tight">
+          Pensé pour le <span className="text-gradient text-glow">rythme du campus.</span>
+        </h2>
+        <p className="mt-4 text-base sm:text-lg text-ink-600 dark:text-ink-300 leading-relaxed">
+          Conçu main dans la main avec des étudiants et des soignants — rapide, silencieux et ridiculement simple à utiliser.
+        </p>
+      </div>
+
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+        {FEATURES.map((f, i) => {
+          const hoverBorderClass = 
+            i === 0 ? 'hover:border-orange-500/30' : 
+            i === 1 ? 'hover:border-fuchsia-500/30' : 
+            i === 2 ? 'hover:border-pink-500/30' : 
+            'hover:border-sky-500/30';
+          const textHoverClass = 
+            i === 0 ? 'group-hover:text-amber-500' : 
+            i === 1 ? 'group-hover:text-fuchsia-500' : 
+            i === 2 ? 'group-hover:text-pink-500' : 
+            'group-hover:text-sky-500';
+
+          return (
+            <Reveal key={f.title} delay={i * 80}>
+              <Tilt max={8} className="h-full">
+                <div className={`group relative h-full p-8 rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} shadow-card hover:shadow-cardhover transition-all duration-500 overflow-hidden spotlight flex flex-col justify-between min-h-[240px]`}
+                  onMouseMove={spotlightHandler}>
+                  
+                  {/* Glowing background corner orb */}
+                  <div className={`absolute -right-8 -bottom-8 w-24 h-24 rounded-full bg-gradient-to-br ${f.from} ${f.to} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 blur-xl transition-all duration-500 scale-50 group-hover:scale-100`}></div>
+                  
+                  <div className="relative z-10">
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${f.from} ${f.to} text-white flex items-center justify-center shadow-glow relative group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                      {f.icon}
+                      <span className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-white to-white/0 opacity-25 border border-white/30"></span>
+                    </div>
+
+                    <h3 className={`mt-6 font-display font-extrabold text-xl text-ink-900 dark:text-white transition-colors duration-300 ${textHoverClass}`}>
+                      {f.title}
+                    </h3>
+                    <p className="mt-3 text-ink-600 dark:text-ink-400 text-sm leading-relaxed">
+                      {f.desc}
+                    </p>
+                  </div>
+                </div>
+              </Tilt>
+            </Reveal>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* === How It Works === */
+export function HowItWorksSection() {
+  return (
+    <section id="comment-ca-marche" className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 scroll-mt-24" aria-labelledby="how-it-works-heading">
+      <div className="text-center max-w-2xl mx-auto mb-16">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
+          📌 Fonctionnement
+        </span>
+        <h2 id="how-it-works-heading" className="mt-4 font-display font-extrabold text-4xl sm:text-5xl tracking-tight">
+          3 étapes. <span className="text-gradient text-glow">Zéro friction.</span>
+        </h2>
+        <p className="mt-3 text-ink-500 dark:text-ink-400 text-base leading-relaxed">
+          De votre faim à votre assiette en un temps record. Une logistique sur-mesure conçue pour la vie de campus.
+        </p>
+      </div>
+
+      <div className="relative flex flex-col md:flex-row items-center md:items-stretch justify-between gap-6 md:gap-4">
+        {HOW_STEPS.map((s, i) => {
+          const hoverBorderClass = 
+            s.num === '01' ? 'hover:border-orange-500/30' : 
+            s.num === '02' ? 'hover:border-pink-500/30' : 
+            'hover:border-violet-500/30';
+          const textHoverClass = 
+            s.num === '01' ? 'group-hover:text-amber-500' : 
+            s.num === '02' ? 'group-hover:text-pink-500' : 
+            'group-hover:text-violet-500';
+
+          return (
+            <React.Fragment key={s.num}>
+              <div className="flex-1 w-full">
+                <Reveal delay={i * 150}>
+                  <div className={`relative overflow-hidden group h-full p-8 rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} transition-all duration-500 shadow-card hover:shadow-cardhover hover:-translate-y-1.5 flex flex-col justify-between min-h-[260px]`}>
+                    {/* Giant Backdrop Number */}
+                    <span className={`absolute -right-3 -bottom-5 font-display font-black text-9xl text-transparent bg-gradient-to-br ${s.color} bg-clip-text opacity-[0.06] dark:opacity-[0.1] select-none pointer-events-none group-hover:scale-105 group-hover:opacity-[0.12] transition-all duration-500`}>
+                      {s.num}
+                    </span>
+
+                    <div>
+                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.color} text-white flex items-center justify-center shadow-glow relative z-10 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                        {s.icon}
+                        <span className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-white to-white/0 opacity-25 border border-white/30"></span>
+                      </div>
+
+                      <div className="mt-6 relative z-10">
+                        <h3 className={`font-display font-extrabold text-2xl text-ink-900 dark:text-white transition-colors duration-300 ${textHoverClass}`}>
+                          {s.title}
+                        </h3>
+                        <p className="mt-3 text-ink-600 dark:text-ink-400 text-sm sm:text-base leading-relaxed">
+                          {s.desc}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
+              </div>
+
+              {i < HOW_STEPS.length - 1 && (
+                <div className="flex items-center justify-center shrink-0 py-2 md:py-0 z-10">
+                  <span className={`font-display font-black text-3xl select-none animate-pulse-slow bg-gradient-to-r ${
+                    i === 0 ? 'from-orange-500 to-pink-500' : 'from-pink-500 to-violet-500'
+                  } bg-clip-text text-transparent`}>
+                    <span className="hidden md:inline">→</span>
+                    <span className="inline md:hidden">↓</span>
+                  </span>
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* === Showcase === */
+export function ShowcaseSection() {
+  return (
+    <section className="relative overflow-hidden bg-[#ffb833] dark:bg-[#18110a] text-slate-900 dark:text-white transition-colors duration-500 py-16 sm:py-24 my-12 rounded-[3rem] max-w-7xl mx-auto px-6 sm:px-10">
+      {/* Background decorations */}
+      <div className="absolute inset-0 opacity-10 dark:opacity-20 pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" />
+      </div>
+
+      <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center">
+        {/* LEFT: Exploded Burger Stage */}
+        <div className="lg:col-span-5 flex justify-center order-2 lg:order-1">
+          <Reveal>
+            <PhoneMockup />
+          </Reveal>
+        </div>
+
+        {/* RIGHT: High-End Feature Grid */}
+        <div className="lg:col-span-7 order-1 lg:order-2">
+          <Reveal delay={120}>
+            <div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/10 dark:bg-white/10 text-slate-900 dark:text-amber-400 text-xs font-semibold uppercase tracking-widest w-fit">
+                ✨ Technologie & Expérience
+              </span>
+              <h2 className="mt-4 font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-none text-slate-900 dark:text-white">
+                Une expérience <br />
+                <span className="text-slate-800 dark:text-amber-500 text-glow">extraordinairement fluide.</span>
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-slate-800/95 dark:text-slate-300 max-w-xl">
+                Tout a été méticuleusement conçu pour éliminer l'attente et vous offrir le meilleur de vos campus.
+              </p>
+              
+              <div className="mt-8 grid sm:grid-cols-2 gap-4">
+                {[
+                  {
+                    title: 'Suivi en temps réel',
+                    desc: 'Suivez le trajet de votre livreur étape par étape en direct sur la carte.',
+                    icon: <I.MapPin size={20} />,
+                    bg: 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-900 dark:text-white'
+                  },
+                  {
+                    title: 'Dernières commandes',
+                    desc: 'Accédez instantanément à votre historique et recommandez en un seul clic.',
+                    icon: <I.Zap size={20} />,
+                    bg: 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-900 dark:text-white'
+                  },
+                  {
+                    title: 'IA Smart Suggest',
+                    desc: 'Des plats recommandés selon votre emploi du temps, vos cours ou vos gardes.',
+                    icon: <I.Sparkle size={20} />,
+                    bg: 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-900 dark:text-white'
+                  },
+                  {
+                    title: 'Commande multi-restos',
+                    desc: 'Mixez plusieurs cuisines de différents établissements dans un seul panier.',
+                    icon: <I.Chef size={20} />,
+                    bg: 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-900 dark:text-white'
+                  }
+                ].map((item, idx) => (
+                  <Reveal key={item.title} delay={180 + idx * 80}>
+                    <div className="group p-5 rounded-2xl bg-white/95 dark:bg-ink-900 border border-black/5 dark:border-white/5 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between h-full hover:shadow-lg">
+                      <div className="flex items-start gap-4">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${item.bg}`}>
+                          {item.icon}
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-slate-900 dark:text-white text-base group-hover:text-[#faba30] dark:group-hover:text-amber-500 transition-colors duration-200">
+                            {item.title}
+                          </h3>
+                          <p className="mt-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                            {item.desc}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function PhoneMockup() {
+  const [hovered, setHovered] = useState(false);
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5; // -0.5 to 0.5
+    const y = (e.clientY - rect.top) / rect.height - 0.5; // -0.5 to 0.5
+    setCoords({ x, y });
+  };
+
+  const handleMouseLeave = () => {
+    setHovered(false);
+    setCoords({ x: 0, y: 0 });
+  };
+
+  return (
+    <div
+      className="relative mx-auto w-full max-w-[390px] aspect-square flex items-center justify-center cursor-pointer select-none"
+      onMouseEnter={() => setHovered(true)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ perspective: '1000px' }}
+    >
+      {/* Floating Shadow */}
+      <div 
+        className="absolute bottom-4 w-48 h-5 rounded-full bg-black/20 blur-md transition-all duration-500 ease-out"
+        style={{
+          transform: `scaleX(${hovered ? 0.75 : 1.15}) scaleY(${hovered ? 0.6 : 1}) translate3d(0, 0, 0)`,
+          opacity: hovered ? 0.4 : 0.85,
+        }}
+      />
+
+      {/* Main Exploded Container */}
+      <div
+        className="relative w-full h-full flex flex-col items-center justify-center transition-transform duration-700 ease-out"
+        style={{
+          transform: `rotateX(${coords.y * -30}deg) rotateY(${coords.x * 30}deg) translateZ(20px)`,
+          transformStyle: 'preserve-3d',
+        }}
+      >
+        {/* Steam rising particles */}
+        <div className="absolute top-[10%] flex justify-between w-24 opacity-60">
+          <div className="w-1.5 h-8 bg-white/40 blur-[3px] rounded-full animate-steam" style={{ animationDelay: '0s' }} />
+          <div className="w-2 h-10 bg-white/50 blur-[4px] rounded-full animate-steam" style={{ animationDelay: '0.4s' }} />
+          <div className="w-1.5 h-8 bg-white/40 blur-[3px] rounded-full animate-steam" style={{ animationDelay: '0.8s' }} />
+        </div>
+
+        {/* Photorealistic Exploded Burger Base Backdrop */}
+        <div 
+          className="absolute inset-0 bg-contain bg-center bg-no-repeat transition-all duration-700 ease-out select-none pointer-events-none mix-blend-multiply dark:mix-blend-normal"
+          style={{
+            backgroundImage: "url('/burger_exploded.png')",
+            opacity: hovered ? 0.05 : 0.95,
+            transform: `scale(${hovered ? 0.95 : 1})`,
+          }}
+        />
+
+        {/* Separated Mid-Air Vector Layer Animation on Hover */}
+        <div 
+          className="relative w-72 h-72 flex flex-col justify-between items-center transition-all duration-700 ease-out"
+          style={{
+            opacity: hovered ? 1 : 0,
+            pointerEvents: hovered ? 'auto' : 'none',
+            transform: `scale(${hovered ? 1.05 : 0.9})`,
+          }}
+        >
+          {/* LAYER 1: Top Bun */}
+          <div 
+            className="transition-transform duration-700 ease-out z-40 drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)]"
+            style={{
+              transform: `translate3d(${coords.x * 12}px, ${hovered ? -55 : 0}px, 60px) rotate(${hovered ? -4 : 0}deg)`,
+            }}
+          >
+            <div className="relative w-32 h-16 bg-gradient-to-b from-[#e39c52] to-[#c77a2e] rounded-t-[4rem] rounded-b-[1.5rem] shadow-inner border border-[#f0b575]/40 flex items-center justify-center overflow-hidden">
+              <div className="absolute inset-0 opacity-80 bg-[radial-gradient(circle_at_50%_20%,#fff_2px,transparent_3px)] bg-[size:16px_16px]" />
+              <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_30%_60%,#fff_1.5px,transparent_2.5px)] bg-[size:20px_20px]" />
+            </div>
+          </div>
+
+          {/* LAYER 2: Fresh Red Onion & Tomato */}
+          <div 
+            className="transition-transform duration-700 ease-out z-35 flex justify-center gap-2 drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]"
+            style={{
+              transform: `translate3d(${coords.x * -6}px, ${hovered ? -30 : 0}px, 45px) rotate(${hovered ? 5 : 0}deg)`,
+            }}
+          >
+            <div className="w-14 h-5 bg-gradient-to-r from-red-600 to-red-500 rounded-full border border-red-400/30 flex items-center justify-between px-2 overflow-hidden">
+              <div className="w-3.5 h-3.5 bg-red-700 rounded-full opacity-60 blur-[1px]" />
+              <div className="w-3.5 h-3.5 bg-red-700 rounded-full opacity-60 blur-[1px]" />
+            </div>
+            <div className="w-12 h-5 border-4 border-purple-700/80 bg-purple-500/20 rounded-full flex items-center justify-center">
+              <div className="w-6 h-1.5 border border-purple-800/40 rounded-full" />
+            </div>
+          </div>
+
+          {/* LAYER 3: Melted Cheddar stretching */}
+          <div 
+            className="transition-transform duration-700 ease-out z-30 drop-shadow-[0_8px_16px_rgba(0,0,0,0.12)]"
+            style={{
+              transform: `translate3d(${coords.x * 6}px, ${hovered ? -8 : 0}px, 35px)`,
+            }}
+          >
+            <div className="relative w-32 h-6 bg-amber-400 rounded-lg transform rotate-[-2deg] flex items-center justify-around border-t border-amber-300">
+              <div className="absolute -bottom-3 left-6 w-2.5 h-5 bg-amber-400 rounded-b-full shadow-md animate-drip" />
+              <div className="absolute -bottom-1.5 left-14 w-2.5 h-3.5 bg-amber-400 rounded-b-full shadow-sm" />
+              <div className="absolute -bottom-2.5 right-6 w-3 h-4 bg-amber-400 rounded-b-full shadow-md animate-drip" style={{ animationDelay: '0.3s' }} />
+            </div>
+          </div>
+
+          {/* LAYER 4: Juicy Beef Patty with Grill Marks */}
+          <div 
+            className="transition-transform duration-700 ease-out z-25 drop-shadow-[0_14px_24px_rgba(0,0,0,0.22)]"
+            style={{
+              transform: `translate3d(${coords.x * -10}px, ${hovered ? 15 : 0}px, 20px) rotate(${hovered ? 2 : 0}deg)`,
+            }}
+          >
+            <div className="w-36 h-8 bg-gradient-to-b from-[#4a2e1d] via-[#3a2012] to-[#241208] rounded-2xl border border-amber-950/20 flex flex-col justify-around py-1 shadow-inner overflow-hidden">
+              <div className="w-full h-0.5 bg-[#170904] opacity-80 transform rotate-12" />
+              <div className="w-full h-0.5 bg-[#170904] opacity-80 transform rotate-12" />
+              <div className="absolute -bottom-2.5 left-10 w-2 h-3 bg-orange-600/90 rounded-b-full shadow-md animate-drip" style={{ animationDelay: '0.6s' }} />
+            </div>
+          </div>
+
+          {/* LAYER 5: Fresh Lettuce Leaf */}
+          <div 
+            className="transition-transform duration-700 ease-out z-20 drop-shadow-[0_6px_12px_rgba(0,0,0,0.1)]"
+            style={{
+              transform: `translate3d(${coords.x * 4}px, ${hovered ? 38 : 0}px, 15px) rotate(${hovered ? -3 : 0}deg)`,
+            }}
+          >
+            <div className="w-32 h-5 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 rounded-full border border-emerald-400/20 flex items-center justify-around">
+              <div className="w-1.5 h-1.5 bg-green-400/60 rounded-full" />
+              <div className="w-1.5 h-1.5 bg-green-400/60 rounded-full" />
+            </div>
+          </div>
+
+          {/* LAYER 6: Bottom Bun (Toasted) */}
+          <div 
+            className="transition-transform duration-700 ease-out z-10 drop-shadow-[0_16px_28px_rgba(0,0,0,0.2)]"
+            style={{
+              transform: `translate3d(${coords.x * -4}px, ${hovered ? 60 : 0}px, 10px)`,
+            }}
+          >
+            <div className="w-34 h-8 bg-gradient-to-b from-[#e39c52] to-[#ab6521] rounded-b-[3rem] rounded-t-lg shadow-inner border border-[#f0b575]/30 relative">
+              <div className="absolute inset-x-2 top-0 h-1 bg-[#854508]/20 rounded-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* === Testimonials === */
+export function TestimonialsSection() {
+  return (
+    <section className="relative py-20 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-end justify-between flex-wrap gap-4">
+          <div className="max-w-2xl">
+            <span className="text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">Ils en parlent</span>
+            <h2 className="mt-3 font-display font-extrabold text-4xl sm:text-5xl tracking-tight">
+              Adoré sur les <span className="text-gradient">campus & dans les couloirs.</span>
+            </h2>
+          </div>
+        </div>
+
+        <div className="marquee-mask -mx-4 sm:mx-0 px-4 sm:px-0">
+          <div className="mt-10 testi-track flex gap-5 overflow-x-auto no-scrollbar pb-6">
+            {TESTIMONIALS.map((t) => (
+              <div key={t.name} className="cursor-grow shrink-0 w-[85%] sm:w-[420px] rounded-3xl p-6 glass-card-premium border border-white/20 dark:border-white/5 shadow-card hover:shadow-cardhover transition-all duration-300 relative overflow-hidden spotlight hover:scale-[1.02] hover:border-brand-500/20"
+                onMouseMove={spotlightHandler}>
+                <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br ${t.color} opacity-20 blur-2xl`}></div>
+                <div className="text-5xl text-brand-500/30 leading-none font-serif">“</div>
+                <p className="mt-1 text-ink-700 dark:text-ink-200 leading-relaxed text-sm sm:text-base">{t.text}</p>
+                <div className="mt-5 flex items-center gap-3">
+                  <img src={t.avatar} alt="" className="w-11 h-11 rounded-full object-cover border border-white/20 dark:border-white/10 shadow-sm"/>
+                  <div>
+                    <div className="font-bold text-sm text-ink-900 dark:text-white">{t.name}</div>
+                    <div className="flex items-center gap-0.5 text-amber-500">
+                      {[...Array(t.rating)].map((_,j) => <I.Star key={j} size={12} className="fill-amber-400" stroke={2.5}/>)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* === Final CTA === */
+export function FinalCTA({ onStart }) {
+  return (
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-24">
+      <Reveal>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-ink-900 via-ink-800 to-ink-900 dark:from-black dark:via-ink-900 dark:to-black p-8 sm:p-14 text-white">
+          <div aria-hidden className="absolute -top-24 -right-24 w-[28rem] h-[28rem] rounded-full bg-brand-500/40 blur-3xl animate-pulse-slow"></div>
+          <div aria-hidden className="absolute -bottom-24 -left-24 w-[28rem] h-[28rem] rounded-full bg-fuchsia-500/40 blur-3xl animate-pulse-slow" style={{ animationDelay:'1s' }}></div>
+          <div className="absolute inset-0 grid-bg opacity-30"></div>
+          <div className="relative max-w-2xl">
+            <h3 className="font-display font-extrabold text-3xl sm:text-5xl tracking-tight">
+              Faim ? Votre chambre est à <span className="text-gradient">14 minutes</span> de quelque chose de génial.
+            </h3>
+            <p className="mt-4 text-white/70 text-lg">Aucune app à télécharger. Ouvrez YouHa et commandez.</p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Magnetic strength={20}>
+                <Button onClick={onStart} variant="primary" size="lg">Commander maintenant <I.Right size={18}/></Button>
+              </Magnetic>
+              <Button variant="glass" size="lg"><I.Headset size={18}/> Parler au support</Button>
+            </div>
+          </div>
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+export function CampusHospitalsSection() {
+  return (
+    <section className="mt-2 sm:mt-4">
+      <Reveal>
+        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-ink-900 via-ink-800 to-ink-950 dark:from-black dark:via-ink-950 dark:to-black text-white shadow-cardhover border border-ink-800/80">
+          <div className="absolute inset-0 grid-bg opacity-[0.06]" aria-hidden />
+          <div className="absolute -top-24 -right-20 w-72 h-72 rounded-full bg-brand-500/20 blur-3xl" aria-hidden />
+          <div className="absolute -bottom-24 -left-20 w-72 h-72 rounded-full bg-violet-500/15 blur-3xl" aria-hidden />
+
+          <div className="relative p-5 sm:p-8">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5">
+              <div className="max-w-2xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur text-xs font-semibold border border-white/10">
+                  <I.MapPin size={14} className="text-brand-400" />
+                  Campus & Hôpitaux — Tanger
+                </div>
+                <h3 className="mt-4 font-display font-extrabold text-2xl sm:text-4xl tracking-tight leading-tight">
+                  Zones couvertes{' '}
+                  <span className="bg-gradient-to-r from-brand-400 to-pink-400 bg-clip-text text-transparent">
+                    24/7
+                  </span>
+                </h3>
+                <p className="mt-3 text-sm sm:text-base text-white/70 leading-relaxed">
+                  Hôpitaux universitaires, instituts de santé et résidences étudiantes — livraison prioritaire sur tout le campus.
+                </p>
+              </div>
+              <div className="flex gap-3 shrink-0">
+                <div className="px-5 py-4 rounded-2xl bg-white/10 backdrop-blur border border-white/10 text-center">
+                  <div className="text-[10px] uppercase tracking-wider text-white/50">Points</div>
+                  <div className="font-display font-black text-3xl leading-none mt-1">+{CAMPUS_HOSPITALS.length}</div>
+                </div>
+                <div className="px-5 py-4 rounded-2xl bg-emerald-500/15 backdrop-blur border border-emerald-400/25 text-center">
+                  <div className="text-[10px] uppercase tracking-wider text-emerald-300/80">Statut</div>
+                  <div className="mt-1 inline-flex items-center gap-1.5 text-sm font-bold text-emerald-300">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    Actif
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 sm:mt-8 grid sm:grid-cols-2 gap-4">
+              {CAMPUS_HOSPITALS.map((place, idx) => (
+                <Reveal key={place.name} delay={idx * 70}>
+                  <article className="group relative flex gap-0 sm:block h-full rounded-2xl overflow-hidden border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-300 hover:border-white/20">
+                    <div className="relative w-28 sm:w-full shrink-0 sm:shrink sm:h-40 overflow-hidden">
+                      <img
+                        src={place.img}
+                        alt={place.name}
+                        loading="lazy"
+                        className="w-full h-full min-h-[7rem] sm:min-h-0 object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r sm:bg-gradient-to-t from-black/50 to-transparent" />
+                    </div>
+                    <div className="p-4 sm:p-5 flex flex-col justify-center flex-1 min-w-0">
+                      <div className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        Disponible
+                      </div>
+                      <h4 className="font-display font-bold text-base sm:text-lg leading-snug line-clamp-2">{place.name}</h4>
+                      <p className="mt-1.5 text-xs sm:text-sm text-white/60 line-clamp-2">{place.subtitle}</p>
+                      <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-300">
+                        <I.Bike size={14} /> Livraison prioritaire
+                      </div>
+                    </div>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Reveal>
+    </section>
+  );
+}

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 
 export function Reveal({ children, delay = 0 }) {

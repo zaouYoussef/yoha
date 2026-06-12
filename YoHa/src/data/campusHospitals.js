@@ -1,3 +1,4 @@
+/** Zones couvertes — éditer ici uniquement (pas de backend). */
 export const CAMPUS_HOSPITALS = [
   {
     name: 'CHU Mohammed VI de Tanger',
@@ -5,14 +6,14 @@ export const CAMPUS_HOSPITALS = [
     img: 'https://www.lesiteinfo.com/wp-content/uploads/2023/04/CHU.jpg',
   },
   {
-    name: 'Hôpital Universitaire Mohammed VI',
-    subtitle: 'Zone hospitalière et services d’urgence',
-    img: 'https://i.ytimg.com/vi/4ig1_HC_5I0/maxresdefault.jpg',
+    name: 'FMPT de Tanger',
+    subtitle: 'Faculté de Médecine et de Pharmacie',
+    img: '/fmp_tanger.png',
   },
   {
     name: 'ISPITS Tanger',
     subtitle: 'Institut Supérieur des Professions Infirmières et Techniques de Santé',
-    img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSc18JHdfUDUTNsudkUQY0H0jmYlV3HZhyIWg&s',
+    img: '/ispits.png',
   },
   {
     name: 'Résidence universitaire Alliance Tanger',

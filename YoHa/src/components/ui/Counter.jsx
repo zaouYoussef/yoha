@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 
 export function Counter({ to, duration = 1800, decimals = 0, suffix = '' }) {

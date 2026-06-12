@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+'use client';
+
+import React, { useState, useEffect, useContext } from 'react';
 import { I } from '../../icons/Icons.jsx';
 import { Logo } from './Logo.jsx';
 import { Magnetic } from '../ui/Magnetic.jsx';
 import { useAuth, ROLE_LABELS } from '../../contexts/AuthContext.jsx';
+import { CartIconRefCtx } from '../../contexts/AppContexts.jsx';
 import { ORDER_STATES } from '../../data/index.js';
 
 export function Navbar({
@@ -10,7 +13,6 @@ export function Navbar({
   setDark,
   cartCount,
   cartShake,
-  cartIconRef,
   onCart,
   onLogo,
   onHome,
@@ -21,6 +23,7 @@ export function Navbar({
   onLiveOrder,
   onMyOrders,
 }) {
+  const cartIconRef = useContext(CartIconRefCtx);
   const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
@@ -30,45 +33,49 @@ export function Navbar({
   }, []);
 
   return (
-    <header className={`fixed top-0 inset-x-0 z-40 transition-all duration-500 ${scrolled ? 'glass-strong shadow-soft' : 'bg-transparent'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3">
-        <button onClick={onLogo} className="flex items-center gap-2 group cursor-grow">
+    <header className="fixed top-0 inset-x-0 z-40 transition-all duration-500 pointer-events-none">
+      <div className={`mx-auto flex h-16 min-w-0 items-center gap-2 transition-all duration-500 pointer-events-auto ${
+        scrolled 
+          ? 'w-[calc(100%-2rem)] max-w-6xl mt-3 px-6 rounded-2xl glass-card-premium shadow-cardhover border border-white/20 dark:border-white/5' 
+          : 'w-full max-w-7xl px-3 sm:px-6 bg-transparent border-transparent'
+      }`}>
+        <button onClick={onLogo} className="group flex min-w-0 shrink cursor-grow items-center gap-2">
           <Logo />
-          <span className="font-display font-extrabold text-xl tracking-tight">YoHa</span>
+          <span className="hidden min-[385px]:inline truncate font-display text-lg font-extrabold tracking-tight sm:text-xl text-ink-900 dark:text-white group-hover:text-brand-500 transition-colors duration-300">YouHa</span>
         </button>
 
         <button
           type="button"
           onClick={onHome}
-          className="cursor-grow hidden md:inline-flex ml-6 items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium hover:bg-ink-100 dark:hover:bg-ink-800 transition"
+          className="cursor-grow hidden md:inline-flex ml-6 items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300"
         >
           <span>🍔</span> Restaurants
         </button>
         <button
           type="button"
           onClick={onPharmacy}
-          className="cursor-grow hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium hover:bg-ink-100 dark:hover:bg-ink-800 transition"
+          className="cursor-grow hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300"
         >
           <span>💊</span> Pharmacies
         </button>
         <button
           type="button"
           onClick={onPastry}
-          className="cursor-grow hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium hover:bg-ink-100 dark:hover:bg-ink-800 transition"
+          className="cursor-grow hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300"
         >
           <span>🥐</span> Pâtisseries
         </button>
 
         <div className="ml-auto flex items-center gap-2">
-          {user?.role === 'client' && (
+          {(!user || user.role === 'client') && (
             <button
               type="button"
               onClick={onMyOrders}
               aria-label="Mes commandes"
               title="Mes commandes"
-              className="cursor-grow w-10 h-10 rounded-xl flex items-center justify-center hover:bg-ink-100 dark:hover:bg-ink-800 transition text-ink-700 dark:text-ink-200"
+              className="cursor-grow w-10 h-10 rounded-xl hidden md:flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-all duration-300 text-ink-700 dark:text-ink-200"
             >
-              <I.History size={20}/>
+              <I.Receipt size={20}/>
             </button>
           )}
 
@@ -93,7 +100,7 @@ export function Navbar({
               type="button"
               onClick={() => goto('admin')}
               aria-label="Tableau de bord gérant"
-              className="cursor-grow w-10 h-10 rounded-xl flex items-center justify-center hover:bg-ink-100 dark:hover:bg-ink-800 transition text-ink-700 dark:text-ink-200"
+              className="cursor-grow w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-all duration-300 text-ink-700 dark:text-ink-200"
             >
               <I.LayoutDashboard size={20}/>
             </button>
@@ -103,7 +110,7 @@ export function Navbar({
               type="button"
               onClick={() => goto('delivery')}
               aria-label="Tableau de bord livreur"
-              className="cursor-grow w-10 h-10 rounded-xl flex items-center justify-center hover:bg-ink-100 dark:hover:bg-ink-800 transition text-ink-700 dark:text-ink-200"
+              className="cursor-grow w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-all duration-300 text-ink-700 dark:text-ink-200"
             >
               <I.LayoutDashboard size={20}/>
             </button>
@@ -113,7 +120,7 @@ export function Navbar({
               type="button"
               onClick={() => goto('restaurant-dash')}
               aria-label="Tableau de bord restaurant"
-              className="cursor-grow w-10 h-10 rounded-xl flex items-center justify-center hover:bg-ink-100 dark:hover:bg-ink-800 transition text-ink-700 dark:text-ink-200"
+              className="cursor-grow w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-all duration-300 text-ink-700 dark:text-ink-200"
             >
               <I.LayoutDashboard size={20}/>
             </button>
@@ -122,7 +129,7 @@ export function Navbar({
           <button
             onClick={() => setDark(d => !d)}
             aria-label="Changer le thème"
-            className="cursor-grow relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-ink-100 dark:hover:bg-ink-800 transition group"
+            className="cursor-grow relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-all duration-300 group text-ink-700 dark:text-ink-200"
           >
             <span className={`absolute transition-all duration-500 ${dark ? 'opacity-0 -rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'}`}>
               <I.Sun size={20}/>
@@ -132,7 +139,7 @@ export function Navbar({
             </span>
           </button>
 
-          <button ref={cartIconRef} onClick={onCart} className={`cursor-grow relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-ink-100 dark:hover:bg-ink-800 transition ${cartShake ? 'cart-shake' : ''}`}>
+          <button ref={cartIconRef} onClick={onCart} className={`cursor-grow relative w-10 h-10 rounded-xl hidden md:flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-all duration-300 text-ink-700 dark:text-ink-200 ${cartShake ? 'cart-shake' : ''}`}>
             <I.Cart size={20}/>
             {cartCount > 0 && (
               <span key={cartCount} className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white grid place-items-center animate-pop shadow-glow">
@@ -142,27 +149,39 @@ export function Navbar({
           </button>
 
           {user ? (
-            <div className="hidden sm:flex items-center gap-2 ml-1">
-              <span className="max-w-[10rem] truncate text-xs font-semibold text-ink-600 dark:text-ink-300" title={user.email}>
-                {user.displayName}
-                <span className="block text-[10px] font-normal text-ink-400">{ROLE_LABELS[user.role]}</span>
-              </span>
+            <>
+              <div className="hidden sm:flex items-center gap-2 ml-1">
+                <span className="max-w-[10rem] truncate text-xs font-semibold text-ink-600 dark:text-ink-300" title={user.email}>
+                  {user.displayName}
+                  <span className="block text-[10px] font-normal text-ink-400">{ROLE_LABELS[user.role]}</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  className="cursor-grow px-3 py-2 rounded-xl text-xs font-semibold border border-ink-200 dark:border-ink-700 hover:bg-red-500/10 hover:text-red-600 hover:border-red-500/30 dark:hover:bg-red-500/15 dark:hover:text-red-400 dark:hover:border-red-500/35 transition-all duration-300"
+                >
+                  Déconnexion
+                </button>
+              </div>
               <button
                 type="button"
                 onClick={() => logout()}
-                className="cursor-grow px-3 py-2 rounded-xl text-xs font-semibold border border-ink-200 dark:border-ink-700 hover:bg-ink-100 dark:hover:bg-ink-800 transition"
+                aria-label="Déconnexion"
+                title="Déconnexion"
+                className="cursor-grow sm:hidden w-10 h-10 rounded-xl flex items-center justify-center hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/15 dark:hover:text-red-400 transition-all duration-300 text-ink-700 dark:text-ink-200"
               >
-                Déconnexion
+                <I.LogOut size={20}/>
               </button>
-            </div>
+            </>
           ) : (
             <Magnetic>
               <button
                 type="button"
                 onClick={() => goto('auth')}
-                className="cursor-grow inline-flex items-center gap-2 ml-1 px-3 sm:px-4 py-2 rounded-xl text-sm font-semibold bg-ink-900 text-white dark:bg-white dark:text-ink-900 hover:opacity-90 transition btn-shine"
+                className="cursor-grow inline-flex items-center gap-2 ml-1 p-2.5 sm:px-4 sm:py-2 rounded-xl text-sm font-semibold bg-ink-900 text-white dark:bg-white dark:text-ink-900 hover:opacity-90 transition btn-shine"
               >
-                <I.User size={16}/> Connexion
+                <I.User size={16}/>
+                <span className="hidden sm:inline">Connexion</span>
               </button>
             </Magnetic>
           )}

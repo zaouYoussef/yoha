@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#0f172a" />
-<title>YoHa — Livraison de repas intelligente · Universités & Hôpitaux</title>
+<title>YouHa — Livraison de repas intelligente · Universités & Hôpitaux</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🍔%3C/text%3E%3C/svg%3E" />
 <script src="https://cdn.tailwindcss.com"></script>
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -391,7 +391,7 @@
         <span class="font-extrabold text-4xl bg-gradient-to-br from-orange-400 to-pink-400 bg-clip-text text-transparent" style="font-family:'Plus Jakarta Sans',sans-serif">Y</span>
       </div>
     </div>
-    <div class="font-extrabold text-3xl tracking-tight" style="font-family:'Plus Jakarta Sans',sans-serif">YoHa</div>
+    <div class="font-extrabold text-3xl tracking-tight" style="font-family:'Plus Jakarta Sans',sans-serif">YouHa</div>
     <div class="mt-2 text-slate-400 text-sm tracking-wider">On prépare votre expérience…</div>
     <div class="mt-6 w-48 h-1 mx-auto bg-slate-800 rounded-full overflow-hidden">
       <div class="h-full bg-gradient-to-r from-orange-500 via-pink-500 to-violet-500 origin-left animate-loading-bar"></div>
@@ -624,7 +624,7 @@ const FEATURES = [
 const TESTIMONIALS = [
   {
     name: 'Dr. Samia · CHU',
-    text: 'YoHa a changé mes nuits de garde 🤍 Je mange mieux et je gagne beaucoup de temps pendant les périodes chargées.',
+    text: 'YouHa a changé mes nuits de garde 🤍 Je mange mieux et je gagne beaucoup de temps pendant les périodes chargées.',
     avatar: 'https://i.pravatar.cc/300?img=47',
     rating: 5,
     color: 'from-pink-500 to-rose-500',
@@ -638,7 +638,7 @@ const TESTIMONIALS = [
   },
   {
     name: 'Dr. Mohamed · Alliance',
-    text: 'YoHa m\'a vraiment sauvé pendant ma période d\'internat en médecine interne. Avec un emploi du temps chargé à l\'hôpital, je peux enfin manger facilement et sans stress.',
+    text: 'YouHa m\'a vraiment sauvé pendant ma période d\'internat en médecine interne. Avec un emploi du temps chargé à l\'hôpital, je peux enfin manger facilement et sans stress.',
     avatar: 'https://i.pravatar.cc/300?img=12',
     rating: 5,
     color: 'from-orange-500 to-amber-500',
@@ -665,14 +665,14 @@ const CAMPUS_HOSPITALS = [
     img: 'https://www.lesiteinfo.com/wp-content/uploads/2023/04/CHU.jpg',
   },
   {
-    name: 'Hôpital Universitaire Mohammed VI',
-    subtitle: 'Zone hospitalière et services d’urgence',
-    img: 'https://i.ytimg.com/vi/4ig1_HC_5I0/maxresdefault.jpg',
+    name: 'FMPT de Tanger',
+    subtitle: 'Faculté de Médecine et de Pharmacie',
+    img: '/fmp_tanger.png',
   },
   {
     name: 'ISPITS Tanger',
     subtitle: 'Institut Supérieur des Professions Infirmières et Techniques de Santé',
-    img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSc18JHdfUDUTNsudkUQY0H0jmYlV3HZhyIWg&s',
+    img: '/ispits.png',
   },
   {
     name: 'Résidence universitaire Alliance Tanger',
@@ -1237,7 +1237,7 @@ function Navbar({ dark, setDark, cartCount, cartShake, cartIconRef, onCart, onLo
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3">
         <button onClick={onLogo} className="flex items-center gap-2 group cursor-grow">
           <Logo />
-          <span className="font-display font-extrabold text-xl tracking-tight">YoHa</span>
+          <span className="font-display font-extrabold text-xl tracking-tight">YouHa</span>
         </button>
 
         <button onClick={onHome} className="hidden md:inline-flex ml-6 items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium hover:bg-ink-100 dark:hover:bg-ink-800 transition cursor-grow">
@@ -1409,7 +1409,7 @@ function Hero({ onStart }) {
           </span>
 
           <h1 className="mt-6 font-display font-black tracking-tight text-5xl sm:text-6xl lg:text-7xl leading-[0.95]">
-            <AnimatedHeading text="YoHa." gradient />
+            <AnimatedHeading text="YouHa." gradient />
             <span className="block mt-3 text-ink-900 dark:text-ink-50">
               {typed}<span className="caret align-baseline" style={{ height:'0.85em' }}></span>
             </span>
@@ -1685,7 +1685,7 @@ function PartnerCategoriesSection() {
               On livre aussi les <span className="text-gradient">pâtisseries</span> et les <span className="text-gradient">pharmacies</span>
             </h2>
             <p className="mt-2 max-w-2xl text-sm sm:text-base text-ink-600 dark:text-ink-400 leading-relaxed">
-              En plus des restaurants, YoHa regroupe les partenaires dont vous avez besoin sur le campus ou au CHU — tout au même endroit.
+              En plus des restaurants, YouHa regroupe les partenaires dont vous avez besoin sur le campus ou au CHU — tout au même endroit.
             </p>
           </div>
           <div className="grid sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-ink-200/80 dark:divide-ink-800">
@@ -1756,7 +1756,7 @@ function FeaturesSection() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
       <div className="max-w-2xl">
-        <span className="text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">Pourquoi YoHa</span>
+        <span className="text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">Pourquoi YouHa</span>
         <h2 className="mt-3 font-display font-extrabold text-4xl sm:text-5xl tracking-tight">
           Pensé pour le <span className="text-gradient">rythme du campus.</span>
         </h2>
@@ -2003,7 +2003,7 @@ function FinalCTA({ onStart }) {
             <h3 className="font-display font-extrabold text-3xl sm:text-5xl tracking-tight">
               Faim ? Votre chambre est à <span className="text-gradient">14 minutes</span> de quelque chose de génial.
             </h3>
-            <p className="mt-4 text-white/70 text-lg">Aucune app à télécharger. Ouvrez YoHa et commandez.</p>
+            <p className="mt-4 text-white/70 text-lg">Aucune app à télécharger. Ouvrez YouHa et commandez.</p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Magnetic strength={20}>
                 <Button onClick={onStart} variant="primary" size="lg">Commander maintenant <I.Right size={18}/></Button>
@@ -2803,7 +2803,7 @@ function Footer({ goto }) {
         <div>
           <div className="flex items-center gap-2">
             <Logo/>
-            <span className="font-display font-extrabold text-xl">YoHa</span>
+            <span className="font-display font-extrabold text-xl">YouHa</span>
           </div>
           <p className="mt-3 text-sm text-ink-500 dark:text-ink-400 max-w-xs">Livraison de repas intelligente, pensée pour les résidences universitaires et les hôpitaux. Fait avec passion.</p>
           {goto && (
@@ -2821,7 +2821,7 @@ function Footer({ goto }) {
       </div>
       <div className="border-t border-ink-200/60 dark:border-ink-800/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-500">
-          <span>© {new Date().getFullYear()} YoHa. Conçu sur le campus, livré chez vous.</span>
+          <span>© {new Date().getFullYear()} YouHa. Conçu sur le campus, livré chez vous.</span>
           <span className="inline-flex items-center gap-3">
             <span>Fait avec ❤️ + Tailwind + React</span>
           </span>
@@ -3041,7 +3041,7 @@ function DashLayout({ kind, current, setCurrent, goto, dark, setDark, children, 
         <div className="h-16 flex items-center justify-between px-5 border-b border-ink-200/60 dark:border-ink-800">
           <button onClick={() => goto('landing')} className="cursor-grow flex items-center gap-2 group">
             <Logo/>
-            <span className="font-display font-extrabold text-lg">YoHa</span>
+            <span className="font-display font-extrabold text-lg">YouHa</span>
             <span className={`ml-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-gradient-to-r ${accent.from} ${accent.to} text-white`}>{accent.emoji} {accent.name}</span>
           </button>
         </div>
@@ -3060,7 +3060,7 @@ function DashLayout({ kind, current, setCurrent, goto, dark, setDark, children, 
             {dark ? <I.Sun size={18}/> : <I.Moon size={18}/>} {dark ? 'Mode clair' : 'Mode sombre'}
           </button>
           <button onClick={() => goto('landing')} className="cursor-grow w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-ink-600 dark:text-ink-300 hover:bg-ink-100 dark:hover:bg-ink-800">
-            <I.Left size={18}/> Retour à YoHa
+            <I.Left size={18}/> Retour à YouHa
           </button>
         </div>
       </aside>
@@ -3238,7 +3238,7 @@ function AdminDashboard({ goto, dark, setDark }) {
 
   return (
     <DashLayout kind="admin" current={current} setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
-      title={titles[current]} subtitle="Vue d'ensemble de la plateforme YoHa">
+      title={titles[current]} subtitle="Vue d'ensemble de la plateforme YouHa">
       {current === 'overview'    && <AdminOverview orders={orders}/>}
       {current === 'orders'      && <AdminOrders orders={orders}/>}
       {current === 'restaurants' && <AdminRestaurants/>}

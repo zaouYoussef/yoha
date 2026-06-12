@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef } from 'react';
 
 export function Tilt({ children, max = 8, className = "" }) {

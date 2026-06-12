@@ -1,4 +1,29 @@
+# dependencies
 node_modules
+.pnp
+.pnp.js
+
+# next.js
+.next/
+out/
+
+# production
+build
 dist
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# env
+.env
+.env*.local
+
+# misc
 .DS_Store
+*.pem
+.vercel
+
+# vite legacy
 *.local

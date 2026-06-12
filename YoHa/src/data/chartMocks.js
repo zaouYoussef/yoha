@@ -1,3 +1,5 @@
+import { isRestaurantStatsOrder } from './orderConstants.js';
+
 /** Granularité calendaire pour les graphiques « 7 derniers jours » */
 export const DAY_MS = 86400000;
 
@@ -23,7 +25,19 @@ export function bucketTotalsLast7Days(orders, pick) {
 }
 
 export function bucketRevenueLast7Days(orders) {
-  return bucketTotalsLast7Days(orders, (o) => Number(o.totalDh) || 0);
+  return bucketTotalsLast7Days(orders, (o) => orderFoodTotalMad(o));
+}
+
+export function orderFoodTotalMad(order) {
+  const sub = Number(order.subtotalDh);
+  if (Number.isFinite(sub) && sub > 0) return sub;
+  if (Array.isArray(order.items) && order.items.length) {
+    return order.items.reduce(
+      (s, i) => s + (Number(i.price) || 0) * (Number(i.qty) || 0),
+      0,
+    );
+  }
+  return Number(order.totalDh) || 0;
 }
 
 export function bucketOrderCountLast7Days(orders) {
@@ -44,14 +58,14 @@ export function last7DayLabels() {
 
 export function bucketRevenueLast7DaysForRestaurant(orders, restaurantId) {
   return bucketTotalsLast7Days(
-    orders.filter((o) => o.restaurantId === restaurantId),
-    (o) => Number(o.totalDh) || 0,
+    orders.filter((o) => o.restaurantId === restaurantId && isRestaurantStatsOrder(o)),
+    (o) => orderFoodTotalMad(o),
   );
 }
 
 export function bucketOrderCountLast7DaysForRestaurant(orders, restaurantId) {
   return bucketTotalsLast7Days(
-    orders.filter((o) => o.restaurantId === restaurantId),
+    orders.filter((o) => o.restaurantId === restaurantId && isRestaurantStatsOrder(o)),
     () => 1,
   );
 }

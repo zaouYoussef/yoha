@@ -1,10 +1,9 @@
 export { CUISINES } from './cuisines.js';
-export { RESTAURANTS } from './restaurants.js';
 export { CATEGORIES_BANNERS } from './categories.js';
 export { FEATURES } from './features.jsx';
 export { TESTIMONIALS } from './testimonials.js';
 export { HOW_STEPS } from './howSteps.jsx';
 export { CAMPUS_HOSPITALS } from './campusHospitals.js';
 export * from './orderConstants.js';
-export { generateMockOrders } from './mockOrders.js';
+export * from './openingHours.js';
 export * from './chartMocks.js';

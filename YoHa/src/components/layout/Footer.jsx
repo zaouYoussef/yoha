@@ -1,14 +1,16 @@
+'use client';
+
 import React from 'react';
 import { Logo } from './Logo.jsx';
 
 export function Footer({ goto }) {
   return (
-    <footer className="relative mt-10 border-t border-ink-200/60 dark:border-ink-800/60">
+    <footer className="relative mt-10 border-t border-ink-200/60 pb-24 dark:border-ink-800/60 md:pb-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
         <div>
           <div className="flex items-center gap-2">
             <Logo/>
-            <span className="font-display font-extrabold text-xl">YoHa</span>
+            <span className="font-display font-extrabold text-xl">YouHa</span>
           </div>
           <p className="mt-3 text-sm text-ink-500 dark:text-ink-400 max-w-xs">Livraison de repas intelligente, pensée pour les résidences universitaires et les hôpitaux. Fait avec passion.</p>
           {goto && (
@@ -26,9 +28,9 @@ export function Footer({ goto }) {
       </div>
       <div className="border-t border-ink-200/60 dark:border-ink-800/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-500">
-          <span>© {new Date().getFullYear()} YoHa. Conçu sur le campus, livré chez vous.</span>
+          <span>© {new Date().getFullYear()} YouHa. Conçu sur le campus, livré chez vous.</span>
           <span className="inline-flex items-center gap-3">
-            <span>Fait avec ❤️ + Tailwind + React</span>
+            <span>Fait avec ❤️ + Next.js + Tailwind</span>
           </span>
         </div>
       </div>

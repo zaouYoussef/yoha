@@ -1,0 +1,56 @@
+# Stack production-like : PostgreSQL + Redis + API (haute dispo via redémarrage)
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: yoha
+      POSTGRES_USER: yoha
+      POSTGRES_PASSWORD: yoha
+    volumes:
+      - yoha_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yoha"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - yoha_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  api:
+    build: .
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: yoha.settings.production
+      DATABASE_URL: postgres://yoha:yoha@db:5432/yoha
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+
+volumes:
+  yoha_pg_data:
+  yoha_redis_data:

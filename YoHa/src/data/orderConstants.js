@@ -1,23 +1,72 @@
 export const ORDER_STATES = {
-  placed:           { label:'Nouvelle commande', color:'bg-amber-500',   text:'text-amber-600',   step:1 },
-  pickup_confirmed: { label:'Livreur confirmé',  color:'bg-sky-500',     text:'text-sky-600',     step:2 },
-  preparing:        { label:'En préparation',    color:'bg-violet-500',  text:'text-violet-600',  step:3 },
-  delivering:       { label:'En livraison',      color:'bg-pink-500',    text:'text-pink-600',    step:4 },
-  delivered:        { label:'Livré',             color:'bg-ink-700',     text:'text-ink-700',     step:5 },
+  placed:           { label:'Commande confirmée',     clientMsg:'Votre commande est confirmée.', color:'bg-amber-500',   text:'text-amber-600',   step:1 },
+  pickup_confirmed: { label:'Livreur vers le resto',   clientMsg:'Un livreur est en route vers le restaurant pour récupérer votre commande.', color:'bg-sky-500',     text:'text-sky-600',     step:2 },
+  preparing:        { label:'Prête au restaurant',      clientMsg:'Votre commande est prête — le livreur va la récupérer.', color:'bg-violet-500',  text:'text-violet-600',  step:2 },
+  delivering:       { label:'En route vers vous',       clientMsg:'Votre livreur est en route avec votre commande !', color:'bg-pink-500',    text:'text-pink-600',    step:3 },
+  delivered:        { label:'Livré',                    clientMsg:'Bon appétit ! Votre commande a été livrée.', color:'bg-ink-700',     text:'text-ink-700',     step:4 },
+  cancelled:        { label:'Annulée',                  clientMsg:'Cette commande a été annulée.', color:'bg-red-500',     text:'text-red-600',     step:0 },
 };
 
-export const COURIERS = [
-  { id:'c1', name:'Yacine A.',  phone:'+212 6 11 22 33 44', avatar:'https://i.pravatar.cc/120?img=12', rating:4.9, vehicle:'Scooter' },
-  { id:'c2', name:'Hamza R.',   phone:'+212 6 22 33 44 55', avatar:'https://i.pravatar.cc/120?img=13', rating:4.8, vehicle:'Vélo' },
-  { id:'c3', name:'Soukaina B.',phone:'+212 6 33 44 55 66', avatar:'https://i.pravatar.cc/120?img=23', rating:5.0, vehicle:'Scooter' },
-  { id:'c4', name:'Mehdi T.',   phone:'+212 6 44 55 66 77', avatar:'https://i.pravatar.cc/120?img=15', rating:4.7, vehicle:'Vélo' },
-];
+export const CANCEL_PHASES = {
+  before_pickup: {
+    label: 'Annulée avant récupération',
+    short: 'Avant récupération',
+    hint: 'Le livreur n\'a pas encore récupéré la commande au restaurant.',
+  },
+  after_pickup: {
+    label: 'Annulée après récupération',
+    short: 'Après récupération',
+    hint: 'Client injoignable ou refus à la livraison.',
+  },
+};
 
+export const ACTIVE_ORDER_STATUSES = new Set(['placed', 'pickup_confirmed', 'preparing', 'delivering']);
+
+export function isActiveOrderStatus(status) {
+  return ACTIVE_ORDER_STATUSES.has(status);
+}
+
+/** Commandes visibles dans le dashboard restaurant (livreur confirmé, pas encore récupéré). */
+export const RESTAURANT_ACTIVE_STATUSES = new Set(['pickup_confirmed', 'preparing']);
+
+export function isRestaurantActiveOrder(status) {
+  return RESTAURANT_ACTIVE_STATUSES.has(status);
+}
+
+export function isRestaurantCancelledOrder(order) {
+  return (
+    order?.status === 'cancelled'
+    && order?.cancelledPhase === 'before_pickup'
+    && !!order?.courierId
+  );
+}
+
+/** Agrégats stats : toutes les commandes traitées par le resto (hors placed en attente livreur). */
+export function isRestaurantStatsOrder(order) {
+  if (!order || order.status === 'placed') return false;
+  if (order.status === 'cancelled') return isRestaurantCancelledOrder(order);
+  return true;
+}
+
+export function cancelPhaseLabel(phase) {
+  return CANCEL_PHASES[phase]?.label || 'Annulée';
+}
+
+/** Étapes affichées au client (4 e-mails / 4 statuts visibles) */
+export const CLIENT_TRACK_STEPS = ['placed', 'pickup_confirmed', 'delivering', 'delivered'];
+
+/** Notifications toast affichées au client lors d’un changement de statut */
+export const ORDER_STATUS_TOASTS = {
+  pickup_confirmed: { title: '🛵 Livreur en route', desc: 'Il se dirige vers le restaurant pour récupérer votre commande.' },
+  delivering:       { title: '📦 En route vers vous', desc: 'Votre repas est en chemin !' },
+  delivered:        { title: '✅ Livré !', desc: 'Votre commande est arrivée. Bon appétit !' },
+  cancelled:        { title: 'Commande annulée', desc: 'Cette commande a été annulée.' },
+};
 /** Livraison toujours gratuite pour le client — pas de frais déduits des profits mock */
 export const DELIVERY_FEE_DH = 0;
 
-/** Rémunération mock affichée par livraison (dashboard livreur — indépendante des frais client) */
-export const MOCK_COURIER_GAIN_PER_DELIVERY_MAD = 120;
+/** Rémunération fixe affichée par livraison (dashboard livreur) */
+export const MOCK_COURIER_GAIN_PER_DELIVERY_MAD = 16;
 /** Commission plateforme sur le restaurant : 20 % sur (total commande − forfait client). */
 export const PROFIT_FACTOR = 0.2;
 /** Forfait client (MAD) : déduit de la base avant le %, puis ajouté au profit (les 12 DH prélevés au client). */

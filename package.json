@@ -4,6 +4,8 @@
   "scripts": {
     "dev": "npm run dev --prefix YoHa",
     "build": "npm run build --prefix YoHa",
-    "preview": "npm run preview --prefix YoHa"
+    "start": "npm run start --prefix YoHa",
+    "backend": "cd backend && python manage.py runserver",
+    "backend:seed": "cd backend && python manage.py migrate && python manage.py seed_yoha"
   }
 }

@@ -1,8 +1,24 @@
+'use client';
+
 import React, { useEffect, useMemo, useState } from 'react';
 
 /** Image de remplacement si l’URL du plat est invalide ou inaccessible */
 export const FOOD_IMAGE_FALLBACK =
-  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80';
+  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80&auto=format&fit=crop';
+
+export const RESTAURANT_COVER_FALLBACK =
+  'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200&q=80&auto=format&fit=crop';
+
+export const RESTAURANT_LOGO_FALLBACK =
+  'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=160&q=80&auto=format&fit=crop';
+
+export function restaurantCover(url) {
+  return (typeof url === 'string' && url.trim()) ? url.trim() : RESTAURANT_COVER_FALLBACK;
+}
+
+export function restaurantLogo(url) {
+  return (typeof url === 'string' && url.trim()) ? url.trim() : RESTAURANT_LOGO_FALLBACK;
+}
 
 /**
  * Image plat : secours Unsplash si l’URL casse, puis placeholder 🍽️ si besoin.
