@@ -783,7 +783,7 @@ export function PizzaCookingStage({ progress }) {
   const scale = 1 + (progress - 0.5) * 0.05;
 
   return (
-    <div className="relative mx-auto w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] md:w-[480px] md:h-[480px] lg:w-[500px] lg:h-[500px] xl:w-[560px] xl:h-[560px] max-w-full aspect-square select-none flex items-center justify-center">
+    <div className="relative mx-auto w-full max-w-[320px] sm:max-w-[420px] md:max-w-[480px] lg:max-w-[540px] xl:max-w-[600px] aspect-square select-none flex items-center justify-center">
       <div 
         className="relative w-full h-full flex items-center justify-center transition-transform duration-150 ease-out will-change-transform"
         style={{ transform: `scale(${scale})` }}
