@@ -90,12 +90,12 @@
   .dark .glass-card-premium {
     background: rgba(15, 23, 42, 0.72);
   }
-
   .card-glow-hover {
     transition: box-shadow 0.35s ease, transform 0.35s ease, border-color 0.35s ease;
   }
   .card-glow-hover:hover {
     box-shadow: 0 22px 55px -14px var(--glow-color, rgba(249, 115, 22, 0.28));
+    border-color: var(--glow-color, rgba(249, 115, 22, 0.28)) !important;
   }
 
   .browse-grid-bg {
@@ -704,6 +704,27 @@
   display: inline-block;
   animation: bounce-y-slow 2s infinite ease-in-out;
 }
+
+@keyframes slow-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-rotate-slow {
+  animation: slow-rotate 28s linear infinite;
+}
+
+.text-glow {
+  text-shadow: 0 0 20px rgba(249, 115, 22, 0.25), 0 0 40px rgba(236, 72, 153, 0.15);
+}
+
+.text-glow-slow {
+  text-shadow: 0 0 25px rgba(249, 115, 22, 0.2), 0 0 50px rgba(236, 72, 153, 0.1);
+}
+
 
 
 

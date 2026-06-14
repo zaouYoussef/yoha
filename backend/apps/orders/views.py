@@ -20,7 +20,7 @@ from .serializers import (
     OrderSerializer,
     OrderStatusUpdateSerializer,
 )
-from .services import assign_courier, auto_dispatch_order, mark_order_ready_for_pickup, transition_order
+from .services import assign_courier, auto_dispatch_order, mark_order_ready_for_pickup, send_to_restaurant, transition_order
 
 
 class CheckoutView(APIView):
@@ -332,6 +332,24 @@ class AssignCourierView(APIView):
             order = assign_courier(order=order, courier=courier, actor=request.user)
         except ValueError as e:
             return Response({"detail": str(e)}, status=409)
+        return Response(OrderSerializer(order).data)
+
+
+class SendToRestaurantView(APIView):
+    """Le livreur envoie une commande programmée au dashboard du restaurant."""
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, public_id):
+        user = request.user
+        if user.role != "courier" or not user.courier_profile_id:
+            return Response({"detail": "Réservé aux livreurs."}, status=403)
+        order = get_object_or_404(Order.objects.all(), public_id=public_id)
+        try:
+            order = send_to_restaurant(order=order, actor=user)
+        except ValueError as e:
+            return Response({"detail": str(e)}, status=400)
         return Response(OrderSerializer(order).data)
 
 

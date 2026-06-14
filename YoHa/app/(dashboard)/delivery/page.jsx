@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useCart } from '@/providers/AppProviders.jsx';
+import { useCart } from '@/contexts/AppContexts.jsx';
 import { useYohaNav } from '@/contexts/YohaNavContext.jsx';
 
 const DeliveryDashboard = dynamic(

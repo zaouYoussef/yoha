@@ -15,6 +15,7 @@ type CartContextValue = {
   count: number;
   subtotal: number;
   restaurantId: string | null;
+  triggerTime: number;
   addItem: (item: Omit<CartLine, 'qty'>, qty?: number) => void;
   updateQty: (id: string, qty: number) => void;
   removeItem: (id: string) => void;
@@ -26,8 +27,10 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartLine[]>([]);
+  const [triggerTime, setTriggerTime] = useState(0);
 
   const addItem = useCallback((item: Omit<CartLine, 'qty'>, qty = 1) => {
+    setTriggerTime(Date.now());
     setItems((prev) => {
       if (prev.length > 0 && prev[0].restaurantId !== item.restaurantId) {
         return [{ ...item, qty }];
@@ -67,8 +70,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const restaurantId = items[0]?.restaurantId ?? null;
 
   const value = useMemo(
-    () => ({ items, count, subtotal, restaurantId, addItem, updateQty, removeItem, clear, replaceItems }),
-    [items, count, subtotal, restaurantId, addItem, updateQty, removeItem, clear, replaceItems],
+    () => ({ items, count, subtotal, restaurantId, triggerTime, addItem, updateQty, removeItem, clear, replaceItems }),
+    [items, count, subtotal, restaurantId, triggerTime, addItem, updateQty, removeItem, clear, replaceItems],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

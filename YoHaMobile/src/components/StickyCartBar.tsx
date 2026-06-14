@@ -1,7 +1,14 @@
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 import { useCart } from '../contexts/CartContext';
 import { formatMad, getServiceFeeMad } from '../lib/constants';
 import { hapticLight } from '../lib/haptics';
@@ -18,42 +25,69 @@ export function StickyCartBar({ extraBottom = 0, restaurantName }: Props) {
   const { cartBarBottom } = useLayoutChrome();
   const { count, subtotal, items } = useCart();
 
+  const scale = useSharedValue(count > 0 ? 1 : 0);
+  const bump = useSharedValue(1);
+  const prevCount = useRef(count);
+
+  useEffect(() => {
+    if (count > 0) {
+      if (prevCount.current === 0) {
+        scale.value = withSpring(1, { damping: 14, stiffness: 180 });
+      } else if (count !== prevCount.current) {
+        bump.value = withSequence(
+          withTiming(1.12, { duration: 100 }),
+          withSpring(1, { damping: 10, stiffness: 150 })
+        );
+      }
+    } else {
+      scale.value = withSpring(0, { damping: 14, stiffness: 180 });
+    }
+    prevCount.current = count;
+  }, [count, scale, bump]);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value * bump.value }],
+    opacity: scale.value,
+  }));
+
   if (count === 0) return null;
 
   const total = subtotal + getServiceFeeMad(subtotal);
   const label = restaurantName || items[0]?.restaurantName || 'Votre panier';
 
   return (
-    <Pressable
-      onPress={() => {
-        hapticLight();
-        router.push('/(client)/cart' as never);
-      }}
-      style={[styles.wrap, { bottom: cartBarBottom + extraBottom }]}
-    >
-      <LinearGradient
-        colors={[...gradients.cta]}
-        style={[styles.bar, shadows.glow]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
+    <Animated.View style={[styles.wrap, { bottom: cartBarBottom + extraBottom }, animStyle]}>
+      <Pressable
+        onPress={() => {
+          hapticLight();
+          router.push('/(client)/cart' as never);
+        }}
+        style={{ width: '100%' }}
       >
-        <View style={styles.left}>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{count}</Text>
+        <LinearGradient
+          colors={[...gradients.cta]}
+          style={[styles.bar, shadows.glow]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+        >
+          <View style={styles.left}>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{count}</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.resto} numberOfLines={1}>
+                {label}
+              </Text>
+              <Text style={styles.sub}>Appuyez pour commander</Text>
+            </View>
           </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.resto} numberOfLines={1}>
-              {label}
-            </Text>
-            <Text style={styles.sub}>Appuyez pour commander</Text>
+          <View style={styles.ctaPill}>
+            <Text style={styles.total}>{formatMad(total)}</Text>
+            <Text style={styles.arrow}>→</Text>
           </View>
-        </View>
-        <View style={styles.ctaPill}>
-          <Text style={styles.total}>{formatMad(total)}</Text>
-          <Text style={styles.arrow}>→</Text>
-        </View>
-      </LinearGradient>
-    </Pressable>
+        </LinearGradient>
+      </Pressable>
+    </Animated.View>
   );
 }
 

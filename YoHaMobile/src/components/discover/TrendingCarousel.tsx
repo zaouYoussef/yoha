@@ -7,7 +7,7 @@ import { brand, ink, radius } from '../../theme';
 import { fonts } from '../../theme/fonts';
 import { CompactRestaurantCard } from './CompactRestaurantCard';
 
-export function TrendingCarousel({ restaurants, title = 'Tendances' }: { restaurants: Restaurant[]; title?: string }) {
+export const TrendingCarousel = React.memo(function TrendingCarousel({ restaurants, title = 'Tendances' }: { restaurants: Restaurant[]; title?: string }) {
   if (!restaurants.length) return null;
 
   return (
@@ -48,10 +48,14 @@ export function TrendingCarousel({ restaurants, title = 'Tendances' }: { restaur
       </ScrollView>
     </View>
   );
-}
+}, (prev, next) => {
+  if (prev.title !== next.title) return false;
+  if (prev.restaurants.length !== next.restaurants.length) return false;
+  return prev.restaurants.every((r, idx) => r.slug === next.restaurants[idx].slug);
+});
 
 const styles = StyleSheet.create({
-  wrap: { marginBottom: 8 },
+  wrap: { marginBottom: 20 },
   head: { flexDirection: 'row', alignItems: 'flex-end', gap: 12, marginBottom: 14, marginTop: 8 },
   title: { fontFamily: fonts.display, fontSize: 24, color: ink[900], letterSpacing: -0.6 },
   sub: { fontFamily: fonts.medium, fontSize: 13, color: ink[500], marginTop: 4 },

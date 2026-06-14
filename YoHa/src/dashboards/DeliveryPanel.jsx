@@ -11,6 +11,23 @@ import { spotlightHandler } from '../utils/spotlight.js';
 import { RecentOrdersTable } from './AdminPanel.jsx';
 import { OrderRestaurantNotes } from '../components/ui/OrderRestaurantNotes.jsx';
 import { CancelOrderButton, CancelPhaseBadge, OrderCancellationNote } from '../components/ui/CancelOrderButton.jsx';
+import { ordersApi } from '../lib/api.js';
+
+function formatScheduledRange(iso) {
+  if (!iso) return '';
+  try {
+    const s = new Date(iso);
+    const e = new Date(s.getTime() + 30 * 60 * 1000);
+    const day = s.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+    const sh = String(s.getHours()).padStart(2, '0');
+    const sm = String(s.getMinutes()).padStart(2, '0');
+    const eh = String(e.getHours()).padStart(2, '0');
+    const em = String(e.getMinutes()).padStart(2, '0');
+    return `${day}, ${sh}:${sm} → ${eh}:${em}`;
+  } catch {
+    return iso;
+  }
+}
 
 function parseAmount(value) {
   const n = typeof value === 'number' ? value : parseFloat(value);
@@ -270,9 +287,21 @@ function CourierStatusButton({ orderId, nextStatus, label, className, updateOrde
 
 export function DeliveryMine({ courier }) {
   const { orders, updateOrderStatus, cancelOrder } = useOrders();
+  const [sendingId, setSendingId] = useState(null);
   const mine = orders.filter(
     (o) => String(o.courierId) === String(courier.id) && isActiveOrderStatus(o.status),
   );
+
+  const handleSendToRestaurant = async (orderId) => {
+    setSendingId(orderId);
+    try {
+      await ordersApi.sendToRestaurant(orderId);
+    } catch {
+      /* toast géré dans AppProviders */
+    } finally {
+      setSendingId(null);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -287,6 +316,26 @@ export function DeliveryMine({ courier }) {
           {mine.map(o => (
             <DeliveryOrderCard key={o.id} order={o} showMap action={
               <div className="space-y-2">
+                {o.status === 'placed' && o.scheduledDeliveryAt ? (
+                  <>
+                    <div className="px-4 py-3 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300 text-sm font-semibold flex items-center gap-2">
+                      🕐 Commande programmée — envoyer au restaurant
+                    </div>
+                    <Button
+                      onClick={() => handleSendToRestaurant(o.id)}
+                      disabled={sendingId === o.id}
+                      variant="primary"
+                      size="lg"
+                      className="w-full justify-center bg-gradient-to-r from-amber-500 to-orange-500"
+                    >
+                      {sendingId === o.id ? 'Envoi…' : '📤 Envoyer au restaurant'}
+                    </Button>
+                    <CancelOrderButton
+                      phase="before_pickup"
+                      onCancel={(reason) => cancelOrder(o.id, reason)}
+                    />
+                  </>
+                ) : null}
                 {(o.status === 'pickup_confirmed' || o.status === 'preparing') && (
                   <>
                     <div className={`px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2 ${
@@ -490,6 +539,18 @@ export function DeliveryOrderCard({ order, action, showMap }) {
             </div>
           </div>
         </div>
+
+        {order.scheduledDeliveryAt ? (
+          <div className="mt-4 flex items-center gap-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40 px-4 py-3">
+            <span className="text-lg">🕐</span>
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Livraison programmée</div>
+              <div className="text-sm font-bold text-amber-800 dark:text-amber-300">
+                {formatScheduledRange(order.scheduledDeliveryAt)}
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <OrderItemsDetail order={order} restaurantPhone={restaurantPhone} />
 

@@ -151,11 +151,17 @@ export function Hero({ onStart, onHowItWorks }) {
             <span className="truncate">En direct · campus & CHU</span>
           </span>
 
-          <h1 className="mt-4 sm:mt-6 font-display font-black tracking-tight text-[1.85rem] leading-[1.05] sm:text-5xl lg:text-7xl sm:leading-[0.95]">
-            <AnimatedHeading text="YouHa." gradient />
-            <span className="block mt-2 sm:mt-3 text-ink-900 dark:text-ink-50 min-h-[2.6em] sm:min-h-[1.2em] lg:min-h-[1.15em] text-glow text-[1.35rem] sm:text-[inherit] leading-snug">
-              {typed}
-              <span className="caret align-baseline" style={{ height:'0.85em' }}></span>
+          <h1 className="mt-4 sm:mt-6 font-display font-black tracking-tight text-5xl sm:text-6xl lg:text-7xl leading-[1.05] sm:leading-[0.95]">
+            <span className="block animate-fade-up">
+              <span className="block text-gradient text-glow">
+                YouHa.
+              </span>
+            </span>
+            <span className="block animate-fade-up" style={{ animationDelay: '150ms' }}>
+              <span className="block mt-2 sm:mt-3 text-ink-900 dark:text-ink-50 min-h-[3.3em] sm:min-h-[1.2em] lg:min-h-[1.15em] text-glow leading-snug">
+                {typed}
+                <span className="caret align-baseline" style={{ height:'0.85em' }}></span>
+              </span>
             </span>
           </h1>
 
@@ -212,15 +218,10 @@ export function Hero({ onStart, onHowItWorks }) {
 
 /* === Animated heading — char-by-char reveal === */
 export function AnimatedHeading({ text, gradient }) {
-  const chars = text.split('');
   return (
-    <span className={`block ${gradient ? 'text-gradient text-glow' : ''}`}>
-      <span className="word-anim">
-        {chars.map((c, i) => (
-          <span key={i} className="animate-char-up" style={{ animationDelay: (i * 70) + 'ms' }}>
-            {c === ' ' ? ' ' : c}
-          </span>
-        ))}
+    <span className="block animate-char-up">
+      <span className={`block ${gradient ? 'text-gradient text-glow' : ''}`}>
+        {text}
       </span>
     </span>
   );
@@ -369,7 +370,9 @@ export function BentoHero() {
           <div>
             <div className="text-xs font-semibold text-ink-500 uppercase tracking-wider">Communauté</div>
             <div className="mt-2 flex items-center gap-2">
-              <span className="font-display font-black text-3xl sm:text-4xl text-gradient animate-pulse-slow">12 000+</span>
+              <span className="animate-pulse-slow">
+                <span className="font-display font-black text-3xl sm:text-4xl text-gradient">12 000+</span>
+              </span>
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20 animate-pulse-slow">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span> En ligne
               </span>

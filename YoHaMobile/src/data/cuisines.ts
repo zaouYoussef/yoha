@@ -2,6 +2,7 @@ export type Cuisine = { id: string; label: string; emoji: string };
 
 export const CUISINES: Cuisine[] = [
   { id: 'all', label: 'Tout', emoji: '✨' },
+  { id: 'promos', label: 'Offres 🔥', emoji: '🎁' },
   { id: 'pizza', label: 'Pizza', emoji: '🍕' },
   { id: 'tacos', label: 'Tacos', emoji: '🌮' },
   { id: 'kebab', label: 'Kebab', emoji: '🥙' },
@@ -23,6 +24,7 @@ export type CategoryBanner = {
 };
 
 export const CATEGORIES_BANNERS: CategoryBanner[] = [
+  { label: 'Offres 🔥', emoji: '🎁', id: 'promos', colors: ['#f43f5e', '#e11d48'] },
   { label: 'Pizza', emoji: '🍕', id: 'pizza', colors: ['#fb923c', '#ef4444'] },
   { label: 'Tacos', emoji: '🌮', id: 'tacos', colors: ['#facc15', '#d97706'] },
   { label: 'Kebab', emoji: '🥙', id: 'kebab', colors: ['#a8a29e', '#c2410c'] },

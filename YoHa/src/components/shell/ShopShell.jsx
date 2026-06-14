@@ -5,14 +5,13 @@ import { usePathname } from 'next/navigation';
 import { ScrollProgress } from '@/components/effects/ScrollProgress.jsx';
 import { SocialOrderPopup } from '@/components/effects/SocialOrderPopup.jsx';
 import { Navbar } from '@/components/layout/Navbar.jsx';
-import { Footer } from '@/components/layout/Footer.jsx';
 import { BottomNav } from '@/components/layout/BottomNav.jsx';
 import { CartSidebar, FloatingCart } from '@/views/CartViews.jsx';
 import { ToastViewport } from '@/components/ui/ToastViewport.jsx';
 import { CampusHospitalsSection } from '@/views/landing/LandingViews.jsx';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { useYohaNav } from '@/contexts/YohaNavContext.jsx';
-import { useCart } from '@/providers/AppProviders.jsx';
+import { useCart } from '@/contexts/AppContexts.jsx';
 import { useToast } from '@/contexts/AppContexts.jsx';
 import { useOrders } from '@/contexts/AppContexts.jsx';
 import { filterOrdersForClient } from '@/utils/clientOrders.js';
@@ -116,8 +115,6 @@ export function ShopShell({ children, showCampus = false }) {
             <CampusHospitalsSection />
           </div>
         )}
-
-        <Footer goto={goto} />
 
         <BottomNav
           active={viewName}

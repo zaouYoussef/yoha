@@ -37,6 +37,7 @@ export default function RestaurantScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const sectionOffsets = useRef<Record<string, number>>({});
   const scrollY = useSharedValue(0);
+  const lastUpdate = useSharedValue(0);
 
   const syncActiveCategory = useCallback((scrollPos: number) => {
     const cats = restaurant?.menu || [];
@@ -52,7 +53,11 @@ export default function RestaurantScreen() {
   const onScroll = useAnimatedScrollHandler({
     onScroll: (e) => {
       scrollY.value = e.contentOffset.y;
-      runOnJS(syncActiveCategory)(e.contentOffset.y + STICKY_OFFSET);
+      const now = Date.now();
+      if (now - lastUpdate.value >= 100) {
+        lastUpdate.value = now;
+        runOnJS(syncActiveCategory)(e.contentOffset.y + STICKY_OFFSET);
+      }
     },
   });
 

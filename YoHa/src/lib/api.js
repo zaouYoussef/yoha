@@ -463,4 +463,11 @@ export const ordersApi = {
   async couriers() {
     return unwrapList(await apiFetch('/orders/couriers/'));
   },
+
+  async sendToRestaurant(publicId) {
+    return apiFetch(`/orders/${publicId}/send-to-restaurant/`, {
+      method: 'POST',
+      body: {},
+    });
+  },
 };

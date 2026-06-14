@@ -17,12 +17,14 @@ import { CheckoutSteps } from '../../src/components/ui/CheckoutSteps';
 import { GlassCard } from '../../src/components/ui/GlassCard';
 import { YohaButton } from '../../src/components/ui/YohaButton';
 import { YohaInput } from '../../src/components/ui/YohaInput';
+import { TimeSlotPicker } from '../../src/components/ui/TimeSlotPicker';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { useCart } from '../../src/contexts/CartContext';
 import { useToast } from '../../src/contexts/ToastContext';
 import { ordersApi } from '../../src/lib/api';
 import { ADDRESS_PRESETS } from '../../src/lib/addresses';
 import { addGuestOrderId } from '../../src/lib/guestOrders';
+import { getStoredDeliveryDetails, saveDeliveryDetails } from '../../src/lib/deliveryDetails';
 import { DELIVERY_FEE_DH, formatMad, getServiceFeeMad } from '../../src/lib/constants';
 import { hapticSuccess } from '../../src/lib/haptics';
 import { subscribeOrdersPush } from '../../src/lib/pushRegistration';
@@ -40,14 +42,50 @@ export default function CheckoutScreen() {
   const { showToast } = useToast();
   const [name, setName] = useState(user?.displayName || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [address, setAddress] = useState('CHU-Tanger');
+  const [address, setAddress] = useState('Urgences CHU Tanger');
   const [phone, setPhone] = useState('+212 6 12 34 56 78');
   const [notes, setNotes] = useState('');
-  const [floor, setFloor] = useState('');
-  const [addressPreset, setAddressPreset] = useState('chu');
+  const [floor, setFloor] = useState('Pavillon des Urgences, RDC');
+  const [addressPreset, setAddressPreset] = useState('chu-urgences');
   const [payment, setPayment] = useState<PaymentMethod>('cash');
+  const [scheduledTime, setScheduledTime] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    async function loadDetails() {
+      const stored = await getStoredDeliveryDetails();
+      if (stored) {
+        if (stored.name) setName(stored.name);
+        if (stored.email) setEmail(stored.email);
+        if (stored.address) setAddress(stored.address);
+        if (stored.phone) setPhone(stored.phone);
+        if (stored.notes !== undefined) setNotes(stored.notes);
+        if (stored.floor !== undefined) setFloor(stored.floor);
+        if (stored.addressPreset) setAddressPreset(stored.addressPreset);
+        if (stored.payment) setPayment(stored.payment);
+        if (stored.scheduledTime) setScheduledTime(stored.scheduledTime);
+      }
+      setLoaded(true);
+    }
+    loadDetails();
+  }, []);
+
+  useEffect(() => {
+    if (!loaded) return;
+      saveDeliveryDetails({
+      name,
+      email,
+      address,
+      floor,
+      phone,
+      notes,
+      addressPreset,
+      payment,
+      scheduledTime: scheduledTime || undefined,
+    });
+  }, [name, email, address, floor, phone, notes, addressPreset, payment, scheduledTime, loaded]);
 
   useEffect(() => {
     if (count === 0) router.replace('/(client)/cart' as never);
@@ -59,11 +97,18 @@ export default function CheckoutScreen() {
   const handlePreset = (id: string) => {
     setAddressPreset(id);
     const preset = ADDRESS_PRESETS.find((p) => p.id === id);
-    if (preset && id !== 'custom') setAddress(preset.label);
+    if (preset) {
+      setAddress(preset.label);
+      setFloor(preset.detail);
+    }
   };
 
   const handleConfirm = async () => {
     setError('');
+    if (subtotal < 70) {
+      setError('Commande inférieure à 70 DH non acceptée.');
+      return;
+    }
     if (!name.trim() || !address.trim() || !phone.trim()) {
       setError('Nom, adresse et téléphone sont obligatoires.');
       return;
@@ -87,13 +132,14 @@ export default function CheckoutScreen() {
         customer_phone: phone.trim(),
         delivery_instructions: notes.trim(),
         payment_method: payment,
+        scheduled_delivery_at: scheduledTime || undefined,
       });
       if (!user && order.id) await addGuestOrderId(String(order.id));
       if (order.id) await subscribeOrdersPush([String(order.id)]);
       clear();
       hapticSuccess();
       showToast('Commande confirmée !', 'Votre repas arrive bientôt 🛵', '🎉');
-      router.replace(`/(client)/order/${order.id}` as never);
+      router.replace(`/(client)/order/${order.id}?justPlaced=true` as never);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Commande impossible');
     } finally {
@@ -164,6 +210,11 @@ export default function CheckoutScreen() {
           </FadeInView>
 
           <FadeInView delay={200}>
+            <Text style={styles.sectionLabel}>🕐 Livraison</Text>
+            <TimeSlotPicker selected={scheduledTime} onSelect={setScheduledTime} />
+          </FadeInView>
+
+          <FadeInView delay={220}>
             <Text style={styles.sectionLabel}>Mode de paiement</Text>
             <View style={styles.payRow}>
               <Pressable
@@ -201,6 +252,16 @@ export default function CheckoutScreen() {
             </View>
           </FadeInView>
 
+          {subtotal < 70 ? (
+            <FadeInView delay={260}>
+              <View style={styles.warnBanner}>
+                <Text style={styles.warnText}>
+                  ⚠️ Commande minimale de 70 DH non atteinte. Veuillez retourner au panier pour ajouter des articles.
+                </Text>
+              </View>
+            </FadeInView>
+          ) : null}
+
           {error ? (
             <FadeInView>
               <Text style={styles.error}>{error}</Text>
@@ -209,9 +270,10 @@ export default function CheckoutScreen() {
 
           <FadeInView delay={320}>
             <YohaButton
-              title={loading ? 'Validation…' : `Confirmer · ${formatMad(total)}`}
+              title={loading ? 'Validation…' : subtotal < 70 ? 'Minimum 70 DH requis' : `Confirmer · ${formatMad(total)}`}
               onPress={handleConfirm}
               loading={loading}
+              disabled={subtotal < 70 || loading}
               style={{ marginTop: 20 }}
             />
           </FadeInView>
@@ -282,4 +344,19 @@ const styles = StyleSheet.create({
   rowValue: { fontFamily: fonts.semibold, color: ink[800], fontSize: 14 },
   bold: { fontFamily: fonts.extrabold, color: ink[900], fontSize: 18 },
   error: { color: '#ef4444', marginTop: 12, fontFamily: fonts.medium, textAlign: 'center' },
+  warnBanner: {
+    backgroundColor: '#fffbeb',
+    borderColor: '#fde68a',
+    borderWidth: 1.5,
+    borderRadius: radius.xl,
+    padding: 16,
+    marginTop: 16,
+  },
+  warnText: {
+    color: '#b45309',
+    fontFamily: fonts.bold,
+    fontSize: 13,
+    lineHeight: 18,
+    textAlign: 'center',
+  },
 });

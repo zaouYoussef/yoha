@@ -1,3 +1,18 @@
+function formatScheduledRange(iso: string) {
+  try {
+    const s = new Date(iso);
+    const e = new Date(s.getTime() + 30 * 60 * 1000);
+    const day = s.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+    const sh = String(s.getHours()).padStart(2, '0');
+    const sm = String(s.getMinutes()).padStart(2, '0');
+    const eh = String(e.getHours()).padStart(2, '0');
+    const em = String(e.getMinutes()).padStart(2, '0');
+    return `${day}, ${sh}:${sm} → ${eh}:${em}`;
+  } catch {
+    return iso;
+  }
+}
+
 import React, { useState } from 'react';
 import { Alert, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Order } from '../../lib/api';
@@ -6,6 +21,7 @@ import {
   ORDER_STATES,
   formatMad,
 } from '../../lib/constants';
+import { brand, ink, radius, shadows } from '../../theme';
 import { parseAmount } from '../../lib/courierOrder';
 import { brand, ink, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
@@ -91,6 +107,18 @@ export function CourierOrderCard({ order, showMap, children }: Props) {
       </View>
 
       <OrderItemsDetail order={order} restaurantPhone={restaurantPhone} />
+
+        {order.scheduledDeliveryAt ? (
+          <View style={styles.scheduledRow}>
+            <Text style={styles.scheduledEmoji}>🕐</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.scheduledLabel}>Livraison programmée</Text>
+              <Text style={styles.scheduledValue}>
+                {formatScheduledRange(String(order.scheduledDeliveryAt))}
+              </Text>
+            </View>
+          </View>
+        ) : null}
 
       <View style={styles.footer}>
         <View>
@@ -210,6 +238,20 @@ const styles = StyleSheet.create({
   footerTotal: { marginTop: 2, fontSize: 16, fontFamily: fonts.bold, color: ink[900] },
   gainCol: { alignItems: 'flex-end' },
   gain: { marginTop: 2, fontSize: 16, fontFamily: fonts.bold, color: '#059669' },
+  scheduledRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 12,
+    backgroundColor: '#fef3c7',
+    borderRadius: radius.md,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#fde68a',
+  },
+  scheduledEmoji: { fontSize: 16 },
+  scheduledLabel: { fontFamily: fonts.bold, fontSize: 11, color: '#92400e' },
+  scheduledValue: { fontFamily: fonts.bold, fontSize: 13, color: '#b45309', marginTop: 2 },
   cancelNote: {
     marginTop: 10,
     fontSize: 12,

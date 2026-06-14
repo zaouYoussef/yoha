@@ -126,6 +126,32 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
           <OrderTrackingTimeline status={status} />
         </div>
 
+        {/* Créneau programmé */}
+        {order?.scheduledDeliveryAt ? (
+          <div className="px-5 sm:px-6 py-3 bg-amber-50 dark:bg-amber-950/30 border-t border-ink-100 dark:border-ink-800">
+            <div className="flex items-center gap-3">
+              <span className="text-lg">🕐</span>
+              <div>
+                <p className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Livraison programmée</p>
+                <p className="text-sm font-bold text-amber-800 dark:text-amber-300">
+                  {(function(iso) {
+                    try {
+                      const s = new Date(iso);
+                      const e = new Date(s.getTime() + 30 * 60 * 1000);
+                      const day = s.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+                      const sh = String(s.getHours()).padStart(2, '0');
+                      const sm = String(s.getMinutes()).padStart(2, '0');
+                      const eh = String(e.getHours()).padStart(2, '0');
+                      const em = String(e.getMinutes()).padStart(2, '0');
+                      return `${day}, ${sh}:${sm} → ${eh}:${em}`;
+                    } catch { return iso; }
+                  })(order.scheduledDeliveryAt)}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         {/* Récap + livreur */}
         <div className="px-5 sm:px-6 py-4 bg-ink-50/80 dark:bg-ink-950/50 border-t border-ink-100 dark:border-ink-800 space-y-3">
           {order && (

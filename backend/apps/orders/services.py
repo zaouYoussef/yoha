@@ -123,6 +123,40 @@ def transition_order(*, order: Order, new_status: str, actor, note: str = "") ->
 
 
 @transaction.atomic
+def send_to_restaurant(*, order: Order, actor=None) -> Order:
+    """Transition placed → pickup_confirmed, notifie le restaurant."""
+    order = Order.objects.select_for_update().get(pk=order.pk)
+    if order.status != Order.Status.PLACED:
+        raise ValueError("Seules les commandes en attente peuvent être envoyées au restaurant.")
+    if not order.scheduled_delivery_at:
+        raise ValueError("Seules les commandes programmées peuvent être envoyées au restaurant.")
+    old = order.status
+    order.status = Order.Status.PICKUP_CONFIRMED
+    order.version += 1
+    order.save(update_fields=["status", "version", "updated_at"])
+    OrderStatusHistory.objects.create(
+        order=order,
+        from_status=old,
+        to_status=order.status,
+        changed_by=actor,
+        note="Envoyée au restaurant par le livreur",
+    )
+    log_audit(
+        actor=actor,
+        action="order.send_to_restaurant",
+        target_type="order",
+        target_id=str(order.id),
+        metadata={"public_id": order.public_id},
+    )
+    send_order_status_email(order, Order.Status.PICKUP_CONFIRMED)
+    from .push_notifications import notify_client_order_status, notify_restaurant_new_order
+
+    notify_client_order_status(order, Order.Status.PICKUP_CONFIRMED)
+    notify_restaurant_new_order(order)
+    return order
+
+
+@transaction.atomic
 def assign_courier(*, order: Order, courier, actor) -> Order:
     order = Order.objects.select_for_update().get(pk=order.pk)
     if order.courier_id is not None:
@@ -131,7 +165,8 @@ def assign_courier(*, order: Order, courier, actor) -> Order:
         raise ValueError("Cette commande n'est plus disponible.")
     old_status = order.status
     order.courier = courier
-    if order.status == Order.Status.PLACED:
+    is_scheduled = bool(order.scheduled_delivery_at)
+    if order.status == Order.Status.PLACED and not is_scheduled:
         order.status = Order.Status.PICKUP_CONFIRMED
     order.version += 1
     order.save(update_fields=["courier", "status", "version", "updated_at"])

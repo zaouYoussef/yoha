@@ -2,7 +2,7 @@
 
 import { Checkout } from '@/views/CheckoutPage.jsx';
 import { useYohaNav } from '@/contexts/YohaNavContext.jsx';
-import { useCart } from '@/providers/AppProviders.jsx';
+import { useCart } from '@/contexts/AppContexts.jsx';
 import { useOrders } from '@/contexts/AppContexts.jsx';
 
 export default function CheckoutRoutePage() {

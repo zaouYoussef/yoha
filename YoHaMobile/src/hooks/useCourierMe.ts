@@ -19,7 +19,7 @@ export function useCourierMe() {
       const list = await ordersApi.couriers();
       const me = list.find((c) => c.userId === user?.id);
       if (me) {
-        setCourier({ id: me.id, name: me.name, userId: me.userId, phone: me.phone });
+        setCourier({ id: me.id, name: me.name, userId: me.userId, phone: (me as any).phone });
       } else if (user) {
         setCourier({ id: '0', name: user.displayName || 'Livreur', userId: user.id });
       }

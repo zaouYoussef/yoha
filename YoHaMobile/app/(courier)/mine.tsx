@@ -25,6 +25,7 @@ export default function CourierMine() {
   const { orders, loading, error, refresh } = useOrders(8000);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [sendingId, setSendingId] = useState<string | null>(null);
 
   const mine = useMemo(
     () =>
@@ -50,6 +51,16 @@ export default function CourierMine() {
   const cancel = async (orderId: string, reason: string) => {
     await ordersApi.cancelOrder(orderId, reason);
     await refresh();
+  };
+
+  const handleSendToRestaurant = async (orderId: string) => {
+    setSendingId(orderId);
+    try {
+      await ordersApi.sendToRestaurant(orderId);
+      await refresh();
+    } finally {
+      setSendingId(null);
+    }
   };
 
   const onRefresh = async () => {
@@ -86,6 +97,19 @@ export default function CourierMine() {
 
         {mine.map((o) => (
           <CourierOrderCard key={o.id} order={o} showMap>
+            {o.status === 'placed' && o.scheduledDeliveryAt ? (
+              <>
+                <View style={[styles.statusBanner, { backgroundColor: 'rgba(245,158,11,0.12)' }]}>
+                  <Text style={styles.statusBannerText}>🕐 Commande programmée — envoyer au restaurant</Text>
+                </View>
+                <YohaButton
+                  title={sendingId === o.id ? 'Envoi…' : '📤 Envoyer au restaurant'}
+                  onPress={() => handleSendToRestaurant(o.id)}
+                  loading={sendingId === o.id}
+                />
+                <CancelOrderButton phase="before_pickup" onCancel={(r) => cancel(o.id, r)} />
+              </>
+            ) : null}
             {(o.status === 'pickup_confirmed' || o.status === 'preparing') && (
               <>
                 <View

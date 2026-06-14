@@ -27,6 +27,22 @@ const STATUS_GRADIENT = {
   cancelled: 'from-red-400/15 to-orange-500/10',
 };
 
+function formatScheduledRange(iso) {
+  if (!iso) return '';
+  try {
+    const s = new Date(iso);
+    const e = new Date(s.getTime() + 30 * 60 * 1000);
+    const day = s.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+    const sh = String(s.getHours()).padStart(2, '0');
+    const sm = String(s.getMinutes()).padStart(2, '0');
+    const eh = String(e.getHours()).padStart(2, '0');
+    const em = String(e.getMinutes()).padStart(2, '0');
+    return `${day}, ${sh}:${sm} → ${eh}:${em}`;
+  } catch {
+    return iso;
+  }
+}
+
 function formatDate(ts) {
   if (!ts) return '—';
   try {
@@ -157,6 +173,11 @@ function OrderCard({ order, onOpenOrder, onReorder, featured = false }) {
                 <span className="inline-flex items-center gap-1 text-xs text-ink-500">
                   <I.Bike size={12} className="text-sky-500" />
                   {order.courierName}
+                </span>
+              )}
+              {order.scheduledDeliveryAt && (
+                <span className="inline-flex items-center gap-1 text-xs text-amber-600 font-semibold">
+                  🕐 {formatScheduledRange(order.scheduledDeliveryAt)}
                 </span>
               )}
             </div>

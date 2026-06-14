@@ -2,22 +2,14 @@ import { requireOptionalNativeModule } from 'expo';
 import { Platform } from 'react-native';
 
 export type LocalNotificationsModule = {
-  setNotificationHandler: (handler: {
-    handleNotification: () => Promise<{
-      shouldShowAlert: boolean;
-      shouldPlaySound: boolean;
-      shouldSetBadge: boolean;
-      shouldShowBanner: boolean;
-      shouldShowList: boolean;
-    }>;
-  }) => void;
+  setNotificationHandler: (handler: any) => void;
   setNotificationChannelAsync: (
     channelId: string,
-    channel: Record<string, unknown>,
-  ) => Promise<unknown>;
-  getPermissionsAsync: () => Promise<{ status: string }>;
-  requestPermissionsAsync: (opts?: Record<string, unknown>) => Promise<{ status: string }>;
-  scheduleNotificationAsync: (request: Record<string, unknown>) => Promise<string>;
+    channel: any,
+  ) => Promise<any>;
+  getPermissionsAsync: () => Promise<any>;
+  requestPermissionsAsync: (opts?: any) => Promise<any>;
+  scheduleNotificationAsync: (request: any) => Promise<any>;
   AndroidImportance: { HIGH: number };
 };
 
@@ -72,7 +64,7 @@ export async function loadNotifications(): Promise<LocalNotificationsModule | nu
       setNotificationChannelAsync: channelMod.setNotificationChannelAsync,
       AndroidImportance: typesMod.AndroidImportance,
     };
-    return localCached;
+    return localCached as LocalNotificationsModule | null;
   } catch (e) {
     console.warn('[notifications] Chargement impossible — dev build requis pour les alertes', e);
     localCached = null;

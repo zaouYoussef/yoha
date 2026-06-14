@@ -9,7 +9,7 @@ import { fonts } from '../../theme/fonts';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export function CategoryBannerScroll({
+export const CategoryBannerScroll = React.memo(function CategoryBannerScroll({
   active,
   onSelect,
 }: {
@@ -17,7 +17,7 @@ export function CategoryBannerScroll({
   onSelect: (id: string) => void;
 }) {
   return (
-    <View>
+    <View style={{ marginBottom: 20 }}>
       <View style={styles.head}>
         <Text style={styles.title}>Catégories</Text>
         {active !== 'all' && active !== '' ? (
@@ -43,7 +43,7 @@ export function CategoryBannerScroll({
       </ScrollView>
     </View>
   );
-}
+}, (prev, next) => prev.active === next.active);
 
 function BannerCard({
   emoji,

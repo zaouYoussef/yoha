@@ -6,6 +6,7 @@ import { useAuth, migrateLegacyDisplayName } from '../contexts/AuthContext.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Row } from '../components/ui/Row.jsx';
 import { Card, CardHeader, Input, Loader } from '../components/checkout/CheckoutForms.jsx';
+import { TimeSlotPicker } from '../components/checkout/TimeSlotPicker.jsx';
 import { MenuItemImage } from '../components/ui/MenuItemImage.jsx';
 import { getServiceFeeMad, formatMad } from '../data/index.js';
 
@@ -14,6 +15,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   const [address, setAddress] = useState('CHU-Tanger');
   const [phone, setPhone] = useState('+212 6 12 34 56 78');
   const [restaurantNotes, setRestaurantNotes] = useState('');
+  const [scheduledTime, setScheduledTime] = useState('');
   const [name, setName] = useState('X Y');
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -32,6 +34,10 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
 
   const handleConfirm = async () => {
     setErr('');
+    if (total < 70) {
+      setErr("Le restaurant n'accepte pas les commandes de moins de 70 DH.");
+      return;
+    }
     const trimmedEmail = email.trim();
     if (!user && !trimmedEmail) {
       setErr('E-mail obligatoire pour recevoir le suivi de commande.');
@@ -42,7 +48,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
       return;
     }
     setSubmitting(true);
-    const customer = { name, address, phone, email: trimmedEmail, restaurantNotes: restaurantNotes.trim() };
+    const customer = { name, address, phone, email: trimmedEmail, restaurantNotes: restaurantNotes.trim(), scheduledTime: scheduledTime || undefined };
     try {
       const orderId = await addOrder(cart, grand, customer);
       setTimeout(() => onSuccess(orderId), 800);
@@ -136,6 +142,8 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
             </div>
           </Card>
 
+          <TimeSlotPicker selected={scheduledTime} onSelect={setScheduledTime} />
+
           <Card>
             <CardHeader icon={<I.Bag size={18}/>} title="Paiement" />
             <div className="px-5 pb-5">
@@ -172,8 +180,19 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
               <Row label={<b className="text-base">À payer</b>} value={<b className="text-2xl text-gradient">{formatMad(grand)}</b>} />
 
               {err && <p className="text-sm text-red-600 dark:text-red-400">{err}</p>}
+              {total < 70 && (
+                <p className="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-1">
+                  ⚠️ Le restaurant n&apos;accepte pas les commandes de moins de 70 DH.
+                </p>
+              )}
               <div className="pt-3">
-                <Button onClick={handleConfirm} disabled={submitting} variant="primary" size="lg" className="w-full justify-center">
+                <Button
+                  onClick={handleConfirm}
+                  disabled={submitting || total < 70}
+                  variant="primary"
+                  size="lg"
+                  className="w-full justify-center"
+                >
                   {submitting
                     ? <span className="inline-flex items-center gap-2">Traitement<Loader/></span>
                     : <span className="inline-flex items-center gap-2">Confirmer la commande <I.Check size={18} stroke={3}/></span>

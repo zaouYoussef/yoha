@@ -4,34 +4,61 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { gradients, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
+import { hapticLight } from '../../lib/haptics';
 
-export function DiscoverPromoDeck() {
+export const DiscoverPromoDeck = React.memo(function DiscoverPromoDeck({
+  onOffresFlashPress,
+}: {
+  onOffresFlashPress?: () => void;
+}) {
   return (
     <View style={styles.row}>
-      <Pressable style={{ flex: 1.2 }} onPress={() => router.push('/(client)/cart' as never)}>
+      <Pressable
+        style={{ flex: 1.25 }}
+        onPress={() => {
+          hapticLight();
+          router.push('/(client)/cart' as never);
+        }}
+      >
         <LinearGradient colors={[...gradients.cta]} style={[styles.card, shadows.glow]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
           <Text style={styles.emoji}>🎁</Text>
-          <Text style={styles.cardTitle}>0 DH livraison</Text>
-          <Text style={styles.cardSub}>Paye à la porte · 2 min chrono</Text>
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>Livraison 0 DH</Text>
+            <Text style={styles.cardSub}>Zéro frais caché · Payez cash ou TPE à la porte</Text>
+          </View>
         </LinearGradient>
       </Pressable>
-      <Pressable style={{ flex: 1 }} onPress={() => router.push('/(client)/orders' as never)}>
+      <Pressable
+        style={{ flex: 1 }}
+        onPress={() => {
+          hapticLight();
+          onOffresFlashPress?.();
+        }}
+      >
         <LinearGradient colors={['#0f172a', '#1e1b4b']} style={[styles.card, shadows.card]}>
           <Text style={styles.emoji}>⚡</Text>
-          <Text style={[styles.cardTitle, styles.cardTitleLight]}>Offres flash</Text>
-          <Text style={styles.cardSubLight}>Jusqu&apos;à -20% ce soir</Text>
+          <View style={styles.cardContent}>
+            <Text style={[styles.cardTitle, styles.cardTitleLight]}>Offres Flash</Text>
+            <Text style={styles.cardSubLight}>Plats XL & gourmandises offertes ce soir !</Text>
+          </View>
         </LinearGradient>
       </Pressable>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 12, marginBottom: 22 },
-  card: { borderRadius: radius.xl + 2, padding: 18, minHeight: 118, justifyContent: 'flex-end' },
-  emoji: { fontSize: 28, position: 'absolute', top: 14, left: 16 },
-  cardTitle: { fontFamily: fonts.extrabold, fontSize: 17, color: '#fff' },
+  card: {
+    borderRadius: radius.xl + 2,
+    padding: 16,
+    minHeight: 142,
+    justifyContent: 'space-between',
+  },
+  emoji: { fontSize: 26, marginBottom: 8 },
+  cardContent: { marginTop: 'auto' },
+  cardTitle: { fontFamily: fonts.extrabold, fontSize: 16, color: '#fff' },
   cardTitleLight: { color: '#fff' },
-  cardSub: { fontFamily: fonts.medium, fontSize: 11, color: 'rgba(255,255,255,0.88)', marginTop: 4 },
-  cardSubLight: { fontFamily: fonts.medium, fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 4 },
+  cardSub: { fontFamily: fonts.medium, fontSize: 11, color: 'rgba(255,255,255,0.88)', marginTop: 4, lineHeight: 14 },
+  cardSubLight: { fontFamily: fonts.medium, fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 4, lineHeight: 14 },
 });

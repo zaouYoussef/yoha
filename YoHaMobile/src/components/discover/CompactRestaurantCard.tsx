@@ -8,7 +8,7 @@ import { hapticLight } from '../../lib/haptics';
 import { brand, ink, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
 
-export function CompactRestaurantCard({
+export const CompactRestaurantCard = React.memo(function CompactRestaurantCard({
   restaurant,
   onPress,
   wide = false,
@@ -40,21 +40,30 @@ export function CompactRestaurantCard({
           <Text style={styles.promoText} numberOfLines={1}>🎁 {restaurant.promo}</Text>
         </View>
       ) : null}
-      {restaurant.logo ? (
-        <Image source={{ uri: restaurant.logo }} style={styles.logo} contentFit="cover" />
-      ) : null}
       <View style={styles.footer}>
-        <Text style={styles.name} numberOfLines={1}>{restaurant.name}</Text>
-        <View style={styles.meta}>
-          <Text style={styles.metaText}>★ 4.8</Text>
-          <Text style={styles.dot}>·</Text>
-          <Text style={styles.metaText}>🛵 {DEFAULT_ETA}</Text>
+        <View style={styles.footerTopRow}>
+          {restaurant.logo ? (
+            <Image source={{ uri: restaurant.logo }} style={styles.logoRow} contentFit="cover" />
+          ) : null}
+          <View style={{ flex: 1 }}>
+            <Text style={styles.name} numberOfLines={1}>{restaurant.name}</Text>
+            <View style={styles.meta}>
+              <Text style={styles.metaText}>★ 4.8</Text>
+              <Text style={styles.dot}>·</Text>
+              <Text style={styles.metaText}>🛵 {DEFAULT_ETA}</Text>
+            </View>
+          </View>
         </View>
         <Text style={styles.cta}>Menu →</Text>
       </View>
     </Pressable>
   );
-}
+}, (prev, next) => {
+  return prev.restaurant.slug === next.restaurant.slug &&
+         prev.restaurant.promo === next.restaurant.promo &&
+         prev.wide === next.wide &&
+         prev.rank === next.rank;
+});
 
 const styles = StyleSheet.create({
   compact: {
@@ -96,14 +105,16 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
   },
   promoText: { fontFamily: fonts.bold, fontSize: 9, color: '#fff' },
-  logo: {
-    position: 'absolute',
-    bottom: 58,
-    left: 12,
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    borderWidth: 2,
+  footerTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  logoRow: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    borderWidth: 1.5,
     borderColor: '#fff',
   },
   footer: { position: 'absolute', bottom: 12, left: 12, right: 12 },

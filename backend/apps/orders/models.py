@@ -105,6 +105,7 @@ class Order(models.Model):
     )
     cancellation_reason = models.TextField(blank=True, default="")
     idempotency_key = models.CharField(max_length=64, unique=True, null=True, blank=True)
+    scheduled_delivery_at = models.DateTimeField(null=True, blank=True, help_text="Plage de livraison choisie par le client (début de la tranche de 30 min)")
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
     version = models.PositiveIntegerField(default=1)
@@ -155,6 +156,7 @@ class Order(models.Model):
         customer_phone,
         delivery_instructions="",
         idempotency_key=None,
+        scheduled_delivery_at=None,
     ):
         if idempotency_key:
             existing = cls.objects.filter(idempotency_key=idempotency_key).first()
@@ -187,6 +189,7 @@ class Order(models.Model):
             profit_mad=platform_profit_mad(total),
             net_mad=platform_net_mad(total),
             idempotency_key=idempotency_key or None,
+            scheduled_delivery_at=scheduled_delivery_at,
         )
         for item, qty, line_total in line_objects:
             OrderLine.objects.create(

@@ -68,7 +68,20 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
               <div className="border-t border-dashed border-ink-200 dark:border-ink-800 my-1"></div>
               <Row label={<b className="text-base">Total</b>} value={<b className="text-xl">{formatMad(total)}</b>} />
 
-              <Button onClick={onCheckout} variant="primary" size="lg" className="w-full justify-center">
+              {total < 70 && (
+                <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2 animate-fade-up">
+                  <span className="text-sm">⚠️</span>
+                  <span>Le restaurant n&apos;accepte pas les commandes de moins de 70 DH. Ajoutez encore {formatMad(70 - total)}.</span>
+                </div>
+              )}
+
+              <Button
+                onClick={onCheckout}
+                variant="primary"
+                size="lg"
+                className="w-full justify-center"
+                disabled={total < 70}
+              >
                 Passer commande · {formatMad(total)} <I.Right size={18}/>
               </Button>
             </div>

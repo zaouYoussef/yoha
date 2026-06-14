@@ -19,18 +19,22 @@ export function DiscoverSectionHeader({
   const label =
     cuisine === '' || cuisine === 'all'
       ? 'Tous les restaurants'
+      : cuisine === 'promos'
+      ? '🔥 Offres Flash Tanger'
       : CUISINES.find((c) => c.id === cuisine)?.label ?? 'Résultats';
+
+  const subText = loading
+    ? 'Chargement du catalogue…'
+    : cuisine === 'promos'
+    ? `${count} restaurant${count > 1 ? 's' : ''} avec réductions exclusives · livraison gratuite`
+    : `${count} adresse${count > 1 ? 's' : ''} près de vous · livraison offerte`;
 
   return (
     <View style={styles.wrap}>
       <View style={{ flex: 1 }}>
-        <Text style={styles.eyebrow}>À dévorer</Text>
+        <Text style={styles.eyebrow}>{cuisine === 'promos' ? 'Bons Plans' : 'À dévorer'}</Text>
         <Text style={styles.title}>{label}</Text>
-        <Text style={styles.sub}>
-          {loading
-            ? 'Chargement du catalogue…'
-            : `${count} adresse${count > 1 ? 's' : ''} près de vous · livraison offerte`}
-        </Text>
+        <Text style={styles.sub}>{subText}</Text>
       </View>
       {cuisine ? (
         <Pressable onPress={onClearFilter}>

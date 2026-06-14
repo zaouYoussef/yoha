@@ -79,19 +79,13 @@ export function RestaurantMenuHero({ restaurant, scrollY, topInset, onBack }: Pr
           <Text style={styles.desc} numberOfLines={2}>{restaurant.description}</Text>
         ) : null}
 
-        <View style={styles.badges}>
-          <View style={styles.badgeStar}>
-            <Text style={styles.badgeStarText}>★ 4.8</Text>
-          </View>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{restaurant.fee || 'Livraison offerte'}</Text>
-          </View>
-          {restaurant.promo ? (
+        {restaurant.promo ? (
+          <View style={styles.badges}>
             <View style={styles.badgePromo}>
               <Text style={styles.badgePromoText}>🔥 {restaurant.promo}</Text>
             </View>
-          ) : null}
-        </View>
+          </View>
+        ) : null}
       </View>
     </View>
   );
@@ -108,12 +102,14 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.95)',
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
     ...shadows.soft,
   },
-  backText: { fontSize: 22, fontFamily: fonts.bold, color: ink[800] },
+  backText: { fontSize: 20, fontFamily: fonts.bold, color: ink[800], marginLeft: -2 },
   heroContent: { flex: 1, justifyContent: 'flex-end', paddingHorizontal: 20, paddingBottom: 24, zIndex: 2 },
   logoRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 14 },
   logo: {

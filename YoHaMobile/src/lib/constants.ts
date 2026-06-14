@@ -126,7 +126,7 @@ export function isRestaurantActiveOrder(status: string) {
 export function isRestaurantCancelledOrder(order: {
   status?: string;
   cancelledPhase?: string;
-  courierId?: string | null;
+  courierId?: string | number | null;
 }) {
   return (
     order?.status === 'cancelled'
@@ -139,7 +139,7 @@ export function isRestaurantCancelledOrder(order: {
 export function isRestaurantStatsOrder(order: {
   status?: string;
   cancelledPhase?: string;
-  courierId?: string | null;
+  courierId?: string | number | null;
 }) {
   if (!order || order.status === 'placed') return false;
   if (order.status === 'cancelled') return isRestaurantCancelledOrder(order);

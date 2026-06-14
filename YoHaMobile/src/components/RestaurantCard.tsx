@@ -16,7 +16,7 @@ const cuisineEmoji: Record<string, string> = {
   healthy: '🥗', medical: '🏥', pharmacy: '💊', asian: '🍜', dessert: '🍰', drinks: '🥤',
 };
 
-export function RestaurantCard({
+export const RestaurantCard = React.memo(function RestaurantCard({
   restaurant,
   onPress,
   showFavorite = true,
@@ -49,12 +49,12 @@ export function RestaurantCard({
     <Pressable
       onPress={() => { hapticLight(); onPress(); }}
       style={({ pressed }) => [
-        featured ? shadows.glow : shadows.float,
+        featured ? shadows.glow : (promo ? styles.promoGlow : shadows.float),
         styles.outer,
         pressed && { opacity: 0.94 },
       ]}
     >
-      <View style={styles.card}>
+      <View style={[styles.card, promo ? styles.promoBorder : null]}>
         <View style={[styles.imageWrap, featured && styles.imageFeatured]}>
           <Image
             source={{ uri: restaurant.cover || undefined }}
@@ -135,10 +135,28 @@ export function RestaurantCard({
   );
 
   return featured ? <ShimmerSweep style={{ borderRadius: radius.xl + 4 }}>{card}</ShimmerSweep> : card;
-}
+}, (prev, next) => {
+  return prev.restaurant.slug === next.restaurant.slug &&
+         prev.restaurant.isOpen === next.restaurant.isOpen &&
+         prev.restaurant.promo === next.restaurant.promo &&
+         prev.restaurant.fee === next.restaurant.fee &&
+         prev.featured === next.featured &&
+         prev.showFavorite === next.showFavorite;
+});
 
 const styles = StyleSheet.create({
   outer: { marginBottom: 22, borderRadius: radius.xl + 4 },
+  promoGlow: {
+    shadowColor: '#f43f5e',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.22,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  promoBorder: {
+    borderColor: 'rgba(244, 63, 94, 0.45)',
+    borderWidth: 1.5,
+  },
   card: {
     backgroundColor: '#fff',
     borderRadius: radius.xl + 4,

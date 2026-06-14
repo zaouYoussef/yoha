@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   RefreshControl,
@@ -9,19 +9,17 @@ import {
 } from 'react-native';
 import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MarqueeTicker } from '../../src/components/animations/MarqueeTicker';
 import { CategoryBannerScroll } from '../../src/components/ui/CategoryBannerScroll';
 import { DiscoverBento } from '../../src/components/discover/DiscoverBento';
 import { DiscoverEmptyWow } from '../../src/components/discover/DiscoverEmptyWow';
+import { CraveRoulette } from '../../src/components/discover/CraveRoulette';
 import { DiscoverHero } from '../../src/components/discover/DiscoverHero';
 import { DiscoverPromoDeck } from '../../src/components/discover/DiscoverPromoDeck';
 import { DiscoverSectionHeader } from '../../src/components/discover/DiscoverSectionHeader';
-import { DiscoverStickySearch } from '../../src/components/discover/DiscoverStickySearch';
 import { FavoritesRow } from '../../src/components/discover/FavoritesRow';
 import { OrderAgainStrip } from '../../src/components/discover/OrderAgainStrip';
-import { QuickCravings } from '../../src/components/discover/QuickCravings';
 import { TrendingCarousel } from '../../src/components/discover/TrendingCarousel';
-import { CuisineFilterRow } from '../../src/components/discover/CuisineFilterRow';
+import { PromoRow } from '../../src/components/discover/PromoRow';
 import { PremiumBackground } from '../../src/components/PremiumBackground';
 import { RestaurantCard } from '../../src/components/RestaurantCard';
 import { SocialProofBanner } from '../../src/components/SocialProofBanner';
@@ -51,6 +49,7 @@ export default function ClientHome() {
   const { lastOrder } = useLastOrder();
   const { replaceItems } = useCart();
   const { showToast } = useToast();
+  const params = useLocalSearchParams<{ filterCuisine?: string; searchVal?: string }>();
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -61,6 +60,18 @@ export default function ClientHome() {
   const scrollY = useSharedValue(0);
   const isFirstLoad = useRef(true);
   const { scrollBottomPadding } = useLayoutChrome();
+
+  useEffect(() => {
+    if (params.filterCuisine !== undefined) {
+      setCuisine(params.filterCuisine === 'all' ? '' : params.filterCuisine);
+    }
+  }, [params.filterCuisine]);
+
+  useEffect(() => {
+    if (params.searchVal !== undefined) {
+      setQuery(params.searchVal);
+    }
+  }, [params.searchVal]);
 
   const onScroll = useAnimatedScrollHandler({
     onScroll: (e) => { scrollY.value = e.contentOffset.y; },
@@ -73,9 +84,13 @@ export default function ClientHome() {
     try {
       const data = await restaurantsApi.list({
         ...(query ? { q: query } : {}),
-        ...(cuisine ? { cuisine } : {}),
+        ...(cuisine && cuisine !== 'promos' ? { cuisine } : {}),
       });
-      setRestaurants(data);
+      if (cuisine === 'promos') {
+        setRestaurants(data.filter((r) => !!r.promo));
+      } else {
+        setRestaurants(data);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erreur de chargement');
     } finally {
@@ -123,12 +138,16 @@ export default function ClientHome() {
 
   const anyRestoOpen = useMemo(() => hasAnyRestaurantOpen(restaurants), [restaurants]);
 
-  const applyCuisine = (id: string) => {
+  const applyCuisine = useCallback((id: string) => {
     setCuisine(id);
     setQuery('');
-  };
+  }, []);
 
-  const handleReorder = (order: typeof lastOrder) => {
+  const handleSelectCuisine = useCallback((id: string) => {
+    applyCuisine(id === 'all' ? '' : id);
+  }, [applyCuisine]);
+
+  const handleReorder = useCallback((order: typeof lastOrder) => {
     if (!order) return;
     const lines = orderToCartItems(order);
     if (!lines.length) {
@@ -143,17 +162,12 @@ export default function ClientHome() {
     hapticSuccess();
     showToast('Panier rempli !', 'Commandez à nouveau en un clic', '↻');
     router.push('/(client)/cart' as never);
-  };
+  }, [replaceItems, showToast]);
 
   return (
     <PremiumBackground variant="warm">
       <View style={{ flex: 1 }}>
-        <DiscoverStickySearch
-          scrollY={scrollY}
-          query={query}
-          onChange={setQuery}
-          topInset={insets.top}
-        />
+
 
         <AnimatedScroll
           onScroll={onScroll}
@@ -176,12 +190,13 @@ export default function ClientHome() {
             onQueryChange={setQuery}
             activeOrder={activeOrder}
             topInset={insets.top}
+            onPromoPress={() => handleSelectCuisine('promos')}
           />
 
           <View style={styles.body}>
             <CategoryBannerScroll
               active={cuisine || 'all'}
-              onSelect={(id) => applyCuisine(id === 'all' ? '' : id)}
+              onSelect={handleSelectCuisine}
             />
 
             {showWowSections && restaurants.length > 0 ? (
@@ -192,13 +207,16 @@ export default function ClientHome() {
               <OrderAgainStrip order={lastOrder} onReorder={handleReorder} />
             ) : null}
 
-            <QuickCravings active={cuisine} onPick={applyCuisine} />
+            {showWowSections && restaurants.length > 0 ? (
+              <CraveRoulette restaurants={restaurants} />
+            ) : null}
 
-            <MarqueeTicker />
+            {showWowSections && restaurants.length > 0 ? (
+              <PromoRow restaurants={restaurants} />
+            ) : null}
+
             {anyRestoOpen ? <SocialProofBanner /> : null}
-            <DiscoverPromoDeck />
-
-            <CuisineFilterRow active={cuisine || 'all'} onSelect={applyCuisine} />
+            <DiscoverPromoDeck onOffresFlashPress={() => handleSelectCuisine('promos')} />
 
             {showWowSections && favorites.length > 0 ? (
               <FavoritesRow restaurants={favorites} />

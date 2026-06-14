@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { brand, ink, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
 
+const PLACEHOLDERS = [
+  'Rechercher une Pizza Regina... 🍕',
+  'Envie d\'un Double Burger XL ? 🍔',
+  'Un Tacos Maxi sauce fromagère ? 🌮',
+  'Des sushis frais pour ce soir ? 🍣',
+  'Un Poké bowl healthy & protéiné... 🥗',
+];
+
 export function SearchBarWow({
   value,
   onChange,
-  placeholder = 'Pizza, sushi, bowls healthy…',
   compact = false,
 }: {
   value: string;
@@ -15,6 +22,14 @@ export function SearchBarWow({
   compact?: boolean;
 }) {
   const [focused, setFocused] = useState(false);
+  const [phIdx, setPhIdx] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPhIdx((prev) => (prev + 1) % PLACEHOLDERS.length);
+    }, 3200);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <View style={[styles.wrap, compact && styles.wrapCompact]}>
@@ -25,7 +40,7 @@ export function SearchBarWow({
           onChangeText={onChange}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder={placeholder}
+          placeholder={PLACEHOLDERS[phIdx]}
           placeholderTextColor={ink[400]}
           style={[styles.input, compact && styles.inputCompact]}
           returnKeyType="search"
@@ -46,11 +61,18 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.6)',
   },
   barCompact: { paddingVertical: 11 },
-  barFocused: { borderColor: brand[300] },
+  barFocused: {
+    borderColor: brand[400],
+    shadowColor: brand[500],
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.28,
+    shadowRadius: 8,
+    elevation: 4,
+  },
   icon: { fontSize: 18 },
   input: {
     flex: 1,

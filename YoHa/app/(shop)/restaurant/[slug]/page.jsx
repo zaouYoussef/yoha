@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { RestaurantPage } from '@/views/BrowseViews.jsx';
 import { useYohaNav } from '@/contexts/YohaNavContext.jsx';
-import { useCart } from '@/providers/AppProviders.jsx';
+import { useCart } from '@/contexts/AppContexts.jsx';
 import { restaurantsApi } from '@/lib/api';
 
 export default function RestaurantRoutePage() {

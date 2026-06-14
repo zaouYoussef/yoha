@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { ORDER_STATES } from '@/data/index.js';
-import { ToastCtx, OrdersCtx, CartIconRefCtx } from '@/contexts/AppContexts.jsx';
+import { ToastCtx, OrdersCtx, CartIconRefCtx, CartCtx } from '@/contexts/AppContexts.jsx';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext.jsx';
 import { YohaNavProvider } from '@/contexts/YohaNavContext.jsx';
 import { getTokens, ordersApi, restaurantsApi } from '@/lib/api';
@@ -259,6 +259,7 @@ function AppStateProvider({ children, dark, setDark }) {
         customer_address: customer.address,
         customer_phone: customer.phone,
         delivery_instructions: customer.restaurantNotes || '',
+        scheduled_delivery_at: customer.scheduledTime || undefined,
       };
       const order = await ordersApi.checkout(payload);
       const isLoggedInClient = !!getTokens()?.access && user?.role === 'client';
@@ -469,10 +470,5 @@ function AppStateProvider({ children, dark, setDark }) {
   );
 }
 
-const CartCtx = createContext(null);
+export { useCart } from '@/contexts/AppContexts.jsx';
 
-export function useCart() {
-  const ctx = useContext(CartCtx);
-  if (!ctx) throw new Error('useCart doit être utilisé dans AppProviders');
-  return ctx;
-}

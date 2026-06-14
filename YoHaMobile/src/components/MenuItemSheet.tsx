@@ -21,6 +21,37 @@ import { hapticLight, hapticSuccess } from '../lib/haptics';
 import { brand, gradients, ink, radius, shadows } from '../theme';
 import { fonts } from '../theme/fonts';
 
+const INGREDIENT_EMOJIS: Record<string, string> = {
+  mozzarella: '🧀', fromage: '🧀', cheese: '🧀', cheddar: '🧀', parmesan: '🧀',
+  tomate: '🍅', tomato: '🍅', sauce: '🥫',
+  viande: '🥩', beef: '🥩', boeuf: '🥩', steak: '🥩', pepperoni: '🍕',
+  poulet: '🍗', chicken: '🍗', nugget: '🍗',
+  oignon: '🧅', onion: '🧅', ail: '🧄', garlic: '🧄',
+  olive: '🫒', olives: '🫒',
+  champignon: '🍄', champignons: '🍄', mushroom: '🍄', mushrooms: '🍄',
+  ananas: '🍍', pineapple: '🍍',
+  poivron: '🫑', pepper: '🫑', peppers: '🫑', piment: '🌶️', chili: '🌶️',
+  frite: '🍟', frites: '🍟', potato: '🥔', pommes: '🥔',
+  oeuf: '🍳', egg: '🍳', eggs: '🍳',
+  salade: '🥬', salad: '🥬', lettuce: '🥬', avocat: '🥑', avocado: '🥑',
+  saumon: '🐟', salmon: '🐟', thon: '🐟', tuna: '🐟', crevette: '🍤', shrimp: '🍤', sushi: '🍣',
+  riz: '🍚', rice: '🍚', nouilles: '🍜', noodles: '🍜',
+  chocolat: '🍫', chocolate: '🍫', caramel: '🍯', honey: '🍯',
+  fraise: '🍓', strawberry: '🍓', banane: '🍌', banana: '🍌', pomme: '🍎', apple: '🍎',
+  citron: '🍋', lemon: '🍋', orange: '🍊',
+  menthe: '🌱', mint: '🌱', basilic: '🌿', basil: '🌿', persil: '🌿',
+  lait: '🥛', milk: '🥛', creme: '🥛', cream: '🥛',
+  pain: '🍞', bread: '🍞', bun: '🍞', tortilla: '🫓', wrap: '🫓', pita: '🫓',
+};
+
+function getIngredientEmoji(name: string): string {
+  const clean = name.toLowerCase().trim();
+  for (const [key, emoji] of Object.entries(INGREDIENT_EMOJIS)) {
+    if (clean.includes(key)) return emoji;
+  }
+  return '✨';
+}
+
 export function MenuItemSheet({
   item,
   visible,
@@ -36,20 +67,28 @@ export function MenuItemSheet({
 }) {
   const insets = useSafeAreaInsets();
   const [qty, setQty] = React.useState(1);
-  const translateY = useSharedValue(500);
+  const translateY = useSharedValue(600);
 
   useEffect(() => {
     if (visible) {
       setQty(1);
-      translateY.value = withSpring(0, { damping: 22, stiffness: 220 });
+      translateY.value = withSpring(0, { damping: 24, stiffness: 240 });
     } else {
-      translateY.value = 500;
+      translateY.value = 600;
     }
   }, [visible, translateY]);
 
   const sheetAnim = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
   }));
+
+  const parsedIngredients = React.useMemo(() => {
+    if (!item?.ingredients) return [];
+    return item.ingredients
+      .split(/[,;•\n]+/)
+      .map((x) => x.trim())
+      .filter((x) => x.length > 0);
+  }, [item?.ingredients]);
 
   if (!item) return null;
 
@@ -69,16 +108,24 @@ export function MenuItemSheet({
       <Animated.View style={[styles.sheet, { paddingBottom: insets.bottom + 12 }, sheetAnim]}>
         <View style={styles.handle} />
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 12 }}>
-          <View style={styles.heroWrap}>
-            {item.img ? (
-              <Image source={{ uri: item.img }} style={styles.hero} contentFit="cover" />
-            ) : (
-              <LinearGradient colors={[brand[100], brand[50]]} style={[styles.hero, styles.heroPh]}>
-                <Text style={{ fontSize: 56 }}>🍽️</Text>
-              </LinearGradient>
-            )}
-            <LinearGradient colors={['transparent', 'rgba(15,23,42,0.5)']} style={styles.heroGrad} />
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+          <View style={styles.heroOuter}>
+            <LinearGradient
+              colors={['rgba(249,115,22,0.22)', 'rgba(236,72,153,0.12)', 'transparent']}
+              style={styles.ambientGlow}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+            />
+            <View style={[styles.heroWrap, shadows.glowOrange]}>
+              {item.img ? (
+                <Image source={{ uri: item.img }} style={styles.hero} contentFit="cover" />
+              ) : (
+                <LinearGradient colors={[brand[100], brand[50]]} style={[styles.hero, styles.heroPh]}>
+                  <Text style={{ fontSize: 56 }}>🍽️</Text>
+                </LinearGradient>
+              )}
+              <LinearGradient colors={['transparent', 'rgba(15,23,42,0.6)']} style={styles.heroGrad} />
+            </View>
           </View>
 
           <Text style={styles.name}>{item.name}</Text>
@@ -90,17 +137,54 @@ export function MenuItemSheet({
               </View>
             ) : (
               <View style={styles.availBadge}>
-                <Text style={styles.availText}>✓ Dispo</Text>
+                <Text style={styles.availText}>✓ En stock</Text>
               </View>
             )}
           </View>
 
           {item.desc ? <Text style={styles.desc}>{item.desc}</Text> : null}
 
-          {item.ingredients ? (
+          {/* Section Réassurance & Garantie */}
+          <LinearGradient
+            colors={['rgba(251,146,60,0.08)', 'rgba(236,72,153,0.06)']}
+            style={[styles.guaranteeBox, shadows.soft]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <View style={styles.guaranteeHeader}>
+              <Text style={{ fontSize: 18 }}>🛡️</Text>
+              <Text style={styles.guaranteeTitle}>Garantie YoHa Chaud & Croustillant</Text>
+            </View>
+            <Text style={styles.guaranteeSub}>
+              Préparé à la commande par le chef et livré dans un sac isotherme scellé. Si votre repas n'est pas chaud, nous vous le remplaçons gratuitement !
+            </Text>
+            <View style={styles.badgesRow}>
+              <View style={styles.badgeItem}>
+                <Text style={styles.badgeEmoji}>🔥</Text>
+                <Text style={styles.badgeLabel}>Fumant</Text>
+              </View>
+              <View style={styles.badgeItem}>
+                <Text style={styles.badgeEmoji}>🥩</Text>
+                <Text style={styles.badgeLabel}>Frais & Local</Text>
+              </View>
+              <View style={styles.badgeItem}>
+                <Text style={styles.badgeEmoji}>👨‍🍳</Text>
+                <Text style={styles.badgeLabel}>Fait minute</Text>
+              </View>
+            </View>
+          </LinearGradient>
+
+          {parsedIngredients.length > 0 ? (
             <View style={styles.ingredientsBox}>
-              <Text style={styles.ingredientsTitle}>Ingrédients</Text>
-              <Text style={styles.ingredients}>{item.ingredients}</Text>
+              <Text style={styles.ingredientsTitle}>Ingrédients & Préparation</Text>
+              <View style={styles.ingredientsGrid}>
+                {parsedIngredients.map((ing, idx) => (
+                  <View key={idx} style={styles.ingredientChip}>
+                    <Text style={styles.ingredientEmoji}>{getIngredientEmoji(ing)}</Text>
+                    <Text style={styles.ingredientText}>{ing}</Text>
+                  </View>
+                ))}
+              </View>
             </View>
           ) : null}
         </ScrollView>
@@ -144,16 +228,16 @@ export function MenuItemSheet({
 }
 
 const styles = StyleSheet.create({
-  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(2,6,23,0.62)' },
+  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(2,6,23,0.65)' },
   sheet: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    maxHeight: '90%',
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    maxHeight: '92%',
+    backgroundColor: '#fffcf9',
+    borderTopLeftRadius: 36,
+    borderTopRightRadius: 36,
     paddingHorizontal: 20,
     paddingTop: 10,
     ...shadows.float,
@@ -166,11 +250,24 @@ const styles = StyleSheet.create({
     backgroundColor: ink[200],
     marginBottom: 16,
   },
-  heroWrap: { borderRadius: radius.xl + 4, overflow: 'hidden', marginBottom: 18 },
+  heroOuter: {
+    position: 'relative',
+    marginBottom: 18,
+  },
+  ambientGlow: {
+    position: 'absolute',
+    top: -16,
+    left: -16,
+    right: -16,
+    bottom: -8,
+    borderRadius: radius.xl + 20,
+    opacity: 0.8,
+  },
+  heroWrap: { borderRadius: radius.xl + 4, overflow: 'hidden' },
   hero: { width: '100%', height: 220 },
   heroPh: { alignItems: 'center', justifyContent: 'center' },
   heroGrad: { ...StyleSheet.absoluteFill },
-  name: { fontFamily: fonts.display, fontSize: 28, color: ink[900], letterSpacing: -0.8 },
+  name: { fontFamily: fonts.display, fontSize: 26, color: ink[900], letterSpacing: -0.6 },
   priceRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 8 },
   price: { fontFamily: fonts.extrabold, fontSize: 22, color: brand[600] },
   availBadge: {
@@ -190,16 +287,69 @@ const styles = StyleSheet.create({
   },
   offText: { fontFamily: fonts.bold, fontSize: 11, color: ink[500] },
   desc: { marginTop: 14, fontFamily: fonts.medium, fontSize: 15, color: ink[600], lineHeight: 22 },
+  guaranteeBox: {
+    marginTop: 18,
+    padding: 16,
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(251,146,60,0.25)',
+  },
+  guaranteeHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  guaranteeTitle: { fontFamily: fonts.bold, fontSize: 14, color: brand[800] },
+  guaranteeSub: { fontFamily: fonts.medium, fontSize: 12, color: ink[600], lineHeight: 18 },
+  badgesRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, gap: 8 },
+  badgeItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: ink[200],
+  },
+  badgeEmoji: { fontSize: 13 },
+  badgeLabel: { fontFamily: fonts.bold, fontSize: 11, color: ink[700] },
   ingredientsBox: {
     marginTop: 18,
     padding: 16,
-    backgroundColor: ink[50],
+    backgroundColor: 'rgba(255,255,255,0.7)',
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: ink[100],
+    borderColor: ink[200],
   },
-  ingredientsTitle: { fontFamily: fonts.bold, fontSize: 13, color: ink[700], marginBottom: 6 },
-  ingredients: { fontFamily: fonts.medium, fontSize: 14, color: ink[500], lineHeight: 21 },
+  ingredientsTitle: { fontFamily: fonts.bold, fontSize: 13, color: ink[700], marginBottom: 8 },
+  ingredientsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  ingredientChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: ink[200],
+    gap: 6,
+    shadowColor: ink[900],
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  ingredientEmoji: {
+    fontSize: 14,
+  },
+  ingredientText: {
+    fontFamily: fonts.semibold,
+    fontSize: 12,
+    color: ink[700],
+  },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',

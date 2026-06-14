@@ -319,6 +319,7 @@ export type Order = {
   totalDh?: number | string;
   subtotalDh?: number | string;
   items?: Array<{ id: string; name: string; price: number | string; qty: number; img?: string }>;
+  scheduledDeliveryAt?: string | null;
   customer?: { name?: string; address?: string; phone?: string; email?: string };
   courierId?: string | number | null;
   courierName?: string;
@@ -326,6 +327,23 @@ export type Order = {
   cancellationReason?: string;
   [key: string]: unknown;
 };
+
+function normalizeOrder(o: Record<string, unknown>): Order {
+  const items = Array.isArray(o.items)
+    ? (o.items as Record<string, unknown>[]).map((item) => ({
+        id: String(item.id ?? ''),
+        name: String(item.name ?? ''),
+        price: (item.price as string | number) ?? 0,
+        qty: typeof item.qty === 'number' ? item.qty : 1,
+        img: mediaUrl(item.img as string),
+      }))
+    : [];
+
+  return {
+    ...(o as Order),
+    items,
+  };
+}
 
 function normalizeRestaurant(r: Record<string, unknown>): Restaurant {
   const slug = String(r.slug ?? r.id ?? '');
@@ -517,18 +535,20 @@ export const restaurantsApi = {
 
 export const ordersApi = {
   async list() {
-    return unwrapList(await apiFetch('/orders/')) as Order[];
+    const raw = unwrapList(await apiFetch('/orders/'));
+    return (raw as Record<string, unknown>[]).map(normalizeOrder);
   },
 
   async guestList(publicIds: string[]) {
     if (!publicIds.length) return [] as Order[];
-    return unwrapList(
+    const raw = unwrapList(
       await apiFetch('/orders/guest/', {
         method: 'POST',
         body: { public_ids: publicIds },
         auth: false,
       }),
-    ) as Order[];
+    );
+    return (raw as Record<string, unknown>[]).map(normalizeOrder);
   },
 
   async subscribePush(token: string, publicIds: string[], platform?: string) {
@@ -543,7 +563,8 @@ export const ordersApi = {
   async get(publicId: string) {
     const tokens = await getTokens();
     if (tokens?.access) {
-      return apiFetch<Order>(`/orders/${publicId}/`);
+      const raw = await apiFetch<Record<string, unknown>>(`/orders/${publicId}/`);
+      return normalizeOrder(raw);
     }
     const guest = await ordersApi.guestList([publicId]);
     if (guest[0]) return guest[0];
@@ -552,11 +573,12 @@ export const ordersApi = {
 
   async checkout(payload: Record<string, unknown>) {
     const tokens = await getTokens();
-    return apiFetch<Order>('/orders/checkout/', {
+    const raw = await apiFetch<Record<string, unknown>>('/orders/checkout/', {
       method: 'POST',
       body: payload,
       auth: !!tokens?.access,
     });
+    return normalizeOrder(raw);
   },
 
   async updateStatus(publicId: string, status: string, note = '') {
@@ -583,5 +605,9 @@ export const ordersApi = {
       method: 'PATCH',
       body: { status: 'cancelled', note: reason },
     });
+  },
+
+  async sendToRestaurant(publicId: string) {
+    return apiFetch(`/orders/${publicId}/send-to-restaurant/`, { method: 'POST', body: {} });
   },
 };

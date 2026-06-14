@@ -9,6 +9,8 @@ import { DEFAULT_ETA } from '../../lib/constants';
 import { brand, gradients, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
 import { SearchBarWow } from './SearchBarWow';
+import { DiscoverFloatEmojis } from './DiscoverFloatEmojis';
+import { hapticLight } from '../../lib/haptics';
 
 function timeGreeting() {
   const h = new Date().getHours();
@@ -25,6 +27,7 @@ type Props = {
   onQueryChange: (q: string) => void;
   activeOrder: Order | null;
   topInset: number;
+  onPromoPress?: () => void;
 };
 
 export function DiscoverHero({
@@ -35,6 +38,7 @@ export function DiscoverHero({
   onQueryChange,
   activeOrder,
   topInset,
+  onPromoPress,
 }: Props) {
   const hasLive = !!activeOrder;
 
@@ -46,6 +50,7 @@ export function DiscoverHero({
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       />
+      <DiscoverFloatEmojis />
       {hasLive ? <LiveOrderChip order={activeOrder} /> : null}
 
       <View style={styles.topRow}>
@@ -69,15 +74,28 @@ export function DiscoverHero({
       <Text style={styles.title}>
         Salut <Text style={styles.nameGradient}>{name}</Text> 👋
       </Text>
-      <Text style={styles.hook}>La faim ? On s&apos;occupe de tout.</Text>
+      <Text style={styles.hook}>Une faim de loup ? 🐺 Vos plats préférés livrés chez vous ou au bureau, chaud et croustillant en 20 min chrono !</Text>
       <View style={styles.pills}>
         <View style={styles.pill}>
           <Text style={styles.pillText}>📍 CHU-Tanger</Text>
         </View>
         <PulseBadge label={DEFAULT_ETA} emoji="🛵" />
         <View style={styles.pillBike}>
-          <Text style={styles.pillBikeText}>0 DH livraison</Text>
+          <Text style={styles.pillBikeText}>Livraison 100% OFFERTE</Text>
         </View>
+        <Pressable
+          onPress={() => {
+            hapticLight();
+            onPromoPress?.();
+          }}
+          style={({ pressed }) => [
+            styles.pillPromo,
+            pressed && { opacity: 0.8 },
+          ]}
+        >
+          <View style={styles.promoDot} />
+          <Text style={styles.pillPromoText}>🔥 PROMOS ACTIVES</Text>
+        </Pressable>
       </View>
 
       <SearchBarWow value={query} onChange={onQueryChange} />
@@ -166,4 +184,26 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(248,113,113,0.3)',
   },
   pillBikeText: { fontFamily: fonts.bold, fontSize: 11, color: '#fca5a5' },
+  pillPromo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: radius.full,
+    backgroundColor: 'rgba(244,63,94,0.18)',
+    borderWidth: 1,
+    borderColor: 'rgba(251,113,133,0.35)',
+  },
+  promoDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#f43f5e',
+  },
+  pillPromoText: {
+    fontFamily: fonts.bold,
+    fontSize: 11,
+    color: '#fda4af',
+  },
 });

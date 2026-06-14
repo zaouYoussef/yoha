@@ -9,7 +9,7 @@ import { hapticLight } from '../../lib/haptics';
 import { brand, gradients, ink, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
 
-export function DiscoverBento({
+export const DiscoverBento = React.memo(function DiscoverBento({
   restaurants,
   activeOrder,
 }: {
@@ -17,7 +17,7 @@ export function DiscoverBento({
   activeOrder: Order | null;
 }) {
   const [idx, setIdx] = useState(0);
-  const spot = restaurants[0];
+  const spot = restaurants[idx] || restaurants[0];
   const trackStep = activeOrder
     ? CLIENT_TRACK_STEPS.indexOf(activeOrder.status)
     : -1;
@@ -47,14 +47,14 @@ export function DiscoverBento({
               {restaurants.length > 1 ? (
                 <View style={styles.dots}>
                   {restaurants.slice(0, 5).map((r, i) => (
-                    <Pressable key={r.slug} onPress={() => setIdx(i)} hitSlop={6}>
+                    <Pressable key={r.slug} onPress={() => { hapticLight(); setIdx(i); }} hitSlop={6}>
                       <View style={[styles.dot, i === idx && styles.dotActive]} />
                     </Pressable>
                   ))}
                 </View>
               ) : null}
               <Text style={styles.spotName}>{spot.name}</Text>
-              <Text style={styles.spotCta}>Commander maintenant →</Text>
+              <Text style={styles.spotCta}>Découvrir la carte →</Text>
             </View>
           </View>
         </Pressable>
@@ -90,34 +90,40 @@ export function DiscoverBento({
         </Pressable>
 
         <LinearGradient colors={[...gradients.cta]} style={[styles.statCard, shadows.glowOrange]}>
-          <Text style={styles.statLabel}>Livraison moy.</Text>
+          <Text style={styles.statLabel}>LIVRAISON ÉCLAIR ⚡</Text>
           <Text style={styles.statValue}>
             26<Text style={styles.statUnit}>min</Text>
           </Text>
-          <Text style={styles.statSub}>⚡ {DEFAULT_ETA} sur le campus</Text>
+          <Text style={styles.statSub}>🛵 Moyenne sur le campus</Text>
         </LinearGradient>
       </View>
 
       <View style={styles.row3}>
         <View style={[styles.communityCard, shadows.soft]}>
-          <Text style={styles.communityLabel}>COMMUNAUTÉ</Text>
+          <Text style={styles.communityLabel}>REJOIGNEZ LA TRIBU</Text>
           <Text style={styles.communityValue}>12 000+</Text>
-          <Text style={styles.communitySub}>étudiants & soignants</Text>
+          <Text style={styles.communitySub}>étudiants & soignants régalés</Text>
           <Text style={styles.communityAvatars}>👩‍🎓👨‍⚕️👩‍⚕️🧑‍🎓</Text>
         </View>
-        <LinearGradient colors={['#fff7ed', '#ffedd5']} style={[styles.freeCard, shadows.soft]}>
-          <Text style={styles.freeEmoji}>🛵</Text>
-          <Text style={styles.freeTitle}>0 DH livraison</Text>
-          <Text style={styles.freeSub}>Tout le campus CHU</Text>
+        <LinearGradient colors={['rgba(255,247,237,0.95)', 'rgba(255,237,213,0.85)']} style={[styles.freeCard, shadows.soft]}>
+          <Text style={styles.freeEmoji}>🚀</Text>
+          <Text style={styles.freeTitle}>Livraison 0 DH</Text>
+          <Text style={styles.freeSub}>Zéro frais caché sur le campus</Text>
         </LinearGradient>
       </View>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   grid: { gap: 12, marginBottom: 22 },
-  spotlight: { height: 240, borderRadius: radius.xl + 6, overflow: 'hidden' },
+  spotlight: {
+    height: 240,
+    borderRadius: radius.xl + 6,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+  },
   spotRibbon: {
     position: 'absolute',
     top: 14,
@@ -145,7 +151,13 @@ const styles = StyleSheet.create({
   spotName: { fontFamily: fonts.display, fontSize: 28, color: '#fff', letterSpacing: -0.8 },
   spotCta: { marginTop: 6, fontFamily: fonts.bold, fontSize: 13, color: '#fdba74' },
   row2: { flexDirection: 'row', gap: 12 },
-  trackCard: { borderRadius: radius.xl + 2, padding: 16, minHeight: 168 },
+  trackCard: {
+    borderRadius: radius.xl + 2,
+    padding: 16,
+    minHeight: 168,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
   liveRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.25)' },
   liveDotOn: { backgroundColor: '#4ade80' },
@@ -165,17 +177,24 @@ const styles = StyleSheet.create({
   row3: { flexDirection: 'row', gap: 12 },
   communityCard: {
     flex: 1.2,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.85)',
     borderRadius: radius.xl + 2,
     padding: 16,
     borderWidth: 1,
-    borderColor: ink[100],
+    borderColor: 'rgba(255,255,255,0.6)',
   },
   communityLabel: { fontFamily: fonts.bold, fontSize: 9, color: ink[400], letterSpacing: 1 },
   communityValue: { fontFamily: fonts.display, fontSize: 28, color: ink[900], marginTop: 4 },
   communitySub: { fontFamily: fonts.medium, fontSize: 11, color: ink[500] },
   communityAvatars: { fontSize: 16, marginTop: 8 },
-  freeCard: { flex: 1, borderRadius: radius.xl + 2, padding: 16, justifyContent: 'center', borderWidth: 1, borderColor: brand[100] },
+  freeCard: {
+    flex: 1,
+    borderRadius: radius.xl + 2,
+    padding: 16,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(253,186,116,0.3)',
+  },
   freeEmoji: { fontSize: 28 },
   freeTitle: { fontFamily: fonts.extrabold, fontSize: 15, color: brand[800], marginTop: 6 },
   freeSub: { fontFamily: fonts.medium, fontSize: 11, color: brand[600], marginTop: 2 },

@@ -6,11 +6,11 @@ import { ink } from '../../theme';
 import { fonts } from '../../theme/fonts';
 import { CompactRestaurantCard } from './CompactRestaurantCard';
 
-export function FavoritesRow({ restaurants }: { restaurants: Restaurant[] }) {
+export const FavoritesRow = React.memo(function FavoritesRow({ restaurants }: { restaurants: Restaurant[] }) {
   if (!restaurants.length) return null;
 
   return (
-    <View>
+    <View style={{ marginBottom: 20 }}>
       <View style={styles.head}>
         <Text style={styles.title}>❤️ Tes favoris</Text>
         <Text style={styles.sub}>Retrouve tes adresses préférées</Text>
@@ -26,7 +26,10 @@ export function FavoritesRow({ restaurants }: { restaurants: Restaurant[] }) {
       </ScrollView>
     </View>
   );
-}
+}, (prev, next) => {
+  if (prev.restaurants.length !== next.restaurants.length) return false;
+  return prev.restaurants.every((r, idx) => r.slug === next.restaurants[idx].slug);
+});
 
 const styles = StyleSheet.create({
   head: { marginBottom: 14, marginTop: 4 },

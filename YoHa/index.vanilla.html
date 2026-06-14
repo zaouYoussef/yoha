@@ -135,6 +135,12 @@
     -webkit-background-clip:text; background-clip:text; color:transparent;
     animation:gradient-x 8s ease infinite;
   }
+  .text-glow {
+    text-shadow: 0 0 20px rgba(249, 115, 22, 0.25), 0 0 40px rgba(236, 72, 153, 0.15);
+  }
+  .text-glow-slow {
+    text-shadow: 0 0 25px rgba(249, 115, 22, 0.2), 0 0 50px rgba(236, 72, 153, 0.1);
+  }
 
   .btn-shine { position:relative; overflow:hidden; }
   .btn-shine::after {
@@ -894,10 +900,8 @@ function App() {
                 <CampusHospitalsSection />
               </div>
             )}
-
-            {!isDashboard && <Footer goto={goto} />}
-
             {!isDashboard && (
+
               <BottomNav active={view.name} onHome={() => goto('home')} onSearch={() => goto('home')} onCart={() => setCartOpen(true)} cartCount={cartCount} />
             )}
 
@@ -1410,7 +1414,7 @@ function Hero({ onStart }) {
 
           <h1 className="mt-6 font-display font-black tracking-tight text-5xl sm:text-6xl lg:text-7xl leading-[0.95]">
             <AnimatedHeading text="YouHa." gradient />
-            <span className="block mt-3 text-ink-900 dark:text-ink-50">
+            <span className="block mt-3 text-ink-900 dark:text-ink-50 min-h-[3.3em] sm:min-h-[1.2em] lg:min-h-[1.15em] text-glow leading-snug">
               {typed}<span className="caret align-baseline" style={{ height:'0.85em' }}></span>
             </span>
           </h1>
@@ -1464,15 +1468,10 @@ function Hero({ onStart }) {
 
 /* === Animated heading — char-by-char reveal === */
 function AnimatedHeading({ text, gradient }) {
-  const chars = text.split('');
   return (
-    <span className={`block ${gradient ? 'text-gradient' : ''}`}>
-      <span className="word-anim">
-        {chars.map((c, i) => (
-          <span key={i} className="animate-char-up" style={{ animationDelay: (i * 70) + 'ms' }}>
-            {c === ' ' ? ' ' : c}
-          </span>
-        ))}
+    <span className="block animate-char-up">
+      <span className={`block ${gradient ? 'text-gradient text-glow' : ''}`}>
+        {text}
       </span>
     </span>
   );
@@ -2201,7 +2200,6 @@ function SearchBar({ value, onChange }) {
             <I.X size={16}/>
           </button>
         )}
-        <span className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-semibold bg-ink-100 dark:bg-ink-800 text-ink-500">⌘K</span>
       </div>
     </div>
   );
@@ -2897,16 +2895,27 @@ function Tilt({ children, max = 8, className = "" }) {
   useEffect(() => {
     const el = ref.current; if (!el) return;
     if (window.matchMedia('(pointer: coarse)').matches) return;
+    let isClicking = false;
     const onMove = (e) => {
+      if (isClicking) return;
       const r = el.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width - 0.5;
       const y = (e.clientY - r.top ) / r.height - 0.5;
       el.style.transform = `perspective(1100px) rotateX(${-y*max}deg) rotateY(${x*max}deg) translateY(-3px)`;
     };
-    const onLeave = () => { el.style.transform = ''; };
+    const onLeave = () => { if (!isClicking) el.style.transform = ''; };
+    const onDown = () => { isClicking = true; };
+    const onUp = () => { isClicking = false; };
     el.addEventListener('mousemove', onMove);
     el.addEventListener('mouseleave', onLeave);
-    return () => { el.removeEventListener('mousemove', onMove); el.removeEventListener('mouseleave', onLeave); };
+    el.addEventListener('mousedown', onDown);
+    window.addEventListener('mouseup', onUp);
+    return () => {
+      el.removeEventListener('mousemove', onMove);
+      el.removeEventListener('mouseleave', onLeave);
+      el.removeEventListener('mousedown', onDown);
+      window.removeEventListener('mouseup', onUp);
+    };
   }, [max]);
   return <div ref={ref} className={`tilt-3d ${className}`}>{children}</div>;
 }
@@ -2916,16 +2925,27 @@ function Magnetic({ children, strength = 25 }) {
   useEffect(() => {
     const el = ref.current; if (!el) return;
     if (window.matchMedia('(pointer: coarse)').matches) return;
+    let isClicking = false;
     const onMove = (e) => {
+      if (isClicking) return;
       const r = el.getBoundingClientRect();
       const x = e.clientX - r.left - r.width/2;
       const y = e.clientY - r.top  - r.height/2;
       el.style.transform = `translate(${x/strength}px, ${y/strength}px)`;
     };
-    const onLeave = () => { el.style.transform = ''; };
+    const onLeave = () => { if (!isClicking) el.style.transform = ''; };
+    const onDown = () => { isClicking = true; };
+    const onUp = () => { isClicking = false; };
     el.addEventListener('mousemove', onMove);
     el.addEventListener('mouseleave', onLeave);
-    return () => { el.removeEventListener('mousemove', onMove); el.removeEventListener('mouseleave', onLeave); };
+    el.addEventListener('mousedown', onDown);
+    window.addEventListener('mouseup', onUp);
+    return () => {
+      el.removeEventListener('mousemove', onMove);
+      el.removeEventListener('mouseleave', onLeave);
+      el.removeEventListener('mousedown', onDown);
+      window.removeEventListener('mouseup', onUp);
+    };
   }, [strength]);
   return <div ref={ref} className="magnetic inline-block">{children}</div>;
 }
