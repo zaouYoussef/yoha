@@ -97,9 +97,9 @@ export function MenuItemSheet({
 
   const handleAdd = () => {
     if (unavailable) return;
-    hapticSuccess();
     onAdd(qty);
     onClose();
+    hapticSuccess();
   };
 
   return (

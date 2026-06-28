@@ -23,7 +23,6 @@ import {
 } from '../../lib/constants';
 import { brand, ink, radius, shadows } from '../../theme';
 import { parseAmount } from '../../lib/courierOrder';
-import { brand, ink, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
 import { StatusPill } from '../StatusPill';
 import { YohaButton } from '../ui/YohaButton';

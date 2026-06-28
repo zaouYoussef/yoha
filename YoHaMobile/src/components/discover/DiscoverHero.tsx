@@ -85,8 +85,8 @@ export function DiscoverHero({
         </View>
         <Pressable
           onPress={() => {
-            hapticLight();
             onPromoPress?.();
+            hapticLight();
           }}
           style={({ pressed }) => [
             styles.pillPromo,

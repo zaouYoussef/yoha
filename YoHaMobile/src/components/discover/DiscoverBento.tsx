@@ -24,8 +24,8 @@ export const DiscoverBento = React.memo(function DiscoverBento({
 
   const openSpot = () => {
     if (!spot) return;
-    hapticLight();
     router.push(`/(client)/restaurant/${spot.slug}` as never);
+    hapticLight();
   };
 
   return (
@@ -47,7 +47,7 @@ export const DiscoverBento = React.memo(function DiscoverBento({
               {restaurants.length > 1 ? (
                 <View style={styles.dots}>
                   {restaurants.slice(0, 5).map((r, i) => (
-                    <Pressable key={r.slug} onPress={() => { hapticLight(); setIdx(i); }} hitSlop={6}>
+                    <Pressable key={r.slug} onPress={() => { setIdx(i); hapticLight(); }} hitSlop={6}>
                       <View style={[styles.dot, i === idx && styles.dotActive]} />
                     </Pressable>
                   ))}

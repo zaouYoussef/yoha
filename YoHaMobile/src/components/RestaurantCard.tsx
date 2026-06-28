@@ -39,7 +39,7 @@ export const RestaurantCard = React.memo(function RestaurantCard({
     setFav(await toggleFavorite(restaurant.slug));
   };
 
-  const fee = restaurant.fee || 'Livraison offerte';
+  const fee = restaurant.cuisine === 'pharmacy' || restaurant.cuisine === 'dessert' ? '20 DH' : (restaurant.fee || 'Offerte');
   const promo = restaurant.promo || '';
   const openStatus = restaurantOpenStatus(restaurant.openingHours);
   const isOpen = restaurant.isOpen ?? openStatus.isOpen;
@@ -47,7 +47,7 @@ export const RestaurantCard = React.memo(function RestaurantCard({
 
   const card = (
     <Pressable
-      onPress={() => { hapticLight(); onPress(); }}
+      onPress={() => { onPress(); hapticLight(); }}
       style={({ pressed }) => [
         featured ? shadows.glow : (promo ? styles.promoGlow : shadows.float),
         styles.outer,

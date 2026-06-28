@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { I } from '@/icons/Icons.jsx';
 import { MenuItemImage } from './MenuItemImage.jsx';
 import { formatMad } from '@/data/index.js';
-import { rippleEffect } from '@/utils/ripple.js';
+
 import { useCart } from '@/contexts/AppContexts.jsx';
 
 const CATEGORY_GLOW = {
@@ -39,7 +39,6 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
   const handleAdd = (e) => {
     if (orderingDisabled) return;
     onAdd?.(item, restaurant, e.currentTarget);
-    rippleEffect(e);
   };
 
   const glowClass = CATEGORY_GLOW[restaurant?.cuisine] || 'from-brand-500/10 to-orange-500/10';
@@ -67,7 +66,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
           <MenuItemImage
             src={item.img}
             alt={item.name}
-            className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/25" />
           
@@ -75,7 +74,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
           <button
             type="button"
             onClick={onClose}
-            className="cursor-grow absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md text-white grid place-items-center hover:bg-brand-500 hover:scale-110 active:scale-95 transition-all duration-300 shadow-md"
+            className="cursor-grow absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md text-white grid place-items-center hover:bg-brand-500 active:scale-95 transition-transform duration-300 shadow-md"
             aria-label="Fermer"
           >
             <I.X size={18} />
@@ -112,7 +111,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
           )}
 
           {/* Pricing and Cart Actions */}
-          <div className="pt-5 border-t border-ink-150 dark:border-ink-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="pt-5 border-t border-ink-200 dark:border-ink-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex flex-col">
               <span className="text-[10px] font-black uppercase tracking-wider text-ink-400">Prix unitaire</span>
               <span className="font-display font-black text-2xl text-ink-900 dark:text-white mt-0.5">{formatMad(item.price)}</span>
@@ -123,7 +122,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
                 <button
                   type="button"
                   disabled
-                  className="w-full inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl font-bold bg-ink-100 text-ink-400 dark:bg-ink-850 dark:text-ink-500 cursor-not-allowed border border-ink-200/40 dark:border-ink-800"
+                  className="w-full inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl font-bold bg-ink-100 text-ink-400 dark:bg-ink-900 dark:text-ink-500 cursor-not-allowed border border-ink-200/40 dark:border-ink-800"
                 >
                   Restaurant fermé
                 </button>
@@ -131,7 +130,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
                 <button
                   type="button"
                   onClick={handleAdd}
-                  className="cursor-grow ripple w-full inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl font-bold text-sm bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 text-white shadow-glow hover:scale-[1.02] active:scale-95 transition-all duration-300"
+                  className="cursor-grow w-full inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl font-bold text-sm bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 text-white shadow-glow active:scale-95 transition-transform"
                 >
                   <I.Plus size={16} stroke={3} />
                   <span>Ajouter au panier</span>
@@ -141,7 +140,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
                   <button
                     type="button"
                     onClick={() => setQty(item.id, quantity - 1)}
-                    className="cursor-grow w-9 h-9 rounded-lg bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 text-ink-600 dark:text-ink-400 font-black text-base grid place-items-center hover:scale-105 active:scale-95 shadow-sm transition-all"
+                    className="cursor-grow w-9 h-9 rounded-lg bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 text-ink-600 dark:text-ink-400 font-black text-base grid place-items-center active:scale-95 shadow-sm transition-transform"
                   >
                     -
                   </button>
@@ -151,7 +150,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
                   <button
                     type="button"
                     onClick={() => setQty(item.id, quantity + 1)}
-                    className="cursor-grow w-9 h-9 rounded-lg bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 text-ink-600 dark:text-ink-400 font-black text-base grid place-items-center hover:scale-105 active:scale-95 shadow-sm transition-all"
+                    className="cursor-grow w-9 h-9 rounded-lg bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 text-ink-600 dark:text-ink-400 font-black text-base grid place-items-center active:scale-95 shadow-sm transition-transform"
                   >
                     +
                   </button>

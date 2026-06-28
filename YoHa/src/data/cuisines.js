@@ -9,6 +9,9 @@ export const CUISINES = [
   { id:'sushi',   label:'Sushi',    emoji:'🍣' },
   { id:'medical', label:'MedEat',   emoji:'🏥' },
   { id:'pharmacy', label:'Pharmacies', emoji:'💊' },
+  { id:'parapharmacy', label:'Parapharmacie', emoji:'🌿' },
+  { id:'supermarket', label:'Supermarché', emoji:'🛒' },
+  { id:'shop',    label:'Magasins',   emoji:'🛍️' },
   { id:'dessert', label:'Dessert',  emoji:'🍰' },
   { id:'drinks',  label:'Boissons', emoji:'🥤' },
 ];

@@ -17,7 +17,10 @@ export function Navbar({
   onLogo,
   onHome,
   onPharmacy,
+  onParapharmacy,
   onPastry,
+  onSupermarket,
+  onShop,
   goto,
   liveOrder,
   onLiveOrder,
@@ -41,29 +44,55 @@ export function Navbar({
       }`}>
         <button onClick={onLogo} className="group flex min-w-0 shrink cursor-grow items-center gap-2">
           <Logo />
-          <span className="hidden min-[385px]:inline truncate font-display text-lg font-extrabold tracking-tight sm:text-xl text-ink-900 dark:text-white group-hover:text-brand-500 transition-colors duration-300">YouHa</span>
         </button>
 
         <button
           type="button"
           onClick={onHome}
-          className="cursor-grow hidden md:inline-flex ml-6 items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300"
+          className="cursor-grow hidden md:inline-flex ml-4 items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
         >
-          <span>🍔</span> Restaurants
+          <span>🍔</span>
+          <span className="hidden lg:inline">Restos</span>
         </button>
         <button
           type="button"
           onClick={onPharmacy}
-          className="cursor-grow hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300"
+          className="cursor-grow hidden md:inline-flex items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
         >
-          <span>💊</span> Pharmacies
+          <span>💊</span>
+          <span className="hidden lg:inline">Pharmacie</span>
+        </button>
+        <button
+          type="button"
+          onClick={onParapharmacy}
+          className="cursor-grow hidden md:inline-flex items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
+        >
+          <span>🌿</span>
+          <span className="hidden lg:inline">Parapharma</span>
         </button>
         <button
           type="button"
           onClick={onPastry}
-          className="cursor-grow hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300"
+          className="cursor-grow hidden md:inline-flex items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
         >
-          <span>🥐</span> Pâtisseries
+          <span>🥐</span>
+          <span className="hidden lg:inline">Pâtisserie</span>
+        </button>
+        <button
+          type="button"
+          onClick={onSupermarket}
+          className="cursor-grow hidden md:inline-flex items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
+        >
+          <span>🛒</span>
+          <span className="hidden lg:inline">Supermarché</span>
+        </button>
+        <button
+          type="button"
+          onClick={onShop}
+          className="cursor-grow hidden md:inline-flex items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
+        >
+          <span>🛍️</span>
+          <span className="hidden lg:inline">Magasins</span>
         </button>
 
         <div className="ml-auto flex min-w-0 items-center gap-1 sm:gap-2">
@@ -73,7 +102,7 @@ export function Navbar({
               onClick={onMyOrders}
               aria-label="Mes commandes"
               title="Mes commandes"
-              className="cursor-grow w-10 h-10 rounded-xl hidden md:flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-all duration-300 text-ink-700 dark:text-ink-200"
+              className="cursor-grow w-10 h-10 rounded-xl hidden md:flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 text-ink-700 dark:text-ink-200"
             >
               <I.Receipt size={20}/>
             </button>
@@ -100,7 +129,7 @@ export function Navbar({
               type="button"
               onClick={() => goto('admin')}
               aria-label="Tableau de bord gérant"
-              className="cursor-grow w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-all duration-300 text-ink-700 dark:text-ink-200"
+              className="cursor-grow w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 text-ink-700 dark:text-ink-200"
             >
               <I.LayoutDashboard size={20}/>
             </button>
@@ -110,7 +139,7 @@ export function Navbar({
               type="button"
               onClick={() => goto('delivery')}
               aria-label="Tableau de bord livreur"
-              className="cursor-grow w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-all duration-300 text-ink-700 dark:text-ink-200"
+              className="cursor-grow w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 text-ink-700 dark:text-ink-200"
             >
               <I.LayoutDashboard size={20}/>
             </button>
@@ -120,7 +149,7 @@ export function Navbar({
               type="button"
               onClick={() => goto('restaurant-dash')}
               aria-label="Tableau de bord restaurant"
-              className="cursor-grow w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-all duration-300 text-ink-700 dark:text-ink-200"
+              className="cursor-grow w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 text-ink-700 dark:text-ink-200"
             >
               <I.LayoutDashboard size={20}/>
             </button>
@@ -129,7 +158,7 @@ export function Navbar({
           <button
             onClick={() => setDark(d => !d)}
             aria-label="Changer le thème"
-            className="cursor-grow relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-all duration-300 group text-ink-700 dark:text-ink-200"
+            className="cursor-grow relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 group text-ink-700 dark:text-ink-200"
           >
             <span className={`absolute transition-all duration-500 ${dark ? 'opacity-0 -rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'}`}>
               <I.Sun size={20}/>
@@ -139,7 +168,7 @@ export function Navbar({
             </span>
           </button>
 
-          <button ref={cartIconRef} onClick={onCart} className={`cursor-grow relative w-10 h-10 rounded-xl hidden md:flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-all duration-300 text-ink-700 dark:text-ink-200 ${cartShake ? 'cart-shake' : ''}`}>
+          <button ref={cartIconRef} onClick={onCart} className={`cursor-grow relative w-10 h-10 rounded-xl hidden md:flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 text-ink-700 dark:text-ink-200 ${cartShake ? 'cart-shake' : ''}`}>
             <I.Cart size={20}/>
             {cartCount > 0 && (
               <span key={cartCount} className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white grid place-items-center animate-pop shadow-glow">
@@ -158,7 +187,7 @@ export function Navbar({
                 <button
                   type="button"
                   onClick={() => logout()}
-                  className="cursor-grow px-3 py-2 rounded-xl text-xs font-semibold border border-ink-200 dark:border-ink-700 hover:bg-red-500/10 hover:text-red-600 hover:border-red-500/30 dark:hover:bg-red-500/15 dark:hover:text-red-400 dark:hover:border-red-500/35 transition-all duration-300"
+                  className="cursor-grow px-3 py-2 rounded-xl text-xs font-semibold border border-ink-200 dark:border-ink-700 hover:bg-red-500/10 hover:text-red-600 hover:border-red-500/30 dark:hover:bg-red-500/15 dark:hover:text-red-400 dark:hover:border-red-500/35 transition-colors duration-300"
                 >
                   Déconnexion
                 </button>
@@ -168,7 +197,7 @@ export function Navbar({
                 onClick={() => logout()}
                 aria-label="Déconnexion"
                 title="Déconnexion"
-                className="cursor-grow sm:hidden w-10 h-10 rounded-xl flex items-center justify-center hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/15 dark:hover:text-red-400 transition-all duration-300 text-ink-700 dark:text-ink-200"
+                className="cursor-grow sm:hidden w-10 h-10 rounded-xl flex items-center justify-center hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/15 dark:hover:text-red-400 transition-colors duration-300 text-ink-700 dark:text-ink-200"
               >
                 <I.LogOut size={20}/>
               </button>
@@ -178,7 +207,7 @@ export function Navbar({
               <button
                 type="button"
                 onClick={() => goto('auth')}
-                className="cursor-grow inline-flex items-center gap-2 ml-1 p-2.5 sm:px-4 sm:py-2 rounded-xl text-sm font-semibold bg-ink-900 text-white dark:bg-white dark:text-ink-900 hover:opacity-90 transition btn-shine"
+                className="cursor-grow inline-flex items-center gap-2 ml-1 p-2.5 sm:px-4 sm:py-2 rounded-xl text-sm font-semibold bg-ink-900 text-white dark:bg-white dark:text-ink-900 hover:opacity-90 transition-opacity"
               >
                 <I.User size={16}/>
                 <span className="hidden sm:inline">Connexion</span>

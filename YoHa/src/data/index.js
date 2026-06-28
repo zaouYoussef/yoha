@@ -7,3 +7,4 @@ export { CAMPUS_HOSPITALS } from './campusHospitals.js';
 export * from './orderConstants.js';
 export * from './openingHours.js';
 export * from './chartMocks.js';
+export { STATIC_STORES } from './staticStores.js';

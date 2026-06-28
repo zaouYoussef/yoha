@@ -31,7 +31,7 @@ function buildPath(name, params = {}) {
       return `/auth${q}`;
     }
     case 'admin':
-      return '/admin';
+      return '/youssef';
     case 'delivery':
       return '/delivery';
     case 'restaurant-dash':

@@ -2,7 +2,8 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { authApi, YoHaUser } from '../lib/api';
 import { ADMIN_MOBILE_BLOCKED_MSG, isAdminRole } from '../lib/constants';
 
-async function rejectAdminSession(user: YoHaUser): Promise<YoHaUser> {
+async function rejectAdminSession(user: YoHaUser | null): Promise<YoHaUser | null> {
+  if (!user) return null;
   if (!isAdminRole(user.role)) return user;
   await authApi.logout();
   throw new Error(ADMIN_MOBILE_BLOCKED_MSG);
@@ -11,13 +12,9 @@ async function rejectAdminSession(user: YoHaUser): Promise<YoHaUser> {
 type AuthContextValue = {
   user: YoHaUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<YoHaUser>;
-  register: (email: string, password: string, displayName: string) => Promise<YoHaUser>;
-  loginWithGoogle: (idToken: string) => Promise<YoHaUser>;
-  loginWithApple: (
-    identityToken: string,
-    fullName?: { givenName: string; familyName: string },
-  ) => Promise<YoHaUser>;
+  login: (email: string, password: string) => Promise<YoHaUser | null>;
+  register: (email: string, password: string, displayName: string) => Promise<YoHaUser | null>;
+  loginWithGoogle: (idToken: string) => Promise<YoHaUser | null>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 };
@@ -78,17 +75,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return u;
   }, []);
 
-  const loginWithApple = useCallback(
-    async (identityToken: string, fullName?: { givenName: string; familyName: string }) => {
-      const u = await rejectAdminSession(
-        await authApi.loginWithApple(identityToken, fullName),
-      );
-      setUser(u);
-      return u;
-    },
-    [],
-  );
-
   const logout = useCallback(async () => {
     try {
       const { unregisterPushToken } = await import('../lib/pushRegistration');
@@ -107,11 +93,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       register,
       loginWithGoogle,
-      loginWithApple,
       logout,
       refreshUser,
     }),
-    [user, loading, login, register, loginWithGoogle, loginWithApple, logout, refreshUser],
+    [user, loading, login, register, loginWithGoogle, logout, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

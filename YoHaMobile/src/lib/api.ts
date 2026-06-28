@@ -261,11 +261,14 @@ export async function apiFetch<T = unknown>(
 
 export function mapUser(apiUser: Record<string, unknown> | null): YoHaUser | null {
   if (!apiUser) return null;
+  const validRoles: YoHaUser['role'][] = ['client', 'courier', 'restaurant', 'admin'];
+  const role = String(apiUser.role || '');
+  if (!validRoles.includes(role as YoHaUser['role'])) return null;
   return {
     id: String(apiUser.id),
     email: String(apiUser.email),
     displayName: String(apiUser.display_name || apiUser.displayName || ''),
-    role: apiUser.role as YoHaUser['role'],
+    role: role as YoHaUser['role'],
   };
 }
 
@@ -287,6 +290,7 @@ export type Restaurant = {
   openingHours?: OpeningHoursMap;
   isOpen?: boolean;
   openLabel?: string;
+  isCustomRequest?: boolean;
   [key: string]: unknown;
 };
 
@@ -395,7 +399,7 @@ export const authApi = {
     });
     await setTokens({ access: data.access, refresh: data.refresh });
     const me = await apiFetch<Record<string, unknown>>('/auth/me/');
-    return mapUser(me)!;
+    return mapUser(me);
   },
 
   async register(email: string, password: string, displayName: string) {
@@ -445,28 +449,9 @@ export const authApi = {
       auth: false,
     });
     await setTokens({ access: data.access, refresh: data.refresh });
-    return mapUser(data.user)!;
+    return mapUser(data.user);
   },
 
-  async loginWithApple(
-    identityToken: string,
-    fullName?: { givenName: string; familyName: string },
-  ) {
-    const data = await apiFetch<{
-      access: string;
-      refresh: string;
-      user: Record<string, unknown>;
-    }>('/auth/apple/', {
-      method: 'POST',
-      body: {
-        identity_token: identityToken,
-        full_name: fullName,
-      },
-      auth: false,
-    });
-    await setTokens({ access: data.access, refresh: data.refresh });
-    return mapUser(data.user)!;
-  },
 };
 
 export const restaurantsApi = {

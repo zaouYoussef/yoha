@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import jwt
@@ -14,15 +15,60 @@ from jwt import PyJWKClient
 
 from .models import UserOAuthProvider
 
+logger = logging.getLogger(__name__)
+
 User = get_user_model()
 
 APPLE_JWKS_URL = "https://appleid.apple.com/auth/keys"
-_apple_jwk_client: PyJWKClient | None = None
+_apple_jwk_client_instance: PyJWKClient | None = None
+
+FIREBASE_CERTS_URL = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
+_firebase_certs_cache: dict[str, str] | None = None
 
 
 def _google_client_ids() -> list[str]:
     raw = getattr(settings, "GOOGLE_OAUTH_CLIENT_IDS", "") or ""
     return [x.strip() for x in raw.split(",") if x.strip()]
+
+
+def _firebase_project_id() -> str:
+    return getattr(settings, "FIREBASE_PROJECT_ID", "") or ""
+
+
+def _fetch_firebase_certs() -> dict[str, str]:
+    global _firebase_certs_cache
+    if _firebase_certs_cache is None:
+        try:
+            res = requests.get(FIREBASE_CERTS_URL, timeout=10)
+            res.raise_for_status()
+            _firebase_certs_cache = res.json()
+        except Exception as exc:
+            raise ValueError("Impossible de récupérer les clés Firebase.") from exc
+    return _firebase_certs_cache
+
+
+def _firebase_signing_key(token: str) -> Any:
+    """Retourne la clé publique RSA PEM correspondant au kid du token.
+
+    L'endpoint Google renvoie des certificats X.509 ; PyJWT a besoin
+    de la clé publique extraite (``BEGIN PUBLIC KEY``).
+    """
+    from cryptography.x509 import load_pem_x509_certificate
+
+    try:
+        header = jwt.get_unverified_header(token)
+    except Exception as exc:
+        raise ValueError("En-tête Firebase invalide.") from exc
+    kid = header.get("kid")
+    if not kid:
+        raise ValueError("En-tête Firebase invalide (kid manquant).")
+    certs = _fetch_firebase_certs()
+    cert_pem = certs.get(kid)
+    if not cert_pem:
+        raise ValueError("Clé Firebase inconnue.")
+    # Extraire la clé publique RSA du certificat X.509
+    cert = load_pem_x509_certificate(cert_pem.encode("utf-8"))
+    return cert.public_key()
 
 
 def verify_google_id_token(token: str) -> dict[str, Any]:
@@ -49,11 +95,72 @@ def verify_google_id_token(token: str) -> dict[str, Any]:
     raise ValueError("Jeton Google invalide.") from last_error
 
 
+def verify_firebase_id_token(token: str) -> dict[str, Any]:
+    project_id = _firebase_project_id()
+    if not project_id:
+        raise ValueError("Firebase non configuré sur le serveur.")
+    try:
+        signing_key = _firebase_signing_key(token)
+        payload = jwt.decode(
+            token,
+            signing_key,
+            algorithms=["RS256"],
+            audience=project_id,
+            issuer=f"https://securetoken.google.com/{project_id}",
+            options={"verify_exp": True},
+        )
+        if not payload.get("sub"):
+            raise ValueError("UID Firebase manquant.")
+        if not payload.get("email"):
+            raise ValueError("E-mail Firebase manquant.")
+        return payload
+    except jwt.PyJWTError as exc:
+        try:
+            unverified = jwt.decode(token, options={"verify_signature": False})
+            logger.warning(
+                "firebase_token_verify_failed claims=%s error=%s",
+                {k: unverified.get(k) for k in ("iss", "aud", "sub", "email", "exp", "iat")},
+                str(exc),
+            )
+        except Exception:
+            logger.warning("firebase_token_verify_failed decode_error=%s", str(exc))
+        raise ValueError(f"Jeton Firebase invalide : {exc}") from exc
+    except ValueError:
+        raise
+
+
+def _unverified_issuer(token: str) -> str | None:
+    try:
+        payload = jwt.decode(token, options={"verify_signature": False})
+        return payload.get("iss")
+    except Exception:
+        return None
+
+
+def verify_google_or_firebase_id_token(token: str) -> dict[str, Any]:
+    """Vérifie un jeton Google OAuth classique ou un jeton Firebase Auth."""
+    iss = _unverified_issuer(token)
+    if iss and iss.startswith("https://securetoken.google.com"):
+        return verify_firebase_id_token(token)
+    if iss in ("accounts.google.com", "https://accounts.google.com"):
+        return verify_google_id_token(token)
+    # Fallback : essayer les deux si l'émetteur n'est pas lisible
+    try:
+        return verify_google_id_token(token)
+    except ValueError:
+        pass
+    try:
+        return verify_firebase_id_token(token)
+    except ValueError:
+        pass
+    raise ValueError("Jeton Google/Firebase invalide.")
+
+
 def _apple_jwk_client() -> PyJWKClient:
-    global _apple_jwk_client
-    if _apple_jwk_client is None:
-        _apple_jwk_client = PyJWKClient(APPLE_JWKS_URL)
-    return _apple_jwk_client
+    global _apple_jwk_client_instance
+    if _apple_jwk_client_instance is None:
+        _apple_jwk_client_instance = PyJWKClient(APPLE_JWKS_URL)
+    return _apple_jwk_client_instance
 
 
 def verify_apple_identity_token(token: str) -> dict[str, Any]:
@@ -139,7 +246,7 @@ def get_or_create_oauth_user(
 
 
 def user_from_google(id_token: str) -> User:
-    payload = verify_google_id_token(id_token)
+    payload = verify_google_or_firebase_id_token(id_token)
     sub = str(payload.get("sub") or "")
     email = str(payload.get("email") or "").lower()
     name = str(payload.get("name") or "") or email.split("@")[0]

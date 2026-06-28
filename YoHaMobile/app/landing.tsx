@@ -22,6 +22,7 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  SharedValue,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { brand, radius, shadows, gradients } from '../src/theme';
@@ -77,7 +78,7 @@ function BackgroundParticle({
   right?: string;
   factor: number;
   rotationDirection: number;
-  scrollX: Animated.SharedValue<number>;
+  scrollX: SharedValue<number>;
 }) {
   const floatAnim = useSharedValue(0);
 
@@ -116,7 +117,7 @@ function BackgroundParticle({
   };
 
   return (
-    <Animated.Text style={[positionStyle, animStyle]}>
+    <Animated.Text style={[positionStyle as any, animStyle]}>
       {emoji}
     </Animated.Text>
   );
@@ -131,7 +132,7 @@ function FloatingIcon({
   emoji: string;
   colors: [string, string];
   index: number;
-  scrollX: Animated.SharedValue<number>;
+  scrollX: SharedValue<number>;
 }) {
   const floatAnim = useSharedValue(0);
 
@@ -196,7 +197,7 @@ function AnimatedText({
   desc,
 }: {
   index: number;
-  scrollX: Animated.SharedValue<number>;
+  scrollX: SharedValue<number>;
   title: string;
   desc: string;
 }) {
@@ -231,7 +232,7 @@ function AnimatedText({
   );
 }
 
-function AnimatedDot({ index, scrollX }: { index: number; scrollX: Animated.SharedValue<number> }) {
+function AnimatedDot({ index, scrollX }: { index: number; scrollX: SharedValue<number> }) {
   const dotStyle = useAnimatedStyle(() => {
     const input = [(index - 1) * width, index * width, (index + 1) * width];
     

@@ -135,8 +135,8 @@ export function YohaTabBar({ state, descriptors, navigation }: any) {
               icon={icon}
               label={label}
               onPress={() => {
-                hapticSelection();
                 const e = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+                hapticSelection();
                 if (!focused && !e.defaultPrevented) navigation.navigate(route.name);
               }}
             />

@@ -129,7 +129,7 @@ function OrderCard({ order, onOpenOrder, onReorder, featured = false }) {
       className={`group relative overflow-hidden rounded-3xl border transition-all duration-300 hover:shadow-cardhover ${
         featured
           ? 'bg-gradient-to-br from-brand-500/12 via-pink-500/8 to-orange-500/5 border-brand-500/25 shadow-glow'
-          : `bg-white dark:bg-ink-900 border-ink-200/70 dark:border-ink-800 shadow-card hover:-translate-y-0.5`
+          : `bg-white dark:bg-ink-900 border-ink-200/70 dark:border-ink-800 shadow-card`
       }`}
     >
       {active && (

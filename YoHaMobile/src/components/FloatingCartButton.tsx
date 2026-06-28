@@ -5,10 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withRepeat,
-  withSequence,
   withSpring,
-  withTiming,
 } from 'react-native-reanimated';
 import { useCart } from '../contexts/CartContext';
 import { useLayoutChrome } from '../lib/layoutChrome';
@@ -21,21 +18,13 @@ export function FloatingCartButton() {
   const { count } = useCart();
   const { cartBarBottom } = useLayoutChrome();
   const scale = useSharedValue(0);
-  const pulse = useSharedValue(1);
 
   useEffect(() => {
     scale.value = withSpring(count > 0 ? 1 : 0, { damping: 14, stiffness: 160 });
-    if (count > 0) {
-      pulse.value = withRepeat(
-        withSequence(withTiming(1.06, { duration: 900 }), withTiming(1, { duration: 900 })),
-        -1,
-        true,
-      );
-    }
-  }, [count, pulse, scale]);
+  }, [count, scale]);
 
   const animStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value * pulse.value }],
+    transform: [{ scale: scale.value }],
     opacity: scale.value,
   }));
 

@@ -25,8 +25,8 @@ export const PromoRow = React.memo(function PromoRow({ restaurants }: { restaura
           <Pressable
             key={r.slug}
             onPress={() => {
-              hapticLight();
               router.push(`/(client)/restaurant/${r.slug}` as never);
+              hapticLight();
             }}
             style={({ pressed }) => [styles.card, shadows.float, pressed && { opacity: 0.94 }]}
           >

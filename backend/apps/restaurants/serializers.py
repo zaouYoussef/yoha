@@ -79,6 +79,7 @@ class RestaurantListSerializer(serializers.ModelSerializer):
     openingHours = OpeningHoursSerializer(source="opening_hours")
     isOpen = serializers.SerializerMethodField()
     openLabel = serializers.SerializerMethodField()
+    ownerEmail = serializers.SerializerMethodField()
 
     class Meta:
         model = Restaurant
@@ -97,6 +98,7 @@ class RestaurantListSerializer(serializers.ModelSerializer):
             "openingHours",
             "isOpen",
             "openLabel",
+            "ownerEmail",
         )
 
     def get_isOpen(self, obj):
@@ -110,6 +112,11 @@ class RestaurantListSerializer(serializers.ModelSerializer):
 
     def get_logo(self, obj):
         return pick_image(obj.logo_file, obj.logo_thumb, obj.logo_url, prefer_thumb=False)
+
+    def get_ownerEmail(self, obj):
+        if obj.owner_id and obj.owner:
+            return obj.owner.email
+        return None
 
 
 class RestaurantDetailSerializer(RestaurantListSerializer):

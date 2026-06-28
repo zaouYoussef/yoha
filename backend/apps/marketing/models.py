@@ -39,3 +39,29 @@ class EmailUnsubscribe(models.Model):
 
     def __str__(self):
         return self.email
+
+
+class PromoCode(models.Model):
+    SECTION_CHOICES = [
+        ("all", "Toutes les sections"),
+        ("restaurant", "Restaurants"),
+        ("patisserie", "Pâtisseries"),
+        ("pharmacy", "Pharmacies"),
+        ("parapharmacy", "Parapharmacies"),
+        ("supermarket", "Supermarchés"),
+        ("shop", "Magasins"),
+    ]
+
+    code = models.CharField(max_length=50, unique=True, db_index=True)
+    discount = models.PositiveIntegerField(help_text="Remise en % (1-100)")
+    section = models.CharField(max_length=20, choices=SECTION_CHOICES, default="all")
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Code promo"
+        verbose_name_plural = "Codes promo"
+
+    def __str__(self):
+        return f"{self.code} (-{self.discount}%)"

@@ -12,6 +12,9 @@ export const CUISINES: Cuisine[] = [
   { id: 'sushi', label: 'Sushi', emoji: '🍣' },
   { id: 'medical', label: 'MedEat', emoji: '🏥' },
   { id: 'pharmacy', label: 'Pharmacies', emoji: '💊' },
+  { id: 'parapharmacy', label: 'Parapharma', emoji: '🌿' },
+  { id: 'supermarket', label: 'Supermarché', emoji: '🛒' },
+  { id: 'shop', label: 'Magasins', emoji: '🛍️' },
   { id: 'dessert', label: 'Dessert', emoji: '🍰' },
   { id: 'drinks', label: 'Boissons', emoji: '🥤' },
 ];
@@ -33,6 +36,9 @@ export const CATEGORIES_BANNERS: CategoryBanner[] = [
   { label: 'Sushi', emoji: '🍣', id: 'sushi', colors: ['#fb7185', '#ec4899'] },
   { label: 'Asiatique', emoji: '🍜', id: 'asian', colors: ['#e879f9', '#a855f7'] },
   { label: 'MedEat', emoji: '🏥', id: 'medical', colors: ['#38bdf8', '#6366f1'] },
+  { label: 'Parapharma', emoji: '🌿', id: 'parapharmacy', colors: ['#059669', '#10b981'] },
+  { label: 'Supermarché', emoji: '🛒', id: 'supermarket', colors: ['#4f46e5', '#6366f1'] },
+  { label: 'Magasins', emoji: '🛍️', id: 'shop', colors: ['#db2777', '#f43f5e'] },
   { label: 'Dessert', emoji: '🍰', id: 'dessert', colors: ['#f472b6', '#d946ef'] },
   { label: 'Boissons', emoji: '🥤', id: 'drinks', colors: ['#22d3ee', '#3b82f6'] },
 ];

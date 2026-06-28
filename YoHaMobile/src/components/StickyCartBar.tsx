@@ -59,8 +59,8 @@ export function StickyCartBar({ extraBottom = 0, restaurantName }: Props) {
     <Animated.View style={[styles.wrap, { bottom: cartBarBottom + extraBottom }, animStyle]}>
       <Pressable
         onPress={() => {
-          hapticLight();
           router.push('/(client)/cart' as never);
+          hapticLight();
         }}
         style={{ width: '100%' }}
       >

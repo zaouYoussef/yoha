@@ -75,9 +75,9 @@ export default function ClientOrders() {
       return { ...l, qty };
     });
     replaceItems(cartLines);
-    hapticSuccess();
     showToast('Panier rempli !', 'Commandez à nouveau en un clic', '↻');
     router.push('/(client)/cart' as never);
+    hapticSuccess();
   };
 
   if (!user && !loading && orders.length === 0) {

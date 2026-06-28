@@ -20,8 +20,8 @@ export function OrderAgainStrip({
   return (
     <Pressable
       onPress={() => {
-        hapticSuccess();
         onReorder(order);
+        hapticSuccess();
       }}
       style={[styles.wrap, shadows.glowOrange]}
     >

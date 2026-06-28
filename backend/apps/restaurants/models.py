@@ -19,6 +19,9 @@ class Restaurant(models.Model):
         MEDICAL = "medical", "Médical"
         DESSERT = "dessert", "Dessert"
         DRINKS = "drinks", "Boissons"
+        SUPERMARKET = "supermarket", "Supermarché"
+        SHOP = "shop", "Magasins"
+        PARAPHARMACY = "parapharmacy", "Parapharmacie"
 
     slug = models.SlugField(unique=True, max_length=120)
     name = models.CharField(max_length=200)

@@ -111,11 +111,6 @@ export function Hero({ onStart, onHowItWorks }) {
       const yPct = (e.clientY - r.top ) / r.height;
       el.style.setProperty('--mx', (xPct * 100) + '%');
       el.style.setProperty('--my', (yPct * 100) + '%');
-      if (textRef.current) {
-        const tx = (xPct - 0.5) * 14;
-        const ty = (yPct - 0.5) * 14;
-        textRef.current.style.transform = `translate(${tx}px, ${ty}px)`;
-      }
     };
     el.addEventListener('mousemove', onMove);
     return () => el.removeEventListener('mousemove', onMove);
@@ -234,7 +229,7 @@ function BentoSpotlightCard({ spot, spotFade, n, restaurants, spotIdx, onSelectS
       onMouseMove={spotlightHandler}>
       <div className={`absolute inset-0 transition-opacity duration-300 ease-out ${spotFade ? 'opacity-100' : 'opacity-0'}`}>
         <img src={restaurantCover(spot.cover)} alt={spot.name}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700"/>
         <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/40 to-transparent"></div>
         <div className="absolute top-3 left-3 right-3 sm:right-14 px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-white/95 text-ink-900 shadow flex items-center gap-1 w-fit max-w-[calc(100%-1.5rem)]">
           <I.Flame size={12} className="text-brand-500 shrink-0"/>
@@ -250,7 +245,7 @@ function BentoSpotlightCard({ spot, spotFade, n, restaurants, spotIdx, onSelectS
                   aria-label={r.name}
                   aria-current={i === spotIdx ? 'true' : undefined}
                   onClick={() => onSelectSpot(i)}
-                  className={`h-1.5 rounded-full transition-all ${i === spotIdx ? 'w-6 bg-white' : 'w-1.5 bg-white/45 hover:bg-white/75'}`}
+                  className={`h-1.5 rounded-full transition-colors ${i === spotIdx ? 'w-6 bg-white' : 'w-1.5 bg-white/45 hover:bg-white/75'}`}
                 />
               ))}
             </div>
@@ -334,7 +329,7 @@ export function BentoHero() {
 
       {/* Desktop — grille bento complète */}
       <div className="hidden lg:grid grid-cols-6 grid-rows-6 gap-3 h-[640px]">
-      <Tilt className="col-span-4 row-span-3">
+      <Tilt className="col-span-4 row-span-3 rounded-3xl">
         <BentoSpotlightCard
           spot={spot}
           spotFade={spotFade}
@@ -345,7 +340,7 @@ export function BentoHero() {
         />
       </Tilt>
 
-      <Tilt className="col-span-2 row-span-3" max={5}>
+      <Tilt className="col-span-2 row-span-3 rounded-3xl" max={5}>
         <div className="relative h-full rounded-3xl bg-gradient-to-br from-ink-950 via-ink-900 to-black p-4 text-white overflow-hidden shadow-cardhover border border-white/10 dark:border-ink-800/80">
           <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-brand-500/30 blur-2xl"></div>
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider opacity-80">
@@ -365,7 +360,7 @@ export function BentoHero() {
         </div>
       </Tilt>
 
-      <Tilt className="col-span-3 row-span-2">
+      <Tilt className="col-span-3 row-span-2 rounded-3xl">
         <div className="h-full rounded-3xl glass-card-premium p-5 shadow-cardhover border border-white/20 dark:border-white/5 hover:border-brand-500/20 transition-all duration-300 flex flex-col justify-between">
           <div>
             <div className="text-xs font-semibold text-ink-500 uppercase tracking-wider">Communauté</div>
@@ -382,14 +377,14 @@ export function BentoHero() {
           <div className="mt-3 flex -space-x-2.5">
             {[5,16,18,22,33].map(i => (
               <img key={i} src={`https://i.pravatar.cc/48?img=${i}`} alt=""
-                className="w-8 h-8 rounded-full border-2 border-white dark:border-ink-950 object-cover hover:scale-110 hover:-translate-y-1 transition-all duration-300 cursor-pointer"/>
+                className="w-8 h-8 rounded-full border-2 border-white dark:border-ink-950 object-cover cursor-pointer"/>
             ))}
           </div>
         </div>
       </Tilt>
 
-      <Tilt className="col-span-3 row-span-2">
-        <div className="relative h-full rounded-3xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 p-5 text-white shadow-glow border border-white/20 overflow-hidden hover:scale-[1.02] transition-all duration-300 flex flex-col justify-between">
+      <Tilt className="col-span-3 row-span-2 rounded-3xl">
+        <div className="relative h-full rounded-3xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 p-5 text-white shadow-glow border border-white/20 overflow-hidden transition-all duration-300 flex flex-col justify-between">
           <div className="absolute -bottom-8 -right-8 w-36 h-36 rounded-full bg-white/20 blur-2xl"></div>
           <div className="absolute inset-0 bg-[radial-gradient(at_10%_20%,rgba(255,255,255,0.15)_0,transparent_55%)]"></div>
           <div>
@@ -402,8 +397,8 @@ export function BentoHero() {
         </div>
       </Tilt>
 
-      <Tilt className="col-span-3 row-span-1">
-        <div className="h-full rounded-3xl bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-500/20 dark:border-emerald-500/10 px-4 flex items-center gap-3 shadow-sm hover:bg-emerald-500/15 dark:hover:bg-emerald-500/10 transition-all duration-300 hover:border-emerald-500/30 hover:scale-[1.02] cursor-pointer">
+      <Tilt className="col-span-3 row-span-1 rounded-3xl">
+        <div className="h-full rounded-3xl bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-500/20 dark:border-emerald-500/10 px-4 flex items-center gap-3 shadow-sm hover:bg-emerald-500/15 dark:hover:bg-emerald-500/10 transition-all duration-300 hover:border-emerald-500/30 cursor-pointer">
           <span className="w-9 h-9 rounded-xl bg-emerald-500 text-white grid place-items-center shadow-sm shrink-0"><I.Bike size={18}/></span>
           <div className="text-sm min-w-0">
             <div className="font-bold text-emerald-800 dark:text-emerald-300">Livraison offerte</div>
@@ -412,8 +407,8 @@ export function BentoHero() {
         </div>
       </Tilt>
 
-      <Tilt className="col-span-3 row-span-1">
-        <div className="h-full rounded-3xl glass-card-premium border border-white/20 dark:border-white/5 px-4 flex items-center gap-3 shadow-card hover:shadow-cardhover transition-all duration-300 hover:scale-[1.02] hover:border-brand-500/20 cursor-pointer">
+      <Tilt className="col-span-3 row-span-1 rounded-3xl">
+        <div className="h-full rounded-3xl glass-card-premium border border-white/20 dark:border-white/5 px-4 flex items-center gap-3 shadow-card hover:shadow-cardhover transition-all duration-300 hover:border-brand-500/20 cursor-pointer">
           <span className="w-9 h-9 rounded-xl bg-brand-500 text-white grid place-items-center text-lg shadow-sm shrink-0">🍽️</span>
           <div className="text-sm min-w-0">
             <div className="font-bold">Campus & CHU</div>
@@ -543,19 +538,19 @@ export function PartnerCategoriesSection() {
       <div className="grid md:grid-cols-3 gap-6 sm:gap-8 items-stretch">
         {rows.map((r, i) => (
           <Reveal key={r.title} delay={i * 100}>
-            <Tilt max={6} className="h-full">
+            <Tilt max={6} className="h-full rounded-2xl sm:rounded-[2rem]">
               <button
                 type="button"
                 onClick={() => goto('home', { browseFilter: r.browseFilter })}
-                className={`relative overflow-hidden group h-full w-full text-left p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${r.hoverBorder} transition-all duration-500 shadow-card ${r.hoverShadow} hover:-translate-y-1.5 flex flex-col justify-between min-h-[240px] sm:min-h-[280px] lg:min-h-[300px] cursor-pointer`}
+                className={`relative overflow-hidden group h-full w-full text-left p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${r.hoverBorder} transition-all duration-500 shadow-card ${r.hoverShadow} flex flex-col justify-between min-h-[240px] sm:min-h-[280px] lg:min-h-[300px] cursor-pointer`}
               >
                 {/* Glowing background orb */}
-                <div className={`absolute -right-10 -bottom-10 w-28 h-28 rounded-full bg-gradient-to-br ${r.color} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 blur-xl transition-all duration-500 scale-50 group-hover:scale-100`}></div>
+                <div className={`absolute -right-10 -bottom-10 w-28 h-28 rounded-full bg-gradient-to-br ${r.color} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 blur-xl transition-all duration-500 scale-50`}></div>
                 
                 <div>
                   <div className="flex flex-wrap justify-between items-start gap-2">
                     {/* Glowing Emoji Container */}
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${r.color} text-white flex items-center justify-center text-3xl shadow-glow relative group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${r.color} text-white flex items-center justify-center text-3xl shadow-glow relative transition-all duration-500`}>
                       {r.emoji}
                       <span className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-white to-white/0 opacity-25 border border-white/30"></span>
                     </div>
@@ -577,7 +572,7 @@ export function PartnerCategoriesSection() {
 
                 <div className={`mt-6 flex items-center gap-1 text-sm font-bold text-ink-500 transition-colors duration-300 ${r.textHover}`}>
                   <span>Découvrir la sélection</span>
-                  <span className="group-hover:translate-x-1.5 transition-transform duration-300">→</span>
+                  <span className="transition-transform duration-300">→</span>
                 </div>
               </button>
             </Tilt>
@@ -662,7 +657,7 @@ export function Carousel3DSection() {
             return (
               <div key={r.id} className="carousel-3d-card cursor-grow group"
                 style={{ transform: `rotateY(${angle}deg) translateZ(${radius}px)` }}>
-                <CarouselPartnerCard restaurant={r} className="group-hover:border-brand-500/30 transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]"/>
+                <CarouselPartnerCard restaurant={r} className="group-hover:border-brand-500/30 transition-all duration-500 group-hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]"/>
               </div>
             );
           })}
@@ -712,15 +707,15 @@ export function FeaturesSection() {
 
           return (
             <Reveal key={f.title} delay={i * 80}>
-              <Tilt max={8} className="h-full">
-                <div className={`group relative h-full p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} shadow-card ${hoverShadowClass} hover:-translate-y-1.5 transition-all duration-500 overflow-hidden spotlight flex flex-col justify-between min-h-[200px] sm:min-h-[240px]`}
+              <Tilt max={8} className="h-full rounded-2xl sm:rounded-[2rem]">
+                <div className={`group relative h-full p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} shadow-card ${hoverShadowClass} transition-all duration-500 overflow-hidden spotlight flex flex-col justify-between min-h-[200px] sm:min-h-[240px]`}
                   onMouseMove={spotlightHandler}>
                   
                   {/* Glowing background corner orb */}
-                  <div className={`absolute -right-8 -bottom-8 w-24 h-24 rounded-full bg-gradient-to-br ${f.from} ${f.to} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 blur-xl transition-all duration-500 scale-50 group-hover:scale-100`}></div>
+                  <div className={`absolute -right-8 -bottom-8 w-24 h-24 rounded-full bg-gradient-to-br ${f.from} ${f.to} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 blur-xl transition-all duration-500 scale-50`}></div>
                   
                   <div className="relative z-10">
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${f.from} ${f.to} text-white flex items-center justify-center shadow-glow relative group-hover:scale-110 group-hover:rotate-[15deg] transition-all duration-500`}>
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${f.from} ${f.to} text-white flex items-center justify-center shadow-glow relative transition-all duration-500`}>
                       {f.icon}
                       <span className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-white to-white/0 opacity-25 border border-white/30"></span>
                     </div>
@@ -781,14 +776,14 @@ export function HowItWorksSection() {
             <React.Fragment key={s.num}>
               <div className="flex-1 w-full">
                 <Reveal delay={i * 150}>
-                  <div className={`relative overflow-hidden group h-full p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} transition-all duration-500 shadow-card ${hoverShadowClass} hover:-translate-y-1.5 flex flex-col justify-between min-h-[220px] sm:min-h-[260px]`}>
+                  <div className={`relative overflow-hidden group h-full p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} transition-all duration-500 shadow-card ${hoverShadowClass} flex flex-col justify-between min-h-[220px] sm:min-h-[260px]`}>
                     {/* Giant Backdrop Number */}
-                    <span className={`absolute -right-4 sm:-right-3 -bottom-4 sm:-bottom-5 font-display font-black text-7xl sm:text-9xl text-transparent bg-gradient-to-br ${s.color} bg-clip-text opacity-[0.08] dark:opacity-[0.14] select-none pointer-events-none group-hover:scale-110 group-hover:opacity-[0.22] transition-all duration-500`}>
+                    <span className={`absolute -right-4 sm:-right-3 -bottom-4 sm:-bottom-5 font-display font-black text-7xl sm:text-9xl text-transparent bg-gradient-to-br ${s.color} bg-clip-text opacity-[0.08] dark:opacity-[0.14] select-none pointer-events-none group-hover:opacity-[0.22] transition-all duration-500`}>
                       {s.num}
                     </span>
  
                     <div>
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.color} text-white flex items-center justify-center shadow-glow relative z-10 group-hover:scale-110 group-hover:rotate-[15deg] transition-all duration-500`}>
+                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.color} text-white flex items-center justify-center shadow-glow relative z-10 transition-all duration-500`}>
                         {s.icon}
                         <span className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-white to-white/0 opacity-25 border border-white/30"></span>
                       </div>
@@ -967,7 +962,7 @@ export function ShowcaseSection() {
             ].map((item, idx) => (
               <Reveal key={item.title} delay={100 + idx * 80}>
                 <div className="p-4 rounded-2xl bg-white/60 border border-amber-100 hover:border-brand-500/20 hover:bg-white transition-all duration-300 flex items-start gap-3.5 group shadow-sm hover:shadow-md">
-                  <span className="w-10 h-10 rounded-xl bg-amber-100/50 text-amber-800 group-hover:bg-brand-500/20 group-hover:text-brand-600 group-hover:scale-110 transition-all duration-300 flex items-center justify-center text-lg shrink-0">
+                  <span className="w-10 h-10 rounded-xl bg-amber-100/50 text-amber-800 group-hover:bg-brand-500/20 group-hover:text-brand-600 transition-all duration-300 flex items-center justify-center text-lg shrink-0">
                     {item.icon}
                   </span>
                   <div>
@@ -1050,7 +1045,7 @@ export function TestimonialsSection() {
         <div className="marquee-mask -mx-4 sm:mx-0 px-4 sm:px-0">
           <div className="mt-10 testi-track flex gap-5 overflow-x-auto no-scrollbar pb-6">
             {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="cursor-grow shrink-0 w-[88%] sm:w-[380px] lg:w-[420px] rounded-2xl sm:rounded-3xl p-5 sm:p-6 glass-card-premium border border-white/20 dark:border-white/5 shadow-card hover:shadow-cardhover hover:shadow-[0_20px_50px_rgba(249,115,22,0.08)] transition-all duration-300 relative overflow-hidden spotlight hover:scale-[1.02] hover:border-brand-500/20"
+              <div key={t.name} className="cursor-grow shrink-0 w-[88%] sm:w-[380px] lg:w-[420px] rounded-2xl sm:rounded-3xl p-5 sm:p-6 glass-card-premium border border-white/20 dark:border-white/5 shadow-card hover:shadow-cardhover hover:shadow-[0_20px_50px_rgba(249,115,22,0.08)] transition-all duration-300 relative overflow-hidden spotlight hover:border-brand-500/20"
                 onMouseMove={spotlightHandler}>
                 <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br ${t.color} opacity-20 blur-2xl`}></div>
                 
@@ -1147,11 +1142,11 @@ export function FinalCTA({ onStart }) {
               <div 
                 onClick={handleCopy}
                 title="Cliquez pour copier"
-                className="group/promo cursor-pointer inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-700 hover:bg-brand-500/15 transition-all duration-300 shadow-sm active:scale-95"
+                className="group/promo cursor-pointer inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-700 hover:bg-brand-500/15 transition-transform duration-300 shadow-sm active:scale-95"
               >
                 <span className="text-xs font-bold uppercase tracking-wider">Code promo :</span>
                 <span className="font-mono font-black text-sm select-all">YOHA15</span>
-                <span className="text-[10px] bg-brand-500 text-white font-bold px-2 py-0.5 rounded-full transition-all group-hover/promo:scale-105">
+                <span className="text-[10px] bg-brand-500 text-white font-bold px-2 py-0.5 rounded-full transition-transform group-hover/promo:scale-105">
                   {copied ? 'Copié !' : '-15%'}
                 </span>
               </div>
@@ -1225,7 +1220,7 @@ export function CampusHospitalsSection() {
                         src={place.img}
                         alt={place.name}
                         loading="lazy"
-                        className="w-full h-full min-h-[7rem] sm:min-h-0 object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="w-full h-full min-h-[7rem] sm:min-h-0 object-cover transition-transform duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-r sm:bg-gradient-to-t from-black/50 to-transparent" />
                     </div>
@@ -1253,27 +1248,13 @@ export function CampusHospitalsSection() {
 
 /* === Flying Burger Concept Showcase === */
 export function FlyingBurgerShowcase() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
   const progress = useSectionScrollProgress(containerRef);
-
-  const handleMouseMove = (e) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setMousePos({ x, y });
-  };
-
-  const handleMouseLeave = () => {
-    setMousePos({ x: 0, y: 0 });
-  };
+  const mousePos = { x: 0, y: 0 };
 
   return (
     <section 
       ref={containerRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       className="relative overflow-visible py-20 bg-slate-50 dark:bg-ink-950/40 border-y border-ink-200/40 dark:border-ink-800/40"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-16 items-center">
@@ -1282,7 +1263,7 @@ export function FlyingBurgerShowcase() {
           <div className="relative w-full max-w-[420px] h-full flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
             {/* Desktop Mockup Card */}
             <div 
-              className="absolute w-[360px] aspect-[16/10] rounded-2xl overflow-hidden shadow-2xl border border-white/20 dark:border-ink-800/80 bg-ink-900 transition-transform duration-500 ease-out"
+              className="absolute w-[360px] aspect-[16/10] rounded-2xl overflow-hidden shadow-2xl border border-white/20 dark:border-ink-800/80 bg-ink-900"
               style={{
                 transform: `rotateY(${mousePos.x * 20}deg) rotateX(${mousePos.y * -20}deg) translate3d(0, -40px, -50px)`,
                 zIndex: 10,
@@ -1302,7 +1283,7 @@ export function FlyingBurgerShowcase() {
 
             {/* Mobile Mockup Card */}
             <div 
-              className="absolute w-[170px] aspect-[9/19] rounded-[2.2rem] overflow-hidden shadow-2xl border-4 border-slate-800 dark:border-ink-950 bg-ink-900 transition-transform duration-500 ease-out"
+              className="absolute w-[170px] aspect-[9/19] rounded-[2.2rem] overflow-hidden shadow-2xl border-4 border-slate-800 dark:border-ink-950 bg-ink-900"
               style={{
                 transform: `rotateY(${mousePos.x * 30}deg) rotateX(${mousePos.y * -30}deg) translate3d(70px, 30px, 60px)`,
                 zIndex: 20,
@@ -1351,7 +1332,6 @@ export function FlyingBurgerShowcase() {
 /* === Interactive 3D Exploded Burger (WebP Frame Sequence) === */
 export function InteractiveBurger3D() {
   const [frameIndex, setFrameIndex] = useState(59);
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
 
   // Preload all 60 frames on mount to avoid flickering
   useEffect(() => {
@@ -1360,17 +1340,6 @@ export function InteractiveBurger3D() {
       img.src = `/burger-frames/burger_${String(i).padStart(2, '0')}.webp`;
     }
   }, []);
-
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setCoords({ x, y });
-  };
-
-  const handleMouseLeave = () => {
-    setCoords({ x: 0, y: 0 });
-  };
 
   // Continuous auto-playing ping-pong loop (exploded -> assembled -> exploded)
   useEffect(() => {
@@ -1396,21 +1365,16 @@ export function InteractiveBurger3D() {
   return (
     <div
       className="relative mx-auto w-full max-w-[280px] sm:max-w-[320px] aspect-[568/845] flex items-center justify-center cursor-pointer select-none"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       style={{ perspective: '1200px' }}
     >
       {/* Glow Spotlight Behind */}
       <div 
-        className="absolute inset-8 rounded-full bg-gradient-to-tr from-brand-500/20 via-pink-500/10 to-transparent blur-3xl opacity-75 pointer-events-none transition-transform duration-500"
-        style={{
-          transform: `translate3d(${coords.x * 40}px, ${coords.y * 40}px, 0)`,
-        }}
+        className="absolute inset-8 rounded-full bg-gradient-to-tr from-brand-500/20 via-pink-500/10 to-transparent blur-3xl opacity-75 pointer-events-none"
       />
 
       {/* Floating Shadow at the bottom */}
       <div 
-        className="absolute bottom-6 w-48 h-4 bg-black/15 dark:bg-black/45 rounded-full blur-md transition-all duration-300 ease-out pointer-events-none"
+        className="absolute bottom-6 w-48 h-4 bg-black/15 dark:bg-black/45 rounded-full blur-md pointer-events-none"
         style={{
           transform: `scaleX(${1.1 - (59 - frameIndex) * 0.005}) scaleY(${1.0 - (59 - frameIndex) * 0.003})`,
           opacity: 0.25 + (frameIndex / 59) * 0.5,
@@ -1421,11 +1385,7 @@ export function InteractiveBurger3D() {
       <img
         src={frameSrc}
         alt="Interactive 3D Flying Burger"
-        className="relative max-w-full h-auto object-contain transition-transform duration-150 ease-out pointer-events-none select-none z-10"
-        style={{
-          transform: `rotateX(${coords.y * -25}deg) rotateY(${coords.x * 25}deg) translateZ(15px)`,
-          transformStyle: 'preserve-3d',
-        }}
+        className="relative max-w-full h-auto object-contain pointer-events-none select-none z-10"
       />
     </div>
   );

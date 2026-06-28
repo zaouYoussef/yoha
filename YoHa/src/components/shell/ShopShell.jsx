@@ -101,7 +101,10 @@ export function ShopShell({ children, showCampus = false }) {
           onLogo={() => goto('landing')}
           onHome={() => goto('home', { browseFilter: 'all' })}
           onPharmacy={() => goto('home', { browseFilter: 'pharmacy' })}
+          onParapharmacy={() => goto('home', { browseFilter: 'parapharmacy' })}
           onPastry={() => goto('home', { browseFilter: 'dessert' })}
+          onSupermarket={() => goto('home', { browseFilter: 'supermarket' })}
+          onShop={() => goto('home', { browseFilter: 'shop' })}
           goto={goto}
           liveOrder={liveOrder}
           onLiveOrder={() => liveOrder && goto('success', { orderId: liveOrder.id })}
@@ -141,6 +144,7 @@ export function ShopShell({ children, showCampus = false }) {
         <FloatingCart
           count={cartCount}
           total={cartTotal}
+          items={cart}
           onClick={() => setCartOpen(true)}
           hidden={
             viewName === 'landing' ||

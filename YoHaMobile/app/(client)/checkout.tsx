@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Text,
   View,
+  TextInput,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FadeInView } from '../../src/components/animations/FadeInView';
@@ -25,7 +26,7 @@ import { ordersApi } from '../../src/lib/api';
 import { ADDRESS_PRESETS } from '../../src/lib/addresses';
 import { addGuestOrderId } from '../../src/lib/guestOrders';
 import { getStoredDeliveryDetails, saveDeliveryDetails } from '../../src/lib/deliveryDetails';
-import { DELIVERY_FEE_DH, formatMad, getServiceFeeMad } from '../../src/lib/constants';
+import { formatMad, getServiceFeeMad } from '../../src/lib/constants';
 import { hapticSuccess } from '../../src/lib/haptics';
 import { subscribeOrdersPush } from '../../src/lib/pushRegistration';
 import { useLayoutChrome } from '../../src/lib/layoutChrome';
@@ -38,7 +39,7 @@ export default function CheckoutScreen() {
   const insets = useSafeAreaInsets();
   const { footerBottomPadding } = useLayoutChrome();
   const { user } = useAuth();
-  const { items, subtotal, clear, count } = useCart();
+  const { items, subtotal, clear, count, replaceItems } = useCart();
   const { showToast } = useToast();
   const [name, setName] = useState(user?.displayName || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -91,8 +92,13 @@ export default function CheckoutScreen() {
     if (count === 0) router.replace('/(client)/cart' as never);
   }, [count]);
 
+  const isCustom = items.some(i => (i as any).isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes((i as any).restaurantCuisine));
+  const customItems = items.filter(i => (i as any).isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes((i as any).restaurantCuisine));
+  const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
+  const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
+  const isLimitBlocked = !isCustom && subtotal < 70;
   const serviceFee = getServiceFeeMad(subtotal);
-  const total = subtotal + serviceFee + DELIVERY_FEE_DH;
+  const total = subtotal + serviceFee + deliveryFee;
 
   const handlePreset = (id: string) => {
     setAddressPreset(id);
@@ -105,7 +111,7 @@ export default function CheckoutScreen() {
 
   const handleConfirm = async () => {
     setError('');
-    if (subtotal < 70) {
+    if (isLimitBlocked) {
       setError('Commande inférieure à 70 DH non acceptée.');
       return;
     }
@@ -125,6 +131,9 @@ export default function CheckoutScreen() {
           menu_item_id: i.id,
           restaurant_slug: i.restaurantId,
           quantity: i.qty,
+          item_name: i.name,
+          item_price: i.price,
+          restaurant_name: i.restaurantName,
         })),
         customer_name: name.trim(),
         customer_email: email.trim() || undefined,
@@ -137,9 +146,9 @@ export default function CheckoutScreen() {
       if (!user && order.id) await addGuestOrderId(String(order.id));
       if (order.id) await subscribeOrdersPush([String(order.id)]);
       clear();
-      hapticSuccess();
       showToast('Commande confirmée !', 'Votre repas arrive bientôt 🛵', '🎉');
       router.replace(`/(client)/order/${order.id}?justPlaced=true` as never);
+      hapticSuccess();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Commande impossible');
     } finally {
@@ -240,19 +249,88 @@ export default function CheckoutScreen() {
             <View style={[styles.summary, shadows.card]}>
               <Text style={styles.summaryTitle}>Récapitulatif</Text>
               {items.map((i) => (
-                <Text key={i.id} style={styles.line}>
-                  {i.qty}× {i.name}
-                </Text>
+                <View key={i.id} style={{ marginBottom: 12 }}>
+                  {(i as any).isCustom ? (
+                    <View style={{ gap: 4 }}>
+                      <Text style={[styles.line, { fontFamily: fonts.bold }]}>{i.qty}× Demande sur-mesure</Text>
+                      {(i as any).customDetails?.storeAddress && (
+                        <Text style={{ fontSize: 11, color: ink[500], fontFamily: fonts.semibold }}>
+                          Établissement : {(i as any).customDetails.storeName}
+                        </Text>
+                      )}
+                      <TextInput
+                        value={(i as any).customDetails?.details || ''}
+                        onChangeText={(newDetails) => {
+                          const updated = items.map((p) => {
+                            if (p.id === i.id) {
+                              const customDetails = (p as any).customDetails || {};
+                              const storeName = customDetails.storeName || p.restaurantName;
+                              const name = customDetails.storeAddress 
+                                ? `[${storeName}] ${newDetails.trim()}`
+                                : `${p.restaurantName} - ${newDetails.trim()}`;
+                              return {
+                                ...p,
+                                name,
+                                customDetails: {
+                                  ...customDetails,
+                                  details: newDetails
+                                }
+                              };
+                            }
+                            return p;
+                          });
+                          replaceItems(updated);
+                        }}
+                        placeholder="Modifier les détails de votre demande..."
+                        placeholderTextColor="#9ca3af"
+                        multiline
+                        numberOfLines={2}
+                        style={{
+                          fontSize: 13,
+                          fontFamily: fonts.medium,
+                          color: ink[900],
+                          backgroundColor: 'rgba(0,0,0,0.02)',
+                          borderWidth: 1,
+                          borderColor: ink[200],
+                          borderRadius: radius.md,
+                          paddingHorizontal: 8,
+                          paddingVertical: 4,
+                          textAlignVertical: 'top',
+                        }}
+                      />
+                    </View>
+                  ) : (
+                    <Text style={styles.line}>
+                      {i.qty}× {i.name}
+                    </Text>
+                  )}
+                </View>
               ))}
               <View style={styles.divider} />
-              <Row label="Sous-total" value={formatMad(subtotal)} />
+              <Row
+                label="Sous-total"
+                value={isCustom
+                  ? (subtotal > 0 ? `${formatMad(subtotal)} + achats` : 'Sur ticket')
+                  : formatMad(subtotal)
+                }
+              />
               <Row label="Frais de service" value={formatMad(serviceFee)} />
-              <Row label="Livraison" value={DELIVERY_FEE_DH === 0 ? 'Offerte ✨' : formatMad(DELIVERY_FEE_DH)} />
-              <Row label="Total" value={formatMad(total)} bold />
+              <Row
+                label="Livraison"
+                value={deliveryFee > 0 ? formatMad(deliveryFee) : 'Offerte ✨'}
+              />
+              <Row
+                label="Total"
+                value={isCustom
+                  ? `${formatMad(total)} + achats`
+                  : formatMad(total)
+                }
+                bold
+              />
             </View>
           </FadeInView>
 
-          {subtotal < 70 ? (
+          {isLimitBlocked ? (
             <FadeInView delay={260}>
               <View style={styles.warnBanner}>
                 <Text style={styles.warnText}>
@@ -270,10 +348,18 @@ export default function CheckoutScreen() {
 
           <FadeInView delay={320}>
             <YohaButton
-              title={loading ? 'Validation…' : subtotal < 70 ? 'Minimum 70 DH requis' : `Confirmer · ${formatMad(total)}`}
+              title={
+                loading
+                  ? 'Validation…'
+                  : isLimitBlocked
+                    ? 'Minimum 70 DH requis'
+                    : isCustom
+                      ? `Confirmer · ${formatMad(total)} + achats`
+                      : `Confirmer · ${formatMad(total)}`
+              }
               onPress={handleConfirm}
               loading={loading}
-              disabled={subtotal < 70 || loading}
+              disabled={isLimitBlocked || loading}
               style={{ marginTop: 20 }}
             />
           </FadeInView>

@@ -16,8 +16,8 @@ export const DiscoverPromoDeck = React.memo(function DiscoverPromoDeck({
       <Pressable
         style={{ flex: 1.25 }}
         onPress={() => {
-          hapticLight();
           router.push('/(client)/cart' as never);
+          hapticLight();
         }}
       >
         <LinearGradient colors={[...gradients.cta]} style={[styles.card, shadows.glow]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
@@ -31,8 +31,8 @@ export const DiscoverPromoDeck = React.memo(function DiscoverPromoDeck({
       <Pressable
         style={{ flex: 1 }}
         onPress={() => {
-          hapticLight();
           onOffresFlashPress?.();
+          hapticLight();
         }}
       >
         <LinearGradient colors={['#0f172a', '#1e1b4b']} style={[styles.card, shadows.card]}>

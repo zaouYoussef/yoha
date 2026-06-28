@@ -92,6 +92,16 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const loginWithGoogle = useCallback(async (idToken) => {
+    try {
+      const session = await authApi.loginWithGoogle(idToken);
+      setUser(session);
+      return { ok: true, user: session };
+    } catch (e) {
+      return { ok: false, error: e.message || 'Connexion Google impossible.' };
+    }
+  }, []);
+
   const logout = useCallback(() => {
     authApi.logout();
     setUser(null);
@@ -103,11 +113,12 @@ export function AuthProvider({ children }) {
       booting,
       login,
       register,
+      loginWithGoogle,
       logout,
       ROLE_LABELS,
       AUTH_ROLES,
     }),
-    [user, booting, login, register, logout]
+    [user, booting, login, register, loginWithGoogle, logout]
   );
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;

@@ -14,13 +14,17 @@ import { brand, ink, radius } from '../../src/theme';
 import { fonts } from '../../src/theme/fonts';
 
 export default function LoginScreen() {
-  const { login, loginWithGoogle, loginWithApple } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const finishAuth = useCallback((user: { role: string }) => {
+  const finishAuth = useCallback((user: { role: string } | null) => {
+    if (!user) {
+      setError('Profil utilisateur invalide');
+      return;
+    }
     router.replace(roleHome(user.role) as never);
   }, []);
 
@@ -40,19 +44,14 @@ export default function LoginScreen() {
   const handleGoogleToken = useCallback(
     async (idToken: string) => {
       setError('');
-      const user = await loginWithGoogle(idToken);
-      finishAuth(user);
+      try {
+        const user = await loginWithGoogle(idToken);
+        finishAuth(user);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Connexion Google impossible');
+      }
     },
     [loginWithGoogle, finishAuth],
-  );
-
-  const handleAppleSignIn = useCallback(
-    async (identityToken: string, fullName?: { givenName: string; familyName: string }) => {
-      setError('');
-      const user = await loginWithApple(identityToken, fullName);
-      finishAuth(user);
-    },
-    [loginWithApple, finishAuth],
   );
 
   return (
@@ -63,7 +62,6 @@ export default function LoginScreen() {
         <SocialAuthButtons
           disabled={loading}
           onGoogleToken={handleGoogleToken}
-          onAppleSignIn={handleAppleSignIn}
           onError={setError}
         />
 

@@ -1,3 +1,4 @@
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import {
@@ -8,7 +9,6 @@ import {
   TextStyle,
   ViewStyle,
 } from 'react-native';
-import { hapticLight } from '../../lib/haptics';
 import { brand, gradients, ink, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
 
@@ -25,6 +25,8 @@ type Props = {
   size?: 'md' | 'lg';
 };
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
 export function YohaButton({
   title,
   onPress,
@@ -37,84 +39,75 @@ export function YohaButton({
 }: Props) {
   const busy = disabled || loading;
   const height = size === 'lg' ? 58 : 48;
+  const scale = useSharedValue(1);
 
-  const handlePress = () => {
-    if (busy) return;
-    hapticLight();
-    onPress();
+  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  const handlePressIn = () => {
+    scale.value = withTiming(0.96, { duration: 50 });
   };
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 16, stiffness: 240 });
+  };
+
+  const btnStyle = [busy && styles.disabled, animStyle, style] as any;
+  const txtStyle = variant === 'ghost' ? styles.ghostText : styles.primaryText;
+
+  const content = loading ? (
+    <ActivityIndicator color={variant === 'ghost' ? brand[600] : '#fff'} />
+  ) : (
+    <Text style={[txtStyle, textStyle]}>{title}</Text>
+  );
 
   if (variant === 'ghost') {
     return (
-      <Pressable
-        onPress={handlePress}
+      <AnimatedPressable
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
         disabled={busy}
-        style={({ pressed }) => [
-          styles.ghost,
-          { height },
-          busy && styles.disabled,
-          pressed && !busy && styles.pressed,
-          style,
-        ]}
+        style={[styles.ghost, { height }, btnStyle]}
       >
-        {loading ? (
-          <ActivityIndicator color={brand[600]} />
-        ) : (
-          <Text style={[styles.ghostText, textStyle]}>{title}</Text>
-        )}
-      </Pressable>
+        {content}
+      </AnimatedPressable>
     );
   }
 
   if (variant === 'dark') {
     return (
-      <Pressable
-        onPress={handlePress}
+      <AnimatedPressable
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
         disabled={busy}
-        style={({ pressed }) => [
-          styles.dark,
-          { height },
-          busy && styles.disabled,
-          pressed && !busy && styles.pressed,
-          style,
-        ]}
+        style={[styles.dark, { height }, btnStyle]}
       >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={[styles.primaryText, textStyle]}>{title}</Text>
-        )}
-      </Pressable>
+        {content}
+      </AnimatedPressable>
     );
   }
 
   if (variant === 'danger') {
     return (
-      <Pressable
-        onPress={handlePress}
+      <AnimatedPressable
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
         disabled={busy}
-        style={({ pressed }) => [
-          styles.danger,
-          { height },
-          busy && styles.disabled,
-          pressed && !busy && styles.pressed,
-          style,
-        ]}
+        style={[styles.danger, { height }, btnStyle]}
       >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={[styles.primaryText, textStyle]}>{title}</Text>
-        )}
-      </Pressable>
+        {content}
+      </AnimatedPressable>
     );
   }
 
   return (
-    <Pressable
-      onPress={handlePress}
+    <AnimatedPressable
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       disabled={busy}
-      style={({ pressed }) => [busy && styles.disabled, pressed && !busy && styles.pressed, style]}
+      style={[btnStyle]}
     >
       <LinearGradient
         colors={[...gradients.cta]}
@@ -122,13 +115,9 @@ export function YohaButton({
         end={{ x: 1, y: 0 }}
         style={[styles.primary, { height }, shadows.glow]}
       >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={[styles.primaryText, textStyle]}>{title}</Text>
-        )}
+        {content}
       </LinearGradient>
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 
@@ -170,5 +159,4 @@ const styles = StyleSheet.create({
     backgroundColor: '#ef4444',
   },
   disabled: { opacity: 0.5 },
-  pressed: { opacity: 0.92 },
 });

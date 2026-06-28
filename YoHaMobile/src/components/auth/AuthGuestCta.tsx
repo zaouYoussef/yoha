@@ -10,8 +10,8 @@ export function AuthGuestCta() {
   return (
     <Pressable
       onPress={() => {
-        hapticLight();
         router.replace('/(client)' as never);
+        hapticLight();
       }}
       style={({ pressed }) => [styles.wrap, pressed && { opacity: 0.94 }]}
     >

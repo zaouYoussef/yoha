@@ -496,7 +496,7 @@ export function RestoOrderCard({ order, action, completed = false }) {
         </div>
         <div className="text-right shrink-0">
           <div className="font-bold text-sm">{formatMad(orderFoodTotalMad(order), { decimals: 0 })}</div>
-          <div className="text-[10px] text-ink-500">{order.items.reduce((s,i) => s+i.qty, 0)} art.</div>
+          <div className="text-[10px] text-ink-500">{(order.items || []).reduce((s,i) => s+i.qty, 0)} art.</div>
           {!completed && statusLabel && (
             <div className="mt-1">
               <StatusPill status={order.status} className="text-[9px] px-2 py-0.5" />
@@ -505,8 +505,8 @@ export function RestoOrderCard({ order, action, completed = false }) {
         </div>
       </div>
       <div className="mt-2 space-y-1">
-        {order.items.map(it => (
-          <div key={it.id} className="flex items-center gap-2 text-xs">
+        {(order.items || []).map(it => (
+          <div key={it.db_id || it.id} className="flex items-center gap-2 text-xs">
             <span className="font-bold text-brand-600">{it.qty}×</span>
             <span className="truncate flex-1">{it.name}</span>
           </div>

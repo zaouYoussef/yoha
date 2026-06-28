@@ -71,13 +71,13 @@ export const CraveRoulette = React.memo(function CraveRoulette({ restaurants }: 
         restaurantId: winner.restaurant.slug,
         restaurantName: winner.restaurant.name,
       }, 1);
-      hapticSuccess();
       showToast(
         'Ajouté au panier ! 🛒',
         `Minimum 70 DH requis. Nous avons ajouté ${winner.item.name}. Ajoutez-en plus pour commander !`,
         '⚠️'
       );
       setModalVisible(false);
+      hapticSuccess();
       return;
     }
 
@@ -105,10 +105,10 @@ export const CraveRoulette = React.memo(function CraveRoulette({ restaurants }: 
       if (order.id) await subscribeOrdersPush([String(order.id)]);
 
       clear();
-      hapticSuccess();
       showToast('Commande validée ! 🚀', `${winner.item.name} arrive chaud !`, '🎉');
       setModalVisible(false);
       router.replace(`/(client)/order/${order.id}?justPlaced=true` as never);
+      hapticSuccess();
     } catch (e) {
       showToast('Erreur Express', e instanceof Error ? e.message : 'Commande impossible', '❌');
     } finally {
@@ -202,9 +202,9 @@ export const CraveRoulette = React.memo(function CraveRoulette({ restaurants }: 
       showToast('Aucun plat disponible', 'Revenez aux heures d’ouverture des restaurants !', '🔒');
       return;
     }
-    hapticSuccess();
     setWinner(null);
     setModalVisible(true);
+    hapticSuccess();
     spin();
   };
 
@@ -248,9 +248,9 @@ export const CraveRoulette = React.memo(function CraveRoulette({ restaurants }: 
       restaurantId: winner.restaurant.slug,
       restaurantName: winner.restaurant.name,
     }, 1);
-    hapticSuccess();
     showToast('Ajouté au panier !', `${winner.item.name} a été ajouté.`, '🎉');
     setModalVisible(false);
+    hapticSuccess();
   };
 
   const pressAnim = useAnimatedStyle(() => ({

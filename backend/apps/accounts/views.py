@@ -12,6 +12,8 @@ from .tokens import EmailTokenObtainPairSerializer
 from apps.audit.services import log_audit
 
 from .serializers import (
+    AdminUserCreateSerializer,
+    AdminUserListSerializer,
     AppleAuthSerializer,
     GoogleAuthSerializer,
     ProfileUpdateSerializer,
@@ -89,6 +91,69 @@ class PushTokenView(APIView):
         else:
             PushDevice.objects.filter(user=request.user).delete()
         return Response({"ok": True})
+
+
+class AdminUserListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != "admin":
+            return Response({"detail": "Accès refusé."}, status=status.HTTP_403_FORBIDDEN)
+        role = request.query_params.get("role", "")
+        qs = User.objects.all()
+        if role:
+            qs = qs.filter(role=role)
+        serializer = AdminUserListSerializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class AdminUserCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if request.user.role != "admin":
+            return Response({"detail": "Accès refusé."}, status=status.HTTP_403_FORBIDDEN)
+        serializer = AdminUserCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            log_audit(
+                actor=request.user,
+                action="admin.user.create",
+                target_type="user",
+                target_id=str(user.id),
+                metadata={"email": user.email, "role": user.role},
+            )
+            return Response(AdminUserListSerializer(user).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AdminUserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return None
+
+    def delete(self, request, pk):
+        if request.user.role != "admin":
+            return Response({"detail": "Accès refusé."}, status=status.HTTP_403_FORBIDDEN)
+        user = self.get_object(pk)
+        if not user:
+            return Response({"detail": "Utilisateur introuvable."}, status=status.HTTP_404_NOT_FOUND)
+        if user.role == "admin":
+            return Response({"detail": "Impossible de supprimer un administrateur."}, status=status.HTTP_400_BAD_REQUEST)
+        log_audit(
+            actor=request.user,
+            action="admin.user.delete",
+            target_type="user",
+            target_id=str(user.id),
+            metadata={"email": user.email, "role": user.role},
+        )
+        user.is_active = False
+        user.save(update_fields=["is_active"])
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ThrottledTokenObtainPairView(TokenObtainPairView):

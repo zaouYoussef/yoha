@@ -89,14 +89,12 @@ export function computeNet(totalDh) {
 
 /** Seuil au-delà duquel les frais de service passent au tarif élevé */
 export const SERVICE_FEE_THRESHOLD_MAD = 3000;
-export const SERVICE_FEE_LOW_MAD = 12;
-export const SERVICE_FEE_HIGH_MAD = 30;
+export const SERVICE_FEE_LOW_MAD = 0;
+export const SERVICE_FEE_HIGH_MAD = 0;
 
-/** Frais de service checkout : 12 MAD par défaut, 30 MAD si sous-total > 3000 MAD */
+/** Frais de service checkout : 0 MAD par défaut pour les restaurants standard */
 export function getServiceFeeMad(subtotal) {
-  const s = typeof subtotal === 'number' ? subtotal : parseFloat(subtotal);
-  if (!Number.isFinite(s)) return SERVICE_FEE_LOW_MAD;
-  return s > SERVICE_FEE_THRESHOLD_MAD ? SERVICE_FEE_HIGH_MAD : SERVICE_FEE_LOW_MAD;
+  return 0;
 }
 
 /** Affiche un montant en dirhams (MAD) */

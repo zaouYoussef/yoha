@@ -31,7 +31,7 @@ export function MenuHighlights({
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
         {items.map((item) => (
-          <Pressable key={item.id} onPress={() => { hapticLight(); onPress(item); }} style={[styles.card, shadows.float]}>
+          <Pressable key={item.id} onPress={() => { onPress(item); hapticLight(); }} style={[styles.card, shadows.float]}>
             {item.img ? (
               <Image source={{ uri: item.img }} style={styles.img} contentFit="cover" />
             ) : (

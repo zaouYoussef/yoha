@@ -1,6 +1,9 @@
 from django.urls import path
 
 from .views import (
+    AdminUserCreateView,
+    AdminUserDetailView,
+    AdminUserListView,
     AppleAuthView,
     GoogleAuthView,
     MeView,
@@ -20,4 +23,7 @@ urlpatterns = [
     path("me/", MeView.as_view(), name="me"),
     path("profile/", ProfileView.as_view(), name="profile"),
     path("push-token/", PushTokenView.as_view(), name="push_token"),
+    path("youssef/users/", AdminUserListView.as_view(), name="admin-user-list"),
+    path("youssef/users/create/", AdminUserCreateView.as_view(), name="admin-user-create"),
+    path("youssef/users/<uuid:pk>/", AdminUserDetailView.as_view(), name="admin-user-detail"),
 ]

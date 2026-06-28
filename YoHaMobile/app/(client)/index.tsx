@@ -37,6 +37,7 @@ import { hapticSuccess } from '../../src/lib/haptics';
 import { useLayoutChrome } from '../../src/lib/layoutChrome';
 import { orderToCartItems } from '../../src/lib/reorder';
 import { hasAnyRestaurantOpen } from '../../src/lib/openingHours';
+import { STATIC_STORES } from '../../src/data/staticStores';
 import { brand } from '../../src/theme';
 import { fonts } from '../../src/theme/fonts';
 
@@ -82,14 +83,43 @@ export default function ClientHome() {
     if (opts?.pull) setRefreshing(true);
     else if (opts?.showSkeleton) setLoading(true);
     try {
-      const data = await restaurantsApi.list({
-        ...(query ? { q: query } : {}),
-        ...(cuisine && cuisine !== 'promos' ? { cuisine } : {}),
-      });
-      if (cuisine === 'promos') {
-        setRestaurants(data.filter((r) => !!r.promo));
+      if (['pharmacy', 'dessert', 'parapharmacy', 'supermarket', 'shop'].includes(cuisine)) {
+        let filtered = STATIC_STORES.filter(s => s.cuisine === cuisine);
+        if (query) {
+          const q = query.toLowerCase();
+          filtered = filtered.filter(s => 
+            s.name.toLowerCase().includes(q) || 
+            s.tags.some(t => t.toLowerCase().includes(q))
+          );
+        }
+        const mapped = filtered.map(s => ({
+          id: s.id,
+          slug: s.id,
+          name: s.name,
+          cuisine: s.cuisine,
+          cover: s.cover,
+          logo: s.logo,
+          description: s.description,
+          fee: s.fee,
+          distance: s.distance,
+          eta: s.eta,
+          tags: s.tags,
+          isOpen: s.isOpen,
+          isStatic: s.isStatic,
+          isCustomRequest: s.isCustomRequest,
+          menu: []
+        } as Restaurant));
+        setRestaurants(mapped);
       } else {
-        setRestaurants(data);
+        const data = await restaurantsApi.list({
+          ...(query ? { q: query } : {}),
+          ...(cuisine && cuisine !== 'promos' ? { cuisine } : {}),
+        });
+        if (cuisine === 'promos') {
+          setRestaurants(data.filter((r) => !!r.promo));
+        } else {
+          setRestaurants(data);
+        }
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erreur de chargement');
@@ -159,9 +189,9 @@ export default function ClientHome() {
       return { ...l, qty };
     });
     replaceItems(cartLines);
-    hapticSuccess();
     showToast('Panier rempli !', 'Commandez à nouveau en un clic', '↻');
     router.push('/(client)/cart' as never);
+    hapticSuccess();
   }, [replaceItems, showToast]);
 
   return (

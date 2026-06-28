@@ -237,9 +237,10 @@ SIMPLE_JWT = {
     "USER_ID_CLAIM": "user_id",
 }
 
-# ——— OAuth (Google / Apple) ———
+# ——— OAuth (Google / Apple / Firebase) ———
 GOOGLE_OAUTH_CLIENT_IDS = env("GOOGLE_OAUTH_CLIENT_IDS", default="")
 APPLE_CLIENT_ID = env("APPLE_CLIENT_ID", default="ma.yoha.app")
+FIREBASE_PROJECT_ID = env("FIREBASE_PROJECT_ID", default="")
 
 # ——— Brute-force (django-axes) ———
 AXES_FAILURE_LIMIT = 5

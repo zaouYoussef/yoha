@@ -51,3 +51,30 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = ("display_name", "phone")
         extra_kwargs = {"phone": {"write_only": True}}
+
+
+class AdminUserCreateSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True, min_length=6)
+    display_name = serializers.CharField(max_length=120)
+    role = serializers.ChoiceField(choices=["courier", "restaurant"])
+
+    def validate_email(self, value):
+        email = value.strip().lower()
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError("Cette adresse e-mail est déjà utilisée.")
+        return email
+
+    def create(self, validated_data):
+        return User.objects.create_user(
+            email=validated_data["email"],
+            password=validated_data["password"],
+            display_name=validated_data["display_name"],
+            role=validated_data["role"],
+        )
+
+
+class AdminUserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("id", "email", "display_name", "role", "is_active", "created_at")

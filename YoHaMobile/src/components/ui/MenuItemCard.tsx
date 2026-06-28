@@ -37,7 +37,7 @@ export function MenuItemCard({
 
   return (
     <AnimatedPressable
-      onPress={() => { hapticLight(); onPress?.(); }}
+      onPress={() => { onPress?.(); hapticLight(); }}
       style={[styles.card, shadows.soft, unavailable && styles.cardOff]}
     >
       <View style={styles.imgWrap}>

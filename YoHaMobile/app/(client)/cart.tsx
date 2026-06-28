@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState, useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FadeInView } from '../../src/components/animations/FadeInView';
 import { PremiumBackground } from '../../src/components/PremiumBackground';
@@ -25,11 +25,15 @@ import { ADDRESS_PRESETS } from '../../src/lib/addresses';
 export default function CartScreen() {
   const insets = useSafeAreaInsets();
   const { footerBottomPadding, scrollBottomPadding, tabBarHeight } = useLayoutChrome();
-  const { items, subtotal, updateQty, removeItem, count, clear, restaurantId, addItem } = useCart();
+  const { items, subtotal, updateQty, removeItem, count, clear, restaurantId, addItem, replaceItems } = useCart();
   const { showToast } = useToast();
   const { user } = useAuth();
-  const serviceFee = getServiceFeeMad(subtotal);
-  const total = subtotal + serviceFee + DELIVERY_FEE_DH;
+  const isCustom = items.some(i => (i as any).isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes((i as any).restaurantCuisine));
+  const customItems = items.filter(i => (i as any).isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes((i as any).restaurantCuisine));
+  const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
+  const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
+  const total = subtotal + deliveryFee;
+  const isLimitBlocked = !isCustom && subtotal < 70;
 
   const [storedDetails, setStoredDetails] = useState<DeliveryDetails | null>(null);
   const [expressLoading, setExpressLoading] = useState(false);
@@ -119,7 +123,7 @@ export default function CartScreen() {
 
   const handleExpressCheckout = async () => {
     if (!storedDetails) return;
-    if (subtotal < 70) {
+    if (isLimitBlocked) {
       setExpressError('Commande minimale de 70 DH requise.');
       return;
     }
@@ -135,6 +139,9 @@ export default function CartScreen() {
           menu_item_id: i.id,
           restaurant_slug: i.restaurantId,
           quantity: i.qty,
+          item_name: i.name,
+          item_price: i.price,
+          restaurant_name: i.restaurantName,
         })),
         customer_name: storedDetails.name.trim(),
         customer_email: storedDetails.email?.trim() || undefined,
@@ -149,9 +156,9 @@ export default function CartScreen() {
       if (order.id) await subscribeOrdersPush([String(order.id)]);
 
       clear();
-      hapticSuccess();
       showToast('Commande validée ! 🚀', 'Votre repas arrive bientôt', '🎉');
       router.replace(`/(client)/order/${order.id}?justPlaced=true` as never);
+      hapticSuccess();
     } catch (e) {
       setExpressError(e instanceof Error ? e.message : 'Une erreur est survenue');
     } finally {
@@ -169,8 +176,8 @@ export default function CartScreen() {
     ];
 
     const navigateToCuisine = (id: string) => {
-      hapticLight();
       router.push({ pathname: '/(client)', params: { filterCuisine: id } } as never);
+      hapticLight();
     };
 
     return (
@@ -239,18 +246,73 @@ export default function CartScreen() {
                 </LinearGradient>
               )}
               <View style={{ flex: 1 }}>
-                <Text style={styles.lineName}>{line.name}</Text>
-                <Text style={styles.linePrice}>{formatMad(line.price * line.qty)}</Text>
+                {(line as any).isCustom ? (
+                  <View style={{ marginBottom: 6 }}>
+                    <Text style={{ fontSize: 11, fontFamily: fonts.bold, color: brand[600], textTransform: 'uppercase', marginBottom: 2 }}>
+                      Demande sur-mesure
+                    </Text>
+                    {(line as any).customDetails?.storeAddress && (
+                      <Text style={{ fontSize: 11, color: ink[500], fontFamily: fonts.semibold, marginBottom: 4 }} numberOfLines={1}>
+                        Établissement : {(line as any).customDetails.storeName}
+                      </Text>
+                    )}
+                    <TextInput
+                      value={(line as any).customDetails?.details || ''}
+                      onChangeText={(newDetails) => {
+                        const updated = items.map((i) => {
+                          if (i.id === line.id) {
+                            const customDetails = (i as any).customDetails || {};
+                            const storeName = customDetails.storeName || i.restaurantName;
+                            const name = customDetails.storeAddress 
+                              ? `[${storeName}] ${newDetails.trim()}`
+                              : `${i.restaurantName} - ${newDetails.trim()}`;
+                            return {
+                              ...i,
+                              name,
+                              customDetails: {
+                                ...customDetails,
+                                details: newDetails
+                              }
+                            };
+                          }
+                          return i;
+                        });
+                        replaceItems(updated);
+                      }}
+                      placeholder="Modifier les détails de votre demande..."
+                      placeholderTextColor="#9ca3af"
+                      multiline
+                      numberOfLines={2}
+                      style={{
+                        fontSize: 13,
+                        fontFamily: fonts.medium,
+                        color: ink[900],
+                        backgroundColor: 'rgba(0,0,0,0.02)',
+                        borderWidth: 1,
+                        borderColor: ink[200],
+                        borderRadius: radius.md,
+                        paddingHorizontal: 8,
+                        paddingVertical: 4,
+                        textAlignVertical: 'top',
+                      }}
+                    />
+                  </View>
+                ) : (
+                  <Text style={styles.lineName}>{line.name}</Text>
+                )}
+                <Text style={styles.linePrice}>
+                  {line.price > 0 ? formatMad(line.price * line.qty) : <Text style={{ color: brand[600], fontFamily: fonts.bold }}>Sur ticket</Text>}
+                </Text>
                 <View style={styles.qtyRow}>
                   <Pressable
-                    onPress={() => { hapticLight(); updateQty(line.id, line.qty - 1); }}
+                    onPress={() => { updateQty(line.id, line.qty - 1); hapticLight(); }}
                     style={styles.qtyBtn}
                   >
                     <Text style={styles.qtyBtnText}>−</Text>
                   </Pressable>
                   <Text style={styles.qty}>{line.qty}</Text>
                   <Pressable
-                    onPress={() => { hapticLight(); updateQty(line.id, line.qty + 1); }}
+                    onPress={() => { updateQty(line.id, line.qty + 1); hapticLight(); }}
                     style={styles.qtyBtn}
                   >
                     <Text style={styles.qtyBtnText}>+</Text>
@@ -291,7 +353,6 @@ export default function CartScreen() {
                       <Text style={styles.upsellPrice}>{formatMad(Number(item.price))}</Text>
                       <Pressable
                         onPress={() => {
-                          hapticLight();
                           addItem({
                             id: item.id,
                             name: item.name,
@@ -300,6 +361,7 @@ export default function CartScreen() {
                             restaurantId: restaurant.slug,
                             restaurantName: restaurant.name,
                           }, 1);
+                          hapticLight();
                           showToast('Ajouté ! 🥳', `${item.name} a été ajouté au panier.`, '✓');
                         }}
                         style={styles.upsellAddBtn}
@@ -326,8 +388,8 @@ export default function CartScreen() {
                 <Text style={styles.expressTitle}>⚡ Commande Express 1-Clic</Text>
                 <Pressable
                   onPress={() => {
-                    hapticLight();
                     router.push('/(client)/checkout' as never);
+                    hapticLight();
                   }}
                   style={styles.editExpressBtn}
                 >
@@ -366,7 +428,7 @@ export default function CartScreen() {
 
               <Pressable
                 onPress={handleExpressCheckout}
-                disabled={subtotal < 70 || expressLoading}
+                disabled={isLimitBlocked || expressLoading}
                 style={{ marginTop: 16 }}
               >
                 <LinearGradient
@@ -376,7 +438,14 @@ export default function CartScreen() {
                   end={{ x: 1, y: 0 }}
                 >
                   <Text style={styles.expressBtnText}>
-                    {expressLoading ? 'Validation en cours... 🔥' : `🚀 Commande Express (1-Clic) · ${formatMad(total)}`}
+                    {expressLoading 
+                      ? 'Validation en cours... 🔥' 
+                      : `🚀 Commande Express (1-Clic) · ${
+                          isCustom 
+                            ? (subtotal > 0 ? `${formatMad(total)} + achats` : '20 DH + achats')
+                            : formatMad(total)
+                        }`
+                    }
                   </Text>
                 </LinearGradient>
               </Pressable>
@@ -386,16 +455,34 @@ export default function CartScreen() {
 
         <FadeInView delay={280}>
           <LinearGradient colors={['rgba(255,255,255,0.98)', brand[50]]} style={[styles.summary, shadows.soft]}>
-            <Row label="Sous-total" value={formatMad(subtotal)} />
-            <Row label="Frais de service" value={formatMad(serviceFee)} />
-            <Row label="Livraison" value="Offerte ✨" />
+            <Row 
+              label="Sous-total" 
+              value={isCustom 
+                ? (subtotal > 0 ? `${formatMad(subtotal)} + achats` : 'Sur ticket')
+                : formatMad(subtotal)
+              } 
+            />
+            <Row 
+              label="Frais de livraison" 
+              value={deliveryFee > 0 
+                ? formatMad(deliveryFee) 
+                : 'Offerte ✨'
+              } 
+            />
             <View style={styles.divider} />
-            <Row label="Total" value={formatMad(total)} bold />
+            <Row 
+              label="Total" 
+              value={isCustom 
+                ? (subtotal > 0 ? `${formatMad(total)} + achats` : '20 DH + achats')
+                : formatMad(total)
+              } 
+              bold 
+            />
           </LinearGradient>
         </FadeInView>
 
         <FadeInView delay={300}>
-          {subtotal < 70 ? (
+          {isLimitBlocked ? (
             <View style={[styles.progressCard, shadows.card]}>
               <View style={styles.progressHeaderRow}>
                 <Text style={styles.progressEmoji}>🎁</Text>
@@ -419,6 +506,18 @@ export default function CartScreen() {
                 <Text style={styles.progressLabelRight}>Objectif : 70 DH</Text>
               </View>
             </View>
+          ) : isCustom ? (
+            <LinearGradient
+              colors={['#fdf4ff', '#fae8ff']}
+              style={[styles.unlockCard, shadows.card, { borderColor: 'rgba(217,70,239,0.2)', borderWidth: 1 }]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Text style={[styles.unlockTitle, { color: '#86198f' }]}>📝 Commande sur-mesure active</Text>
+              <Text style={[styles.unlockSub, { color: '#a21caf' }]}>
+                Frais de livraison fixes de 20 DH. Les achats seront réglés à la livraison selon le ticket de caisse réel.
+              </Text>
+            </LinearGradient>
           ) : (
             <LinearGradient
               colors={['#f0fdf4', '#dcfce7']}
@@ -444,9 +543,15 @@ export default function CartScreen() {
 
       <View style={[styles.footer, { paddingBottom: footerBottomPadding }]}>
         <YohaButton
-          title={subtotal < 70 ? `Minimum 70 DH requis` : `Commander · ${formatMad(total)} →`}
+          title={
+            isLimitBlocked 
+              ? `Minimum 70 DH requis` 
+              : isCustom
+                ? `Commander · ${subtotal > 0 ? `${formatMad(total)} + achats` : '20 DH + achats'} →`
+                : `Commander · ${formatMad(total)} →`
+          }
           onPress={() => router.push('/(client)/checkout' as never)}
-          disabled={subtotal < 70}
+          disabled={isLimitBlocked}
         />
       </View>
     </PremiumBackground>

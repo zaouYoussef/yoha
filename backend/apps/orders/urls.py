@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    AdminCourierDeleteView,
     AssignCourierView,
     AutoDispatchView,
     CheckoutView,
@@ -23,6 +24,7 @@ urlpatterns = [
     path("push-subscribe/", OrderPushSubscribeView.as_view(), name="order-push-subscribe"),
     path("", OrderListView.as_view(), name="order-list"),
     path("couriers/", CourierListView.as_view(), name="courier-list"),
+    path("couriers/<int:pk>/", AdminCourierDeleteView.as_view(), name="admin-courier-delete"),
     path("<str:public_id>/", OrderDetailView.as_view(), name="order-detail"),
     path("<str:public_id>/status/", OrderStatusView.as_view(), name="order-status"),
     path("<str:public_id>/dispatch/", AutoDispatchView.as_view(), name="order-dispatch"),

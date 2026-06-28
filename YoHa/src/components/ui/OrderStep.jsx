@@ -70,7 +70,7 @@ export function OrderTrackingTimeline({ status = 'placed' }) {
                   />
                 )}
               </div>
-              <div className={`pb-5 pt-1.5 flex-1 min-w-0 ${pending ? 'opacity-45' : ''}`}>
+              <div className={`pb-5 pt-1.5 flex-1 min-w-0 ${pending ? 'opacity-[0.45]' : ''}`}>
                 <div className={`text-sm font-bold ${current ? 'text-brand-600 dark:text-brand-400' : done ? 'text-emerald-700 dark:text-emerald-400' : 'text-ink-500'}`}>
                   {label}
                 </div>

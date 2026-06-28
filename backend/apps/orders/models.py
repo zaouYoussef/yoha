@@ -157,6 +157,7 @@ class Order(models.Model):
         delivery_instructions="",
         idempotency_key=None,
         scheduled_delivery_at=None,
+        custom_delivery_fee=None,
     ):
         if idempotency_key:
             existing = cls.objects.filter(idempotency_key=idempotency_key).first()
@@ -172,7 +173,12 @@ class Order(models.Model):
             subtotal += line_total
             line_objects.append((item, qty, line_total))
 
-        fee = service_fee_mad(subtotal)
+        if custom_delivery_fee is not None:
+            fee = Decimal(str(custom_delivery_fee))
+        elif restaurant.cuisine in ["medical", "dessert", "supermarket", "shop", "parapharmacy"]:
+            fee = Decimal("20.00")
+        else:
+            fee = Decimal("0.00")
         total = subtotal + fee
         order = cls.objects.create(
             public_id=cls.generate_public_id(),

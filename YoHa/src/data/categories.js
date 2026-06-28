@@ -9,5 +9,8 @@ export const CATEGORIES_BANNERS = [
   { label:'MedEat',   gradient:'from-sky-400 to-indigo-500',     emoji:'🏥', id:'medical' },
   { label:'Dessert',  gradient:'from-pink-400 to-fuchsia-500',   emoji:'🍰', id:'dessert' },
   { label:'Pharmacie', gradient:'from-emerald-400 to-teal-600',  emoji:'💊', id:'pharmacy' },
+  { label:'Parapharma', gradient:'from-green-400 to-emerald-600', emoji:'🌿', id:'parapharmacy' },
+  { label:'Supermarché', gradient:'from-blue-400 to-cyan-600',   emoji:'🛒', id:'supermarket' },
+  { label:'Magasins', gradient:'from-purple-400 to-fuchsia-600', emoji:'🛍️', id:'shop' },
   { label:'Boissons', gradient:'from-cyan-400 to-blue-500',      emoji:'🥤', id:'drinks' },
 ];

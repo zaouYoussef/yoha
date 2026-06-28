@@ -52,7 +52,11 @@ function parseError(data, status) {
   if (!data) return `Erreur serveur (${status})`;
   if (typeof data === 'string') {
     if (data.includes('<!DOCTYPE html>') || data.includes('<html')) {
-      if (data.includes('APPEND_SLASH') || data.includes("doesn't end in a slash")) {
+      // Django APPEND_SLASH renvoie une page 404 avec ce message spécifique
+      const isAppendSlash =
+        (status === 404 || status === 301 || status === 302) &&
+        (data.includes('Page not found') || data.includes('The current path') || data.includes("doesn't end in a slash"));
+      if (isAppendSlash) {
         return "Erreur de configuration API (URL sans slash final). Redémarrez le serveur Next.js.";
       }
       return `Erreur serveur (${status}). Vérifiez que le backend Django tourne sur le port 8000.`;
@@ -265,6 +269,17 @@ export const authApi = {
       auth: false,
     });
     return authApi.login(email.trim().toLowerCase(), password);
+  },
+
+  async loginWithGoogle(idToken) {
+    const data = await apiFetch('/auth/google/', {
+      method: 'POST',
+      body: { id_token: idToken },
+      auth: false,
+    });
+    setTokens({ access: data.access, refresh: data.refresh });
+    const me = await apiFetch('/auth/me/');
+    return mapUser(me);
   },
 
   async me() {

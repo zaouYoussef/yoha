@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from apps.restaurants.models import MenuItem, Restaurant
+from apps.restaurants.models import MenuItem, Restaurant, MenuCategory
 
 from .models import CourierProfile, Order, OrderLine
 
@@ -15,6 +15,9 @@ class CartLineInputSerializer(serializers.Serializer):
     menu_item_id = serializers.CharField(help_text="external_id du plat")
     restaurant_slug = serializers.CharField()
     quantity = serializers.IntegerField(min_value=1, max_value=50)
+    item_name = serializers.CharField(required=False, allow_blank=True, default="")
+    item_price = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, default=Decimal("0.00"))
+    restaurant_name = serializers.CharField(required=False, allow_blank=True, default="")
 
 
 class CheckoutSerializer(serializers.Serializer):
@@ -58,17 +61,82 @@ class CheckoutSerializer(serializers.Serializer):
         request = self.context["request"]
         items_in = validated_data["items"]
         slug = items_in[0]["restaurant_slug"]
-        restaurant = get_object_or_404(Restaurant, slug=slug, is_active=True)
+        
+        # Dynamically get or create Restaurant (e.g. for pharmacies & patisseries)
+        restaurant = Restaurant.objects.filter(slug=slug, is_active=True).first()
+        if not restaurant:
+            restaurant_name = items_in[0].get("restaurant_name") or "Établissement"
+            if not restaurant_name or restaurant_name == "Établissement":
+                restaurant_name = slug.replace("-", " ").title()
+            
+            cuisine = Restaurant.Cuisine.MEDICAL
+            if "dessert" in slug or "patisserie" in slug or "patiss" in slug:
+                cuisine = Restaurant.Cuisine.DESSERT
+            elif "pharmacy" in slug or "medical" in slug or "pharma" in slug:
+                cuisine = Restaurant.Cuisine.MEDICAL
+            elif "supermarket" in slug or "supermarche" in slug or "marche" in slug:
+                cuisine = Restaurant.Cuisine.SUPERMARKET
+            elif "shop" in slug or "magasin" in slug or "boutique" in slug:
+                cuisine = Restaurant.Cuisine.SHOP
+            elif "parapharmacy" in slug or "parapharma" in slug:
+                cuisine = Restaurant.Cuisine.PARAPHARMACY
+                
+            restaurant = Restaurant.objects.create(
+                slug=slug,
+                name=restaurant_name,
+                cuisine=cuisine,
+                is_active=True,
+            )
+
+        # Get or create MenuCategory
+        category, _ = MenuCategory.objects.get_or_create(
+            restaurant=restaurant,
+            name="Articles",
+            defaults={"sort_order": 0}
+        )
 
         resolved = []
         for row in items_in:
-            item = get_object_or_404(
-                MenuItem,
-                restaurant=restaurant,
-                external_id=row["menu_item_id"],
-                is_available=True,
-            )
+            external_id = row["menu_item_id"]
+            item = MenuItem.objects.filter(restaurant=restaurant, external_id=external_id).first()
+            if not item:
+                item_name = row.get("item_name") or "Article"
+                item_price = row.get("item_price") or Decimal("0.00")
+                item = MenuItem.objects.create(
+                    restaurant=restaurant,
+                    category=category,
+                    external_id=external_id,
+                    name=item_name,
+                    price_mad=item_price,
+                    is_available=True,
+                )
             resolved.append({"menu_item": item, "qty": row["quantity"]})
+
+        # Calculate dynamic delivery fee: 20 DH per unique custom/static pharmacy, patisserie, supermarket, shop, or parapharmacy restaurant name
+        custom_restaurant_names = set()
+        for row in items_in:
+            slug = row["restaurant_slug"]
+            r_obj = Restaurant.objects.filter(slug=slug).first()
+            is_custom_cuisine = False
+            if r_obj:
+                is_custom_cuisine = r_obj.cuisine in ["medical", "dessert", "supermarket", "shop", "parapharmacy"]
+            else:
+                is_custom_cuisine = any(keyword in slug for keyword in [
+                    "dessert", "patisserie", "patiss",
+                    "pharmacy", "medical", "pharma",
+                    "supermarket", "supermarche", "marche",
+                    "shop", "magasin", "boutique",
+                    "parapharmacy", "parapharma"
+                ])
+            
+            if is_custom_cuisine:
+                name_val = (row.get("restaurant_name") or slug).strip().lower()
+                if name_val:
+                    custom_restaurant_names.add(name_val)
+
+        custom_delivery_fee = None
+        if custom_restaurant_names:
+            custom_delivery_fee = Decimal(str(len(custom_restaurant_names) * 20))
 
         client = None
         if request.user.is_authenticated and request.user.role == User.Role.CLIENT:
@@ -86,6 +154,7 @@ class CheckoutSerializer(serializers.Serializer):
             delivery_instructions=validated_data.get("delivery_instructions", ""),
             scheduled_delivery_at=validated_data.get("scheduled_delivery_at"),
             idempotency_key=idem,
+            custom_delivery_fee=custom_delivery_fee,
         )
 
 
@@ -188,10 +257,16 @@ class CourierSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source="pk")
     name = serializers.CharField(source="display_name")
     userId = serializers.SerializerMethodField()
+    email = serializers.SerializerMethodField()
 
     class Meta:
         model = CourierProfile
-        fields = ("id", "name", "phone", "avatar_url", "rating", "vehicle", "userId")
+        fields = ("id", "name", "phone", "avatar_url", "rating", "vehicle", "userId", "email")
 
     def get_userId(self, obj):
         return str(obj.user_id) if obj.user_id else None
+
+    def get_email(self, obj):
+        if obj.user_id and obj.user:
+            return obj.user.email
+        return None

@@ -6,6 +6,7 @@ import { RestaurantPage } from '@/views/BrowseViews.jsx';
 import { useYohaNav } from '@/contexts/YohaNavContext.jsx';
 import { useCart } from '@/contexts/AppContexts.jsx';
 import { restaurantsApi } from '@/lib/api';
+import { STATIC_STORES } from '@/data/index.js';
 
 export default function RestaurantRoutePage() {
   const { slug } = useParams();
@@ -18,6 +19,14 @@ export default function RestaurantRoutePage() {
     let cancelled = false;
     setRestaurant(null);
     setError('');
+
+    // Check if it is a static store
+    const staticStore = STATIC_STORES.find(s => s.id === slug);
+    if (staticStore) {
+      setRestaurant(staticStore);
+      return;
+    }
+
     restaurantsApi
       .get(slug)
       .then((data) => {

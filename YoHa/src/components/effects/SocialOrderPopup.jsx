@@ -40,7 +40,7 @@ export function SocialOrderPopup({ visible }) {
       minutes: pickRandom(MINUTES_OPTIONS),
     });
     setOpen(true);
-    hideTimerRef.current = window.setTimeout(() => setOpen(false), 5000);
+    hideTimerRef.current = window.setTimeout(() => setOpen(false), 7000);
   }, []);
 
   useEffect(() => {
@@ -50,9 +50,9 @@ export function SocialOrderPopup({ visible }) {
       return;
     }
 
-    const firstDelay = 3500 + Math.floor(Math.random() * 2500);
+    const firstDelay = 10000 + Math.floor(Math.random() * 5000);
     const tFirst = window.setTimeout(flashOnce, firstDelay);
-    const gap = 12000 + Math.floor(Math.random() * 10000);
+    const gap = 30000 + Math.floor(Math.random() * 20000);
     const loop = window.setInterval(flashOnce, gap);
 
     return () => {

@@ -29,8 +29,8 @@ export function GoogleSignInSection({ disabled, onGoogleToken, onError }: Props)
       onError('Google Sign-In non configuré (EXPO_PUBLIC_GOOGLE_* et backend).');
       return;
     }
-    hapticLight();
     setBusy(true);
+    hapticLight();
     try {
       const idToken = await signInWithGoogleIdToken();
       await onGoogleToken(idToken);

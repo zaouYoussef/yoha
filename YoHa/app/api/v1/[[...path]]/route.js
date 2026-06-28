@@ -18,6 +18,11 @@ async function proxy(request, context) {
   const { search } = new URL(request.url);
   let target = buildBackendUrl(segments, search);
 
+  // Sécurité : s'assurer que l'URL cible se termine par un slash (Django APPEND_SLASH)
+  if (!target.split('?')[0].endsWith('/')) {
+    target = target.replace(/(\?|$)/, '/$1');
+  }
+
   const headers = new Headers();
   const auth = request.headers.get('authorization');
   const contentType = request.headers.get('content-type');

@@ -21,7 +21,7 @@ export const CompactRestaurantCard = React.memo(function CompactRestaurantCard({
 }) {
   return (
     <Pressable
-      onPress={() => { hapticLight(); onPress(); }}
+      onPress={() => { onPress(); hapticLight(); }}
       style={({ pressed }) => [
         wide ? styles.wide : styles.compact,
         shadows.float,

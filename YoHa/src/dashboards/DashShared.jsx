@@ -13,7 +13,9 @@ const DASH_LINKS = {
     { id: 'overview', label: 'Tableau de bord', icon: <I.Sparkle size={18} /> },
     { id: 'orders', label: 'Commandes', icon: <I.Bag size={18} /> },
     { id: 'restaurants', label: 'Restaurants', icon: <I.Chef size={18} /> },
+    { id: 'couriers', label: 'Livreurs', icon: <I.Bike size={18} /> },
     { id: 'revenue', label: 'Revenus', icon: <I.Star size={18} /> },
+    { id: 'promos', label: 'Codes promo', icon: <I.Zap size={18} /> },
   ],
   delivery: [
     { id: 'available', label: 'Disponibles', icon: <I.Bell size={18} /> },

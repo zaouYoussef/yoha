@@ -48,7 +48,7 @@ export function TimeSlotPicker({ selected, onSelect }) {
       <button
         type="button"
         onClick={() => onSelect('')}
-        className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-full border-2 font-semibold text-sm transition-all ${
+        className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-full border-2 font-semibold text-sm transition-colors ${
           !isScheduled
             ? 'border-brand-400 bg-brand-50 text-brand-700 dark:bg-brand-900/20 dark:text-brand-300 shadow-sm'
             : 'border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-900 text-ink-600 dark:text-ink-300 hover:border-brand-300'
@@ -62,7 +62,7 @@ export function TimeSlotPicker({ selected, onSelect }) {
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-full border-2 font-semibold text-sm transition-all ${
+          className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-full border-2 font-semibold text-sm transition-colors ${
             isScheduled
               ? 'border-brand-400 bg-brand-50 text-brand-700 dark:bg-brand-900/20 dark:text-brand-300 shadow-sm'
               : 'border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-900 text-ink-600 dark:text-ink-300 hover:border-brand-300'
@@ -93,7 +93,7 @@ export function TimeSlotPicker({ selected, onSelect }) {
                     key={s.iso}
                     type="button"
                     onClick={() => { onSelect(s.iso); setOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors ${
                       active
                         ? 'bg-brand-50 dark:bg-brand-900/20 border border-brand-400'
                         : 'hover:bg-ink-50 dark:hover:bg-ink-800 border border-transparent'

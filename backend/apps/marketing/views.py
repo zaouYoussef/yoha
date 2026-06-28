@@ -1,8 +1,10 @@
 from django.http import HttpResponse
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .models import PromoCode
+from .serializers import PromoCodeSerializer, ValidatePromoSerializer
 from .services import unsubscribe_email
 
 
@@ -36,3 +38,77 @@ class UnsubscribeView(APIView):
             "</div></body></html>",
             content_type="text/html; charset=utf-8",
         )
+
+
+class AdminPromoListView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        promos = PromoCode.objects.all()
+        serializer = PromoCodeSerializer(promos, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = PromoCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+
+class AdminPromoDetailView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get_object(self, pk):
+        try:
+            return PromoCode.objects.get(pk=pk)
+        except PromoCode.DoesNotExist:
+            return None
+
+    def patch(self, request, pk):
+        promo = self.get_object(pk)
+        if not promo:
+            return Response({"detail": "Code promo introuvable."}, status=404)
+        serializer = PromoCodeSerializer(promo, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    def delete(self, request, pk):
+        promo = self.get_object(pk)
+        if not promo:
+            return Response({"detail": "Code promo introuvable."}, status=404)
+        promo.delete()
+        return Response(status=204)
+
+
+class ValidatePromoView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        serializer = ValidatePromoSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+
+        code = serializer.validated_data["code"].strip().upper()
+        section = serializer.validated_data["section"]
+
+        try:
+            promo = PromoCode.objects.get(code=code, active=True)
+        except PromoCode.DoesNotExist:
+            return Response({"valid": False, "detail": "Code promo invalide ou inactif."}, status=404)
+
+        if promo.section != "all" and promo.section != section:
+            return Response(
+                {"valid": False, "detail": "Ce code promo ne s'applique pas à cette section."},
+                status=400,
+            )
+
+        return Response({
+            "valid": True,
+            "code": promo.code,
+            "discount": promo.discount,
+            "section": promo.section,
+        })
