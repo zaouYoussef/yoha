@@ -1494,7 +1494,7 @@ export function MobileAppSection() {
           </div>
 
           {/* Google Play Store Badge Button */}
-          <Reveal delay={600} className="mt-10">
+          <Reveal delay={600} className="mt-14 sm:mt-16">
             <div className="flex flex-wrap gap-4 items-center">
               <a
                 href="https://play.google.com/store"
