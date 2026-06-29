@@ -16,10 +16,10 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata = {
   title: {
-    default: 'YoHa — Livraison campus & CHU · Tanger',
+    default: 'YoHa — Livraison Alliance campus & CHU à Tanger | repas en ~30 min',
     template: '%s | YoHa'
   },
-  description: "Commandez vos plats et produits préférés et faites-vous livrer en moins de 30 minutes directement à votre chambre, à l'aile de l'hôpital ou à la BU. Livraison offerte sur le campus et le CHU de Tanger.",
+  description: "Commandez vos repas et produits préférés avec YoHa et soyez livrés en moins de 30 minutes directement au CHU, à la BU ou en résidence universitaire Alliance. Livraison rapide et gratuite.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://yoha.ma'),
   alternates: {
     canonical: './',
