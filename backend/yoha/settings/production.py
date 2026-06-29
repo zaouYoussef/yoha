@@ -13,11 +13,17 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 ALLOWED_HOSTS = [
     "94.237.99.114",
+    "yoha.ma",
+    "www.yoha.ma",
     "localhost",
 ]
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 CORS_ALLOWED_ORIGINS = [
     "http://94.237.99.114",
+    "http://yoha.ma",
+    "http://www.yoha.ma",
+    "https://yoha.ma",
+    "https://www.yoha.ma",
 ]
 
