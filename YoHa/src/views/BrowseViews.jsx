@@ -345,6 +345,43 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               )}
             </div>
 
+            {/* Services Grid (Gros boutons de services principaux) */}
+            {!search && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-8">
+                {[
+                  { label: 'Restaurants', emoji: '🍽️', id: 'all', gradient: 'from-orange-500 to-amber-500' },
+                  { label: 'Pâtisseries', emoji: '🥐', id: 'dessert', gradient: 'from-pink-500 to-rose-500' },
+                  { label: 'Pharmacies', emoji: '💊', id: 'pharmacy', gradient: 'from-emerald-500 to-teal-500' },
+                  { label: 'Parapharma', emoji: '🌿', id: 'parapharmacy', gradient: 'from-green-400 to-emerald-600' },
+                  { label: 'Supermarchés', emoji: '🛒', id: 'supermarket', gradient: 'from-blue-400 to-cyan-600' },
+                  { label: 'Magasins', emoji: '🛍️', id: 'shop', gradient: 'from-purple-400 to-fuchsia-600' },
+                ].map((s) => {
+                  const active = ['dessert', 'patisserie', 'pharmacy', 'parapharmacy', 'supermarket', 'shop'].includes(filter)
+                    ? filter === s.id
+                    : s.id === 'all';
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setFilter(s.id)}
+                      className={`group relative overflow-hidden h-20 sm:h-24 rounded-2xl p-4 text-left border flex flex-col justify-between transition-all duration-300 ${
+                        active
+                          ? 'border-brand-500 ring-2 ring-brand-500 shadow-[0_0_20px_-3px_rgba(249,115,22,0.3)] scale-[1.02]'
+                          : 'border-ink-200/60 dark:border-ink-800 hover:border-brand-500/40 hover:scale-[1.01]'
+                      }`}
+                    >
+                      <div className={`absolute inset-0 bg-gradient-to-br ${s.gradient} opacity-90 group-hover:opacity-100 transition-opacity duration-300`} />
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2),transparent_50%)]" />
+                      <div className="relative text-white h-full flex flex-col justify-between w-full">
+                        <div className="text-2xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.2)]">{s.emoji}</div>
+                        <div className="font-display font-black text-xs uppercase tracking-wider leading-tight">{s.label}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Boutons de catégories (masqués pour les sections non-restau) */}
             {!['dessert', 'patisserie', 'pharmacy', 'parapharmacy', 'supermarket', 'shop'].includes(filter) && (
             <div className="relative group/scroll-container -mx-4 px-4 sm:mx-0 sm:px-0">

@@ -36,6 +36,7 @@ export const CATEGORIES_BANNERS: CategoryBanner[] = [
   { label: 'Sushi', emoji: '🍣', id: 'sushi', colors: ['#fb7185', '#ec4899'] },
   { label: 'Asiatique', emoji: '🍜', id: 'asian', colors: ['#e879f9', '#a855f7'] },
   { label: 'MedEat', emoji: '🏥', id: 'medical', colors: ['#38bdf8', '#6366f1'] },
+  { label: 'Pharmacie', emoji: '💊', id: 'pharmacy', colors: ['#34d399', '#10b981'] },
   { label: 'Parapharma', emoji: '🌿', id: 'parapharmacy', colors: ['#059669', '#10b981'] },
   { label: 'Supermarché', emoji: '🛒', id: 'supermarket', colors: ['#4f46e5', '#6366f1'] },
   { label: 'Magasins', emoji: '🛍️', id: 'shop', colors: ['#db2777', '#f43f5e'] },

@@ -1,12 +1,14 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CategoryBannerScroll } from '../../src/components/ui/CategoryBannerScroll';
@@ -42,6 +44,37 @@ import { brand } from '../../src/theme';
 import { fonts } from '../../src/theme/fonts';
 
 const AnimatedScroll = Animated.createAnimatedComponent(ScrollView);
+
+function ServiceGrid({ active, onSelect }: { active: string; onSelect: (id: string) => void }) {
+  const services = [
+    { id: '', label: 'Restaurants', emoji: '🍽️', colors: ['#fb923c', '#f97316'] as [string, string] },
+    { id: 'dessert', label: 'Pâtisseries', emoji: '🥐', colors: ['#f472b6', '#ec4899'] as [string, string] },
+    { id: 'pharmacy', label: 'Pharmacies', emoji: '💊', colors: ['#34d399', '#10b981'] as [string, string] },
+    { id: 'parapharmacy', label: 'Parapharma', emoji: '🌿', colors: ['#6ee7b7', '#059669'] as [string, string] },
+    { id: 'supermarket', label: 'Supermarché', emoji: '🛒', colors: ['#60a5fa', '#3b82f6'] as [string, string] },
+    { id: 'shop', label: 'Magasins', emoji: '🛍️', colors: ['#c084fc', '#a855f7'] as [string, string] },
+  ];
+
+  return (
+    <View style={styles.serviceGrid}>
+      {services.map(s => {
+        const isActive = active === s.id;
+        return (
+          <Pressable
+            key={s.id}
+            onPress={() => onSelect(s.id)}
+            style={[styles.serviceCard, isActive && styles.serviceCardActive]}
+          >
+            <LinearGradient colors={s.colors} style={styles.serviceGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+              <Text style={styles.serviceEmoji}>{s.emoji}</Text>
+              <Text style={styles.serviceLabel}>{s.label}</Text>
+            </LinearGradient>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
 
 export default function ClientHome() {
   const insets = useSafeAreaInsets();
@@ -224,10 +257,17 @@ export default function ClientHome() {
           />
 
           <View style={styles.body}>
-            <CategoryBannerScroll
-              active={cuisine || 'all'}
+            <ServiceGrid
+              active={cuisine}
               onSelect={handleSelectCuisine}
             />
+
+            {!['pharmacy', 'parapharmacy', 'supermarket', 'shop', 'dessert'].includes(cuisine) ? (
+              <CategoryBannerScroll
+                active={cuisine || 'all'}
+                onSelect={handleSelectCuisine}
+              />
+            ) : null}
 
             {showWowSections && restaurants.length > 0 ? (
               <DiscoverBento restaurants={bentoRestaurants} activeOrder={activeOrder} />
@@ -303,4 +343,42 @@ const styles = StyleSheet.create({
   body: { paddingHorizontal: 20, paddingTop: 20 },
   errorBox: { backgroundColor: '#fef2f2', borderRadius: 16, padding: 18, marginBottom: 16 },
   errorText: { color: '#b91c1c', fontSize: 14, fontFamily: fonts.medium },
+  serviceGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  serviceCard: {
+    width: '48%',
+    height: 80,
+    borderRadius: 16,
+    marginBottom: 12,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+  },
+  serviceCardActive: {
+    borderWidth: 2.5,
+    borderColor: '#fff',
+    elevation: 4,
+    shadowOpacity: 0.15,
+  },
+  serviceGradient: {
+    flex: 1,
+    padding: 12,
+    justifyContent: 'space-between',
+  },
+  serviceEmoji: {
+    fontSize: 24,
+  },
+  serviceLabel: {
+    color: '#fff',
+    fontSize: 14,
+    fontFamily: fonts.extrabold,
+    letterSpacing: -0.3,
+  },
 });
