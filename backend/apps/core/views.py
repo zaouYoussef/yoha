@@ -70,3 +70,34 @@ class RootView(APIView):
                 },
             }
         )
+
+
+from django.http import JsonResponse
+
+
+def bad_request_handler(request, exception=None):
+    return JsonResponse(
+        {"error": True, "detail": "Requête incorrecte."},
+        status=400
+    )
+
+
+def permission_denied_handler(request, exception=None):
+    return JsonResponse(
+        {"error": True, "detail": "Accès refusé."},
+        status=403
+    )
+
+
+def not_found_handler(request, exception=None):
+    return JsonResponse(
+        {"error": True, "detail": "Ressource non trouvée."},
+        status=404
+    )
+
+
+def server_error_handler(request):
+    return JsonResponse(
+        {"error": True, "detail": "Une erreur interne est survenue. Veuillez réessayer plus tard."},
+        status=500
+    )

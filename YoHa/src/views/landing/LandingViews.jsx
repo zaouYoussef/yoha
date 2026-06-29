@@ -43,8 +43,7 @@ function useSectionScrollProgress(ref) {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
-
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [ref]);
 
   return progress;
@@ -66,6 +65,7 @@ export function Landing({ onStart }) {
       <FeaturesSection />
       <HowItWorksSection />
       <TestimonialsSection />
+      <MobileAppSection />
       <FinalCTA onStart={onStart} />
     </div>
   );
@@ -368,7 +368,7 @@ export function BentoHero() {
               <span className="animate-pulse-slow">
                 <span className="font-display font-black text-3xl sm:text-4xl text-gradient">12 000+</span>
               </span>
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20 animate-pulse-slow">
+              <span className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20 animate-pulse-slow">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span> En ligne
               </span>
             </div>
@@ -1319,8 +1319,10 @@ export function FlyingBurgerShowcase() {
 }
 
 /* === Interactive 3D Exploded Burger (WebP Frame Sequence) === */
-export function InteractiveBurger3D() {
+export function InteractiveBurger3D({ progress }) {
   const [frameIndex, setFrameIndex] = useState(59);
+  const [isHovering, setIsHovering] = useState(false);
+  const containerRef = useRef(null);
 
   // Preload all 60 frames on mount to avoid flickering
   useEffect(() => {
@@ -1330,8 +1332,10 @@ export function InteractiveBurger3D() {
     }
   }, []);
 
-  // Continuous auto-playing ping-pong loop (exploded -> assembled -> exploded)
+  // Continuous auto-playing ping-pong loop when not hovering and no scroll progress is provided
   useEffect(() => {
+    if (isHovering || typeof progress === 'number') return;
+
     let direction = -1; // Start by exploding (decreasing index)
     const intervalId = setInterval(() => {
       setFrameIndex((prev) => {
@@ -1348,11 +1352,42 @@ export function InteractiveBurger3D() {
     }, 45); // ~22 FPS loop, smooth and gentle
     
     return () => clearInterval(intervalId);
-  }, []);
+  }, [isHovering, progress]);
+
+  // Sync with scroll progress if provided and not hovering
+  useEffect(() => {
+    if (isHovering || typeof progress !== 'number') return;
+    const targetFrame = Math.min(59, Math.max(0, Math.round(progress * 59)));
+    setFrameIndex(targetFrame);
+  }, [progress, isHovering]);
+
+  const handleMouseMove = (e) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const relativeY = (e.clientY - rect.top) / rect.height;
+    const targetFrame = Math.min(59, Math.max(0, Math.round(relativeY * 59)));
+    setFrameIndex(targetFrame);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!containerRef.current || e.touches.length === 0) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const touch = e.touches[0];
+    const relativeY = (touch.clientY - rect.top) / rect.height;
+    const targetFrame = Math.min(59, Math.max(0, Math.round(relativeY * 59)));
+    setFrameIndex(targetFrame);
+  };
 
   const frameSrc = `/burger-frames/burger_${String(frameIndex).padStart(2, '0')}.webp`;
   return (
     <div
+      ref={containerRef}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      onMouseMove={handleMouseMove}
+      onTouchStart={() => setIsHovering(true)}
+      onTouchEnd={() => setIsHovering(false)}
+      onTouchMove={handleTouchMove}
       className="relative mx-auto w-full max-w-[280px] sm:max-w-[320px] aspect-[568/845] flex items-center justify-center cursor-pointer select-none"
       style={{ perspective: '1200px' }}
     >
@@ -1380,3 +1415,164 @@ export function InteractiveBurger3D() {
   );
 }
 
+
+/* === Mobile App Download Section === */
+export function MobileAppSection() {
+  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
+  const containerRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5; // -0.5 to 0.5
+    const y = (e.clientY - rect.top) / rect.height - 0.5; // -0.5 to 0.5
+    setMouseOffset({ x, y });
+  };
+
+  const handleMouseLeave = () => {
+    setMouseOffset({ x: 0, y: 0 });
+  };
+
+  return (
+    <section 
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative overflow-hidden bg-gradient-to-br from-ink-900 via-ink-950 to-brand-950 text-white py-16 sm:py-24 my-12 sm:my-20 rounded-[2rem] sm:rounded-[3rem] max-w-7xl mx-4 sm:mx-6 lg:mx-auto px-6 sm:px-12 lg:px-20 border border-white/10 shadow-2xl"
+    >
+      {/* Background decorations */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-brand-500/10 blur-[120px] animate-pulse-slow" />
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-orange-600/10 blur-[120px] animate-pulse-slow" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)]" />
+      </div>
+
+      <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center">
+        {/* Left Column: Text and Google Play Badges */}
+        <div className="lg:col-span-7 text-left flex flex-col justify-center">
+          <Reveal>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/20 text-brand-400 text-xs font-semibold uppercase tracking-widest border border-brand-500/30">
+              ⚡ Application Android officielle
+            </span>
+          </Reveal>
+          
+          <Reveal delay={100}>
+            <h2 className="mt-6 font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.1] text-white">
+              Commandez en <br />
+              <span className="bg-gradient-to-r from-brand-400 via-amber-400 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">
+                un clin d'œil sur mobile.
+              </span>
+            </h2>
+          </Reveal>
+
+          <Reveal delay={200}>
+            <p className="mt-6 text-base sm:text-lg text-ink-300 max-w-xl leading-relaxed">
+              Téléchargez l'application YoHa sur Google Play pour une expérience ultra-rapide sur le campus. Commandes simplifiées, roulette à décisions gourmandes et suivi en temps réel de votre livreur.
+            </p>
+          </Reveal>
+
+          {/* Features list */}
+          <div className="mt-8 space-y-4">
+            {[
+              { title: "🎰 Roulette Gourmande", desc: "Trouvez quoi manger sur le campus en 1 seconde." },
+              { title: "🛵 Suivi GPS interactif", desc: "Regardez le livreur monter les étages en temps réel." },
+              { title: "💳 Paiement ultra-sécurisé", desc: "Payez en un clic ou à la livraison en toute confiance." }
+            ].map((f, idx) => (
+              <Reveal key={idx} delay={300 + idx * 80}>
+                <div className="flex items-start gap-3">
+                  <span className="text-brand-400 mt-1">✓</span>
+                  <div>
+                    <h4 className="font-bold text-sm text-white">{f.title}</h4>
+                    <p className="text-xs text-ink-400">{f.desc}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* Google Play Store Badge Button */}
+          <Reveal delay={600} className="mt-10">
+            <div className="flex flex-wrap gap-4 items-center">
+              <a
+                href="https://play.google.com/store"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative inline-flex items-center gap-3 bg-black hover:bg-zinc-900 border border-zinc-800 hover:border-brand-500/50 rounded-2xl px-6 py-3.5 transition-all duration-300 shadow-lg hover:shadow-[0_10px_30px_rgba(249,115,22,0.15)] overflow-hidden scale-100 active:scale-95"
+              >
+                {/* Glow overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-brand-500/10 via-transparent to-brand-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                
+                {/* SVG Google Play Store Icon */}
+                <svg className="w-8 h-8 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M325.3 234.3L104.6 13.9C99.7 9 92.2 6.8 84.8 8c-7.4 1.2-13.8 5.7-17.7 12.3L282.7 277l42.6-42.7z" fill="#00e5ff" />
+                  <path d="M325.3 277.7L282.7 277l-215.6 256.7c3.9 6.6 10.3 11.1 17.7 12.3 7.4 1.2 14.9-1 19.8-5.9l220.7-220.4 42.6-42z" fill="#ff3d00" />
+                  <path d="M486.2 219.7L325.3 234.3 282.7 277l42.6 42.7 160.9-15.6c18-10.4 28.5-30 25.8-50.6-2.7-20.6-18.4-36.8-35.8-33.8z" fill="#ffea00" />
+                  <path d="M67.1 20.3C66 23.5 65.4 26.9 65.4 30.3v451.4c0 3.4.6 6.8 1.7 10L282.7 277 67.1 20.3z" fill="#4caf50" />
+                </svg>
+                
+                <div className="text-left flex flex-col">
+                  <span className="text-[10px] uppercase font-semibold text-ink-400 tracking-wider">DISPONIBLE SUR</span>
+                  <span className="text-base font-bold text-white leading-tight font-display tracking-tight">Google Play</span>
+                </div>
+              </a>
+              
+              <div className="text-xs text-ink-400 max-w-[200px] leading-tight">
+                Téléchargement sécurisé via le Play Store. Version 2.4 (Android 8.0+)
+              </div>
+            </div>
+          </Reveal>
+        </div>
+
+        {/* Right Column: Floating 3D Phone Mockup */}
+        <div className="lg:col-span-5 flex justify-center items-center relative min-h-[480px]">
+          <Reveal delay={300} className="w-full flex justify-center">
+            <div 
+              className="relative w-[280px] sm:w-[320px] aspect-[9/19] rounded-[2.8rem] border-8 border-ink-800 bg-ink-950 shadow-2xl select-none transition-transform duration-200 ease-out overflow-hidden cursor-grab"
+              style={{
+                transform: `rotateY(${mouseOffset.x * 24}deg) rotateX(${mouseOffset.y * -24}deg) rotateZ(${mouseOffset.x * -2}deg) scale(1.02)`,
+                transformStyle: 'preserve-3d',
+                boxShadow: `${mouseOffset.x * -15}px ${mouseOffset.y * 20}px 50px rgba(0,0,0,0.5)`,
+              }}
+            >
+              {/* Phone Notch/Speaker */}
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 w-28 h-5 bg-ink-800 rounded-full z-40 flex items-center justify-between px-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-ink-950 border border-white/5" />
+                <span className="w-12 h-1 bg-ink-950 rounded-full" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
+
+              {/* Status Bar */}
+              <div className="absolute top-0 inset-x-0 h-10 bg-ink-950 z-30 flex items-end justify-between px-7 pb-1 text-[10px] font-semibold text-ink-300">
+                <span>01:32</span>
+                <div className="flex items-center gap-1.5">
+                  <span>5G</span>
+                  <span>100%</span>
+                </div>
+              </div>
+
+              {/* Screen Content - Real App Design Screenshot */}
+              <div className="absolute inset-0 pt-10 pb-4 z-20">
+                <img 
+                  src="/yoha_mobile_app_screenshot.png"
+                  alt="YoHa Real App Design Screenshot"
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                />
+              </div>
+
+              {/* Screen Reflection Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 pointer-events-none z-30" />
+            </div>
+          </Reveal>
+
+          {/* Glowing element behind the phone */}
+          <div 
+            className="absolute inset-10 rounded-full bg-brand-500/25 blur-3xl opacity-60 pointer-events-none -z-10"
+            style={{
+              transform: `translate3d(${mouseOffset.x * 30}px, ${mouseOffset.y * 30}px, -100px)`,
+            }}
+          />
+        </div>
+      </div>
+    </section>
+  );
+}

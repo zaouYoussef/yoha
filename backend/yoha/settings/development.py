@@ -1,6 +1,6 @@
 from .base import *  # noqa: F403
 
-DEBUG = True
+DEBUG = env("DJANGO_DEBUG")
 
 # Tunnel (localtunnel / cloudflare) + Expo Go : accepter tout host en dev local
 ALLOWED_HOSTS = ["*"]
