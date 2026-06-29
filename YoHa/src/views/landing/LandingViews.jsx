@@ -1438,52 +1438,55 @@ export function MobileAppSection() {
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative overflow-hidden bg-gradient-to-br from-ink-900 via-ink-950 to-brand-950 text-white py-16 sm:py-24 my-12 sm:my-20 rounded-[2rem] sm:rounded-[3rem] max-w-7xl mx-4 sm:mx-6 lg:mx-auto px-6 sm:px-12 lg:px-20 border border-white/10 shadow-2xl"
+      className="relative overflow-hidden bg-gradient-to-br from-amber-50/60 via-white/80 to-rose-50/40 dark:from-ink-900/40 dark:via-ink-950/60 dark:to-brand-950/20 py-16 sm:py-24 my-12 sm:my-20 rounded-[2rem] sm:rounded-[3rem] max-w-7xl mx-4 sm:mx-6 lg:mx-auto px-6 sm:px-12 lg:px-20 border border-brand-100/80 dark:border-ink-800/80 shadow-2xl backdrop-blur-md"
     >
-      {/* Background decorations */}
+      {/* Background soft glowing blur elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-brand-500/10 blur-[120px] animate-pulse-slow" />
-        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-orange-600/10 blur-[120px] animate-pulse-slow" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)]" />
+        <div className="absolute top-1/4 -right-20 w-[400px] h-[400px] rounded-full bg-brand-400/20 dark:bg-brand-500/10 blur-[100px] animate-blob" />
+        <div className="absolute bottom-1/4 -left-20 w-[400px] h-[400px] rounded-full bg-rose-400/20 dark:bg-rose-500/10 blur-[100px] animate-blob" style={{ animationDelay: '4s' }} />
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(249,115,22,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(249,115,22,0.015)_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)]" />
       </div>
 
       <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center">
-        {/* Left Column: Text and Google Play Badges */}
+        {/* Left Column: Text & Features Grid */}
         <div className="lg:col-span-7 text-left flex flex-col justify-center">
           <Reveal>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/20 text-brand-400 text-xs font-semibold uppercase tracking-widest border border-brand-500/30">
-              ⚡ Application Android officielle
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest border border-brand-500/20">
+              📲 L'expérience Mobile Ultime
             </span>
           </Reveal>
           
           <Reveal delay={100}>
-            <h2 className="mt-6 font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.1] text-white">
-              Commandez en <br />
-              <span className="bg-gradient-to-r from-brand-400 via-amber-400 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">
-                un clin d'œil sur mobile.
+            <h2 className="mt-6 font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.05] text-ink-900 dark:text-white">
+              YoHa dans <br />
+              <span className="bg-gradient-to-r from-brand-600 via-brand-500 to-rose-500 dark:from-brand-400 dark:to-orange-500 bg-clip-text text-transparent text-glow">
+                votre poche.
               </span>
             </h2>
           </Reveal>
 
           <Reveal delay={200}>
-            <p className="mt-6 text-base sm:text-lg text-ink-300 max-w-xl leading-relaxed">
-              Téléchargez l'application YoHa sur Google Play pour une expérience ultra-rapide sur le campus. Commandes simplifiées, roulette à décisions gourmandes et suivi en temps réel de votre livreur.
+            <p className="mt-6 text-base sm:text-lg text-ink-600 dark:text-ink-300 max-w-xl leading-relaxed">
+              Téléchargez l'application officielle YoHa pour commander vos repas préférés sur le campus en 20 minutes, sans frais cachés et avec un suivi en temps réel.
             </p>
           </Reveal>
 
-          {/* Features list */}
-          <div className="mt-8 space-y-4">
+          {/* Features cards layout */}
+          <div className="mt-10 grid sm:grid-cols-3 gap-4">
             {[
-              { title: "🎰 Roulette Gourmande", desc: "Trouvez quoi manger sur le campus en 1 seconde." },
-              { title: "🛵 Suivi GPS interactif", desc: "Regardez le livreur monter les étages en temps réel." },
-              { title: "💳 Paiement ultra-sécurisé", desc: "Payez en un clic ou à la livraison en toute confiance." }
+              { icon: '🎰', title: "Roulette Gourmande", desc: "Décidez en 1 seconde si vous êtes indécis." },
+              { icon: '🛵', title: "Suivi GPS Live", desc: "Voyez le livreur se déplacer en direct." },
+              { icon: '💳', title: "Paiement 1-Clic", desc: "Payez rapidement et en toute sécurité." }
             ].map((f, idx) => (
               <Reveal key={idx} delay={300 + idx * 80}>
-                <div className="flex items-start gap-3">
-                  <span className="text-brand-400 mt-1">✓</span>
-                  <div>
-                    <h4 className="font-bold text-sm text-white">{f.title}</h4>
-                    <p className="text-xs text-ink-400">{f.desc}</p>
+                <div className="h-full p-4 rounded-2xl bg-white/70 dark:bg-ink-900/60 border border-brand-100/50 dark:border-ink-800/40 hover:border-brand-500/20 hover:bg-white dark:hover:bg-ink-900 transition-all duration-300 shadow-sm flex flex-col justify-between">
+                  <div className="text-2xl w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center">
+                    {f.icon}
+                  </div>
+                  <div className="mt-4">
+                    <h4 className="font-bold text-sm text-ink-900 dark:text-white leading-tight">{f.title}</h4>
+                    <p className="text-[11px] text-ink-500 dark:text-ink-400 mt-1 leading-snug">{f.desc}</p>
                   </div>
                 </div>
               </Reveal>
@@ -1497,13 +1500,10 @@ export function MobileAppSection() {
                 href="https://play.google.com/store"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative inline-flex items-center gap-3 bg-black hover:bg-zinc-900 border border-zinc-800 hover:border-brand-500/50 rounded-2xl px-6 py-3.5 transition-all duration-300 shadow-lg hover:shadow-[0_10px_30px_rgba(249,115,22,0.15)] overflow-hidden scale-100 active:scale-95"
+                className="group relative inline-flex items-center gap-3.5 bg-ink-950 dark:bg-black hover:bg-ink-900 border border-ink-800 hover:border-brand-500/40 rounded-2xl px-6 py-3 transition-all duration-300 shadow-lg hover:shadow-glow/30 scale-100 active:scale-95"
               >
-                {/* Glow overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-500/10 via-transparent to-brand-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                
                 {/* SVG Google Play Store Icon */}
-                <svg className="w-8 h-8 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                <svg className="w-7 h-7 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
                   <path d="M325.3 234.3L104.6 13.9C99.7 9 92.2 6.8 84.8 8c-7.4 1.2-13.8 5.7-17.7 12.3L282.7 277l42.6-42.7z" fill="#00e5ff" />
                   <path d="M325.3 277.7L282.7 277l-215.6 256.7c3.9 6.6 10.3 11.1 17.7 12.3 7.4 1.2 14.9-1 19.8-5.9l220.7-220.4 42.6-42z" fill="#ff3d00" />
                   <path d="M486.2 219.7L325.3 234.3 282.7 277l42.6 42.7 160.9-15.6c18-10.4 28.5-30 25.8-50.6-2.7-20.6-18.4-36.8-35.8-33.8z" fill="#ffea00" />
@@ -1511,13 +1511,13 @@ export function MobileAppSection() {
                 </svg>
                 
                 <div className="text-left flex flex-col">
-                  <span className="text-[10px] uppercase font-semibold text-ink-400 tracking-wider">DISPONIBLE SUR</span>
-                  <span className="text-base font-bold text-white leading-tight font-display tracking-tight">Google Play</span>
+                  <span className="text-[9px] uppercase font-semibold text-ink-400 tracking-wider">DISPONIBLE SUR</span>
+                  <span className="text-sm font-extrabold text-white leading-tight font-display tracking-tight">Google Play</span>
                 </div>
               </a>
               
-              <div className="text-xs text-ink-400 max-w-[200px] leading-tight">
-                Téléchargement sécurisé via le Play Store. Version 2.4 (Android 8.0+)
+              <div className="text-xs text-ink-500 dark:text-ink-400 max-w-[200px] leading-tight">
+                Téléchargement gratuit via le Play Store. Version 2.4 (Android 8.0+)
               </div>
             </div>
           </Reveal>
@@ -1526,49 +1526,51 @@ export function MobileAppSection() {
         {/* Right Column: Floating 3D Phone Mockup */}
         <div className="lg:col-span-5 flex justify-center items-center relative min-h-[480px]">
           <Reveal delay={300} className="w-full flex justify-center">
-            <div 
-              className="relative w-[280px] sm:w-[320px] aspect-[9/19] rounded-[2.8rem] border-8 border-ink-800 bg-ink-950 shadow-2xl select-none transition-transform duration-200 ease-out overflow-hidden cursor-grab"
-              style={{
-                transform: `rotateY(${mouseOffset.x * 24}deg) rotateX(${mouseOffset.y * -24}deg) rotateZ(${mouseOffset.x * -2}deg) scale(1.02)`,
-                transformStyle: 'preserve-3d',
-                boxShadow: `${mouseOffset.x * -15}px ${mouseOffset.y * 20}px 50px rgba(0,0,0,0.5)`,
-              }}
-            >
-              {/* Phone Notch/Speaker */}
-              <div className="absolute top-3 left-1/2 -translate-x-1/2 w-28 h-5 bg-ink-800 rounded-full z-40 flex items-center justify-between px-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-ink-950 border border-white/5" />
-                <span className="w-12 h-1 bg-ink-950 rounded-full" />
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              </div>
-
-              {/* Status Bar */}
-              <div className="absolute top-0 inset-x-0 h-10 bg-ink-950 z-30 flex items-end justify-between px-7 pb-1 text-[10px] font-semibold text-ink-300">
-                <span>01:32</span>
-                <div className="flex items-center gap-1.5">
-                  <span>5G</span>
-                  <span>100%</span>
+            <div className="animate-float-slow relative">
+              <div 
+                className="relative w-[280px] sm:w-[310px] aspect-[9/19] rounded-[2.8rem] border-[7px] border-ink-900 bg-ink-950 shadow-2xl select-none transition-transform duration-200 ease-out overflow-hidden cursor-grab"
+                style={{
+                  transform: `rotateY(${mouseOffset.x * 20}deg) rotateX(${mouseOffset.y * -20}deg) rotateZ(${mouseOffset.x * -2}deg) scale(1.02)`,
+                  transformStyle: 'preserve-3d',
+                  boxShadow: `${mouseOffset.x * -12}px ${mouseOffset.y * 16}px 40px rgba(15,23,42,0.25)`,
+                }}
+              >
+                {/* Notch */}
+                <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-5 bg-ink-900 rounded-full z-40 flex items-center justify-between px-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-ink-950 border border-white/5" />
+                  <span className="w-12 h-0.5 bg-ink-950 rounded-full" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 </div>
-              </div>
 
-              {/* Screen Content - Real App Design Screenshot */}
-              <div className="absolute inset-0 pt-10 pb-4 z-20">
-                <img 
-                  src="/yoha_mobile_app_screenshot.png"
-                  alt="YoHa Real App Design Screenshot"
-                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                />
-              </div>
+                {/* Status Bar */}
+                <div className="absolute top-0 inset-x-0 h-9 bg-ink-950 z-30 flex items-end justify-between px-7 pb-1 text-[9px] font-semibold text-ink-400">
+                  <span>01:32</span>
+                  <div className="flex items-center gap-1.5">
+                    <span>5G</span>
+                    <span>100%</span>
+                  </div>
+                </div>
 
-              {/* Screen Reflection Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 pointer-events-none z-30" />
+                {/* Real App Design Screenshot */}
+                <div className="absolute inset-0 pt-9 pb-3 z-20">
+                  <img 
+                    src="/yoha_mobile_app_screenshot.png"
+                    alt="YoHa Real App Design Screenshot"
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  />
+                </div>
+
+                {/* Screen Reflection Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 pointer-events-none z-30" />
+              </div>
             </div>
           </Reveal>
 
           {/* Glowing element behind the phone */}
           <div 
-            className="absolute inset-10 rounded-full bg-brand-500/25 blur-3xl opacity-60 pointer-events-none -z-10"
+            className="absolute inset-10 rounded-full bg-brand-500/20 blur-3xl opacity-50 pointer-events-none -z-10 animate-pulse-slow"
             style={{
-              transform: `translate3d(${mouseOffset.x * 30}px, ${mouseOffset.y * 30}px, -100px)`,
+              transform: `translate3d(${mouseOffset.x * 20}px, ${mouseOffset.y * 20}px, -80px)`,
             }}
           />
         </div>
