@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
 from django.core.signing import TimestampSigner
+from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django.utils import timezone
 
@@ -158,8 +159,17 @@ def run_promo_campaign(*, force: bool = False, dry_run: bool = False) -> dict:
     subject = f"🍽️ {base_ctx['title']} · YouHa"
 
     for email in recipients:
-        if PromoEmailLog.objects.filter(email=email, campaign_key=campaign_key).exists():
+        try:
+            with transaction.atomic():
+                PromoEmailLog.objects.create(
+                    email=email,
+                    campaign_key=campaign_key,
+                    restaurant_slug=restaurant.slug,
+                )
+        except IntegrityError:
+            # Déjà traité/envoyé par un autre worker
             continue
+
         ctx = {**base_ctx, "unsubscribe_url": build_unsubscribe_url(email)}
         try:
             msg = EmailMultiAlternatives(
@@ -170,11 +180,6 @@ def run_promo_campaign(*, force: bool = False, dry_run: bool = False) -> dict:
             )
             msg.attach_alternative(render_promo_email_html(ctx), "text/html")
             msg.send(fail_silently=False)
-            PromoEmailLog.objects.create(
-                email=email,
-                campaign_key=campaign_key,
-                restaurant_slug=restaurant.slug,
-            )
             sent += 1
         except Exception:
             failed += 1
