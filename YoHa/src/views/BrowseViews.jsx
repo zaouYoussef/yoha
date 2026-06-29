@@ -1105,25 +1105,6 @@ export function RestaurantCard({ restaurant, onClick }) {
             🎁 {restaurant.promo}
           </span>
         )}
-
-        <button
-          className="cursor-grow absolute top-3 right-3 w-9 h-9 rounded-full glass-strong grid place-items-center text-white"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          aria-label="Ajouter aux favoris"
-        >
-          <I.Heart size={16} />
-        </button>
-
-        <div className="absolute bottom-3 left-3 flex items-center gap-2">
-          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/95 text-ink-900 shadow flex items-center gap-1">
-            <I.Clock size={12} className="text-brand-500" /> {restaurant.eta}
-          </span>
-          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/95 text-ink-900 shadow">
-            {restaurant.cuisine === 'pharmacy' || restaurant.cuisine === 'dessert' ? '20 DH' : 'Offerte'}
-          </span>
-        </div>
       </div>
 
       <div className="p-4 relative z-10">
