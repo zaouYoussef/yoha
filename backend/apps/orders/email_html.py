@@ -43,6 +43,7 @@ def render_order_email_html(ctx: dict) -> str:
     browse_url = _browse_url()
     step_index = ctx["step_index"]
     courier = _esc(ctx.get("courier", ""))
+    logo_url = _esc(_abs_url("/logo.png"))
 
     steps_html = ""
     for i, (_status, label) in enumerate(ctx["steps"]):
@@ -130,9 +131,8 @@ def render_order_email_html(ctx: dict) -> str:
             <tr>
               <td>
                 <table cellpadding="0" cellspacing="0"><tr>
-                  <td style="background:linear-gradient(135deg,#f97316,#ec4899,#8b5cf6);border-radius:14px;
-                    width:44px;height:44px;text-align:center;vertical-align:middle;">
-                    <span style="color:#fff;font-weight:800;font-size:16px;line-height:44px;">YN</span>
+                  <td style="width:44px;height:44px;vertical-align:middle;">
+                    <img src="{logo_url}" width="44" height="44" alt="YoHa" style="display:block;border-radius:12px;object-fit:contain;background:#ffffff;" />
                   </td>
                   <td style="padding-left:12px;">
                     <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#0f172a;">YoHa</div>
