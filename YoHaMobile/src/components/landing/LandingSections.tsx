@@ -66,7 +66,7 @@ export function HowItWorksBlock() {
 export function FeaturesBlock() {
   return (
     <FadeInView delay={80}>
-      <Text style={styles.kicker}>POURQUOI YOUHA</Text>
+      <Text style={styles.kicker}>POURQUOI YOHA</Text>
       <Text style={styles.sectionH}>Pensé pour le <Text style={styles.accent}>rythme du campus.</Text></Text>
       <View style={styles.featGrid}>
         {LANDING_FEATURES.map((f, i) => (
