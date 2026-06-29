@@ -208,6 +208,44 @@ function FeaturedSpotlight({ restaurant, onClick }) {
   );
 }
 
+const HEALTHY_PIZZAS = [
+  {
+    name: "Pizza Verte Pesto",
+    desc: "Sauce pesto, courgettes grillées, mozza light, pousses de roquette.",
+    calories: "450 kcal",
+    price: "48 DH",
+    image: "https://images.unsplash.com/photo-1571066811602-71683a3f680d?w=500&auto=format&fit=crop&q=80"
+  },
+  {
+    name: "Pizza Keto Pepperoni",
+    desc: "Pâte chou-fleur, tomates San Marzano bio, pepperoni et parmesan light.",
+    calories: "390 kcal",
+    price: "55 DH",
+    image: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=500&auto=format&fit=crop&q=80"
+  },
+  {
+    name: "Avocado Bowl",
+    desc: "Avocat frais, quinoa bio, edamame, grenade, vinaigrette acidulée.",
+    calories: "320 kcal",
+    price: "45 DH",
+    image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500&auto=format&fit=crop&q=80"
+  },
+  {
+    name: "Salmon Poke Bowl",
+    desc: "Saumon mariné, riz noir, mangue, avocat, graines de sésame noir.",
+    calories: "440 kcal",
+    price: "65 DH",
+    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=80"
+  },
+  {
+    name: "Pizza Bianca Truffe",
+    desc: "Pâte à la farine d'épeautre, crème de truffe, champignons, basilic.",
+    calories: "410 kcal",
+    price: "68 DH",
+    image: "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?w=500&auto=format&fit=crop&q=80"
+  }
+];
+
 export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   const { user } = useAuth();
   const { restaurants: catalog, loadingRestaurants, restaurantsError, refreshRestaurants } = useOrders();
@@ -349,12 +387,12 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             {!search && (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-8">
                 {[
-                  { label: 'Restaurants', emoji: '🍽️', id: 'all', gradient: 'from-orange-500 to-amber-500' },
-                  { label: 'Pâtisseries', emoji: '🥐', id: 'dessert', gradient: 'from-pink-500 to-rose-500' },
-                  { label: 'Pharmacies', emoji: '💊', id: 'pharmacy', gradient: 'from-emerald-500 to-teal-500' },
-                  { label: 'Parapharma', emoji: '🌿', id: 'parapharmacy', gradient: 'from-green-400 to-emerald-600' },
-                  { label: 'Supermarchés', emoji: '🛒', id: 'supermarket', gradient: 'from-blue-400 to-cyan-600' },
-                  { label: 'Magasins', emoji: '🛍️', id: 'shop', gradient: 'from-purple-400 to-fuchsia-600' },
+                  { label: 'Restaurants', emoji: '🍽️', id: 'all', image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&auto=format&fit=crop&q=80' },
+                  { label: 'Pâtisseries', emoji: '🥐', id: 'dessert', image: '/media/restaurants/custom-patisserie.png' },
+                  { label: 'Pharmacies', emoji: '💊', id: 'pharmacy', image: '/media/restaurants/custom-pharmacy.png' },
+                  { label: 'Parapharma', emoji: '🌿', id: 'parapharmacy', image: '/media/restaurants/custom-parapharmacy.png' },
+                  { label: 'Supermarchés', emoji: '🛒', id: 'supermarket', image: '/media/restaurants/custom-supermarket.png' },
+                  { label: 'Magasins', emoji: '🛍️', id: 'shop', image: '/media/restaurants/custom-shop.png' },
                 ].map((s) => {
                   const active = ['dessert', 'patisserie', 'pharmacy', 'parapharmacy', 'supermarket', 'shop'].includes(filter)
                     ? filter === s.id
@@ -370,9 +408,12 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                           : 'border-ink-200/60 dark:border-ink-800 hover:border-brand-500/40 hover:scale-[1.01]'
                       }`}
                     >
-                      <div className={`absolute inset-0 bg-gradient-to-br ${s.gradient} opacity-90 group-hover:opacity-100 transition-opacity duration-300`} />
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2),transparent_50%)]" />
-                      <div className="relative text-white h-full flex flex-col justify-between w-full">
+                      <div className="absolute inset-0 z-0">
+                        <img src={s.image} alt={s.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                        <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-300" />
+                      </div>
+                      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent_50%)]" />
+                      <div className="relative z-10 text-white h-full flex flex-col justify-between w-full">
                         <div className="text-2xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.2)]">{s.emoji}</div>
                         <div className="font-display font-black text-xs uppercase tracking-wider leading-tight">{s.label}</div>
                       </div>
@@ -424,15 +465,25 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 <button
                   type="button"
                   onClick={() => setFilter('all')}
-                  className={`cursor-grow shrink-0 snap-start w-[7.5rem] sm:w-[8.5rem] h-28 sm:h-32 rounded-2xl overflow-hidden text-left p-3.5 transition-transform duration-300 border flex flex-col justify-between ${
+                  className={`cursor-grow shrink-0 snap-start group relative w-[7.5rem] sm:w-[8.5rem] h-28 sm:h-32 rounded-2xl overflow-hidden text-left p-3.5 transition-transform duration-300 border flex flex-col justify-between ${
                     filter === 'all'
                       ? 'border-brand-500 shadow-[0_0_0_2px_#f97316,0_8px_20px_-6px_rgba(0,0,0,0.25)] ring-offset-2 ring-offset-brand-50 dark:ring-offset-ink-950'
                       : 'border-ink-200/60 dark:border-ink-800 hover:border-brand-500/40'
-                  } bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 text-white`}
+                  }`}
                   style={{ '--glow-color': '#f97316' }}
                 >
-                  <div className="text-3xl transition-transform duration-300 select-none drop-shadow-[0_8px_16px_rgba(0,0,0,0.3)]">✨</div>
-                  <div className="mt-auto font-display font-black text-sm leading-tight uppercase tracking-wider">Tout</div>
+                  <div className="absolute inset-0 z-0">
+                    <img 
+                      src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&auto=format&fit=crop&q=80" 
+                      alt="Tout" 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                    />
+                    <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-300" />
+                  </div>
+                  <div className="relative z-10 text-white h-full flex flex-col justify-between w-full">
+                    <div className="text-3xl transition-transform duration-300 select-none drop-shadow-[0_8px_16px_rgba(0,0,0,0.3)]">✨</div>
+                    <div className="mt-auto font-display font-black text-sm leading-tight uppercase tracking-wider">Tout</div>
+                  </div>
                 </button>
 
                 {CATEGORIES_BANNERS.map((c) => {
@@ -454,9 +505,12 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                           : 'border-white/10 dark:border-white/5 hover:border-white/30 dark:hover:border-white/20'
                       }`}
                     >
-                      <div className={`absolute inset-0 bg-gradient-to-br ${c.gradient} opacity-90 group-hover:opacity-100 transition-opacity duration-300`} />
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.25),transparent_50%)]" />
-                      <div className="relative text-white h-full flex flex-col justify-between w-full">
+                      <div className="absolute inset-0 z-0">
+                        <img src={c.image} alt={c.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                        <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-300" />
+                      </div>
+                      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent_50%)]" />
+                      <div className="relative z-10 text-white h-full flex flex-col justify-between w-full">
                         <div className="text-3xl transition-all duration-300 origin-left select-none drop-shadow-[0_8px_16px_rgba(0,0,0,0.3)]">
                           {c.emoji}
                         </div>
@@ -467,6 +521,58 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 })}
               </div>
             </div>
+            )}
+
+            {/* Suggestions Healthy & Pizzas Carousel */}
+            {!search && ['all', 'pizza', 'healthy'].includes(filter) && (
+              <div className="mt-8 animate-fade-up">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xs font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400">🥗 Suggestions Healthy & Pizzas du Jour</span>
+                  <span className="h-px flex-1 bg-gradient-to-r from-brand-500/40 to-transparent" />
+                </div>
+                
+                <div className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory py-2 w-full">
+                  {HEALTHY_PIZZAS.map((item, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setSearch(item.name)}
+                      className="group relative flex-shrink-0 snap-start w-64 sm:w-72 h-40 sm:h-44 rounded-2xl overflow-hidden border border-brand-100/60 dark:border-ink-800/80 text-left p-4 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 focus:outline-none"
+                    >
+                      {/* Background Image */}
+                      <div className="absolute inset-0 z-0">
+                        <img 
+                          src={item.image} 
+                          alt={item.name} 
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10 group-hover:via-black/20 transition-colors" />
+                      </div>
+
+                      {/* Content overlays */}
+                      <div className="relative z-10 h-full flex flex-col justify-between text-white">
+                        <div className="flex justify-between items-start">
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/95 text-[9px] font-bold uppercase tracking-wider">
+                            {item.calories}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-lg bg-white text-ink-950 text-[10px] font-black shadow">
+                            {item.price}
+                          </span>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-display font-extrabold text-sm sm:text-base leading-tight group-hover:text-brand-300 transition-colors">
+                            {item.name}
+                          </h4>
+                          <p className="text-[10px] text-ink-300 line-clamp-2 mt-1 leading-normal">
+                            {item.desc}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
           </section>
 
