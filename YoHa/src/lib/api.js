@@ -77,7 +77,7 @@ function parseError(data, status) {
 }
 
 const NETWORK_ERROR_MSG =
-  "Impossible de joindre l'API YouHa. Vérifiez que Django tourne (port 8000) et que Next.js est sur http://localhost:3002 — puis cliquez Réessayer.";
+  "Impossible de joindre l'API YoHa. Vérifiez que Django tourne (port 8000) et que Next.js est sur http://localhost:3002 — puis cliquez Réessayer.";
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));

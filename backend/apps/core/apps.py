@@ -4,7 +4,7 @@ from django.apps import AppConfig
 class CoreConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "apps.core"
-    verbose_name = "Noyau YouHa"
+    verbose_name = "Noyau YoHa"
 
     def ready(self):
         from django.contrib import admin

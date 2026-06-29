@@ -47,7 +47,7 @@ def _build_courier_email(order: Order) -> tuple[str, str, str]:
         for line in lines
     ) or "  • (détail indisponible)"
     dash_url = _delivery_dashboard_url()
-    subject = f"🛵 Nouvelle course #{order.public_id} · YouHa"
+    subject = f"🛵 Nouvelle course #{order.public_id} · YoHa"
     text = (
         f"Nouvelle commande disponible — #{order.public_id}\n\n"
         f"Restaurant : {order.restaurant.name}\n"
@@ -67,7 +67,7 @@ def _build_courier_email(order: Order) -> tuple[str, str, str]:
     html_body = f"""
     <div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;color:#0f172a;">
       <div style="background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;padding:24px;border-radius:16px 16px 0 0;">
-        <div style="font-size:13px;opacity:.85;font-weight:600;">YouHa · Course disponible</div>
+        <div style="font-size:13px;opacity:.85;font-weight:600;">YoHa · Course disponible</div>
         <div style="font-size:26px;font-weight:800;margin-top:8px;">#{esc(order.public_id)}</div>
       </div>
       <div style="padding:24px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 16px 16px;">
@@ -98,7 +98,7 @@ def notify_couriers_new_order(order: Order) -> int:
         return 0
 
     subject, text_body, html_body = _build_courier_email(order)
-    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "YouHa <no-reply@yoha.ma>")
+    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "YoHa <no-reply@yoha.ma>")
 
     try:
         msg = EmailMultiAlternatives(

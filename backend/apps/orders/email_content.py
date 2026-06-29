@@ -1,4 +1,4 @@
-"""Contenu et données pour les e-mails commande YouHa."""
+"""Contenu et données pour les e-mails commande YoHa."""
 from __future__ import annotations
 
 from apps.restaurants.models import Restaurant
@@ -7,7 +7,7 @@ from .models import Order
 
 STATUS_COPY = {
     Order.Status.PLACED: {
-        "subject": "Commande confirmée #{id} · YouHa",
+        "subject": "Commande confirmée #{id} · YoHa",
         "headline": "Commande confirmée !",
         "emoji": "🎉",
         "body": "Merci {name} — nous avons bien reçu votre commande. Préparez-vous, c'est parti !",
@@ -17,7 +17,7 @@ STATUS_COPY = {
         "subject": "Livreur en route vers le restaurant · #{id}",
         "headline": "Livreur en route vers le restaurant",
         "emoji": "🛵",
-        "body": "Bonne nouvelle {name} — un livreur YouHa se dirige vers {restaurant} pour récupérer votre commande.",
+        "body": "Bonne nouvelle {name} — un livreur YoHa se dirige vers {restaurant} pour récupérer votre commande.",
         "accent": "#0ea5e9",
     },
     Order.Status.DELIVERING: {
@@ -31,7 +31,7 @@ STATUS_COPY = {
         "subject": "Commande livrée · #{id}",
         "headline": "Bon appétit !",
         "emoji": "✅",
-        "body": "Votre commande a été livrée. Merci d'avoir choisi YouHa — à très bientôt !",
+        "body": "Votre commande a été livrée. Merci d'avoir choisi YoHa — à très bientôt !",
         "accent": "#10b981",
     },
     Order.Status.CANCELLED: {
@@ -92,7 +92,7 @@ def build_context(order: Order, status: str) -> dict | None:
     items_count = sum(l.quantity for l in lines)
     ctx = {
         "id": order.public_id,
-        "name": order.customer_name or "Client YouHa",
+        "name": order.customer_name or "Client YoHa",
         "restaurant": order.restaurant.name,
         "total": f"{order.total_mad:.2f}".replace(".", ","),
         "items_count": items_count,

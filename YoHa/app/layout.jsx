@@ -15,12 +15,12 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata = {
-  title: 'YouHa — Livraison campus & CHU',
+  title: 'YoHa — Livraison campus & CHU',
   description:
     'Livraison de repas intelligente pour les résidences universitaires et les hôpitaux de Tanger.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3002'),
   openGraph: {
-    title: 'YouHa',
+    title: 'YoHa',
     description: 'Ultra rapide. Pensé pour le campus.',
     type: 'website',
   },

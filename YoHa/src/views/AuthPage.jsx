@@ -97,7 +97,7 @@ export function AuthPage({ redirect, goto, goHome }) {
       setErr(res.error);
       return;
     }
-    toast.push({ title: 'Compte créé', desc: 'Bienvenue sur YouHa.', type: 'success' });
+    toast.push({ title: 'Compte créé', desc: 'Bienvenue sur YoHa.', type: 'success' });
     finishSuccess(res.user);
   };
 
@@ -112,7 +112,7 @@ export function AuthPage({ redirect, goto, goHome }) {
         setErr(res.error);
         return;
       }
-      toast.push({ title: 'Connecté', desc: 'Bienvenue sur YouHa.', type: 'success' });
+      toast.push({ title: 'Connecté', desc: 'Bienvenue sur YoHa.', type: 'success' });
       finishSuccess(res.user);
     } catch (e) {
       const msg = e?.code === 'auth/popup-closed-by-user'
@@ -142,7 +142,7 @@ export function AuthPage({ redirect, goto, goHome }) {
           <p className="mt-2 text-center text-sm text-ink-500 dark:text-ink-400">
             {tab === 'login'
               ? 'Connectez-vous avec votre e-mail ou votre nom d’utilisateur, et le mot de passe associé à votre compte.'
-              : 'Créez un compte client pour retrouver vos infos. Les accès gérant, livreur et restaurant ne s’ouvrent pas en ligne : utilisez l’e-mail et le mot de passe fournis par YouHa.'}
+              : 'Créez un compte client pour retrouver vos infos. Les accès gérant, livreur et restaurant ne s’ouvrent pas en ligne : utilisez l’e-mail et le mot de passe fournis par YoHa.'}
           </p>
 
           {redirect && (

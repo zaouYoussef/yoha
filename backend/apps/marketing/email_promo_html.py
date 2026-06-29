@@ -1,4 +1,4 @@
-"""Template HTML campagne promo YouHa (menu mis en avant + offres)."""
+"""Template HTML campagne promo YoHa (menu mis en avant + offres)."""
 from __future__ import annotations
 
 import html
@@ -108,10 +108,10 @@ def render_promo_email_html(ctx: dict) -> str:
   <tr><td style="padding-bottom:24px;">
     <table cellpadding="0" cellspacing="0" align="center"><tr>
       <td style="width:40px;height:40px;vertical-align:middle;">
-        <img src="{logo_url}" width="40" height="40" alt="YouHa" style="display:block;border-radius:10px;object-fit:contain;background:#ffffff;" />
+        <img src="{logo_url}" width="40" height="40" alt="YoHa" style="display:block;border-radius:10px;object-fit:contain;background:#ffffff;" />
       </td>
       <td style="padding-left:12px;text-align:left;">
-        <div style="font-size:22px;font-weight:800;color:#0f172a;line-height:1;margin-bottom:2px;letter-spacing:-0.02em;">YouHa</div>
+        <div style="font-size:22px;font-weight:800;color:#0f172a;line-height:1;margin-bottom:2px;letter-spacing:-0.02em;">YoHa</div>
         <div style="font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;">Campus &amp; CHU · Tanger</div>
       </td>
     </tr></table>
@@ -168,8 +168,8 @@ def render_promo_email_html(ctx: dict) -> str:
 
   <!-- FOOTER -->
   <tr><td style="padding:32px 8px 16px;text-align:center;font-size:11px;color:#94a3b8;line-height:1.6;font-weight:500;">
-    Vous recevez cet e-mail car vous êtes membre de la communauté YouHa.<br/>
-    © 2026 YouHa Tanger
+    Vous recevez cet e-mail car vous êtes membre de la communauté YoHa.<br/>
+    © 2026 YoHa Tanger
   </td></tr>
 
 </table>
@@ -182,7 +182,7 @@ def render_promo_email_html(ctx: dict) -> str:
 def render_promo_email_text(ctx: dict) -> str:
     hero = ctx["hero"]
     lines = [
-        f"{ctx.get('title', 'Offres YouHa')}",
+        f"{ctx.get('title', 'Offres YoHa')}",
         "",
         f"⭐ {hero['name']} — {hero.get('promo', '')}",
         f"Commander : {_browse_url(hero['slug'])}",
@@ -230,10 +230,10 @@ def render_new_promo_email_html(*, code: str, discount: int, section_label: str,
   <tr><td style="padding-bottom:24px;">
     <table cellpadding="0" cellspacing="0" align="center"><tr>
       <td style="width:40px;height:40px;vertical-align:middle;">
-        <img src="{logo_url}" width="40" height="40" alt="YouHa" style="display:block;border-radius:10px;object-fit:contain;background:#ffffff;" />
+        <img src="{logo_url}" width="40" height="40" alt="YoHa" style="display:block;border-radius:10px;object-fit:contain;background:#ffffff;" />
       </td>
       <td style="padding-left:12px;text-align:left;">
-        <div style="font-size:22px;font-weight:800;color:#0f172a;line-height:1;margin-bottom:2px;letter-spacing:-0.02em;">YouHa</div>
+        <div style="font-size:22px;font-weight:800;color:#0f172a;line-height:1;margin-bottom:2px;letter-spacing:-0.02em;">YoHa</div>
         <div style="font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;">Campus &amp; CHU · Tanger</div>
       </td>
     </tr></table>
@@ -245,7 +245,7 @@ def render_new_promo_email_html(*, code: str, discount: int, section_label: str,
     
     <h1 style="margin:0 0 12px 0;font-size:28px;font-weight:800;color:#0f172a;letter-spacing:-0.02em;line-height:1.2;">Rien que pour vous</h1>
     <p style="margin:0 0 24px 0;font-size:14px;color:#475569;line-height:1.6;max-width:400px;margin-left:auto;margin-right:auto;">
-      Profitez de <strong>-{escaped_discount}%</strong> de réduction immédiate {escaped_section} sur YouHa. 
+      Profitez de <strong>-{escaped_discount}%</strong> de réduction immédiate {escaped_section} sur YoHa. 
     </p>
 
     <!-- VOUCHER BOX -->
@@ -268,8 +268,8 @@ def render_new_promo_email_html(*, code: str, discount: int, section_label: str,
 
   <!-- FOOTER -->
   <tr><td style="padding:32px 8px 16px;text-align:center;font-size:11px;color:#94a3b8;line-height:1.6;font-weight:500;">
-    Vous recevez cet e-mail car vous êtes membre de la communauté YouHa.<br/>
-    © 2026 YouHa Tanger
+    Vous recevez cet e-mail car vous êtes membre de la communauté YoHa.<br/>
+    © 2026 YoHa Tanger
   </td></tr>
 
 </table>
@@ -280,12 +280,12 @@ def render_new_promo_email_html(*, code: str, discount: int, section_label: str,
 
 
 def render_new_promo_email_text(*, code: str, discount: int, section_label: str, unsubscribe_url: str) -> str:
-    return f"""🎁 Un cadeau pour vous sur YouHa !
+    return f"""🎁 Un cadeau pour vous sur YoHa !
 
 Profitez de -{discount}% de réduction {section_label} avec le code promo exclusif :
 
 👉 {code}
 
 Ce code est valable pendant 24 heures seulement !
-Commander sur YouHa : {_browse_url()}"""
+Commander sur YoHa : {_browse_url()}"""
 

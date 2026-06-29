@@ -1,5 +1,5 @@
 """
-Traitement et stockage des images YouHa.
+Traitement et stockage des images YoHa.
 
 - Compression WebP à l'upload (léger, rapide à servir)
 - Fichiers hors base de données (disque local ou S3/R2)

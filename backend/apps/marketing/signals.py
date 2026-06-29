@@ -23,7 +23,7 @@ def _send_promo_code_to_all_async(promo_code_id: int):
         return
 
     recipients = collect_recipient_emails()
-    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "YouHa <no-reply@yoha.ma>")
+    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "YoHa <no-reply@yoha.ma>")
     section_map = {
         "all": "sur toute l'application",
         "restaurant": "sur les restaurants",
@@ -34,7 +34,7 @@ def _send_promo_code_to_all_async(promo_code_id: int):
         "shop": "sur les boutiques",
     }
     section_label = section_map.get(promo.section, "sur vos commandes")
-    subject = f"🎁 Code Cadeau YouHa : -{promo.discount}% offert sur votre commande !"
+    subject = f"🎁 Code Cadeau YoHa : -{promo.discount}% offert sur votre commande !"
 
     sent = 0
     failed = 0

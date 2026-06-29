@@ -58,7 +58,7 @@ export default function LoginScreen() {
     <AuthScreenShell backMode="home" footer={<AuthGuestCta />}>
       <AuthHero mode="login" />
 
-      <AuthFormCard title="Se connecter" subtitle="Accédez à votre espace YouHa">
+      <AuthFormCard title="Se connecter" subtitle="Accédez à votre espace YoHa">
         <SocialAuthButtons
           disabled={loading}
           onGoogleToken={handleGoogleToken}

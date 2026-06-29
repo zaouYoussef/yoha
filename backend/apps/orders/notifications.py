@@ -1,4 +1,4 @@
-"""E-mails de suivi commande YouHa (HTML + texte)."""
+"""E-mails de suivi commande YoHa (HTML + texte)."""
 from __future__ import annotations
 
 import logging
@@ -34,7 +34,7 @@ def send_order_status_email(order: Order, status: str) -> bool:
     subject = ctx["subject"]
     text_body = render_order_email_text(ctx)
     html_body = render_order_email_html(ctx)
-    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "YouHa <no-reply@yoha.ma>")
+    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "YoHa <no-reply@yoha.ma>")
 
     try:
         msg = EmailMultiAlternatives(

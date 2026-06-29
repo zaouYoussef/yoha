@@ -39,9 +39,9 @@ export const CAMPUS_ZONES = [
 ];
 
 export const LANDING_TESTIMONIALS = [
-  { name: 'Dr. Samia · CHU', text: 'YouHa a changé mes nuits de garde 🤍 Je mange mieux et je gagne du temps.', stars: 5, emoji: '👩‍⚕️' },
+  { name: 'Dr. Samia · CHU', text: 'YoHa a changé mes nuits de garde 🤍 Je mange mieux et je gagne du temps.', stars: 5, emoji: '👩‍⚕️' },
   { name: 'Dr. Lina · CHU', text: 'Le menu MedEat est pratique et vraiment adapté à notre rythme.', stars: 5, emoji: '👩‍⚕️' },
-  { name: 'Dr. Mohamed', text: 'YouHa m\'a sauvé pendant mon internat. Je mange sans stress.', stars: 5, emoji: '👨‍⚕️' },
+  { name: 'Dr. Mohamed', text: 'YoHa m\'a sauvé pendant mon internat. Je mange sans stress.', stars: 5, emoji: '👨‍⚕️' },
   { name: 'Dr. Maryam · CHU', text: 'Service rapide et fiable même en période de forte demande.', stars: 5, emoji: '👩‍⚕️' },
 ];
 

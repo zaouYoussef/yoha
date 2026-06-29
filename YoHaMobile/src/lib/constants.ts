@@ -162,7 +162,7 @@ export function formatMad(value: number | string, decimals = 2) {
 
 /** Comptes gérant — dashboard web uniquement, pas l'app mobile. */
 export const ADMIN_MOBILE_BLOCKED_MSG =
-  "Le dashboard gérant n'est pas disponible sur l'application mobile. Utilisez le site web YouHa.";
+  "Le dashboard gérant n'est pas disponible sur l'application mobile. Utilisez le site web YoHa.";
 
 export function isAdminRole(role?: string) {
   return role === 'admin';

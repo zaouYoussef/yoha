@@ -210,7 +210,7 @@ export function FinalCTABlock({ onStart }: { onStart: () => void }) {
         <Text style={styles.finalTitle}>
           Faim ? Votre chambre est à <Text style={styles.accentLight}>14 minutes</Text> de quelque chose de génial.
         </Text>
-        <Text style={styles.finalSub}>Aucun stress. Ouvrez YouHa et commandez.</Text>
+        <Text style={styles.finalSub}>Aucun stress. Ouvrez YoHa et commandez.</Text>
         <Pressable onPress={onStart} style={styles.finalBtn}>
           <LinearGradient colors={[...gradients.cta]} style={styles.finalBtnGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
             <Text style={styles.finalBtnText}>Commander maintenant →</Text>

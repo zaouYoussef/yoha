@@ -89,7 +89,7 @@ export function RestaurantDashboard({ goto, dark, setDark }) {
   if (!myResto) {
     return (
       <DashLayout kind="restaurant" current="profile" setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
-        title="Créer mon restaurant" subtitle="Configurez votre établissement sur YouHa">
+        title="Créer mon restaurant" subtitle="Configurez votre établissement sur YoHa">
         <RestoCreate onCreated={(r) => { setMyResto(r); setCurrent('profile'); }} />
       </DashLayout>
     );

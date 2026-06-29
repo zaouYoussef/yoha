@@ -1,4 +1,4 @@
-# Générer l'APK YouHa (voir le front sur téléphone)
+# Générer l'APK YoHa (voir le front sur téléphone)
 
 ## Méthode A — Sur ton PC (gratuit, ~15 min la 1ère fois)
 
@@ -32,7 +32,7 @@ YoHaMobile\android\app\build\outputs\apk\debug\app-debug.apk
 **5. Installe sur le téléphone :**
 - Copie `app-debug.apk` sur le téléphone (USB, Google Drive, etc.)
 - Ouvre le fichier → autorise « sources inconnues » si demandé
-- Installe **YouHa**
+- Installe **YoHa**
 
 ---
 

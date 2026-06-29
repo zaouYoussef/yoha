@@ -146,7 +146,7 @@ MENU_TEMPLATE = [
 
 
 class Command(BaseCommand):
-    help = "Initialise YouHa (restaurants, comptes démo)"
+    help = "Initialise YoHa (restaurants, comptes démo)"
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -162,7 +162,7 @@ class Command(BaseCommand):
                     "distance_label": distance,
                     "promo_label": promo,
                     "phone": phone,
-                    "description": f"{name} — livraison campus YouHa",
+                    "description": f"{name} — livraison campus YoHa",
                     "cover_url": media.get("cover_url", img("1546069901-ba9599a7e63c", 1200)),
                     "logo_url": media.get("logo_url", img("1513104890138-7c749659a591", 160)),
                     "is_active": True,

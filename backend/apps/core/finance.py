@@ -1,5 +1,5 @@
 """
-Calculs financiers — Decimal uniquement, alignés sur le frontend YouHa.
+Calculs financiers — Decimal uniquement, alignés sur le frontend YoHa.
 """
 from decimal import Decimal
 

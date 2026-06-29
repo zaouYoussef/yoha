@@ -1,4 +1,4 @@
-"""Templates HTML e-mail YouHa (inline CSS, compatible clients mail)."""
+"""Templates HTML e-mail YoHa (inline CSS, compatible clients mail)."""
 from __future__ import annotations
 
 import html
@@ -100,7 +100,7 @@ def render_order_email_html(ctx: dict) -> str:
     if not offers_html:
         offers_html = """
         <td colspan="3" style="padding:12px;text-align:center;color:#64748b;font-size:13px;">
-          Découvrez nos restaurants partenaires sur YouHa.
+          Découvrez nos restaurants partenaires sur YoHa.
         </td>"""
 
     courier_row = ""
@@ -117,7 +117,7 @@ def render_order_email_html(ctx: dict) -> str:
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>{headline} · YouHa</title>
+  <title>{headline} · YoHa</title>
 </head>
 <body style="margin:0;padding:0;background:#fff7ed;font-family:Inter,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed;padding:24px 12px;">
@@ -135,7 +135,7 @@ def render_order_email_html(ctx: dict) -> str:
                     <span style="color:#fff;font-weight:800;font-size:16px;line-height:44px;">YN</span>
                   </td>
                   <td style="padding-left:12px;">
-                    <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#0f172a;">YouHa</div>
+                    <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#0f172a;">YoHa</div>
                     <div style="font-size:12px;color:#64748b;">Livraison campus &amp; CHU · Tanger</div>
                   </td>
                 </tr></table>
@@ -215,11 +215,11 @@ def render_order_email_html(ctx: dict) -> str:
         <!-- Footer -->
         <tr><td style="padding:24px 12px;text-align:center;">
           <p style="margin:0 0 8px;font-size:12px;color:#94a3b8;line-height:1.6;">
-            YouHa · Livraison intelligente pour les résidences universitaires et les hôpitaux.<br/>
+            YoHa · Livraison intelligente pour les résidences universitaires et les hôpitaux.<br/>
             Conçu sur le campus, livré chez vous.
           </p>
           <p style="margin:0;font-size:11px;color:#cbd5e1;">
-            © 2026 YouHa · Fait avec ❤️ à Tanger
+            © 2026 YoHa · Fait avec ❤️ à Tanger
           </p>
         </td></tr>
 
@@ -233,7 +233,7 @@ def render_order_email_html(ctx: dict) -> str:
 def render_order_email_text(ctx: dict) -> str:
     track = _tracking_url(ctx["id"])
     lines = [
-        f"{ctx.get('headline', 'YouHa')} {ctx.get('emoji', '')}",
+        f"{ctx.get('headline', 'YoHa')} {ctx.get('emoji', '')}",
         "",
         f"Bonjour {ctx['name']},",
         ctx["body"],
@@ -249,5 +249,5 @@ def render_order_email_text(ctx: dict) -> str:
     for offer in ctx.get("offers", []):
         lines.append(f"• {offer['name']} — {offer.get('promo', '')} ({offer.get('eta', '')})")
         lines.append(f"  {_browse_url(offer.get('slug', ''))}")
-    lines.extend(["", "— YouHa · Livraison campus & CHU"])
+    lines.extend(["", "— YoHa · Livraison campus & CHU"])
     return "\n".join(lines)

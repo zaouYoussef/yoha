@@ -1,4 +1,4 @@
-# YouHa API — versions épinglées pour reproductibilité et sécurité
+# YoHa API — versions épinglées pour reproductibilité et sécurité
 Django>=5.2,<5.3
 djangorestframework>=3.15,<3.16
 djangorestframework-simplejwt>=5.4,<6

@@ -7,7 +7,7 @@ import { fonts } from '../../theme/fonts';
 export function TypewriterHeadline() {
   return (
     <View>
-      <Text style={styles.brand}>YouHa.</Text>
+      <Text style={styles.brand}>YoHa.</Text>
       <Text style={styles.typed}>{HERO_SLOGANS[0]}</Text>
     </View>
   );

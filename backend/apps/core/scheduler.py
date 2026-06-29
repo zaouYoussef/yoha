@@ -34,7 +34,7 @@ def ensure_scheduler():
     tz = getattr(settings, "PROMO_SCHEDULER_TIMEZONE", "Africa/Casablanca")
     _scheduler = BackgroundScheduler(timezone=tz)
     _scheduler.start()
-    logger.info("YouHa scheduler démarré (%s)", tz)
+    logger.info("YoHa scheduler démarré (%s)", tz)
     return _scheduler
 
 

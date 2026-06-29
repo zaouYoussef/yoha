@@ -1,6 +1,6 @@
-# YouHa Mobile (Expo)
+# YoHa Mobile (Expo)
 
-Application **Android & iOS** pour YouHa — client, livreur et restaurant (pas d’admin).
+Application **Android & iOS** pour YoHa — client, livreur et restaurant (pas d’admin).
 
 ## Prérequis
 

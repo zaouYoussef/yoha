@@ -49,7 +49,7 @@ export function AdminDashboard({ goto, dark, setDark }) {
 
   return (
     <DashLayout kind="admin" current={current} setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
-      title={titles[current]} subtitle="Vue d'ensemble de la plateforme YouHa">
+      title={titles[current]} subtitle="Vue d'ensemble de la plateforme YoHa">
       {current === 'overview'    && <AdminOverview orders={orders} restaurantCount={restaurantPartnersCount}/>}
       {current === 'orders'      && <AdminOrders orders={orders}/>}
       {current === 'restaurants' && <AdminRestaurants/>}

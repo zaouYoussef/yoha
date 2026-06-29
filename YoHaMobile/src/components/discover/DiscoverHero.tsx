@@ -70,7 +70,7 @@ export function DiscoverHero({
         </Pressable>
       </View>
 
-      <Text style={styles.greet}>{timeGreeting()} · YouHa Tanger</Text>
+      <Text style={styles.greet}>{timeGreeting()} · YoHa Tanger</Text>
       <Text style={styles.title}>
         Salut <Text style={styles.nameGradient}>{name}</Text> 👋
       </Text>

@@ -340,7 +340,7 @@ export default function LandingScreen() {
           <LinearGradient colors={[...gradients.cta]} style={styles.logoBadge} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
             <Text style={styles.logoText}>Y</Text>
           </LinearGradient>
-          <Text style={styles.brandName}>YouHa</Text>
+          <Text style={styles.brandName}>YoHa</Text>
         </View>
         <Pressable onPress={goShop} style={styles.skipBtn}>
           <Text style={styles.skipText}>Passer ➔</Text>

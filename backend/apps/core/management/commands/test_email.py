@@ -1,4 +1,4 @@
-"""Test envoi e-mail YouHa — python manage.py test_email [destinataire]"""
+"""Test envoi e-mail YoHa — python manage.py test_email [destinataire]"""
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.core.management.base import BaseCommand
@@ -9,7 +9,7 @@ from apps.orders.models import Order
 
 
 class Command(BaseCommand):
-    help = "Envoie un e-mail de test SMTP (template HTML YouHa)"
+    help = "Envoie un e-mail de test SMTP (template HTML YoHa)"
 
     def add_arguments(self, parser):
         parser.add_argument(

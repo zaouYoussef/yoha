@@ -1,5 +1,5 @@
 """
-Configuration commune YouHa — sécurité par défaut élevée.
+Configuration commune YoHa — sécurité par défaut élevée.
 """
 from datetime import timedelta
 from pathlib import Path
@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     "django_filters",
     "drf_spectacular",
     "axes",
-    # YouHa
+    # YoHa
     "apps.core",
     "apps.accounts",
     "apps.restaurants",
@@ -216,7 +216,7 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "YouHa API",
+    "TITLE": "YoHa API",
     "DESCRIPTION": "Plateforme livraison campus / CHU — API sécurisée",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
@@ -251,7 +251,7 @@ AXES_RESET_ON_SUCCESS = True
 # ——— Chiffrement PII ———
 FIELD_ENCRYPTION_KEY = env("FIELD_ENCRYPTION_KEY", default="")
 
-# ——— YouHa business rules (alignées frontend) ———
+# ——— YoHa business rules (alignées frontend) ———
 YOHA_PROFIT_FACTOR = "0.20"
 YOHA_PROFIT_FIXED_MAD = "12.00"
 YOHA_SERVICE_FEE_LOW_MAD = "12.00"
@@ -271,11 +271,11 @@ if EMAIL_HOST:
     EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="").replace(" ", "")
     EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
     EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
-    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="YouHa <no-reply@yoha.ma>")
+    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="YoHa <no-reply@yoha.ma>")
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="YouHa <no-reply@localhost>")
+    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="YoHa <no-reply@localhost>")
 
 # ——— Campagnes promo e-mail (2× / semaine) ———
 PROMO_SCHEDULER_ENABLED = env.bool("PROMO_SCHEDULER_ENABLED", default=True)

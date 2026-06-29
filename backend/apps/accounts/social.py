@@ -195,7 +195,7 @@ def _display_name_from_apple(full_name: dict | None, email: str) -> str:
         name = " ".join(p for p in parts if p).strip()
         if name:
             return name[:120]
-    return email.split("@")[0][:120] if email else "Utilisateur YouHa"
+    return email.split("@")[0][:120] if email else "Utilisateur YoHa"
 
 
 def get_or_create_oauth_user(

@@ -1,4 +1,4 @@
-# Voir YouHa sur ton téléphone
+# Voir YoHa sur ton téléphone
 
 ## Pourquoi Expo Go disait « incompatible » ?
 
@@ -57,7 +57,7 @@ APK généré :
 android\app\build\outputs\apk\debug\app-debug.apk
 ```
 
-Copie le fichier sur le téléphone → ouvre → installe **YouHa**.
+Copie le fichier sur le téléphone → ouvre → installe **YoHa**.
 
 ---
 

@@ -146,7 +146,7 @@ export function DashLayout({
             className="group flex min-w-0 cursor-grow items-center gap-2"
           >
             <Logo />
-            <span className="truncate font-display text-lg font-extrabold">YouHa</span>
+            <span className="truncate font-display text-lg font-extrabold">YoHa</span>
             <span
               className={`hidden shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white bg-gradient-to-r sm:inline ${accent.from} ${accent.to}`}
             >
@@ -195,7 +195,7 @@ export function DashLayout({
             onClick={() => goto('landing')}
             className="flex w-full cursor-grow items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-ink-600 transition hover:bg-ink-100 dark:text-ink-300 dark:hover:bg-ink-800"
           >
-            <I.Left size={18} /> Retour à YouHa
+            <I.Left size={18} /> Retour à YoHa
           </button>
         </div>
       </aside>

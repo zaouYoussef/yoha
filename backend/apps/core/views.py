@@ -57,7 +57,7 @@ class RootView(APIView):
         base = request.build_absolute_uri("/").rstrip("/")
         return Response(
             {
-                "name": "YouHa API",
+                "name": "YoHa API",
                 "version": "1.0.0",
                 "status": "running",
                 "links": {

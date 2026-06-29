@@ -202,8 +202,8 @@ index 733ad87..3d2436c 100644
            </span>
  
            <h1 className="mt-6 font-display font-black tracking-tight text-5xl sm:text-6xl lg:text-7xl leading-[0.95]">
--            <span className="block text-gradient text-glow animate-pulse-slow">YouHa.</span>
-+            <AnimatedHeading text="YouHa." gradient />
+-            <span className="block text-gradient text-glow animate-pulse-slow">YoHa.</span>
++            <AnimatedHeading text="YoHa." gradient />
              <span className="block mt-3 text-ink-900 dark:text-ink-50 min-h-[1.15em] text-glow">
                {typed}
                <span className="caret align-baseline" style={{ height:'0.85em' }}></span>

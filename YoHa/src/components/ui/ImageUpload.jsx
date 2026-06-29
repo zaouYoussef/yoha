@@ -4,7 +4,7 @@ import React, { useRef, useState } from 'react';
 import { restaurantCover } from './MenuItemImage.jsx';
 
 /**
- * Upload d’image vers l’API YouHa (multipart).
+ * Upload d’image vers l’API YoHa (multipart).
  * Les fichiers sont compressés en WebP côté serveur avant stockage.
  */
 export function ImageUpload({

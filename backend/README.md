@@ -1,6 +1,6 @@
-# YouHa API (Django)
+# YoHa API (Django)
 
-API sécurisée pour la plateforme YouHa — comptes, restaurants, commandes, paiements.
+API sécurisée pour la plateforme YoHa — comptes, restaurants, commandes, paiements.
 
 ## Démarrage rapide (dev)
 
@@ -43,7 +43,7 @@ Le frontend (`YoHa/`) appelle cette API via `NEXT_PUBLIC_API_URL` (défaut : `ht
 cd backend && python manage.py runserver
 
 # Terminal 2 — Next.js
-cd YouHa && npm run dev
+cd YoHa && npm run dev
 ```
 
 CORS : autoriser `http://localhost:3002` dans `.env` (`DJANGO_CORS_ALLOWED_ORIGINS`).

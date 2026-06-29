@@ -17,7 +17,7 @@ export function AnimatedSplash() {
         >
           <Text style={styles.logoText}>Y</Text>
         </LinearGradient>
-        <Text style={styles.title}>YouHa</Text>
+        <Text style={styles.title}>YoHa</Text>
         <Text style={styles.sub}>Tanger livrée en un éclat</Text>
         <Text style={styles.tag}>Livraison offerte · CHU-Tanger</Text>
       </View>

@@ -38,7 +38,7 @@ export default function ClientProfile() {
             </LinearGradient>
           </FadeInView>
           <FadeInView delay={120}>
-            <Text style={styles.guestTitle}>Rejoins YouHa</Text>
+            <Text style={styles.guestTitle}>Rejoins YoHa</Text>
             <Text style={styles.guestSub}>
               Tu commandes déjà en invité — imagine avec un compte : historique, reorder, offres VIP.
             </Text>
@@ -79,7 +79,7 @@ export default function ClientProfile() {
             <Text style={styles.name}>{user.displayName}</Text>
             <Text style={styles.email}>{user.email}</Text>
             <View style={styles.vipBadge}>
-              <Text style={styles.vipText}>✨ Membre YouHa</Text>
+              <Text style={styles.vipText}>✨ Membre YoHa</Text>
             </View>
           </FadeInView>
         </LinearGradient>

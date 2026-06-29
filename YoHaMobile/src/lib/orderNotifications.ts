@@ -29,7 +29,7 @@ export async function initOrderNotifications(): Promise<boolean> {
 
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('orders', {
-        name: 'Commandes YouHa',
+        name: 'Commandes YoHa',
         importance: Notifications.AndroidImportance.HIGH,
         sound: 'default',
         vibrationPattern: [0, 200, 120, 200],

@@ -156,8 +156,8 @@ def run_promo_campaign(*, force: bool = False, dry_run: bool = False) -> dict:
 
     sent = 0
     failed = 0
-    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "YouHa <no-reply@yoha.ma>")
-    subject = f"🍽️ {base_ctx['title']} · YouHa"
+    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "YoHa <no-reply@yoha.ma>")
+    subject = f"🍽️ {base_ctx['title']} · YoHa"
 
     for email in recipients:
         try:

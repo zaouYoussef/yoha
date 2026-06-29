@@ -149,7 +149,7 @@ export function Hero({ onStart, onHowItWorks }) {
           <h1 className="mt-4 sm:mt-6 font-display font-black tracking-tight text-5xl sm:text-6xl lg:text-7xl leading-[1.05] sm:leading-[0.95]">
             <span className="block animate-fade-up">
               <span className="block text-gradient text-glow">
-                YouHa.
+                YoHa.
               </span>
             </span>
             <span className="block animate-fade-up" style={{ animationDelay: '150ms' }}>
@@ -530,7 +530,7 @@ export function PartnerCategoriesSection() {
             Tout ce dont vous avez besoin, <span className="text-gradient text-glow">au même endroit.</span>
           </h2>
           <p className="mt-4 text-base sm:text-lg text-ink-600 dark:text-ink-400 leading-relaxed">
-            En plus des restaurants, YouHa regroupe les établissements partenaires essentiels pour votre quotidien au campus ou au CHU.
+            En plus des restaurants, YoHa regroupe les établissements partenaires essentiels pour votre quotidien au campus ou au CHU.
           </p>
         </div>
       </Reveal>
@@ -1125,7 +1125,7 @@ export function FinalCTA({ onStart }) {
             <h3 className="font-display font-extrabold text-3xl sm:text-5xl tracking-tight text-slate-900 leading-tight">
               Faim ? Votre chambre est à <span className="bg-gradient-to-r from-brand-600 to-rose-600 bg-clip-text text-transparent font-black">14 minutes</span> de quelque chose de génial.
             </h3>
-            <p className="mt-4 text-slate-600 text-lg">Aucune app à télécharger. Ouvrez YouHa et commandez.</p>
+            <p className="mt-4 text-slate-600 text-lg">Aucune app à télécharger. Ouvrez YoHa et commandez.</p>
             
             <div className="mt-6 flex flex-wrap gap-3">
               <div 
@@ -1295,7 +1295,7 @@ export function FlyingBurgerShowcase() {
         <div className="flex flex-col md:flex-row gap-8 items-center text-left">
           <div className="flex-1">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
-              🍔 Exclusivité YouHa
+              🍔 Exclusivité YoHa
             </span>
             <h2 className="mt-4 font-display font-extrabold text-3xl sm:text-4xl tracking-tight leading-tight">
               Le Flying Burger <br />

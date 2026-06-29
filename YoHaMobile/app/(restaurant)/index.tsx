@@ -172,7 +172,7 @@ export default function RestaurantIncoming() {
 
           <Text style={styles.noRestoSub}>
 
-            Configurez votre restaurant sur le site web YouHa pour recevoir des commandes ici.
+            Configurez votre restaurant sur le site web YoHa pour recevoir des commandes ici.
 
           </Text>
 

@@ -76,7 +76,7 @@ export default function RestaurantProfile() {
           {error ? <Text style={styles.error}>{error}</Text> : null}
           <Text style={styles.emptyTitle}>Aucun établissement lié</Text>
           <Text style={styles.emptySub}>
-            Créez votre restaurant sur le site web YouHa pour le gérer ici.
+            Créez votre restaurant sur le site web YoHa pour le gérer ici.
           </Text>
         </View>
       </RestoDashShell>

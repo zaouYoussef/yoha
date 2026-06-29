@@ -1,6 +1,6 @@
-# YouHa sur Android — sans Expo Go
+# YoHa sur Android — sans Expo Go
 
-Installe l’app **YouHa** directement sur ton téléphone. Plus besoin d’Expo Go.
+Installe l’app **YoHa** directement sur ton téléphone. Plus besoin d’Expo Go.
 
 ## Ce qu’il te faut
 
@@ -32,9 +32,9 @@ npm run device
 
 Cette commande :
 1. Redirige le port 8000 du PC vers le téléphone (`adb reverse`)
-2. Compile et installe l’app **YouHa** sur le téléphone
+2. Compile et installe l’app **YoHa** sur le téléphone
 
-À la fin tu vois l’icône **YouHa** sur ton téléphone — ouvre-la (pas Expo Go).
+À la fin tu vois l’icône **YoHa** sur ton téléphone — ouvre-la (pas Expo Go).
 
 ---
 
@@ -53,7 +53,7 @@ npm run adb:reverse
 npm start
 ```
 
-Ouvre l’app **YouHa** déjà installée sur le téléphone.
+Ouvre l’app **YoHa** déjà installée sur le téléphone.
 
 ---
 

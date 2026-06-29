@@ -23,7 +23,7 @@ export default function CourierProfile() {
         <Text style={styles.email}>{user?.email}</Text>
 
         <View style={[styles.card, shadows.card]}>
-          <Text style={styles.cardTitle}>Dashboard livreur YouHa</Text>
+          <Text style={styles.cardTitle}>Dashboard livreur YoHa</Text>
           <Text style={styles.cardLine}>Confirmez les courses, récupérez, livrez.</Text>
         </View>
 

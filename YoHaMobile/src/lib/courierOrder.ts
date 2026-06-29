@@ -15,7 +15,7 @@ export function buildOrderCopyText(order: Order): string {
   });
 
   return [
-    `🛵 Commande YouHa #${order.id}`,
+    `🛵 Commande YoHa #${order.id}`,
     `Restaurant : ${order.restaurantName ?? '—'}`,
     `Client : ${order.customer?.name || '—'}`,
     `Adresse : ${order.customer?.address || '—'}`,
@@ -32,7 +32,7 @@ export function buildOrderCopyText(order: Order): string {
     '',
     `Total : ${formatMad(parseAmount(order.totalDh), 2)}`,
     '',
-    '— YouHa Livraison',
+    '— YoHa Livraison',
   ]
     .filter((line) => line !== null)
     .join('\n');
