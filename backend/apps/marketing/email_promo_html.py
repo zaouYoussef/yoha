@@ -199,3 +199,94 @@ def render_promo_email_text(ctx: dict) -> str:
         f"Se désinscrire : {ctx.get('unsubscribe_url', '')}",
     ])
     return "\n".join(lines)
+
+
+def render_new_promo_email_html(*, code: str, discount: int, section_label: str, unsubscribe_url: str) -> str:
+    escaped_code = _esc(code)
+    escaped_discount = _esc(discount)
+    escaped_section = _esc(section_label)
+    unsub = _esc(unsubscribe_url)
+    site_url = _browse_url()
+
+    return f"""<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
+    body {{
+      font-family: 'Outfit', 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }}
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#faf8f6;font-family:'Outfit','Inter','Segoe UI',Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#faf8f6;padding:40px 12px;">
+<tr><td align="center">
+<table width="550" cellpadding="0" cellspacing="0" style="max-width:550px;width:100%;">
+
+  <!-- HEADER -->
+  <tr><td style="padding-bottom:24px;">
+    <table cellpadding="0" cellspacing="0" align="center"><tr>
+      <td style="background:linear-gradient(135deg,#f43f5e,#e11d48);border-radius:12px;width:40px;height:40px;text-align:center;vertical-align:middle;">
+        <span style="color:#ffffff;font-weight:800;font-size:18px;line-height:40px;">YH</span>
+      </td>
+      <td style="padding-left:12px;text-align:left;">
+        <div style="font-size:22px;font-weight:800;color:#0f172a;line-height:1;margin-bottom:2px;letter-spacing:-0.02em;">YouHa</div>
+        <div style="font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;">Campus &amp; CHU · Tanger</div>
+      </td>
+    </tr></table>
+  </td></tr>
+
+  <!-- MAIN VOUCHER CARD -->
+  <tr><td style="background:#ffffff;border-radius:24px;border:1px solid #f1f5f9;overflow:hidden;box-shadow:0 10px 30px rgba(15,23,42,0.04);padding:32px 24px;text-align:center;">
+    <div style="display:inline-block;padding:4px 12px;background:#fef2f2;color:#f43f5e;font-size:12px;font-weight:800;border-radius:20px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:16px;">🎁 Cadeau Exclusif</div>
+    
+    <h1 style="margin:0 0 12px 0;font-size:28px;font-weight:800;color:#0f172a;letter-spacing:-0.02em;line-height:1.2;">Rien que pour vous</h1>
+    <p style="margin:0 0 24px 0;font-size:14px;color:#475569;line-height:1.6;max-width:400px;margin-left:auto;margin-right:auto;">
+      Profitez de <strong>-{escaped_discount}%</strong> de réduction immédiate {escaped_section} sur YouHa. 
+    </p>
+
+    <!-- VOUCHER BOX -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;">
+      <tr><td align="center">
+        <div style="max-width:280px;background:#fff5f5;border:2px dashed #f43f5e;border-radius:16px;padding:20px;text-align:center;position:relative;">
+          <div style="font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Copiez votre code promo</div>
+          <div style="font-family:monospace;font-size:26px;font-weight:800;color:#f43f5e;letter-spacing:0.06em;background:#ffffff;border:1px solid #fee2e2;padding:10px 18px;border-radius:10px;display:inline-block;box-shadow:0 2px 8px rgba(244,63,94,0.04);">{escaped_code}</div>
+          <div style="margin-top:12px;font-size:12px;font-weight:700;color:#f43f5e;">⌛ Offre valable 24h seulement !</div>
+        </div>
+      </td></tr>
+    </table>
+
+    <div style="margin-top:28px;">
+      <a href="{_esc(site_url)}" style="display:inline-block;background:#f43f5e;color:#ffffff;
+        font-size:15px;font-weight:800;text-decoration:none;padding:14px 36px;border-radius:14px;
+        box-shadow:0 8px 20px rgba(244,63,94,0.25);letter-spacing:0.01em;">Commander maintenant</a>
+    </div>
+  </td></tr>
+
+  <!-- FOOTER -->
+  <tr><td style="padding:32px 8px 16px;text-align:center;font-size:11px;color:#94a3b8;line-height:1.6;font-weight:500;">
+    Vous recevez cet e-mail car vous êtes membre de la communauté YouHa.<br/>
+    <a href="{unsub}" style="color:#f43f5e;text-decoration:none;font-weight:700;">Se désinscrire</a> · © 2026 YouHa Tanger
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>"""
+
+
+def render_new_promo_email_text(*, code: str, discount: int, section_label: str, unsubscribe_url: str) -> str:
+    return f"""🎁 Un cadeau pour vous sur YouHa !
+
+Profitez de -{discount}% de réduction {section_label} avec le code promo exclusif :
+
+👉 {code}
+
+Ce code est valable pendant 24 heures seulement !
+Commander sur YouHa : {_browse_url()}
+
+Se désinscrire : {unsubscribe_url}"""
+

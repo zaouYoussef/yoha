@@ -8,5 +8,6 @@ class MarketingConfig(AppConfig):
 
     def ready(self):
         from .scheduler import start_promo_scheduler
+        from . import signals  # noqa
 
         start_promo_scheduler()
