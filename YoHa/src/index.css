@@ -380,6 +380,13 @@
       margin: -135px 0 0 -100px;
     }
   }
+  @media (max-width: 640px) {
+    .carousel-3d-card {
+      width: 140px;
+      height: 190px;
+      margin: -95px 0 0 -70px;
+    }
+  }
 
   .dash-bottom-nav {
     padding-bottom: env(safe-area-inset-bottom, 0px);

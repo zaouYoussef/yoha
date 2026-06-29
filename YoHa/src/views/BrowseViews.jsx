@@ -513,7 +513,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               )}
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {loading
                 ? Array.from({ length: 6 }).map((_, i) => <RestaurantSkeleton key={i} />)
                 : restaurantsError
@@ -1023,25 +1023,25 @@ export function RestaurantCard({ restaurant, onClick }) {
       <div className="p-4 relative z-10">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="font-display font-extrabold text-lg truncate text-ink-900 dark:text-white group-hover:text-brand-500 transition-colors">
+            <h3 className="font-display font-extrabold text-sm sm:text-base md:text-lg truncate text-ink-900 dark:text-white group-hover:text-brand-500 transition-colors">
               {restaurant.name}
             </h3>
-            <div className="text-xs text-ink-500 dark:text-ink-400 truncate mt-0.5">
+            <div className="text-[10px] sm:text-xs text-ink-500 dark:text-ink-400 truncate mt-0.5">
               {Array.isArray(restaurant.tags) ? restaurant.tags.join(' • ') : ''}
             </div>
           </div>
-          <span className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold border border-emerald-500/10">
-            <I.Star size={12} className="fill-emerald-500 text-emerald-500" />{' '}
+          <span className="shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs font-bold border border-emerald-500/10">
+            <I.Star size={11} className="fill-emerald-500 text-emerald-500 sm:w-3 sm:h-3" />{' '}
             {(restaurant.rating ?? 4.8).toString().replace('.', ',')}
           </span>
         </div>
 
-        <div className="mt-4 pt-3 border-t border-ink-100 dark:border-ink-800/80 flex items-center justify-between text-xs">
-          <div className="text-ink-500 dark:text-ink-400 flex items-center gap-1.5">
-            <I.MapPin size={14} className="text-ink-400" /> {restaurant.distance}
+        <div className="mt-3 pt-2.5 sm:mt-4 sm:pt-3 border-t border-ink-100 dark:border-ink-800/80 flex items-center justify-between text-[10px] sm:text-xs">
+          <div className="text-ink-500 dark:text-ink-400 flex items-center gap-1">
+            <I.MapPin size={12} className="text-ink-400 sm:w-3.5 sm:h-3.5" /> {restaurant.distance}
           </div>
-          <div className="font-bold inline-flex items-center gap-1 text-brand-600 dark:text-brand-400">
-            Voir le menu <I.Right size={14} />
+          <div className="font-bold inline-flex items-center gap-0.5 text-brand-600 dark:text-brand-400">
+            Voir le menu <I.Right size={12} className="sm:w-3.5 sm:h-3.5" />
           </div>
         </div>
       </div>
