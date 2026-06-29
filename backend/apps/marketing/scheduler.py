@@ -39,14 +39,15 @@ def start_promo_scheduler():
         return
 
     tz = settings.PROMO_SCHEDULER_TIMEZONE
+    days = settings.PROMO_SCHEDULER_DAYS
     hour = settings.PROMO_SCHEDULER_HOUR
     minute = settings.PROMO_SCHEDULER_MINUTE
 
     scheduler.add_job(
         _run_promo_job,
-        trigger=CronTrigger(day_of_week="mon,thu", hour=hour, minute=minute, timezone=tz),
+        trigger=CronTrigger(day_of_week=days, hour=hour, minute=minute, timezone=tz),
         id="yoha_promo_campaign",
         replace_existing=True,
         max_instances=1,
     )
-    logger.info("Campagnes promo planifiées — lun/jeu %s:%02d (%s)", hour, minute, tz)
+    logger.info("Campagnes promo planifiées — %s %s:%02d (%s)", days, hour, minute, tz)

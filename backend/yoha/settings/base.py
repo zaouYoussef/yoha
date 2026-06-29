@@ -280,7 +280,8 @@ else:
 # ——— Campagnes promo e-mail (2× / semaine) ———
 PROMO_SCHEDULER_ENABLED = env.bool("PROMO_SCHEDULER_ENABLED", default=True)
 PROMO_SCHEDULER_TIMEZONE = env("PROMO_SCHEDULER_TIMEZONE", default="Africa/Casablanca")
-PROMO_SCHEDULER_HOUR = env.int("PROMO_SCHEDULER_HOUR", default=10)
+PROMO_SCHEDULER_DAYS = env("PROMO_SCHEDULER_DAYS", default="tue,sat")
+PROMO_SCHEDULER_HOUR = env.int("PROMO_SCHEDULER_HOUR", default=11)
 PROMO_SCHEDULER_MINUTE = env.int("PROMO_SCHEDULER_MINUTE", default=0)
 PROMO_CAMPAIGN_MIN_DAYS = env.int("PROMO_CAMPAIGN_MIN_DAYS", default=2)
 
