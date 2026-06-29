@@ -73,15 +73,19 @@ const jsonLd = {
   'areaServed': [
     {
       '@type': 'AdministrativeArea',
-      'name': 'Campus ENCG Tanger'
+      'name': 'CHU Mohammed VI de Tanger'
     },
     {
       '@type': 'AdministrativeArea',
-      'name': 'CHU Tanger'
+      'name': 'FMPT de Tanger'
     },
     {
       '@type': 'AdministrativeArea',
-      'name': 'Faculté de Médecine Tanger'
+      'name': 'ISPITS Tanger'
+    },
+    {
+      '@type': 'AdministrativeArea',
+      'name': 'Résidence universitaire Alliance Tanger'
     }
   ],
   'provider': {
