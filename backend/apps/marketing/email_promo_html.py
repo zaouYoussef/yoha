@@ -35,6 +35,8 @@ def render_promo_email_html(ctx: dict) -> str:
     unsubscribe = _esc(ctx.get("unsubscribe_url", ""))
     campaign_title = _esc(ctx.get("title", "Nos offres de la semaine"))
 
+    logo_url = _esc(_abs_url("/logo.png"))
+
     menu_html = ""
     for item in ctx.get("featured_items", []):
         img = _abs_url(item.get("img", ""))
@@ -105,8 +107,8 @@ def render_promo_email_html(ctx: dict) -> str:
   <!-- HEADER -->
   <tr><td style="padding-bottom:24px;">
     <table cellpadding="0" cellspacing="0" align="center"><tr>
-      <td style="background:linear-gradient(135deg,#f43f5e,#e11d48);border-radius:12px;width:40px;height:40px;text-align:center;vertical-align:middle;">
-        <span style="color:#ffffff;font-weight:800;font-size:18px;line-height:40px;">YH</span>
+      <td style="width:40px;height:40px;vertical-align:middle;">
+        <img src="{logo_url}" width="40" height="40" alt="YouHa" style="display:block;border-radius:10px;object-fit:contain;background:#ffffff;" />
       </td>
       <td style="padding-left:12px;text-align:left;">
         <div style="font-size:22px;font-weight:800;color:#0f172a;line-height:1;margin-bottom:2px;letter-spacing:-0.02em;">YouHa</div>
@@ -206,6 +208,7 @@ def render_new_promo_email_html(*, code: str, discount: int, section_label: str,
     escaped_discount = _esc(discount)
     escaped_section = _esc(section_label)
     unsub = _esc(unsubscribe_url)
+    logo_url = _esc(_abs_url("/logo.png"))
     site_url = _browse_url()
 
     return f"""<!DOCTYPE html>
@@ -228,8 +231,8 @@ def render_new_promo_email_html(*, code: str, discount: int, section_label: str,
   <!-- HEADER -->
   <tr><td style="padding-bottom:24px;">
     <table cellpadding="0" cellspacing="0" align="center"><tr>
-      <td style="background:linear-gradient(135deg,#f43f5e,#e11d48);border-radius:12px;width:40px;height:40px;text-align:center;vertical-align:middle;">
-        <span style="color:#ffffff;font-weight:800;font-size:18px;line-height:40px;">YH</span>
+      <td style="width:40px;height:40px;vertical-align:middle;">
+        <img src="{logo_url}" width="40" height="40" alt="YouHa" style="display:block;border-radius:10px;object-fit:contain;background:#ffffff;" />
       </td>
       <td style="padding-left:12px;text-align:left;">
         <div style="font-size:22px;font-weight:800;color:#0f172a;line-height:1;margin-bottom:2px;letter-spacing:-0.02em;">YouHa</div>
