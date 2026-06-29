@@ -524,13 +524,13 @@ export function PartnerCategoriesSection() {
       <Reveal>
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
-            🛍️ Services & Partenaires
+            🛍️ Services & Commerces
           </span>
           <h2 className="mt-4 font-display font-extrabold text-4xl sm:text-5xl tracking-tight leading-tight">
             Tout ce dont vous avez besoin, <span className="text-gradient text-glow">au même endroit.</span>
           </h2>
           <p className="mt-4 text-base sm:text-lg text-ink-600 dark:text-ink-400 leading-relaxed">
-            En plus des restaurants, YoHa regroupe les établissements partenaires essentiels pour votre quotidien au campus ou au CHU.
+            En plus des restaurants, YoHa regroupe tous les commerces et services de Tanger essentiels pour votre quotidien au campus ou au CHU.
           </p>
         </div>
       </Reveal>
