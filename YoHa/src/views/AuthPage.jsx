@@ -142,7 +142,7 @@ export function AuthPage({ redirect, goto, goHome }) {
           <p className="mt-2 text-center text-sm text-ink-500 dark:text-ink-400">
             {tab === 'login'
               ? 'Connectez-vous avec votre e-mail ou votre nom d’utilisateur, et le mot de passe associé à votre compte.'
-              : 'Créez un compte client pour retrouver vos infos. Les accès gérant, livreur et restaurant ne s’ouvrent pas en ligne : utilisez l’e-mail et le mot de passe fournis par YoHa.'}
+              : 'Créez un compte client pour retrouver vos infos. Pour les accès professionnels, veuillez utiliser l’e-mail et le mot de passe fournis par YoHa.'}
           </p>
 
           {redirect && (
