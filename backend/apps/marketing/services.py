@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from datetime import timedelta
 
 from django.conf import settings
@@ -181,6 +182,9 @@ def run_promo_campaign(*, force: bool = False, dry_run: bool = False) -> dict:
             msg.attach_alternative(render_promo_email_html(ctx), "text/html")
             msg.send(fail_silently=False)
             sent += 1
+            delay = getattr(settings, "PROMO_EMAIL_DELAY_SECONDS", 1.0)
+            if delay > 0:
+                time.sleep(delay)
         except Exception:
             failed += 1
             logger.exception("promo_email_failed to=%s", email)
