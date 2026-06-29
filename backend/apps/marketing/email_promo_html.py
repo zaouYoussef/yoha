@@ -169,7 +169,7 @@ def render_promo_email_html(ctx: dict) -> str:
   <!-- FOOTER -->
   <tr><td style="padding:32px 8px 16px;text-align:center;font-size:11px;color:#94a3b8;line-height:1.6;font-weight:500;">
     Vous recevez cet e-mail car vous êtes membre de la communauté YouHa.<br/>
-    <a href="{unsubscribe}" style="color:#f43f5e;text-decoration:none;font-weight:700;">Se désinscrire</a> · © 2026 YouHa Tanger
+    © 2026 YouHa Tanger
   </td></tr>
 
 </table>
@@ -197,8 +197,6 @@ def render_promo_email_text(ctx: dict) -> str:
     lines.extend([
         "",
         f"Tous les restaurants : {_browse_url()}",
-        "",
-        f"Se désinscrire : {ctx.get('unsubscribe_url', '')}",
     ])
     return "\n".join(lines)
 
@@ -271,7 +269,7 @@ def render_new_promo_email_html(*, code: str, discount: int, section_label: str,
   <!-- FOOTER -->
   <tr><td style="padding:32px 8px 16px;text-align:center;font-size:11px;color:#94a3b8;line-height:1.6;font-weight:500;">
     Vous recevez cet e-mail car vous êtes membre de la communauté YouHa.<br/>
-    <a href="{unsub}" style="color:#f43f5e;text-decoration:none;font-weight:700;">Se désinscrire</a> · © 2026 YouHa Tanger
+    © 2026 YouHa Tanger
   </td></tr>
 
 </table>
@@ -289,7 +287,5 @@ Profitez de -{discount}% de réduction {section_label} avec le code promo exclus
 👉 {code}
 
 Ce code est valable pendant 24 heures seulement !
-Commander sur YouHa : {_browse_url()}
-
-Se désinscrire : {unsubscribe_url}"""
+Commander sur YouHa : {_browse_url()}"""
 
