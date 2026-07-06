@@ -13,6 +13,10 @@ import { Magnetic } from '../../components/ui/Magnetic.jsx';
 import { Tilt } from '../../components/ui/Tilt.jsx';
 import { Reveal } from '../../components/ui/Reveal.jsx';
 import { HERO_RESTAURANTS } from '../../data/heroRestaurants.js';
+import {
+  Star, Search, UtensilsCrossed, Croissant, Pill, Leaf,
+  ShoppingCart, Store, MapPin, Clock, BadgePercent, Truck,
+} from 'lucide-react';
 import { restaurantCover } from '../../components/ui/MenuItemImage.jsx';
 import { spotlightHandler } from '../../utils/spotlight.js';
 import { useYohaNav } from '../../contexts/YohaNavContext.jsx';
@@ -1444,6 +1448,15 @@ export function MobileAppSection() {
     { icon: '💳', title: 'Paiement 1-Clic', desc: 'Payez rapidement et en toute sécurité.', gradient: 'from-[#10b981] to-[#059669]' },
   ];
 
+  const categories = [
+    { icon: UtensilsCrossed, label: 'Restaurants', bg: 'from-orange-500 to-amber-500' },
+    { icon: Croissant, label: 'Pâtisseries', bg: 'from-pink-500 to-rose-500' },
+    { icon: Pill, label: 'Pharmacies', bg: 'from-emerald-500 to-teal-600' },
+    { icon: Leaf, label: 'Parapharma', bg: 'from-teal-500 to-emerald-600' },
+    { icon: ShoppingCart, label: 'Supermarché', bg: 'from-blue-500 to-indigo-500' },
+    { icon: Store, label: 'Magasins', bg: 'from-violet-500 to-purple-600' },
+  ];
+
   return (
     <section
       ref={containerRef}
@@ -1496,9 +1509,9 @@ export function MobileAppSection() {
           <Reveal delay={250}>
             <div className="mt-6 sm:mt-8 flex items-center gap-6 sm:gap-8">
               <div className="text-left">
-              <div className="flex items-center gap-0.5 text-amber-500">
+                <div className="flex items-center gap-0.5 text-amber-500">
                   {[...Array(5)].map((_, i) => (
-                    <I.Star key={i} size={13} className="fill-amber-400" stroke={2.5} />
+                    <Star key={i} size={13} className="fill-amber-400" stroke={2.5} />
                   ))}
                 </div>
                 <div className="mt-0.5 text-[11px] text-ink-500 dark:text-ink-400">
@@ -1599,13 +1612,66 @@ export function MobileAppSection() {
                   </div>
                 </div>
 
-                {/* App screenshot */}
-                <div className="absolute inset-0 pt-7 sm:pt-9 pb-2 sm:pb-3 z-20">
-                  <img
-                    src="/yoha_mobile_app_screenshot.png?v=2"
-                    alt="YoHa App"
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                  />
+                {/* App screen markup */}
+                <div className="absolute inset-0 pt-7 sm:pt-9 pb-3 z-20 bg-gradient-to-b from-ink-900 via-ink-950 to-black overflow-hidden">
+                  <div className="h-full flex flex-col px-3 sm:px-3.5 pt-2.5 gap-3">
+                    <div className="flex items-center justify-between shrink-0">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-brand-500/15 border border-brand-500/25 text-brand-300 text-[7px] sm:text-[7.5px] font-bold">
+                        <span className="w-1 h-1 rounded-full bg-brand-400 animate-pulse" />
+                        Campus &amp; CHU en direct
+                      </span>
+                      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center text-[9px] font-black text-white shrink-0">
+                        Y
+                      </div>
+                    </div>
+
+                    <div className="shrink-0">
+                      <div className="text-[6.5px] sm:text-[7px] font-bold uppercase tracking-wider text-ink-400">Bonjour · YoHa Tanger</div>
+                      <div className="mt-0.5 text-[13px] sm:text-[15px] font-black text-white leading-tight">Salut toi 👋</div>
+                      <p className="mt-1 text-[7.5px] sm:text-[8px] leading-snug text-ink-400">
+                        Une faim de loup ? Vos plats préférés livrés chaud et croustillant en 20 min chrono !
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 shrink-0">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[6.5px] sm:text-[7px] font-semibold text-ink-300">
+                        <MapPin size={8} className="text-rose-400" /> CHU-Tanger
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-1.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[6.5px] sm:text-[7px] font-semibold text-emerald-300">
+                        <Clock size={8} /> 15-20 min
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 -mt-1.5 shrink-0">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-[6.5px] sm:text-[7px] font-semibold text-rose-300">
+                        <Truck size={8} /> Livraison 100% offerte
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-1.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[6.5px] sm:text-[7px] font-semibold text-amber-300">
+                        <BadgePercent size={8} /> Promos actives
+                      </span>
+                    </div>
+
+                    <div className="shrink-0 flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-white text-ink-400 shadow-sm">
+                      <Search size={9} className="text-brand-500 shrink-0" />
+                      <span className="text-[7px] sm:text-[7.5px] font-medium truncate">Un Tacos Maxi sauce fromagère ? 🧀</span>
+                    </div>
+
+                    <div className="flex-1 grid grid-cols-2 gap-2 sm:gap-2.5 pb-1">
+                      {categories.map((cat, i) => {
+                        const Icon = cat.icon;
+                        return (
+                          <div
+                            key={i}
+                            className={`rounded-xl bg-gradient-to-br ${cat.bg} px-2 py-2.5 flex flex-col justify-between shadow-sm`}
+                          >
+                            <Icon size={12} className="text-white/90" strokeWidth={2.2} />
+                            <span className="mt-1.5 text-[7px] sm:text-[7.5px] font-bold text-white leading-none">
+                              {cat.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Reflection overlay */}
