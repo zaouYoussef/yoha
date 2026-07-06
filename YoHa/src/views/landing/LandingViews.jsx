@@ -13,7 +13,7 @@ import { Magnetic } from '../../components/ui/Magnetic.jsx';
 import { Tilt } from '../../components/ui/Tilt.jsx';
 import { Reveal } from '../../components/ui/Reveal.jsx';
 import { HERO_RESTAURANTS } from '../../data/heroRestaurants.js';
-import { Star, Download, QrCode, Check, Zap } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { restaurantCover } from '../../components/ui/MenuItemImage.jsx';
 import { spotlightHandler } from '../../utils/spotlight.js';
 import { useYohaNav } from '../../contexts/YohaNavContext.jsx';
@@ -67,7 +67,6 @@ export function Landing({ onStart }) {
       <FeaturesSection />
       <HowItWorksSection />
       <TestimonialsSection />
-      <MobileAppSection />
       <FinalCTA onStart={onStart} />
     </div>
   );
@@ -1422,162 +1421,5 @@ export function InteractiveBurger3D({ progress }) {
 }
 
 
-/* === Mobile App Download Section — "Ticket de commande" concept === */
-export function MobileAppSection() {
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const containerRef = useRef(null);
 
-  const handleMouseMove = (e) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    setTilt({
-      x: (e.clientX - rect.left) / rect.width - 0.5,
-      y: (e.clientY - rect.top) / rect.height - 0.5,
-    });
-  };
-  const handleMouseLeave = () => setTilt({ x: 0, y: 0 });
 
-  const perks = [
-    { label: 'Livraison 100% offerte', icon: Check },
-    { label: '2 500+ avis, note 4,9', icon: Star },
-    { label: 'Livraison moyenne 14 min', icon: Zap },
-  ];
-
-  return (
-    <section
-      ref={containerRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="relative overflow-hidden bg-ink-950 py-16 sm:py-28 my-12 sm:my-20 rounded-[2rem] sm:rounded-[3rem] max-w-7xl mx-4 sm:mx-6 lg:mx-auto px-6 sm:px-12 lg:px-20 shadow-2xl"
-    >
-      {/* Background blobs */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -left-20 w-[500px] h-[500px] rounded-full bg-brand-500/20 blur-[130px]" />
-        <div className="absolute -bottom-40 -right-20 w-[500px] h-[500px] rounded-full bg-rose-500/10 blur-[130px]" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_at_center,black_60%,transparent_100%)]" />
-      </div>
-
-      <div className="relative z-10 grid lg:grid-cols-12 gap-12 lg:gap-10 items-center">
-        <div className="lg:col-span-5 flex justify-center order-1 min-h-[380px] sm:min-h-[460px]">
-          <div className="relative animate-float-slow">
-            <div className="absolute -inset-10 rounded-full bg-gradient-to-tr from-brand-500/30 via-rose-500/20 to-violet-500/20 blur-[60px] opacity-70 pointer-events-none" />
-            <div
-              className="relative w-[230px] sm:w-[270px] lg:w-[300px] aspect-[9/19] rounded-[2.6rem] border-[7px] border-ink-800 bg-black shadow-2xl overflow-hidden transition-transform duration-200 ease-out"
-              style={{
-                transform: `rotateY(${tilt.x * 22}deg) rotateX(${tilt.y * -18}deg) rotateZ(${tilt.x * -2.5}deg)`,
-                transformStyle: 'preserve-3d',
-                boxShadow: `${tilt.x * -14}px ${tilt.y * 18}px 50px rgba(0,0,0,0.5), 0 0 60px rgba(249,115,22,0.15)`,
-              }}
-            >
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 sm:w-24 h-4 sm:h-5 bg-black rounded-full z-40" />
-              <img
-                src="/yoha_mobile_app_screenshot.png"
-                alt="Écran d'accueil de l'application YoHa"
-                className="w-full h-full object-cover object-top"
-              />
-            </div>
-            <div className="absolute -right-4 sm:-right-8 top-10 rotate-6 bg-white text-ink-900 rounded-xl px-3 py-2 shadow-xl border border-ink-100 hidden sm:block">
-              <div className="flex items-center gap-1 text-amber-500">
-                {[...Array(5)].map((_, i) => <Star key={i} size={11} className="fill-amber-400" stroke={0} />)}
-              </div>
-              <div className="text-[10px] font-bold mt-0.5">4,9 · 2 500 avis</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="lg:col-span-7 order-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/15 text-brand-400 text-[11px] font-bold uppercase tracking-widest border border-brand-500/25">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
-            Prête à commander
-          </span>
-
-          <h2 className="mt-5 font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.05] text-white">
-            Votre faim,{' '}
-            <span className="bg-gradient-to-r from-brand-400 via-brand-500 to-rose-500 bg-clip-text text-transparent">
-              réglée en 20 min.
-            </span>
-          </h2>
-
-          <p className="mt-4 text-sm sm:text-base lg:text-lg text-ink-300 max-w-xl leading-relaxed">
-            Téléchargez YoHa et récupérez votre premier ticket de commande : livraison offerte, suivi en direct, zéro frais caché.
-          </p>
-
-          <div className="mt-8 sm:mt-10 relative max-w-xl">
-            <div
-              className="relative bg-[#fdfaf3] text-ink-900 rounded-2xl px-6 sm:px-8 pt-7 pb-5 shadow-2xl"
-              style={{
-                backgroundImage:
-                  'repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(0,0,0,0.035) 27px, rgba(0,0,0,0.035) 28px)',
-              }}
-            >
-              <div
-                className="absolute -top-2 left-0 right-0 h-4"
-                style={{
-                  backgroundImage:
-                    'radial-gradient(circle at 10px 0px, transparent 8px, #0b0b12 8.5px)',
-                  backgroundSize: '20px 16px',
-                  backgroundRepeat: 'repeat-x',
-                }}
-              />
-
-              <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-widest text-ink-500 border-b border-dashed border-ink-300 pb-3">
-                <span>Ticket YoHa</span>
-                <span>#TNG-2026</span>
-              </div>
-
-              <ul className="mt-4 space-y-2.5">
-                {perks.map((p, i) => (
-                  <li key={i} className="flex items-center gap-2.5 font-mono text-[12px] sm:text-[13px]">
-                    <p.icon size={13} className="text-brand-600 shrink-0" />
-                    <span>{p.label}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-4 pt-4 border-t border-dashed border-ink-300 flex items-center justify-between font-mono text-[12px]">
-                <span className="text-ink-500">Code promo</span>
-                <span className="font-bold tracking-widest bg-brand-500/10 text-brand-700 px-2 py-0.5 rounded">YOHA20</span>
-              </div>
-
-              <div className="mt-6 flex flex-col sm:flex-row items-stretch gap-3">
-                <a
-                  href="https://play.google.com/store"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-2 bg-ink-950 hover:bg-ink-900 text-white rounded-xl px-4 py-3 font-bold text-sm transition-all active:scale-[0.97] shadow-lg"
-                >
-                  <Download size={16} /> Google Play
-                </a>
-                <a
-                  href="https://www.apple.com/app-store/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-2 bg-ink-950 hover:bg-ink-900 text-white rounded-xl px-4 py-3 font-bold text-sm transition-all active:scale-[0.97] shadow-lg"
-                >
-                  <Download size={16} /> App Store
-                </a>
-                <div className="flex items-center justify-center gap-2 bg-white border border-ink-200 rounded-xl px-3 py-2 shrink-0">
-                  <QrCode size={30} className="text-ink-900" />
-                </div>
-              </div>
-
-              <div
-                className="absolute -bottom-2 left-0 right-0 h-4"
-                style={{
-                  backgroundImage:
-                    'radial-gradient(circle at 10px 16px, transparent 8px, #0b0b12 8.5px)',
-                  backgroundSize: '20px 16px',
-                  backgroundRepeat: 'repeat-x',
-                }}
-              />
-            </div>
-          </div>
-
-          <p className="mt-6 text-[12px] text-ink-500">
-            Scannez le QR code ou téléchargez directement — disponible sur iOS et Android.
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-}

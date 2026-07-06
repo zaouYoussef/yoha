@@ -123,9 +123,9 @@ class Order(models.Model):
 
     @classmethod
     def generate_public_id(cls) -> str:
-        """Numéro public aléatoire (non séquentiel) — ex. YH-8472913."""
+        """Numéro public aléatoire (non séquentiel) — ex. YH-8472."""
         for _ in range(32):
-            num = secrets.randbelow(9_000_000) + 1_000_000  # 7 chiffres
+            num = secrets.randbelow(9_000) + 1_000  # 4 chiffres
             candidate = f"YH-{num}"
             if not cls.objects.filter(public_id=candidate).exists():
                 return candidate
