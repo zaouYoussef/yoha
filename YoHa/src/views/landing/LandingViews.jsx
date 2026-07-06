@@ -1539,8 +1539,8 @@ export function MobileAppSection() {
           </div>
 
           {/* Download buttons */}
-          <Reveal delay={600} className="mt-10 sm:mt-12">
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+          <Reveal delay={600} className="mt-12 sm:mt-16">
+            <div className="flex flex-wrap items-center gap-4 sm:gap-5">
               <a href="https://play.google.com/store" target="_blank" rel="noopener noreferrer"
                 className="group relative inline-flex items-center gap-3 bg-ink-950 dark:bg-black hover:bg-ink-900 border border-ink-800 hover:border-brand-500/40 rounded-2xl px-5 py-2.5 sm:px-6 sm:py-3 transition-all duration-300 shadow-lg hover:shadow-glow/20 active:scale-[0.97]">
                 <svg className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 512 512">
@@ -1602,7 +1602,7 @@ export function MobileAppSection() {
                 {/* App screenshot */}
                 <div className="absolute inset-0 pt-7 sm:pt-9 pb-2 sm:pb-3 z-20">
                   <img
-                    src="/yoha_mobile_app_screenshot.png"
+                    src="/yoha_mobile_app_screenshot.png?v=2"
                     alt="YoHa App"
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                   />
