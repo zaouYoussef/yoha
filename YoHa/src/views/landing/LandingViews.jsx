@@ -13,10 +13,7 @@ import { Magnetic } from '../../components/ui/Magnetic.jsx';
 import { Tilt } from '../../components/ui/Tilt.jsx';
 import { Reveal } from '../../components/ui/Reveal.jsx';
 import { HERO_RESTAURANTS } from '../../data/heroRestaurants.js';
-import {
-  Star, Search, UtensilsCrossed, Croissant, Pill, Leaf,
-  ShoppingCart, Store, MapPin, Clock, BadgePercent, Truck,
-} from 'lucide-react';
+import { Star, Download, QrCode, Check, Zap } from 'lucide-react';
 import { restaurantCover } from '../../components/ui/MenuItemImage.jsx';
 import { spotlightHandler } from '../../utils/spotlight.js';
 import { useYohaNav } from '../../contexts/YohaNavContext.jsx';
@@ -1425,36 +1422,25 @@ export function InteractiveBurger3D({ progress }) {
 }
 
 
-/* === Mobile App Download Section === */
+/* === Mobile App Download Section — "Ticket de commande" concept === */
 export function MobileAppSection() {
-  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
 
   const handleMouseMove = (e) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setMouseOffset({ x, y });
+    setTilt({
+      x: (e.clientX - rect.left) / rect.width - 0.5,
+      y: (e.clientY - rect.top) / rect.height - 0.5,
+    });
   };
+  const handleMouseLeave = () => setTilt({ x: 0, y: 0 });
 
-  const handleMouseLeave = () => {
-    setMouseOffset({ x: 0, y: 0 });
-  };
-
-  const features = [
-    { icon: '🎰', title: 'Roulette Gourmande', desc: 'Décidez en 1 seconde si vous êtes indécis.', gradient: 'from-[#f97316] to-[#f59e0b]' },
-    { icon: '🛵', title: 'Suivi GPS Live', desc: 'Voyez le livreur se déplacer en direct sur la carte.', gradient: 'from-[#06b6d4] to-[#3b82f6]' },
-    { icon: '💳', title: 'Paiement 1-Clic', desc: 'Payez rapidement et en toute sécurité.', gradient: 'from-[#10b981] to-[#059669]' },
-  ];
-
-  const categories = [
-    { icon: UtensilsCrossed, label: 'Restaurants', bg: 'from-orange-500 to-amber-500' },
-    { icon: Croissant, label: 'Pâtisseries', bg: 'from-pink-500 to-rose-500' },
-    { icon: Pill, label: 'Pharmacies', bg: 'from-emerald-500 to-teal-600' },
-    { icon: Leaf, label: 'Parapharma', bg: 'from-teal-500 to-emerald-600' },
-    { icon: ShoppingCart, label: 'Supermarché', bg: 'from-blue-500 to-indigo-500' },
-    { icon: Store, label: 'Magasins', bg: 'from-violet-500 to-purple-600' },
+  const perks = [
+    { label: 'Livraison 100% offerte', icon: Check },
+    { label: '2 500+ avis, note 4,9', icon: Star },
+    { label: 'Livraison moyenne 14 min', icon: Zap },
   ];
 
   return (
@@ -1462,223 +1448,134 @@ export function MobileAppSection() {
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-white to-rose-50/60 dark:from-ink-900/60 dark:via-ink-950/80 dark:to-black py-16 sm:py-28 my-12 sm:my-20 rounded-[2rem] sm:rounded-[3rem] max-w-7xl mx-4 sm:mx-6 lg:mx-auto px-6 sm:px-12 lg:px-20 border border-brand-100/60 dark:border-ink-800/60 shadow-2xl"
+      className="relative overflow-hidden bg-ink-950 py-16 sm:py-28 my-12 sm:my-20 rounded-[2rem] sm:rounded-[3rem] max-w-7xl mx-4 sm:mx-6 lg:mx-auto px-6 sm:px-12 lg:px-20 shadow-2xl"
     >
       {/* Background blobs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-brand-500/10 blur-[120px] animate-blob" />
-        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-rose-500/10 blur-[120px] animate-blob" style={{ animationDelay: '5s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-violet-500/5 blur-[150px] animate-blob" style={{ animationDelay: '10s' }} />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(249,115,22,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(249,115,22,0.015)_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_at_center,black_60%,transparent_100%)]" />
+        <div className="absolute -top-40 -left-20 w-[500px] h-[500px] rounded-full bg-brand-500/20 blur-[130px]" />
+        <div className="absolute -bottom-40 -right-20 w-[500px] h-[500px] rounded-full bg-rose-500/10 blur-[130px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_at_center,black_60%,transparent_100%)]" />
       </div>
 
-      {/* Floating decorative emojis */}
-      <div aria-hidden className="absolute inset-0 pointer-events-none hidden lg:block">
-        <span className="absolute top-12 left-[15%] text-2xl animate-float-slow opacity-30">🍔</span>
-        <span className="absolute top-20 right-[20%] text-3xl animate-float-slow opacity-20" style={{ animationDelay: '2s' }}>🍕</span>
-        <span className="absolute bottom-16 left-[25%] text-xl animate-float-slow opacity-25" style={{ animationDelay: '4s' }}>🥗</span>
-        <span className="absolute bottom-24 right-[15%] text-2xl animate-float-slow opacity-20" style={{ animationDelay: '1s' }}>🧋</span>
-      </div>
-
-      <div className="relative z-10 grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-        {/* Left Column */}
-        <div className="lg:col-span-7 text-left flex flex-col justify-center order-2 lg:order-1">
-          <Reveal>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-[11px] font-bold uppercase tracking-widest border border-brand-500/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
-              L'expérience Mobile Ultime
-            </span>
-          </Reveal>
-
-          <Reveal delay={100}>
-            <h2 className="mt-5 sm:mt-6 font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.05] text-ink-900 dark:text-white">
-              YoHa dans{' '}
-              <span className="bg-gradient-to-r from-brand-600 via-brand-500 to-rose-500 dark:from-brand-400 dark:to-orange-500 bg-clip-text text-transparent text-glow">
-                votre poche.
-              </span>
-            </h2>
-          </Reveal>
-
-          <Reveal delay={200}>
-            <p className="mt-4 sm:mt-5 text-sm sm:text-base lg:text-lg text-ink-600 dark:text-ink-300 max-w-xl leading-relaxed">
-              Téléchargez l'application officielle YoHa pour commander vos repas préférés sur le campus en 20 minutes, sans frais cachés et avec un suivi en temps réel.
-            </p>
-          </Reveal>
-
-          {/* Stats row */}
-          <Reveal delay={250}>
-            <div className="mt-6 sm:mt-8 flex items-center gap-6 sm:gap-8">
-              <div className="text-left">
-                <div className="flex items-center gap-0.5 text-amber-500">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={13} className="fill-amber-400" stroke={2.5} />
-                  ))}
-                </div>
-                <div className="mt-0.5 text-[11px] text-ink-500 dark:text-ink-400">
-                  <strong className="text-ink-800 dark:text-ink-200">4,9</strong> · 2 500+ avis
-                </div>
-              </div>
-              <div className="h-8 w-px bg-ink-200 dark:bg-ink-700" />
-              <div className="text-left">
-                <div className="font-display font-black text-xl sm:text-2xl text-gradient">50k+</div>
-                <div className="text-[11px] text-ink-500 dark:text-ink-400">Téléchargements</div>
-              </div>
-              <div className="h-8 w-px bg-ink-200 dark:bg-ink-700" />
-              <div className="text-left">
-                <div className="font-display font-black text-xl sm:text-2xl text-gradient">14min</div>
-                <div className="text-[11px] text-ink-500 dark:text-ink-400">Livraison moyenne</div>
-              </div>
+      <div className="relative z-10 grid lg:grid-cols-12 gap-12 lg:gap-10 items-center">
+        <div className="lg:col-span-5 flex justify-center order-1 min-h-[380px] sm:min-h-[460px]">
+          <div className="relative animate-float-slow">
+            <div className="absolute -inset-10 rounded-full bg-gradient-to-tr from-brand-500/30 via-rose-500/20 to-violet-500/20 blur-[60px] opacity-70 pointer-events-none" />
+            <div
+              className="relative w-[230px] sm:w-[270px] lg:w-[300px] aspect-[9/19] rounded-[2.6rem] border-[7px] border-ink-800 bg-black shadow-2xl overflow-hidden transition-transform duration-200 ease-out"
+              style={{
+                transform: `rotateY(${tilt.x * 22}deg) rotateX(${tilt.y * -18}deg) rotateZ(${tilt.x * -2.5}deg)`,
+                transformStyle: 'preserve-3d',
+                boxShadow: `${tilt.x * -14}px ${tilt.y * 18}px 50px rgba(0,0,0,0.5), 0 0 60px rgba(249,115,22,0.15)`,
+              }}
+            >
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 sm:w-24 h-4 sm:h-5 bg-black rounded-full z-40" />
+              <img
+                src="/yoha_mobile_app_screenshot.png"
+                alt="Écran d'accueil de l'application YoHa"
+                className="w-full h-full object-cover object-top"
+              />
             </div>
-          </Reveal>
-
-          {/* Feature cards */}
-          <div className="mt-8 sm:mt-10 grid sm:grid-cols-3 gap-3 sm:gap-4">
-            {features.map((f, idx) => (
-              <Reveal key={idx} delay={300 + idx * 80}>
-                <div className="group relative h-full p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-ink-900/50 border border-brand-100/40 dark:border-ink-800/40 hover:border-brand-500/30 hover:bg-white dark:hover:bg-ink-900/80 transition-all duration-400 shadow-sm hover:shadow-[0_12px_35px_rgba(249,115,22,0.08)] overflow-hidden">
-                  <div className={`absolute -inset-x-4 -top-4 h-20 bg-gradient-to-br ${f.gradient} opacity-0 group-hover:opacity-[0.06] dark:group-hover:opacity-[0.1] blur-xl transition-all duration-500 -rotate-6`} />
-                  <div className="relative z-10">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${f.gradient} text-white flex items-center justify-center text-lg shadow-sm`}>
-                      {f.icon}
-                    </div>
-                    <div className="mt-3">
-                      <h4 className="font-bold text-sm text-ink-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{f.title}</h4>
-                      <p className="text-[11px] sm:text-xs text-ink-500 dark:text-ink-400 mt-1 leading-snug">{f.desc}</p>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
+            <div className="absolute -right-4 sm:-right-8 top-10 rotate-6 bg-white text-ink-900 rounded-xl px-3 py-2 shadow-xl border border-ink-100 hidden sm:block">
+              <div className="flex items-center gap-1 text-amber-500">
+                {[...Array(5)].map((_, i) => <Star key={i} size={11} className="fill-amber-400" stroke={0} />)}
+              </div>
+              <div className="text-[10px] font-bold mt-0.5">4,9 · 2 500 avis</div>
+            </div>
           </div>
-
-          {/* Download buttons */}
-          <Reveal delay={600} className="mt-12 sm:mt-16">
-            <div className="flex flex-wrap items-center gap-4 sm:gap-5">
-              <a href="https://play.google.com/store" target="_blank" rel="noopener noreferrer"
-                className="group relative inline-flex items-center gap-3 bg-ink-950 dark:bg-black hover:bg-ink-900 border border-ink-800 hover:border-brand-500/40 rounded-2xl px-5 py-2.5 sm:px-6 sm:py-3 transition-all duration-300 shadow-lg hover:shadow-glow/20 active:scale-[0.97]">
-                <svg className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 512 512">
-                  <path d="M325.3 234.3L104.6 13.9C99.7 9 92.2 6.8 84.8 8c-7.4 1.2-13.8 5.7-17.7 12.3L282.7 277l42.6-42.7z" fill="#00e5ff" />
-                  <path d="M325.3 277.7L282.7 277l-215.6 256.7c3.9 6.6 10.3 11.1 17.7 12.3 7.4 1.2 14.9-1 19.8-5.9l220.7-220.4 42.6-42z" fill="#ff3d00" />
-                  <path d="M486.2 219.7L325.3 234.3 282.7 277l42.6 42.7 160.9-15.6c18-10.4 28.5-30 25.8-50.6-2.7-20.6-18.4-36.8-35.8-33.8z" fill="#ffea00" />
-                  <path d="M67.1 20.3C66 23.5 65.4 26.9 65.4 30.3v451.4c0 3.4.6 6.8 1.7 10L282.7 277 67.1 20.3z" fill="#4caf50" />
-                </svg>
-                <div className="text-left">
-                  <div className="text-[8px] sm:text-[9px] uppercase font-semibold text-ink-400 tracking-wider leading-tight">DISPONIBLE SUR</div>
-                  <div className="text-xs sm:text-sm font-extrabold text-white font-display tracking-tight">Google Play</div>
-                </div>
-              </a>
-
-              <a href="https://www.apple.com/app-store/" target="_blank" rel="noopener noreferrer"
-                className="group relative inline-flex items-center gap-3 bg-ink-950 dark:bg-black hover:bg-ink-900 border border-ink-800 hover:border-brand-500/40 rounded-2xl px-5 py-2.5 sm:px-6 sm:py-3 transition-all duration-300 shadow-lg hover:shadow-glow/20 active:scale-[0.97]">
-                <svg className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 384 512" fill="#fff">
-                  <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-111.4-59.1-124.3zM224.6 71.6c26.1-31.6 22.1-52.6 20.2-71.6-26.1 1.2-57.5 16.5-75.4 38.5-19.5 24-29.4 50.8-25.4 77.9 27.2 2.1 53.6-14.6 80.6-44.8z" />
-                </svg>
-                <div className="text-left">
-                  <div className="text-[8px] sm:text-[9px] uppercase font-semibold text-ink-400 tracking-wider leading-tight">TÉLÉCHARGER SUR</div>
-                  <div className="text-xs sm:text-sm font-extrabold text-white font-display tracking-tight">App Store</div>
-                </div>
-              </a>
-            </div>
-          </Reveal>
         </div>
 
-        {/* Right: Phone mockup */}
-        <div className="lg:col-span-5 flex justify-center items-center relative order-1 lg:order-2 min-h-[360px] sm:min-h-[440px] lg:min-h-[500px]">
-          <Reveal delay={300} className="w-full flex justify-center">
-            <div className="animate-float-slow relative">
-              {/* Glow ring behind phone */}
-              <div className="absolute -inset-8 sm:-inset-12 rounded-full bg-gradient-to-tr from-brand-500/30 via-rose-500/20 to-violet-500/30 blur-[60px] opacity-60 animate-pulse-slow pointer-events-none" />
+        <div className="lg:col-span-7 order-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/15 text-brand-400 text-[11px] font-bold uppercase tracking-widest border border-brand-500/25">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
+            Prête à commander
+          </span>
+
+          <h2 className="mt-5 font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.05] text-white">
+            Votre faim,{' '}
+            <span className="bg-gradient-to-r from-brand-400 via-brand-500 to-rose-500 bg-clip-text text-transparent">
+              réglée en 20 min.
+            </span>
+          </h2>
+
+          <p className="mt-4 text-sm sm:text-base lg:text-lg text-ink-300 max-w-xl leading-relaxed">
+            Téléchargez YoHa et récupérez votre premier ticket de commande : livraison offerte, suivi en direct, zéro frais caché.
+          </p>
+
+          <div className="mt-8 sm:mt-10 relative max-w-xl">
+            <div
+              className="relative bg-[#fdfaf3] text-ink-900 rounded-2xl px-6 sm:px-8 pt-7 pb-5 shadow-2xl"
+              style={{
+                backgroundImage:
+                  'repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(0,0,0,0.035) 27px, rgba(0,0,0,0.035) 28px)',
+              }}
+            >
+              <div
+                className="absolute -top-2 left-0 right-0 h-4"
+                style={{
+                  backgroundImage:
+                    'radial-gradient(circle at 10px 0px, transparent 8px, #0b0b12 8.5px)',
+                  backgroundSize: '20px 16px',
+                  backgroundRepeat: 'repeat-x',
+                }}
+              />
+
+              <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-widest text-ink-500 border-b border-dashed border-ink-300 pb-3">
+                <span>Ticket YoHa</span>
+                <span>#TNG-2026</span>
+              </div>
+
+              <ul className="mt-4 space-y-2.5">
+                {perks.map((p, i) => (
+                  <li key={i} className="flex items-center gap-2.5 font-mono text-[12px] sm:text-[13px]">
+                    <p.icon size={13} className="text-brand-600 shrink-0" />
+                    <span>{p.label}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-4 pt-4 border-t border-dashed border-ink-300 flex items-center justify-between font-mono text-[12px]">
+                <span className="text-ink-500">Code promo</span>
+                <span className="font-bold tracking-widest bg-brand-500/10 text-brand-700 px-2 py-0.5 rounded">YOHA20</span>
+              </div>
+
+              <div className="mt-6 flex flex-col sm:flex-row items-stretch gap-3">
+                <a
+                  href="https://play.google.com/store"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 inline-flex items-center justify-center gap-2 bg-ink-950 hover:bg-ink-900 text-white rounded-xl px-4 py-3 font-bold text-sm transition-all active:scale-[0.97] shadow-lg"
+                >
+                  <Download size={16} /> Google Play
+                </a>
+                <a
+                  href="https://www.apple.com/app-store/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 inline-flex items-center justify-center gap-2 bg-ink-950 hover:bg-ink-900 text-white rounded-xl px-4 py-3 font-bold text-sm transition-all active:scale-[0.97] shadow-lg"
+                >
+                  <Download size={16} /> App Store
+                </a>
+                <div className="flex items-center justify-center gap-2 bg-white border border-ink-200 rounded-xl px-3 py-2 shrink-0">
+                  <QrCode size={30} className="text-ink-900" />
+                </div>
+              </div>
 
               <div
-                className="relative w-[230px] sm:w-[270px] lg:w-[310px] aspect-[9/19] rounded-[2.5rem] sm:rounded-[2.8rem] border-[6px] sm:border-[7px] border-ink-900 dark:border-ink-800 bg-ink-950 shadow-2xl select-none transition-transform duration-200 ease-out overflow-hidden cursor-grab"
+                className="absolute -bottom-2 left-0 right-0 h-4"
                 style={{
-                  transform: `rotateY(${mouseOffset.x * 25}deg) rotateX(${mouseOffset.y * -20}deg) rotateZ(${mouseOffset.x * -3}deg) scale(1.02)`,
-                  transformStyle: 'preserve-3d',
-                  boxShadow: `${mouseOffset.x * -15}px ${mouseOffset.y * 20}px 50px rgba(15,23,42,0.3), 0 0 60px rgba(249,115,22,0.1)`,
+                  backgroundImage:
+                    'radial-gradient(circle at 10px 16px, transparent 8px, #0b0b12 8.5px)',
+                  backgroundSize: '20px 16px',
+                  backgroundRepeat: 'repeat-x',
                 }}
-              >
-                {/* Notch */}
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 sm:w-28 h-4 sm:h-5 bg-ink-900 rounded-full z-40 flex items-center justify-center gap-2 sm:gap-3">
-                  <span className="w-1 h-1 rounded-full bg-ink-950 border border-white/5" />
-                  <span className="w-8 sm:w-12 h-0.5 bg-ink-950 rounded-full" />
-                </div>
-
-                {/* Status bar */}
-                <div className="absolute top-0 inset-x-0 h-7 sm:h-9 bg-ink-950 z-30 flex items-end justify-between px-5 sm:px-7 pb-0.5 sm:pb-1 text-[8px] sm:text-[9px] font-semibold text-ink-400">
-                  <span>01:32</span>
-                  <div className="flex items-center gap-1.5">
-                    <span>5G</span>
-                    <span className="hidden sm:inline">100%</span>
-                  </div>
-                </div>
-
-                {/* App screen markup */}
-                <div className="absolute inset-0 pt-7 sm:pt-9 pb-3 z-20 bg-gradient-to-b from-ink-900 via-ink-950 to-black overflow-hidden">
-                  <div className="h-full flex flex-col px-3 sm:px-3.5 pt-2.5 gap-3">
-                    <div className="flex items-center justify-between shrink-0">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-brand-500/15 border border-brand-500/25 text-brand-300 text-[7px] sm:text-[7.5px] font-bold">
-                        <span className="w-1 h-1 rounded-full bg-brand-400 animate-pulse" />
-                        Campus &amp; CHU en direct
-                      </span>
-                      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center text-[9px] font-black text-white shrink-0">
-                        Y
-                      </div>
-                    </div>
-
-                    <div className="shrink-0">
-                      <div className="text-[6.5px] sm:text-[7px] font-bold uppercase tracking-wider text-ink-400">Bonjour · YoHa Tanger</div>
-                      <div className="mt-0.5 text-[13px] sm:text-[15px] font-black text-white leading-tight">Salut toi 👋</div>
-                      <p className="mt-1 text-[7.5px] sm:text-[8px] leading-snug text-ink-400">
-                        Une faim de loup ? Vos plats préférés livrés chaud et croustillant en 20 min chrono !
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1.5 shrink-0">
-                      <span className="inline-flex items-center gap-1 px-1.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[6.5px] sm:text-[7px] font-semibold text-ink-300">
-                        <MapPin size={8} className="text-rose-400" /> CHU-Tanger
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-1.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[6.5px] sm:text-[7px] font-semibold text-emerald-300">
-                        <Clock size={8} /> 15-20 min
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 -mt-1.5 shrink-0">
-                      <span className="inline-flex items-center gap-1 px-1.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-[6.5px] sm:text-[7px] font-semibold text-rose-300">
-                        <Truck size={8} /> Livraison 100% offerte
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-1.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[6.5px] sm:text-[7px] font-semibold text-amber-300">
-                        <BadgePercent size={8} /> Promos actives
-                      </span>
-                    </div>
-
-                    <div className="shrink-0 flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-white text-ink-400 shadow-sm">
-                      <Search size={9} className="text-brand-500 shrink-0" />
-                      <span className="text-[7px] sm:text-[7.5px] font-medium truncate">Un Tacos Maxi sauce fromagère ? 🧀</span>
-                    </div>
-
-                    <div className="flex-1 grid grid-cols-2 gap-2 sm:gap-2.5 pb-1">
-                      {categories.map((cat, i) => {
-                        const Icon = cat.icon;
-                        return (
-                          <div
-                            key={i}
-                            className={`rounded-xl bg-gradient-to-br ${cat.bg} px-2 py-2.5 flex flex-col justify-between shadow-sm`}
-                          >
-                            <Icon size={12} className="text-white/90" strokeWidth={2.2} />
-                            <span className="mt-1.5 text-[7px] sm:text-[7.5px] font-bold text-white leading-none">
-                              {cat.label}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Reflection overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/[0.04] to-white/[0.08] pointer-events-none z-30" />
-              </div>
+              />
             </div>
-          </Reveal>
+          </div>
+
+          <p className="mt-6 text-[12px] text-ink-500">
+            Scannez le QR code ou téléchargez directement — disponible sur iOS et Android.
+          </p>
         </div>
       </div>
     </section>
