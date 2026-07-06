@@ -12,6 +12,7 @@ import { Button } from '../../components/ui/Button.jsx';
 import { Magnetic } from '../../components/ui/Magnetic.jsx';
 import { Tilt } from '../../components/ui/Tilt.jsx';
 import { Reveal } from '../../components/ui/Reveal.jsx';
+import { HERO_RESTAURANTS } from '../../data/heroRestaurants.js';
 import { restaurantCover } from '../../components/ui/MenuItemImage.jsx';
 import { spotlightHandler } from '../../utils/spotlight.js';
 import { useYohaNav } from '../../contexts/YohaNavContext.jsx';
@@ -258,7 +259,7 @@ function BentoSpotlightCard({ spot, spotFade, n, restaurants, spotIdx, onSelectS
 }
 
 export function BentoHero() {
-  const { restaurants } = useOrders();
+  const restaurants = HERO_RESTAURANTS;
   const n = restaurants.length;
   const [spotIdx, setSpotIdx] = useState(0);
   const [spotFade, setSpotFade] = useState(true);
