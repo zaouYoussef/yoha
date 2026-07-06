@@ -407,6 +407,22 @@
   .testi-track > * {
     scroll-snap-align: start;
   }
+  .testi-marquee {
+    display: flex;
+    width: max-content;
+    animation: testi-marquee 40s linear infinite;
+  }
+  .testi-marquee:hover {
+    animation-play-state: paused;
+  }
+  @keyframes testi-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
 
   .live-tracker {
     position: fixed;

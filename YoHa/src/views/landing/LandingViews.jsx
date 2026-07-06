@@ -1032,30 +1032,34 @@ export function TestimonialsSection() {
           </div>
         </div>
 
-        <div className="marquee-mask -mx-4 sm:mx-0 px-4 sm:px-0">
-          <div className="mt-10 testi-track flex gap-5 overflow-x-auto no-scrollbar pb-6">
-            {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="cursor-grow shrink-0 w-[88%] sm:w-[380px] lg:w-[420px] rounded-2xl sm:rounded-3xl p-5 sm:p-6 glass-card-premium border border-white/20 dark:border-white/5 shadow-card hover:shadow-cardhover hover:shadow-[0_20px_50px_rgba(249,115,22,0.08)] transition-all duration-300 relative overflow-hidden spotlight hover:border-brand-500/20"
-                onMouseMove={spotlightHandler}>
-                <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br ${t.color} opacity-20 blur-2xl`}></div>
-                
-                {/* Verified Badge */}
-                <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
-                  <span className="text-xs">✓</span> <span className="hidden sm:inline">Achat vérifié</span><span className="sm:hidden">Vérifié</span>
-                </div>
+        <div className="marquee-mask -mx-4 sm:mx-0 px-4 sm:px-0 overflow-hidden">
+          <div className="testi-marquee gap-5 mt-10 pb-6">
+            {[...Array(2)].map((_, k) => (
+              <Fragment key={k}>
+                {TESTIMONIALS.map((t) => (
+                  <div key={t.name + k} className="cursor-grow shrink-0 w-[88%] sm:w-[380px] lg:w-[420px] rounded-2xl sm:rounded-3xl p-5 sm:p-6 glass-card-premium border border-white/20 dark:border-white/5 shadow-card hover:shadow-cardhover hover:shadow-[0_20px_50px_rgba(249,115,22,0.08)] transition-all duration-300 relative overflow-hidden spotlight hover:border-brand-500/20"
+                    onMouseMove={spotlightHandler}>
+                    <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br ${t.color} opacity-20 blur-2xl`}></div>
+                    
+                    {/* Verified Badge */}
+                    <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
+                      <span className="text-xs">✓</span> <span className="hidden sm:inline">Achat vérifié</span><span className="sm:hidden">Vérifié</span>
+                    </div>
 
-                <div className="text-3xl sm:text-5xl text-brand-500/30 leading-none font-serif">“</div>
-                <p className="mt-1 text-ink-700 dark:text-ink-200 leading-relaxed text-sm sm:text-base pr-4 sm:pr-12">{t.text}</p>
-                <div className="mt-5 flex items-center gap-3">
-                  <img src={t.avatar} alt="" className="w-11 h-11 rounded-full object-cover border border-white/20 dark:border-white/10 shadow-sm"/>
-                  <div>
-                    <div className="font-bold text-sm text-ink-900 dark:text-white">{t.name}</div>
-                    <div className="flex items-center gap-0.5 text-amber-500">
-                      {[...Array(t.rating)].map((_,j) => <I.Star key={j} size={12} className="fill-amber-400" stroke={2.5}/>)}
+                    <div className="text-3xl sm:text-5xl text-brand-500/30 leading-none font-serif">“</div>
+                    <p className="mt-1 text-ink-700 dark:text-ink-200 leading-relaxed text-sm sm:text-base pr-4 sm:pr-12">{t.text}</p>
+                    <div className="mt-5 flex items-center gap-3">
+                      <img src={t.avatar} alt="" className="w-11 h-11 rounded-full object-cover border border-white/20 dark:border-white/10 shadow-sm"/>
+                      <div>
+                        <div className="font-bold text-sm text-ink-900 dark:text-white">{t.name}</div>
+                        <div className="flex items-center gap-0.5 text-amber-500">
+                          {[...Array(t.rating)].map((_,j) => <I.Star key={j} size={12} className="fill-amber-400" stroke={2.5}/>)}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                ))}
+              </Fragment>
             ))}
           </div>
         </div>
@@ -1350,7 +1354,7 @@ export function InteractiveBurger3D({ progress }) {
         }
         return next;
       });
-    }, 45); // ~22 FPS loop, smooth and gentle
+    }, 20); // ~50 FPS loop, smooth
     
     return () => clearInterval(intervalId);
   }, [isHovering, progress]);
