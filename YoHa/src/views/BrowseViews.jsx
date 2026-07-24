@@ -415,7 +415,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
               {/* Offres */}
               {promoRestaurants.length > 1 && (
-                <HorizontalRow title="🎁 Offres près de chez vous" count={promoRestaurants.length - 1}>
+                <HorizontalRow title="🎁 Offres près de chez vous" count={promoRestaurants.length - 1} onSeeAll={() => setFilter('all')}>
                   {promoRestaurants.slice(1).map((r) => (
                     <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
                   ))}
@@ -423,14 +423,14 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               )}
 
               {/* Populaires */}
-              <HorizontalRow title="🔥 Populaires dans votre quartier" count={popularRestaurants.length}>
+              <HorizontalRow title="🔥 Populaires dans votre quartier" count={popularRestaurants.length} onSeeAll={() => setFilter('all')}>
                 {popularRestaurants.map((r) => (
                   <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
                 ))}
               </HorizontalRow>
 
               {/* Rapide */}
-              <HorizontalRow title="⚡ Livraison la plus rapide" count={fastDelivery.length}>
+              <HorizontalRow title="⚡ Livraison la plus rapide" count={fastDelivery.length} onSeeAll={() => setFilter('all')}>
                 {fastDelivery.map((r) => (
                   <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
                 ))}
@@ -438,7 +438,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
               {/* Pâtisseries preview */}
               {dessertItems.length > 0 && (
-                <HorizontalRow title="🥐 Pâtisseries" count={dessertItems.length}>
+                <HorizontalRow title="🥐 Pâtisseries" count={dessertItems.length} onSeeAll={() => setFilter('dessert')}>
                   {dessertItems.map((r) => (
                     <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
                   ))}
@@ -447,7 +447,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
               {/* Pharmacies preview */}
               {pharmacyItems.length > 0 && (
-                <HorizontalRow title="💊 Pharmacies" count={pharmacyItems.length}>
+                <HorizontalRow title="💊 Pharmacies" count={pharmacyItems.length} onSeeAll={() => setFilter('pharmacy')}>
                   {pharmacyItems.map((r) => (
                     <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
                   ))}
@@ -456,7 +456,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
               {/* Supermarchés preview */}
               {marketItems.length > 0 && (
-                <HorizontalRow title="🛒 Supermarchés" count={marketItems.length}>
+                <HorizontalRow title="🛒 Supermarchés" count={marketItems.length} onSeeAll={() => setFilter('supermarket')}>
                   {marketItems.map((r) => (
                     <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
                   ))}
@@ -494,14 +494,19 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   );
 }
 
-function HorizontalRow({ title, count, children }) {
+function HorizontalRow({ title, count, children, onSeeAll }) {
   return (
     <section className="px-4 sm:px-0">
       <div className="flex items-center justify-between mb-3.5">
         <h2 className="font-display font-extrabold text-base sm:text-lg text-ink-900 dark:text-white">{title}</h2>
-        {count > 1 && (
-          <button type="button" className="text-xs font-bold text-brand-600 dark:text-brand-400">
-            Tout voir ({count})
+        {count > 0 && (
+          <button
+            type="button"
+            onClick={onSeeAll}
+            className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-brand-500 hover:underline cursor-pointer flex items-center gap-1 active:scale-95 transition-transform"
+          >
+            <span>Tout voir ({count})</span>
+            <span>→</span>
           </button>
         )}
       </div>

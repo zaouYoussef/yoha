@@ -1,10 +1,14 @@
+from django.db import models
 from django.http import HttpResponse
+from django.utils import timezone
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.core.permissions import IsRestaurant
+
 from .models import PromoCode
-from .serializers import PromoCodeSerializer, ValidatePromoSerializer
+from .serializers import PromoCodeSerializer, RestaurantPromoSerializer, ValidatePromoSerializer
 from .services import unsubscribe_email
 
 
@@ -94,11 +98,29 @@ class ValidatePromoView(APIView):
 
         code = serializer.validated_data["code"].strip().upper()
         section = serializer.validated_data["section"]
+        restaurant_id = serializer.validated_data.get("restaurant_id")
 
-        try:
-            promo = PromoCode.objects.get(code=code, active=True)
-        except PromoCode.DoesNotExist:
-            return Response({"valid": False, "detail": "Code promo invalide ou inactif."}, status=404)
+        qs = PromoCode.objects.filter(code=code, active=True)
+
+        # Check expiration
+        qs = qs.filter(
+            models.Q(expires_at__isnull=True) | models.Q(expires_at__gt=timezone.now())
+        )
+        # Check usage limit
+        qs = qs.filter(
+            models.Q(usage_limit__isnull=True) | models.Q(usage_count__lt=models.F("usage_limit"))
+        )
+
+        # If restaurant_id provided, match restaurant-specific promo OR global promo
+        if restaurant_id:
+            promo = qs.filter(
+                models.Q(restaurant_id=restaurant_id) | models.Q(restaurant__isnull=True)
+            ).first()
+        else:
+            promo = qs.filter(restaurant__isnull=True).first()
+
+        if not promo:
+            return Response({"valid": False, "detail": "Code promo invalide, expiré ou inactif."}, status=404)
 
         if promo.section != "all" and promo.section != section:
             return Response(
@@ -111,4 +133,65 @@ class ValidatePromoView(APIView):
             "code": promo.code,
             "discount": promo.discount,
             "section": promo.section,
+            "restaurant_id": promo.restaurant_id,
         })
+
+
+# ─── Restaurant-owner promo CRUD ───────────────────────────────────
+
+def _get_owned_restaurant(user):
+    if user.restaurant_profile_id:
+        return user.restaurant_profile
+    return None
+
+
+class RestaurantPromoListCreateView(APIView):
+    permission_classes = [IsRestaurant]
+
+    def get(self, request):
+        resto = _get_owned_restaurant(request.user)
+        if not resto:
+            return Response({"detail": "Restaurant introuvable."}, status=404)
+        promos = PromoCode.objects.filter(restaurant=resto)
+        serializer = RestaurantPromoSerializer(promos, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        resto = _get_owned_restaurant(request.user)
+        if not resto:
+            return Response({"detail": "Restaurant introuvable."}, status=404)
+        serializer = RestaurantPromoSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(restaurant=resto)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+
+class RestaurantPromoDetailView(APIView):
+    permission_classes = [IsRestaurant]
+
+    def get_object(self, pk):
+        resto = _get_owned_restaurant(self.request.user)
+        if not resto:
+            return None
+        try:
+            return PromoCode.objects.get(pk=pk, restaurant=resto)
+        except PromoCode.DoesNotExist:
+            return None
+
+    def patch(self, request, pk):
+        promo = self.get_object(pk)
+        if not promo:
+            return Response({"detail": "Code promo introuvable."}, status=404)
+        serializer = RestaurantPromoSerializer(promo, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    def delete(self, request, pk):
+        promo = self.get_object(pk)
+        if not promo:
+            return Response({"detail": "Code promo introuvable."}, status=404)
+        promo.delete()
+        return Response(status=204)

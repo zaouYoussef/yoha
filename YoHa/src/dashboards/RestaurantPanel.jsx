@@ -18,7 +18,7 @@ import {
   OPENING_DAY_LABELS,
 } from '../data/index.js';
 import { useOrders } from '../contexts/AppContexts.jsx';
-import { restaurantsApi } from '@/lib/api';
+import { restaurantsApi, restaurantPromosApi } from '@/lib/api';
 import { DashLayout, LineChart, BarChart, StatCard, StatusPill } from './DashShared.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { ImageUpload } from '../components/ui/ImageUpload.jsx';
@@ -66,6 +66,7 @@ export function RestaurantDashboard({ goto, dark, setDark }) {
     incoming: 'Commandes entrantes',
     profile: 'Mon établissement',
     menu: 'Mon menu',
+    promos: 'Codes promo',
     stats: 'Statistiques',
   };
 
@@ -101,6 +102,7 @@ export function RestaurantDashboard({ goto, dark, setDark }) {
       {current === 'incoming' && <RestoIncoming restoId={restoId}/>}
       {current === 'profile' && <RestoProfile restaurant={myResto} onUpdated={setMyResto} />}
       {current === 'menu' && <RestoMenu restaurant={myResto} onRefresh={reloadResto} />}
+      {current === 'promos' && <RestoPromos />}
       {current === 'stats' && <RestoStats restoId={restoId}/>}
     </DashLayout>
   );
@@ -694,6 +696,314 @@ function ItemDraftModal({ item, busy, onClose, onSave }) {
         <div className="flex gap-2 justify-end">
           <Button type="button" variant="ghost" onClick={onClose}>Annuler</Button>
           <Button type="submit" variant="primary" disabled={busy}>{busy ? '…' : 'Enregistrer'}</Button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+export function RestoPromos() {
+  const [promos, setPromos] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  const loadPromos = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await restaurantPromosApi.list();
+      setPromos(Array.isArray(data) ? data : []);
+    } catch {
+      setPromos([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { loadPromos(); }, [loadPromos]);
+
+  const handleCreate = () => {
+    setEditing(null);
+    setShowForm(true);
+    setError('');
+  };
+
+  const handleEdit = (promo) => {
+    setEditing(promo);
+    setShowForm(true);
+    setError('');
+  };
+
+  const handleDelete = async (promo) => {
+    if (!window.confirm(`Supprimer le code "${promo.code}" ?`)) return;
+    setBusy(true);
+    try {
+      await restaurantPromosApi.remove(promo.id);
+      await loadPromos();
+    } catch (err) {
+      setError(err.message || 'Erreur lors de la suppression.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleToggle = async (promo) => {
+    setBusy(true);
+    try {
+      await restaurantPromosApi.update(promo.id, { active: !promo.active });
+      await loadPromos();
+    } catch (err) {
+      setError(err.message || 'Erreur.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleSave = async (formData) => {
+    setBusy(true);
+    setError('');
+    try {
+      if (editing) {
+        await restaurantPromosApi.update(editing.id, formData);
+      } else {
+        await restaurantPromosApi.create(formData);
+      }
+      setShowForm(false);
+      setEditing(null);
+      await loadPromos();
+    } catch (err) {
+      setError(err.message || 'Erreur lors de l\'enregistrement.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="rounded-2xl border border-ink-200 dark:border-ink-800 py-16 text-center text-sm text-ink-500">
+        Chargement des codes promo…
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-ink-500">
+          Créez des codes promo réductions pour vos clients. Le code est appliqué au panier lors du paiement.
+        </p>
+        <Button onClick={handleCreate} variant="primary" size="sm">
+          <span className="flex items-center gap-1.5"><I.Plus size={14}/> Nouveau code</span>
+        </Button>
+      </div>
+
+      {error && (
+        <div className="rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 px-4 py-3 text-sm text-red-600">
+          {error}
+        </div>
+      )}
+
+      {promos.length === 0 ? (
+        <div className="rounded-2xl border-2 border-dashed border-ink-200 dark:border-ink-800 py-16 text-center">
+          <div className="text-4xl mb-3">🏷️</div>
+          <p className="font-display font-bold text-lg">Aucun code promo</p>
+          <p className="text-sm text-ink-500 mt-1">Créez votre premier code pour attirer des clients !</p>
+          <Button onClick={handleCreate} variant="primary" size="sm" className="mt-4">
+            Créer un code promo
+          </Button>
+        </div>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {promos.map((promo) => (
+            <PromoCard
+              key={promo.id}
+              promo={promo}
+              onEdit={() => handleEdit(promo)}
+              onDelete={() => handleDelete(promo)}
+              onToggle={() => handleToggle(promo)}
+              busy={busy}
+            />
+          ))}
+        </div>
+      )}
+
+      {showForm && (
+        <PromoFormModal
+          promo={editing}
+          busy={busy}
+          onClose={() => { setShowForm(false); setEditing(null); }}
+          onSave={handleSave}
+        />
+      )}
+    </div>
+  );
+}
+
+function PromoCard({ promo, onEdit, onDelete, onToggle, busy }) {
+  const expired = promo.expires_at && new Date(promo.expires_at) < new Date();
+  const limitReached = promo.usage_limit && promo.usage_count >= promo.usage_limit;
+  const isInactive = !promo.active || expired || limitReached;
+
+  return (
+    <div className={`rounded-2xl border bg-white dark:bg-ink-900 p-4 transition ${
+      isInactive
+        ? 'border-ink-200/60 dark:border-ink-800 opacity-70'
+        : 'border-brand-200 dark:border-brand-800 shadow-card'
+    }`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={`font-mono font-black text-lg tracking-wide ${isInactive ? 'text-ink-400' : 'text-brand-600'}`}>
+              {promo.code}
+            </span>
+            {isInactive && (
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-ink-100 dark:bg-ink-800 text-ink-500">
+                {expired ? 'Expiré' : limitReached ? 'Épuisé' : 'Inactif'}
+              </span>
+            )}
+          </div>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="font-display font-black text-2xl text-emerald-600">-{promo.discount}%</span>
+            {promo.min_order_mad && (
+              <span className="text-xs text-ink-500">min. {formatMad(Number(promo.min_order_mad))}</span>
+            )}
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={onToggle}
+          disabled={busy || expired || limitReached}
+          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
+            promo.active ? 'bg-emerald-500' : 'bg-ink-300 dark:bg-ink-600'
+          } ${busy ? 'opacity-50' : ''}`}
+        >
+          <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+            promo.active ? 'translate-x-6' : 'translate-x-1'
+          }`} />
+        </button>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-ink-500">
+        <span className="flex items-center gap-1">
+          <I.Bag size={12}/> {promo.usage_count || 0} utilisation{promo.usage_count !== 1 ? 's' : ''}
+        </span>
+        {promo.usage_limit && (
+          <span>/ {promo.usage_limit} max</span>
+        )}
+        {promo.expires_at && (
+          <span className={expired ? 'text-red-500 font-semibold' : ''}>
+            <I.Clock size={12} className="inline -mt-0.5"/> Expire le {new Date(promo.expires_at).toLocaleDateString('fr-FR')}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-3 flex gap-2">
+        <Button size="sm" variant="secondary" onClick={onEdit} disabled={busy}>Modifier</Button>
+        <Button size="sm" variant="ghost" onClick={onDelete} disabled={busy} className="text-red-500 hover:text-red-600">
+          <I.Trash size={12}/> Supprimer
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function PromoFormModal({ promo, busy, onClose, onSave }) {
+  const [form, setForm] = useState({
+    code: promo?.code || '',
+    discount: String(promo?.discount || ''),
+    min_order_mad: promo?.min_order_mad ? String(promo.min_order_mad) : '',
+    expires_at: promo?.expires_at ? new Date(promo.expires_at).toISOString().slice(0, 16) : '',
+    usage_limit: promo?.usage_limit ? String(promo.usage_limit) : '',
+  });
+
+  const submit = (e) => {
+    e.preventDefault();
+    onSave({
+      code: form.code.trim().toUpperCase(),
+      discount: Number(form.discount),
+      min_order_mad: form.min_order_mad ? Number(form.min_order_mad) : null,
+      expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
+      usage_limit: form.usage_limit ? Number(form.usage_limit) : null,
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 grid place-items-center p-4" onClick={onClose}>
+      <form
+        className="bg-white dark:bg-ink-900 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={submit}
+      >
+        <h3 className="font-display font-bold text-lg">
+          {promo ? 'Modifier le code promo' : 'Nouveau code promo'}
+        </h3>
+        <label className="block space-y-1">
+          <span className="text-sm font-semibold">Code promo</span>
+          <input
+            required
+            maxLength={50}
+            placeholder="EX: BIENVENUE15"
+            value={form.code}
+            onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
+            className="w-full px-3 py-2 rounded-xl border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-900 font-mono font-bold uppercase tracking-wider"
+          />
+          <p className="text-xs text-ink-400">Le code sera converti en majuscules automatiquement.</p>
+        </label>
+        <label className="block space-y-1">
+          <span className="text-sm font-semibold">Remise (%)</span>
+          <input
+            required
+            type="number"
+            min="1"
+            max="100"
+            placeholder="15"
+            value={form.discount}
+            onChange={(e) => setForm((f) => ({ ...f, discount: e.target.value }))}
+            className="w-full px-3 py-2 rounded-xl border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-900"
+          />
+        </label>
+        <div className="grid grid-cols-2 gap-3">
+          <label className="block space-y-1">
+            <span className="text-sm font-semibold">Commande min. (MAD)</span>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="Optionnel"
+              value={form.min_order_mad}
+              onChange={(e) => setForm((f) => ({ ...f, min_order_mad: e.target.value }))}
+              className="w-full px-3 py-2 rounded-xl border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-900"
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-sm font-semibold">Limite d'utilisation</span>
+            <input
+              type="number"
+              min="1"
+              placeholder="Illimité"
+              value={form.usage_limit}
+              onChange={(e) => setForm((f) => ({ ...f, usage_limit: e.target.value }))}
+              className="w-full px-3 py-2 rounded-xl border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-900"
+            />
+          </label>
+        </div>
+        <label className="block space-y-1">
+          <span className="text-sm font-semibold">Date d&apos;expiration</span>
+          <input
+            type="datetime-local"
+            value={form.expires_at}
+            onChange={(e) => setForm((f) => ({ ...f, expires_at: e.target.value }))}
+            className="w-full px-3 py-2 rounded-xl border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-900"
+          />
+          <p className="text-xs text-ink-400">Laissez vide pour un code sans expiration.</p>
+        </label>
+        <div className="flex gap-2 justify-end pt-2">
+          <Button type="button" variant="ghost" onClick={onClose}>Annuler</Button>
+          <Button type="submit" variant="primary" disabled={busy}>
+            {busy ? '…' : promo ? 'Enregistrer' : 'Créer le code'}
+          </Button>
         </div>
       </form>
     </div>

@@ -380,6 +380,30 @@ export const restaurantsApi = {
   },
 };
 
+export const restaurantPromosApi = {
+  async list() {
+    return unwrapList(await apiFetch('/marketing/restaurant-promos/'));
+  },
+
+  async create(payload) {
+    return apiFetch('/marketing/restaurant-promos/', {
+      method: 'POST',
+      body: payload,
+    });
+  },
+
+  async update(id, payload) {
+    return apiFetch(`/marketing/restaurant-promos/${id}/`, {
+      method: 'PATCH',
+      body: payload,
+    });
+  },
+
+  async remove(id) {
+    return apiFetch(`/marketing/restaurant-promos/${id}/`, { method: 'DELETE' });
+  },
+};
+
 import { normalizeOpeningHours, restaurantOpenStatus } from '@/data/openingHours.js';
 
 function normalizeRestaurant(r) {
