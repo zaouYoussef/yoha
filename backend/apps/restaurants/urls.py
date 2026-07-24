@@ -12,6 +12,8 @@ from .owner_views import (
     RestaurantDetailView,
     RestaurantListView,
     RestaurantMediaUploadView,
+    RestaurantOfferListCreateView,
+    RestaurantOfferDetailView,
 )
 
 urlpatterns = [
@@ -35,5 +37,7 @@ urlpatterns = [
         MenuItemImageUploadView.as_view(),
         name="restaurant-menu-item-image",
     ),
+    path("me/offers/", RestaurantOfferListCreateView.as_view(), name="restaurant-offers"),
+    path("me/offers/<int:pk>/", RestaurantOfferDetailView.as_view(), name="restaurant-offer-detail"),
     path("<slug:slug>/", RestaurantDetailView.as_view(), name="restaurant-detail"),
 ]

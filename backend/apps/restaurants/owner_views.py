@@ -12,7 +12,7 @@ from rest_framework.exceptions import ValidationError
 from apps.core.media import ImageProcessingError, process_and_store
 from apps.core.permissions import IsRestaurant
 
-from .models import MenuCategory, MenuItem, Restaurant
+from .models import MenuCategory, MenuItem, Restaurant, RestaurantOffer
 from .serializers import (
     MenuCategoryWriteSerializer,
     MenuItemWriteSerializer,
@@ -299,3 +299,57 @@ class MenuItemImageUploadView(APIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
+
+# ─── Restaurant-offer CRUD ─────────────────────────────────────────
+
+class RestaurantOfferListCreateView(APIView):
+    permission_classes = [IsRestaurant]
+
+    def get(self, request):
+        resto = get_owned_restaurant(request.user)
+        if not resto:
+            return Response({"detail": "Restaurant introuvable."}, status=404)
+        offers = RestaurantOffer.objects.filter(restaurant=resto)
+        serializer = RestaurantOfferSerializer(offers, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        resto = get_owned_restaurant(request.user)
+        if not resto:
+            return Response({"detail": "Restaurant introuvable."}, status=404)
+        serializer = RestaurantOfferSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(restaurant=resto)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+
+class RestaurantOfferDetailView(APIView):
+    permission_classes = [IsRestaurant]
+
+    def get_object(self, pk):
+        resto = get_owned_restaurant(self.request.user)
+        if not resto:
+            return None
+        try:
+            return RestaurantOffer.objects.get(pk=pk, restaurant=resto)
+        except RestaurantOffer.DoesNotExist:
+            return None
+
+    def patch(self, request, pk):
+        offer = self.get_object(pk)
+        if not offer:
+            return Response({"detail": "Offre introuvable."}, status=404)
+        serializer = RestaurantOfferSerializer(offer, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    def delete(self, request, pk):
+        offer = self.get_object(pk)
+        if not offer:
+            return Response({"detail": "Offre introuvable."}, status=404)
+        offer.delete()
+        return Response(status=204)

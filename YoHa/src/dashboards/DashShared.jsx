@@ -26,7 +26,7 @@ const DASH_LINKS = {
     { id: 'incoming', label: 'Commandes', icon: <I.Bell size={18} /> },
     { id: 'profile', label: 'Établissement', icon: <I.Chef size={18} /> },
     { id: 'menu', label: 'Mon menu', icon: <I.Bag size={18} /> },
-    { id: 'promos', label: 'Codes promo', icon: <I.Zap size={18} /> },
+    { id: 'promos', label: 'Offres', icon: <I.Zap size={18} /> },
     { id: 'stats', label: 'Statistiques', icon: <I.Sparkle size={18} /> },
   ],
 };

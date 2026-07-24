@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from rest_framework import serializers
 
-from .models import MenuCategory, MenuItem, Restaurant
+from .models import MenuCategory, MenuItem, Restaurant, RestaurantOffer
 from .opening_hours import normalize_opening_hours, restaurant_open_status
 
 
@@ -119,15 +119,30 @@ class RestaurantListSerializer(serializers.ModelSerializer):
         return None
 
 
+class RestaurantOfferPublicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RestaurantOffer
+        fields = [
+            "id", "offer_type", "title", "description",
+            "discount_percent", "buy_quantity", "get_quantity", "free_item_name",
+            "min_amount", "is_active",
+        ]
+
+
 class RestaurantDetailSerializer(RestaurantListSerializer):
     menu = serializers.SerializerMethodField()
+    offers = serializers.SerializerMethodField()
 
     class Meta(RestaurantListSerializer.Meta):
-        fields = RestaurantListSerializer.Meta.fields + ("menu",)
+        fields = RestaurantListSerializer.Meta.fields + ("menu", "offers")
 
     def get_menu(self, obj):
         cats = obj.menu_categories.prefetch_related("items").all()
         return MenuCategorySerializer(cats, many=True, context=self.context).data
+
+    def get_offers(self, obj):
+        qs = obj.offers.filter(is_active=True)
+        return RestaurantOfferPublicSerializer(qs, many=True).data
 
 
 # ——— Écriture (dashboard gérant) ———
@@ -187,3 +202,42 @@ class MenuItemWriteSerializer(serializers.ModelSerializer):
         if qs.exists():
             raise serializers.ValidationError("ID plat déjà utilisé dans ce restaurant.")
         return value
+
+
+class RestaurantOfferSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RestaurantOffer
+        fields = [
+            "id", "offer_type", "title", "description",
+            "discount_percent", "buy_quantity", "get_quantity", "free_item_name",
+            "min_amount", "is_active", "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+    def validate(self, data):
+        offer_type = data.get("offer_type") or (self.instance and self.instance.offer_type)
+        if offer_type == "percentage":
+            dp = data.get("discount_percent")
+            if dp is None and not self.instance:
+                raise serializers.ValidationError({"discount_percent": "Requis pour une réduction %."})
+            if dp is not None and (dp < 1 or dp > 100):
+                raise serializers.ValidationError({"discount_percent": "La réduction doit être entre 1 et 100 %."})
+        elif offer_type == "buy_get_free":
+            bq = data.get("buy_quantity")
+            gq = data.get("get_quantity")
+            if bq is None and not self.instance:
+                raise serializers.ValidationError({"buy_quantity": "Requis."})
+            if gq is None and not self.instance:
+                raise serializers.ValidationError({"get_quantity": "Requis."})
+            if bq is not None and bq < 1:
+                raise serializers.ValidationError({"buy_quantity": "Doit être ≥ 1."})
+            if gq is not None and gq < 1:
+                raise serializers.ValidationError({"get_quantity": "Doit être ≥ 1."})
+        elif offer_type == "min_spend":
+            ma = data.get("min_amount")
+            dp = data.get("discount_percent")
+            if ma is None and not self.instance:
+                raise serializers.ValidationError({"min_amount": "Requis."})
+            if dp is None and not self.instance:
+                raise serializers.ValidationError({"discount_percent": "Requis (pourcentage de réduction)."})
+        return data

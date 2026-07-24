@@ -404,6 +404,30 @@ export const restaurantPromosApi = {
   },
 };
 
+export const restaurantOffersApi = {
+  async list() {
+    return unwrapList(await apiFetch('/restaurants/me/offers/'));
+  },
+
+  async create(payload) {
+    return apiFetch('/restaurants/me/offers/', {
+      method: 'POST',
+      body: payload,
+    });
+  },
+
+  async update(id, payload) {
+    return apiFetch(`/restaurants/me/offers/${id}/`, {
+      method: 'PATCH',
+      body: payload,
+    });
+  },
+
+  async remove(id) {
+    return apiFetch(`/restaurants/me/offers/${id}/`, { method: 'DELETE' });
+  },
+};
+
 import { normalizeOpeningHours, restaurantOpenStatus } from '@/data/openingHours.js';
 
 function normalizeRestaurant(r) {

@@ -107,3 +107,56 @@ class MenuItem(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class RestaurantOffer(models.Model):
+    """Offres promotionnelles d'un restaurant."""
+
+    class OfferType(models.TextChoices):
+        PERCENTAGE = "percentage", "Réduction %"
+        BUY_GET_FREE = "buy_get_free", "Acheté X, offert Y"
+        MIN_SPEND = "min_spend", "Montant minimum"
+
+    restaurant = models.ForeignKey(
+        Restaurant, on_delete=models.CASCADE, related_name="offers",
+    )
+    offer_type = models.CharField(max_length=20, choices=OfferType.choices)
+    title = models.CharField(max_length=150, help_text="Ex: -50% sur tout le menu")
+    description = models.TextField(blank=True)
+
+    # percentage type
+    discount_percent = models.PositiveIntegerField(
+        null=True, blank=True,
+        help_text="Pourcentage de réduction (1-100)",
+    )
+
+    # buy_get_free type
+    buy_quantity = models.PositiveIntegerField(
+        null=True, blank=True,
+        help_text="Quantité à acheter (ex: 2)",
+    )
+    get_quantity = models.PositiveIntegerField(
+        null=True, blank=True,
+        help_text="Quantité offerte (ex: 1)",
+    )
+    free_item_name = models.CharField(
+        max_length=200, blank=True,
+        help_text="Nom de l'article offert (ex: Boisson 33cl)",
+    )
+
+    # min_spend type
+    min_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True,
+        help_text="Montant minimum de la commande en MAD",
+    )
+
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Offre restaurant"
+        verbose_name_plural = "Offres restaurants"
+
+    def __str__(self):
+        return f"{self.restaurant.name} — {self.title}"
