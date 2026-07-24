@@ -1,22 +1,24 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 export default function BackgroundVideo({ webmSrc, mp4Src, poster, className = '' }) {
+  const [mounted, setMounted] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const videoRef = useRef(null);
-  const [isMobile, setIsMobile] = useState(true);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    setMounted(true);
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 768);
     };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
   }, []);
 
   useEffect(() => {
-    if (isMobile) return;
+    if (!mounted || !isDesktop) return;
     const video = videoRef.current;
     if (!video) return;
 
@@ -36,15 +38,17 @@ export default function BackgroundVideo({ webmSrc, mp4Src, poster, className = '
 
     video.load();
     tryPlay();
-  }, [webmSrc, mp4Src, isMobile]);
+  }, [webmSrc, mp4Src, mounted, isDesktop]);
 
-  if (isMobile) {
+  // On Mobile (<768px), SSR, or before mount: render ultra-lightweight WebP poster image ONLY
+  if (!mounted || !isDesktop) {
     return (
       <img
         src={poster}
-        alt="Hero Background"
+        alt="Background"
         className={className}
         loading="eager"
+        fetchPriority="high"
         decoding="async"
         aria-hidden="true"
       />
