@@ -360,6 +360,35 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
       <div className="relative browse-grid-bg bg-brand-50/50 dark:bg-ink-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-10">
+          {/* Bannière Commande Sur-Mesure / Pâtisserie & Restau non listé */}
+          <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-brand-500/20 border border-amber-300 dark:border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-md">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-brand-500 text-white flex items-center justify-center text-2xl shrink-0 shadow-glow">
+                🍰
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-display font-extrabold text-base sm:text-lg text-ink-900 dark:text-white">
+                    Pâtisserie ou Restaurant non partenaire ?
+                  </h3>
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-500 text-white text-[11px] font-black shrink-0 shadow-sm">
+                    +20 MAD
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-ink-600 dark:text-ink-300 mt-0.5">
+                  Indiquez l&apos;établissement de votre choix à Tanger — Le livreur apporte vos achats + le reçu officiel !
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsCustomModalOpen(true)}
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 active:scale-95 text-white font-bold text-sm shadow-glow transition-all shrink-0 text-center cursor-pointer"
+            >
+              Commander sur-mesure (+20 MAD)
+            </button>
+          </div>
+
           {/* Titre toujours visible */}
           <section>
             <div className="flex items-end justify-between gap-4 mb-5">
