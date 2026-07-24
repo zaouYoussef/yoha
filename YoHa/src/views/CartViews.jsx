@@ -40,12 +40,21 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
         </div>
 
         {items.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
-            <div className="text-7xl mb-4 animate-float-med">🛒</div>
-            <h4 className="font-display font-bold text-xl">Votre panier est vide</h4>
-            <p className="mt-2 text-ink-500 dark:text-ink-400">Ajoutez quelques délices et ils apparaîtront ici.</p>
-            <button onClick={onClose} className="cursor-grow mt-6 px-5 py-3 rounded-2xl bg-ink-900 text-white dark:bg-white dark:text-ink-900 font-semibold">
-              Parcourir les restaurants
+          <div className="flex-1 flex flex-col items-center justify-center text-center px-6 py-12">
+            <div className="text-6xl sm:text-7xl mb-4 animate-bounce-vertical flex items-center justify-center">
+              🛒
+            </div>
+            <h4 className="font-display font-black text-2xl text-ink-900 dark:text-white">Votre panier est vide</h4>
+            <p className="mt-2.5 text-sm text-ink-500 dark:text-ink-400 max-w-xs leading-relaxed">
+              Ajoutez quelques délices et ils apparaîtront ici.
+            </p>
+            <button
+              type="button"
+              onClick={onClose}
+              className="cursor-grow mt-8 w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-brand-500 to-pink-500 text-white font-extrabold text-sm shadow-lg shadow-brand-500/30 hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2"
+            >
+              <span>Découvrir les établissements</span>
+              <span>🚀</span>
             </button>
           </div>
         ) : (

@@ -1270,7 +1270,7 @@ export function RestaurantSkeleton() {
 export function EmptyState({ catalogEmpty, filter, onShowAll, onOpenCustomModal }) {
   return (
     <div className="col-span-full flex flex-col items-center justify-center text-center py-16 px-4 glass-card-premium rounded-3xl border border-ink-200/60 dark:border-ink-800/80 shadow-md">
-      <div className="text-5xl mb-4 animate-bounce-vertical">🍽️</div>
+      <div className="text-5xl sm:text-6xl mb-4 animate-bounce-vertical flex items-center justify-center">🍽️</div>
       <h3 className="font-display font-extrabold text-xl text-ink-900 dark:text-white">
         {catalogEmpty ? "Le catalogue est vide" : "Aucun établissement trouvé"}
       </h3>

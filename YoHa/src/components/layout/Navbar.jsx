@@ -50,8 +50,24 @@ export function Navbar({
             <Logo />
           </button>
 
-          {/* Affiché uniquement en dehors des pages de recherche /browse */}
-          {!isBrowsePage && (
+          {/* Sur /browse, on affiche la pilule slogan YoHa Delivery */}
+          {isBrowsePage ? (
+            <div className="hidden md:flex items-center gap-3 ml-4">
+              <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-ink-900/80 border border-ink-200/60 dark:border-ink-800/80 text-xs font-bold text-ink-800 dark:text-ink-200 shadow-sm backdrop-blur-md transition-all hover:bg-white dark:hover:bg-ink-900 hover:shadow">
+                <span className="text-brand-500 font-extrabold flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500" />
+                  </span>
+                  YoHa Delivery
+                </span>
+                <span className="text-ink-300 dark:text-ink-700">·</span>
+                <span className="text-ink-600 dark:text-ink-300 font-semibold">
+                  Vos envies livrées en moins de 30 min ⚡
+                </span>
+              </div>
+            </div>
+          ) : (
             <div className="hidden md:flex items-center gap-1 ml-4">
               <button
                 type="button"
@@ -105,17 +121,17 @@ export function Navbar({
           )}
         </div>
 
-        <div className="ml-auto flex min-w-0 items-center gap-1 sm:gap-2">
+        <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2.5">
           {(!user || user.role === 'client') && (
             <button
               type="button"
               onClick={onMyOrders}
               aria-label="Mes commandes"
               title="Mes commandes"
-              className="cursor-grow px-3 py-2 rounded-xl hidden md:flex items-center gap-1.5 hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 text-ink-700 dark:text-ink-200 text-sm font-semibold"
+              className="cursor-grow px-3.5 py-2 rounded-xl hidden md:flex items-center gap-2 bg-ink-100/80 dark:bg-ink-800/60 text-ink-900 dark:text-white border border-ink-200/60 dark:border-ink-700/60 hover:border-brand-500/50 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300 text-xs sm:text-sm font-bold shadow-xs active:scale-95"
             >
-              <I.Receipt size={18}/>
-              <span className="hidden lg:inline">Mes commandes</span>
+              <I.Receipt size={17} className="text-brand-500 shrink-0" />
+              <span>Mes commandes</span>
             </button>
           )}
 
@@ -171,13 +187,13 @@ export function Navbar({
             onClick={() => setDark(d => !d)}
             aria-label="Changer le thème"
             title="Mode sombre / clair"
-            className="cursor-grow relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 group text-ink-700 dark:text-ink-200"
+            className="cursor-grow relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 group text-ink-700 dark:text-ink-200 bg-ink-100/50 dark:bg-ink-800/40 border border-ink-200/50 dark:border-ink-700/50"
           >
             <span className={`absolute transition-all duration-500 ${dark ? 'opacity-0 -rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'}`}>
-              <I.Sun size={20}/>
+              <I.Sun size={18}/>
             </span>
             <span className={`absolute transition-all duration-500 ${dark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-50'}`}>
-              <I.Moon size={20}/>
+              <I.Moon size={18}/>
             </span>
           </button>
 
@@ -187,11 +203,12 @@ export function Navbar({
             onClick={onCart} 
             aria-label="Voir le panier"
             title="Voir le panier"
-            className={`cursor-grow relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 text-ink-700 dark:text-ink-200 ${cartShake ? 'cart-shake' : ''}`}
+            className={`cursor-grow relative px-3 py-2 rounded-xl flex items-center gap-1.5 bg-brand-500/10 text-brand-600 dark:text-brand-400 hover:bg-brand-500 hover:text-white transition-all duration-300 font-extrabold text-xs sm:text-sm shadow-sm ${cartShake ? 'cart-shake' : ''}`}
           >
-            <I.Cart size={20}/>
+            <I.Cart size={18}/>
+            <span className="hidden sm:inline">Panier</span>
             {cartCount > 0 && (
-              <span key={cartCount} className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white grid place-items-center animate-pop shadow-glow">
+              <span key={cartCount} className="min-w-[20px] h-5 px-1 rounded-full text-[11px] font-black bg-brand-500 text-white grid place-items-center animate-pop shadow-glow">
                 {cartCount}
               </span>
             )}
@@ -228,7 +245,7 @@ export function Navbar({
               <button
                 type="button"
                 onClick={() => goto('auth')}
-                className="cursor-grow inline-flex items-center gap-2 ml-1 p-2.5 sm:px-4 sm:py-2 rounded-xl text-sm font-semibold bg-ink-900 text-white dark:bg-white dark:text-ink-900 hover:opacity-90 transition-opacity"
+                className="cursor-grow inline-flex items-center gap-2 ml-1 p-2 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold bg-ink-900 text-white dark:bg-white dark:text-ink-900 hover:opacity-90 transition-opacity shadow-md"
               >
                 <I.User size={16}/>
                 <span className="hidden sm:inline">Connexion</span>

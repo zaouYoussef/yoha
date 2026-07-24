@@ -263,29 +263,48 @@ export function MyOrdersPage({ onBack, onOpenOrder, onReorder, onLogin, onBrowse
 
   if (mine.length === 0 && !loadingOrders) {
     return (
-      <div className="page-enter max-w-lg mx-auto px-4 py-20 text-center">
-        <div className="relative inline-grid place-items-center w-24 h-24 rounded-3xl bg-gradient-to-br from-brand-500/20 to-pink-500/20 mb-6">
-          <span className="text-5xl">🍽️</span>
+      <div className="page-enter max-w-lg mx-auto px-4 py-16 sm:py-24 text-center">
+        <div className="text-6xl sm:text-7xl mb-4 animate-bounce-vertical flex items-center justify-center">
+          🍽️
         </div>
-        <h2 className="font-display font-extrabold text-2xl sm:text-3xl">Aucune commande pour l&apos;instant</h2>
-        <p className="mt-3 text-ink-500 dark:text-ink-400 text-sm leading-relaxed max-w-sm mx-auto">
+        <h2 className="font-display font-black text-2xl sm:text-3xl text-ink-900 dark:text-white">
+          Aucune commande pour l&apos;instant
+        </h2>
+        <p className="mt-3 text-ink-500 dark:text-ink-400 text-sm leading-relaxed max-w-md mx-auto">
           {isGuest
             ? 'Commandez sans compte : vos commandes invité restent visibles sur cet appareil. Créez un compte pour les retrouver partout.'
             : 'Passez votre première commande depuis la carte des restaurants.'}
         </p>
-        <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-          <Button variant="primary" size="lg" onClick={onBrowse}>
-            Voir les restaurants <I.Right size={18} />
-          </Button>
+        
+        <div className="mt-8 space-y-3 max-w-sm mx-auto">
+          <button
+            type="button"
+            onClick={onBrowse}
+            className="cursor-grow w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-brand-500 to-pink-500 text-white font-extrabold text-sm shadow-lg shadow-brand-500/30 hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2"
+          >
+            <span>Voir les établissements</span>
+            <I.Right size={18} />
+          </button>
+
           {isGuest && onLogin && (
-            <Button variant="ghost" size="lg" onClick={onLogin}>
-              Créer un compte / Se connecter
-            </Button>
+            <button
+              type="button"
+              onClick={onLogin}
+              className="cursor-grow w-full py-3.5 px-6 rounded-2xl bg-white dark:bg-ink-900 text-ink-900 dark:text-white border border-ink-200 dark:border-ink-800 font-extrabold text-xs sm:text-sm shadow-sm hover:border-brand-500/50 hover:bg-brand-500/5 transition-all duration-300 flex items-center justify-center gap-2"
+            >
+              <I.User size={16} className="text-brand-500" />
+              <span>Créer un compte / Se connecter</span>
+            </button>
           )}
+
+          <button
+            type="button"
+            onClick={onBack}
+            className="cursor-grow w-full py-3 px-6 rounded-xl text-ink-500 dark:text-ink-400 font-bold text-xs hover:text-ink-900 dark:hover:text-white transition-colors"
+          >
+            ← Retour à l&apos;accueil
+          </button>
         </div>
-        <Button className="mt-6" variant="ghost" onClick={onBack}>
-          Retour
-        </Button>
       </div>
     );
   }
