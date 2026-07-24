@@ -1,4 +1,25 @@
-﻿export const STATIC_STORES = [
+export const STATIC_STORES = [
+
+  // ==========================================
+  // RESTAURANT SUR-MESURE
+  // ==========================================
+  {
+    id: 'custom-restaurant',
+    name: 'Restaurant sur-mesure 🍽️',
+    cuisine: 'all',
+    rating: 5.0,
+    reviewsCount: 1,
+    distance: '0,1 km',
+    eta: '25-35 min',
+    fee: '20 DH',
+    cover: '/custom_order_card.webp',
+    logo: '🍽️',
+    description: 'Un restaurant ou snack spécifique en tête ? Indiquez-nous son nom, son adresse et ce dont vous avez besoin. Notre coursier l\'achète pour vous !',
+    tags: ['Sur-mesure', 'Restaurants', 'Snack', 'Non listé'],
+    isOpen: true,
+    isStatic: true,
+    isCustomRequest: true
+  },
 
   // ==========================================
   // PHARMACIES

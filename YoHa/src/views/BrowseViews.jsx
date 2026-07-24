@@ -96,33 +96,6 @@ function BrowseHero({ name, search, onSearchChange, openCount, totalCount, onOpe
               <SearchBar value={search} onChange={onSearchChange} variant="hero" />
             </div>
 
-            {/* Bouton Commande sur-mesure / Restaurant hors-partenaire */}
-            <div className="mt-4 max-w-xl animate-fade-up" style={{ animationDelay: '300ms' }}>
-              <button
-                type="button"
-                onClick={onOpenCustomModal}
-                className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-brand-500/15 border border-amber-300/60 dark:border-white/20 hover:border-amber-400 dark:hover:border-white/40 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-between gap-3 text-left shadow-sm group"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-brand-500 text-white flex items-center justify-center text-lg shrink-0 group-hover:rotate-12 transition-transform shadow-sm">
-                    🍰
-                  </span>
-                  <div className="min-w-0">
-                    <div className="font-bold text-sm text-ink-900 dark:text-white flex items-center gap-2 flex-wrap">
-                      <span>Pâtisserie ou Restaurant non listé ?</span>
-                      <span className="px-2 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-black shrink-0">+20 MAD</span>
-                    </div>
-                    <div className="text-xs text-ink-600 dark:text-ink-300 truncate">
-                      Commandez dans l&apos;établissement de votre choix à Tanger — Le livreur apporte le reçu !
-                    </div>
-                  </div>
-                </div>
-                <span className="px-3.5 py-2 rounded-xl bg-brand-500 text-white font-bold text-xs shrink-0 group-hover:bg-brand-600 transition-colors shadow-sm">
-                  Commander
-                </span>
-              </button>
-            </div>
-
             <div className="mt-6 sm:mt-8 max-w-xl animate-fade-up lg:hidden" style={{ animationDelay: '320ms' }}>
               <div className="grid grid-cols-2 gap-3">
                 <div className="glass-card-premium rounded-2xl p-4 border border-amber-200/60 dark:border-white/10 shadow-sm dark:shadow-none hover:border-pink-300 dark:hover:border-pink-500/30 transition-all duration-300 flex items-center gap-3.5">
@@ -249,14 +222,19 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
   const restaurants = useMemo(() => {
     let list = [...catalog];
+    const customResto = STATIC_STORES.find((s) => s.id === 'custom-restaurant');
+
     if (['dessert', 'pharmacy', 'parapharmacy', 'supermarket', 'shop', 'patisserie'].includes(filter)) {
       list = STATIC_STORES.filter((s) => 
         filter === 'dessert' ? (s.cuisine === 'dessert' || s.cuisine === 'patisserie') : s.cuisine === filter
       );
+    } else if (filter === 'all' && customResto) {
+      list = [customResto, ...catalog];
     }
+
     return list.filter((r) => {
       const tags = Array.isArray(r.tags) ? r.tags : [];
-      const matchCuisine = filter === 'all' || r.cuisine === filter;
+      const matchCuisine = filter === 'all' || r.cuisine === filter || r.isCustomRequest;
       const matchSearch =
         !search ||
         r.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -360,35 +338,6 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
       <div className="relative browse-grid-bg bg-brand-50/50 dark:bg-ink-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-10">
-          {/* Bannière Commande Sur-Mesure / Pâtisserie & Restau non listé */}
-          <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-brand-500/20 border border-amber-300 dark:border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-md">
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-brand-500 text-white flex items-center justify-center text-2xl shrink-0 shadow-glow">
-                🍰
-              </div>
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-display font-extrabold text-base sm:text-lg text-ink-900 dark:text-white">
-                    Pâtisserie ou Restaurant non partenaire ?
-                  </h3>
-                  <span className="px-2.5 py-0.5 rounded-full bg-amber-500 text-white text-[11px] font-black shrink-0 shadow-sm">
-                    +20 MAD
-                  </span>
-                </div>
-                <p className="text-xs sm:text-sm text-ink-600 dark:text-ink-300 mt-0.5">
-                  Indiquez l&apos;établissement de votre choix à Tanger — Le livreur apporte vos achats + le reçu officiel !
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsCustomModalOpen(true)}
-              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 active:scale-95 text-white font-bold text-sm shadow-glow transition-all shrink-0 text-center cursor-pointer"
-            >
-              Commander sur-mesure (+20 MAD)
-            </button>
-          </div>
-
           {/* Titre toujours visible */}
           <section>
             <div className="flex items-end justify-between gap-4 mb-5">
@@ -590,20 +539,13 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-              {/* Card WOW Sur-Mesure Toujours en 1ère position */}
-              <Reveal delay={0}>
-                <Tilt max={5} className="rounded-3xl h-full">
-                  <CustomRestaurantCard onClick={() => setIsCustomModalOpen(true)} />
-                </Tilt>
-              </Reveal>
-
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {loading
                 ? Array.from({ length: 6 }).map((_, i) => <RestaurantSkeleton key={i} />)
                 : restaurantsError
                   ? <ApiErrorState message={restaurantsError} onRetry={refreshRestaurants} />
                   : restaurants.length === 0
-                    ? <EmptyState catalogEmpty={catalog.length === 0} filter={filter} onShowAll={() => setFilter('all')} onOpenCustomModal={() => setIsCustomModalOpen(true)} />
+                    ? <EmptyState catalogEmpty={catalog.length === 0} filter={filter} onShowAll={() => setFilter('all')} />
                     : restaurants.map((r, i) => (
                       <Reveal key={r.id} delay={Math.min(i * 60, 360)}>
                         <Tilt max={5} className="rounded-3xl">
@@ -1078,7 +1020,12 @@ export function RestaurantCard({ restaurant, onClick }) {
           </div>
         )}
 
-        {restaurant.promo && open && (
+        {restaurant.isCustomRequest && (
+          <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-md animate-pulse z-10">
+            ✨ SUR-MESURE (+20 MAD)
+          </span>
+        )}
+        {restaurant.promo && open && !restaurant.isCustomRequest && (
           <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-md animate-pulse-slow">
             🎁 {restaurant.promo}
           </span>
@@ -1163,55 +1110,7 @@ export function EmptyState({ catalogEmpty, filter, onShowAll, onOpenCustomModal 
   );
 }
 
-export function CustomRestaurantCard({ onClick }) {
-  return (
-    <div
-      onClick={onClick}
-      className="group relative cursor-pointer rounded-3xl overflow-hidden bg-gradient-to-br from-amber-950 via-ink-900 to-black text-white border-2 border-amber-400/60 shadow-[0_10px_30px_rgba(249,115,22,0.25)] hover:shadow-[0_15px_40px_rgba(249,115,22,0.45)] hover:border-amber-400 transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between h-full min-h-[360px]"
-    >
-      <div className="relative aspect-[16/10] overflow-hidden">
-        <img
-          src="/custom_order_card.webp"
-          alt="Restaurant ou Pâtisserie sur-mesure"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/40 to-transparent" />
-        
-        {/* Top Badges */}
-        <div className="absolute top-3 left-3 flex items-center gap-2 flex-wrap z-10">
-          <span className="px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-brand-500 text-white text-[11px] font-black uppercase tracking-wider shadow-lg flex items-center gap-1.5 animate-pulse">
-            <span>✨</span> SUR-MESURE
-          </span>
-          <span className="px-2.5 py-1 rounded-full bg-black/80 backdrop-blur-md text-amber-300 text-[11px] font-black border border-amber-400/40">
-            +20 MAD
-          </span>
-        </div>
 
-        <div className="absolute bottom-3 left-4 right-4 z-10">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-amber-300">Pâtisserie · Restau non listé</div>
-          <h3 className="font-display font-black text-xl sm:text-2xl text-white leading-tight mt-0.5 group-hover:text-amber-300 transition-colors">
-            Établissement sur-mesure 🍰
-          </h3>
-        </div>
-      </div>
-
-      <div className="p-4 sm:p-5 flex flex-col justify-between gap-3 flex-1">
-        <p className="text-xs text-slate-300 leading-relaxed">
-          Sur-mesure • Pâtisserie • Envie spécifique • Hors partenaire. Le livreur apporte votre commande + le reçu officiel du commerce.
-        </p>
-
-        <div className="pt-3 border-t border-white/15 flex items-center justify-between text-xs gap-2">
-          <div className="text-amber-300 font-bold flex items-center gap-1">
-            <span>📍 Toute la ville de Tanger</span>
-          </div>
-          <span className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-brand-500 text-white font-bold shadow-glow group-hover:scale-105 transition-transform shrink-0">
-            Commander (+20 MAD) →
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function ApiErrorState({ message, onRetry }) {
   return (
