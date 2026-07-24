@@ -988,6 +988,7 @@ export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = f
 export function RestaurantCard({ restaurant, onClick }) {
   const open = isRestaurantOpen(restaurant);
   const glowColor = CATEGORY_GLOW[restaurant.cuisine] || '#f97316';
+  const isCustom = restaurant.isCustomRequest;
 
   return (
     <div
@@ -997,7 +998,11 @@ export function RestaurantCard({ restaurant, onClick }) {
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
       style={{ '--glow-color': glowColor }}
-      className="cursor-grow group text-left w-full bg-white dark:bg-ink-900 rounded-3xl overflow-hidden shadow-card hover:shadow-cardhover border border-ink-200/60 dark:border-ink-800 spotlight transition-transform duration-300 card-glow-hover"
+      className={`cursor-grow group text-left w-full rounded-3xl overflow-hidden spotlight transition-all duration-300 ${
+        isCustom
+          ? 'bg-gradient-to-br from-amber-950/40 via-white to-amber-50/50 dark:from-amber-950/60 dark:via-ink-900 dark:to-ink-950 border-2 border-amber-400/80 shadow-[0_4px_25px_rgba(245,158,11,0.25)] hover:shadow-[0_8px_35px_rgba(245,158,11,0.5)] hover:scale-[1.02]'
+          : 'bg-white dark:bg-ink-900 shadow-card hover:shadow-cardhover border border-ink-200/60 dark:border-ink-800 hover:border-brand-500/40 card-glow-hover'
+      }`}
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-ink-100 dark:bg-ink-950">
         <img
@@ -1005,55 +1010,73 @@ export function RestaurantCard({ restaurant, onClick }) {
           alt={restaurant.name}
           loading="lazy"
           className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${
-            !open ? 'filter blur-sm grayscale opacity-70' : ''
+            !open ? 'filter blur-sm grayscale opacity-70' : 'group-hover:scale-105'
           }`}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/10"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
         
         {/* Closed Overlay */}
         {!open && (
-          <div className="absolute inset-0 bg-ink-950/40 backdrop-blur-[2px] flex flex-col items-center justify-center text-white">
-            <span className="bg-ink-950/75 border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-red-500" />
+          <div className="absolute inset-0 bg-ink-950/40 backdrop-blur-[2px] flex flex-col items-center justify-center text-white z-20">
+            <span className="bg-ink-950/85 border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               Fermé · Réouverture demain
             </span>
           </div>
         )}
 
-        {restaurant.isCustomRequest && (
-          <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-md animate-pulse z-10">
-            ✨ SUR-MESURE (+20 MAD)
-          </span>
-        )}
-        {restaurant.promo && open && !restaurant.isCustomRequest && (
-          <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-md animate-pulse-slow">
-            🎁 {restaurant.promo}
-          </span>
+        {/* Top Badges */}
+        {isCustom ? (
+          <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
+            <span className="px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-lg animate-pulse flex items-center gap-1">
+              ✨ SUR-MESURE (+20 MAD)
+            </span>
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-black/70 backdrop-blur-md text-amber-300 border border-amber-400/30">
+              ⚡ 25-35 min
+            </span>
+          </div>
+        ) : (
+          <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
+            {restaurant.promo && open ? (
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-md animate-pulse-slow">
+                🎁 {restaurant.promo}
+              </span>
+            ) : <div />}
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-black/60 backdrop-blur-md text-white/90">
+              ⚡ {restaurant.eta || '20-35 min'}
+            </span>
+          </div>
         )}
       </div>
 
       <div className="p-4 relative z-10">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="font-display font-extrabold text-sm sm:text-base md:text-lg truncate text-ink-900 dark:text-white group-hover:text-brand-500 transition-colors">
+            <h3 className={`font-display font-extrabold text-sm sm:text-base md:text-lg truncate transition-colors ${
+              isCustom 
+                ? 'text-amber-900 dark:text-amber-300 group-hover:text-amber-500' 
+                : 'text-ink-900 dark:text-white group-hover:text-brand-500'
+            }`}>
               {restaurant.name}
             </h3>
             <div className="text-[10px] sm:text-xs text-ink-500 dark:text-ink-400 truncate mt-0.5">
               {Array.isArray(restaurant.tags) ? restaurant.tags.join(' • ') : ''}
             </div>
           </div>
-          <span className="shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs font-bold border border-emerald-500/10">
-            <I.Star size={11} className="fill-emerald-500 text-emerald-500 sm:w-3 sm:h-3" />{' '}
+          <span className="shrink-0 inline-flex items-center gap-0.5 px-2 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-black border border-emerald-500/20 shadow-sm">
+            <I.Star size={12} className="fill-emerald-500 text-emerald-500" />{' '}
             {(restaurant.rating ?? 4.8).toString().replace('.', ',')}
           </span>
         </div>
 
         <div className="mt-3 pt-2.5 sm:mt-4 sm:pt-3 border-t border-ink-100 dark:border-ink-800/80 flex items-center justify-between text-[10px] sm:text-xs">
-          <div className="text-ink-500 dark:text-ink-400 flex items-center gap-1">
-            <I.MapPin size={12} className="text-ink-400 sm:w-3.5 sm:h-3.5" /> {restaurant.distance}
+          <div className="text-ink-500 dark:text-ink-400 flex items-center gap-1 font-medium">
+            <I.MapPin size={13} className="text-brand-500 shrink-0" /> {restaurant.distance}
           </div>
-          <div className="font-bold inline-flex items-center gap-0.5 text-brand-600 dark:text-brand-400">
-            Voir le menu <I.Right size={12} className="sm:w-3.5 sm:h-3.5" />
+          <div className={`font-bold inline-flex items-center gap-1 transition-transform group-hover:translate-x-0.5 ${
+            isCustom ? 'text-amber-600 dark:text-amber-400' : 'text-brand-600 dark:text-brand-400'
+          }`}>
+            {isCustom ? 'Commander (+20 MAD)' : 'Voir le menu'} <I.Right size={12} />
           </div>
         </div>
       </div>
