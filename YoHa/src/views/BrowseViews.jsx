@@ -3,8 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { I } from '../icons/Icons.jsx';
 import { CUISINES, CATEGORIES_BANNERS, STATIC_STORES } from '../data/index.js';
-import { useOrders, useCart } from '../contexts/AppContexts.jsx';
-import { useYohaNav } from '../contexts/YohaNavContext.jsx';
+import { useOrders } from '../contexts/AppContexts.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { Reveal } from '../components/ui/Reveal.jsx';
 import { Tilt } from '../components/ui/Tilt.jsx';
@@ -54,140 +53,36 @@ const CATEGORY_GLOW = {
 
 function BrowseHero({ name, search, onSearchChange, openCount, totalCount, onOpenCustomModal }) {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-ink-950 dark:via-[#120a06] dark:to-ink-950">
-      <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.07)_0%,rgba(236,72,153,0.04)_30%,transparent_50%)] animate-rotate-slow pointer-events-none dark:opacity-100 opacity-50" aria-hidden />
-      <div className="absolute inset-0 mesh-conic opacity-[0.08] dark:opacity-[0.35] pointer-events-none" aria-hidden />
-      <div className="absolute inset-0 grid-bg opacity-[0.03] dark:opacity-[0.06]" aria-hidden />
-      <div className="absolute -top-24 -right-20 w-[28rem] h-[28rem] rounded-full bg-brand-500/[0.08] dark:bg-brand-500/20 blur-3xl animate-blob pointer-events-none" aria-hidden />
-      <div className="absolute top-1/3 -left-24 w-72 h-72 rounded-full bg-pink-500/10 dark:bg-pink-500/15 blur-3xl animate-blob pointer-events-none" style={{ animationDelay: '4s' }} aria-hidden />
-      <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-violet-500/[0.06] dark:bg-violet-500/10 blur-3xl pointer-events-none" aria-hidden />
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-10 sm:pb-14">
-        <div className="grid lg:grid-cols-[1fr,280px] xl:grid-cols-[1fr,320px] gap-8 lg:gap-10 items-start">
-          <div>
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-white/10 backdrop-blur-md border border-amber-200/60 dark:border-white/15 text-[11px] font-bold uppercase tracking-widest text-ink-700 dark:text-white/90 animate-fade-up">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
-              </span>
-              Campus & CHU · En direct
-            </span>
-
-            <h1 className="mt-5 font-display font-black text-4xl sm:text-5xl lg:text-[3.25rem] tracking-tight leading-[0.95] text-ink-900 dark:text-white animate-fade-up" style={{ animationDelay: '80ms' }}>
-              {timeGreeting()},{' '}
-              <span className="bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 dark:from-brand-400 dark:via-pink-400 dark:to-violet-400 bg-clip-text text-transparent">{name}</span>
-              <span className="inline-block ml-1 animate-wiggle">👋</span>
-            </h1>
-
-            <p className="mt-4 max-w-lg text-base sm:text-lg text-ink-600 dark:text-white/70 leading-relaxed animate-fade-up" style={{ animationDelay: '160ms' }}>
-              Découvre les cuisines autour de toi — livré en chambre, à l&apos;aile ou à la BU en moins de 30 min.
-            </p>
-
-            <div className="mt-5 flex flex-wrap gap-2 animate-fade-up" style={{ animationDelay: '220ms' }}>
-              <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/80 dark:bg-white/10 backdrop-blur-md border border-amber-200/60 dark:border-white/10 text-sm text-ink-800 dark:text-white/90 shadow-sm dark:shadow-none">
-                <I.MapPin size={15} className="text-brand-500 dark:text-brand-400 shrink-0" />
-                <strong className="font-semibold text-ink-900 dark:text-white">CHU-Tanger</strong>
-              </span>
-              <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-300 dark:border-emerald-400/25 text-emerald-700 dark:text-emerald-300 text-sm font-semibold">
-                <I.Bike size={15} /> Livraison offerte
-              </span>
-            </div>
-
-            <div className="mt-7 sm:mt-8 max-w-xl animate-fade-up" style={{ animationDelay: '280ms' }}>
-              <SearchBar value={search} onChange={onSearchChange} variant="hero" />
-            </div>
-
-            {/* Urgency badge */}
-            <div className="mt-4 max-w-xl animate-fade-up" style={{ animationDelay: '310ms' }}>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border border-amber-300/40 dark:border-amber-500/25 backdrop-blur-sm">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
-                </span>
-                <span className="text-xs sm:text-sm font-bold text-amber-700 dark:text-amber-300">
-                  🔥 {openCount} partenaires ouverts — commande avant minuit
-                </span>
-              </div>
-            </div>
-
-            {/* Main CTA button */}
-            <div className="mt-5 max-w-xl animate-fade-up" style={{ animationDelay: '350ms' }}>
-              <button
-                type="button"
-                onClick={() => {
-                  const el = document.querySelector('#restaurant-grid');
-                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }}
-                className="cursor-grow w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white font-extrabold text-base sm:text-lg shadow-[0_10px_35px_rgba(249,115,22,0.4)] hover:shadow-[0_15px_50px_rgba(249,115,22,0.6)] hover:scale-[1.02] active:scale-95 transition-all duration-300 border border-white/20 backdrop-blur-md flex items-center justify-center gap-3 group"
-              >
-                <span className="text-xl group-hover:rotate-12 transition-transform">🍽️</span>
-                <span>Commander maintenant</span>
-                <span className="text-lg group-hover:translate-x-1 transition-transform">→</span>
-              </button>
-            </div>
-
-            {/* Social proof counter */}
-            <div className="mt-4 max-w-xl animate-fade-up" style={{ animationDelay: '400ms' }}>
-              <div className="flex items-center gap-2 text-xs text-ink-500 dark:text-ink-400">
-                <div className="flex -space-x-2">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 border-2 border-white dark:border-ink-900 flex items-center justify-center text-[8px] font-bold text-white">Y</div>
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-400 to-purple-500 border-2 border-white dark:border-ink-900 flex items-center justify-center text-[8px] font-bold text-white">A</div>
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 border-2 border-white dark:border-ink-900 flex items-center justify-center text-[8px] font-bold text-white">M</div>
-                </div>
-                <span><strong className="font-semibold text-ink-700 dark:text-ink-300">50+ personnes</strong> commandent en ce moment</span>
-              </div>
-            </div>
-
-            <div className="mt-6 sm:mt-8 max-w-xl animate-fade-up lg:hidden" style={{ animationDelay: '320ms' }}>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="glass-card-premium rounded-2xl p-4 border border-amber-200/60 dark:border-white/10 shadow-sm dark:shadow-none hover:border-pink-300 dark:hover:border-pink-500/30 transition-all duration-300 flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-pink-100 dark:bg-pink-500/10 flex items-center justify-center text-xl shrink-0">⚡</div>
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-pink-600 dark:text-pink-400">Délai</div>
-                    <div className="font-display font-extrabold text-base text-ink-900 dark:text-white mt-0.5">26 min</div>
-                  </div>
-                </div>
-                <div className="glass-card-premium rounded-2xl p-4 border border-amber-200/60 dark:border-white/10 shadow-sm dark:shadow-none hover:border-violet-300 dark:hover:border-violet-500/30 transition-all duration-300 flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-500/10 flex items-center justify-center text-xl shrink-0">🎁</div>
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">Livraison</div>
-                    <div className="font-display font-extrabold text-base text-ink-900 dark:text-white mt-0.5">Offerte</div>
-                  </div>
-                </div>
-              </div>
+    <section className="relative overflow-hidden bg-white dark:bg-ink-950 border-b border-ink-100 dark:border-ink-800/50">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-4">
+        <div className="flex items-center justify-between gap-4 mb-3">
+          <div className="flex items-center gap-2">
+            <I.MapPin size={16} className="text-brand-500 shrink-0" />
+            <div className="flex items-center gap-1.5">
+              <span className="font-display font-extrabold text-sm text-ink-900 dark:text-white">Livraison</span>
+              <span className="text-ink-400">·</span>
+              <span className="font-semibold text-sm text-brand-600 dark:text-brand-400">Maintenant</span>
             </div>
           </div>
-
-          <div className="hidden lg:grid grid-cols-1 gap-3.5 animate-fade-up" style={{ animationDelay: '350ms' }}>
-            <Tilt max={8} className="rounded-2xl">
-              <div className="glass-card-premium rounded-2xl p-6 border border-amber-200/60 dark:border-white/10 shadow-md dark:shadow-none hover:border-pink-300 dark:hover:border-pink-500/35 hover:shadow-[0_0_25px_rgba(236,72,153,0.15)] dark:hover:shadow-[0_0_25px_rgba(236,72,153,0.2)] transition-all duration-300 flex items-center gap-4">
-                <div className="w-14 h-14 rounded-xl bg-pink-100 dark:bg-pink-500/15 border border-pink-200 dark:border-pink-400/20 flex items-center justify-center text-3xl shrink-0">
-                  ⚡
-                </div>
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-pink-600 dark:text-pink-400">Temps estimé</div>
-                  <div className="font-display font-black text-3xl text-ink-900 dark:text-white leading-none mt-1">26 min</div>
-                  <div className="text-xs text-ink-500 dark:text-white/50 mt-1.5">Livraison moyenne sur campus</div>
-                </div>
-              </div>
-            </Tilt>
-            <Tilt max={8} className="rounded-2xl">
-              <div className="glass-card-premium rounded-2xl p-6 border border-amber-200/60 dark:border-white/10 shadow-md dark:shadow-none hover:border-violet-300 dark:hover:border-violet-500/35 hover:shadow-[0_0_25px_rgba(139,92,246,0.15)] dark:hover:shadow-[0_0_25px_rgba(139,92,246,0.2)] transition-all duration-300 flex items-center gap-4">
-                <div className="w-14 h-14 rounded-xl bg-violet-100 dark:bg-violet-500/15 border border-violet-200 dark:border-violet-400/20 flex items-center justify-center text-3xl shrink-0">
-                  🎁
-                </div>
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">Frais de port</div>
-                  <div className="font-display font-black text-3xl text-ink-900 dark:text-white leading-none mt-1">Offerts</div>
-                  <div className="text-xs text-ink-500 dark:text-white/50 mt-1.5">Gratuit pour les restaurants</div>
-                </div>
-              </div>
-            </Tilt>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              {openCount} ouverts
+            </span>
           </div>
         </div>
+
+        <div className="flex items-center gap-2 mb-3">
+          <I.MapPin size={14} className="text-brand-500 shrink-0" />
+          <span className="text-sm text-ink-600 dark:text-ink-300 font-medium">CHU-Tanger</span>
+          <span className="text-ink-300 dark:text-ink-600">·</span>
+          <span className="text-sm text-ink-500 dark:text-ink-400">Campus & quartier</span>
+        </div>
+
+        <SearchBar value={search} onChange={onSearchChange} variant="hero" />
       </div>
 
-      <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-white dark:from-ink-950 to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-brand-500/20 to-transparent" />
     </section>
   );
 }
@@ -240,10 +135,8 @@ function FeaturedSpotlight({ restaurant, onClick }) {
               <div className="hidden sm:flex w-14 h-14 rounded-2xl overflow-hidden border-2 border-white/90 shadow-lg bg-white shrink-0">
                 <img src={restaurantLogo(restaurant.logo)} alt="" className="w-full h-full object-cover" />
               </div>
-              <span className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-ink-900 font-extrabold text-sm group-hover:bg-brand-50 group-hover:text-brand-600 transition-all shadow-xl w-full sm:w-auto border border-white/20 select-none hover:shadow-2xl hover:scale-105 active:scale-95">
-                <span className="text-lg">🍽️</span>
-                <span>{restaurant.menu?.length ? 'Commander maintenant' : 'Voir le menu'}</span>
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              <span className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-ink-900 font-extrabold text-sm group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors shadow-xl w-full sm:w-auto border border-white/20 select-none">
+                Voir le menu <I.Right size={16} />
               </span>
             </div>
           </div>
@@ -364,6 +257,18 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     });
   };
 
+  const promoRestaurants = useMemo(() => catalog.filter(r => r.promo && isRestaurantOpen(r)), [catalog]);
+  const popularRestaurants = useMemo(() => {
+    const open = catalog.filter(r => isRestaurantOpen(r));
+    return open.sort((a, b) => (b.rating ?? 4.8) - (a.rating ?? 4.8)).slice(0, 12);
+  }, [catalog]);
+  const fastDelivery = useMemo(() => {
+    return catalog.filter(r => isRestaurantOpen(r)).slice(0, 10);
+  }, [catalog]);
+
+  const isNonFoodFilter = ['dessert', 'patisserie', 'pharmacy', 'parapharmacy', 'supermarket', 'shop'].includes(filter);
+  const isDefault = filter === 'all' && !search.trim();
+
   return (
     <div className="page-enter">
       <BrowseHero
@@ -380,167 +285,94 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
         onClose={() => setIsCustomModalOpen(false)}
       />
 
-      <div className="relative browse-grid-bg bg-brand-50/50 dark:bg-ink-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-10">
-          {/* Titre toujours visible */}
-          <section>
-            <div className="flex items-end justify-between gap-4 mb-5">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400">Explorer</span>
-                <h2 className="mt-1 font-display font-extrabold text-2xl sm:text-3xl tracking-tight text-ink-900 dark:text-white">
-                  Quelle <span className="text-gradient">envie</span> aujourd&apos;hui ?
-                </h2>
-              </div>
-              {!['dessert', 'patisserie', 'pharmacy', 'parapharmacy', 'supermarket', 'shop'].includes(filter) && filter !== 'all' && (
-                <button
-                  type="button"
-                  onClick={() => setFilter('all')}
-                  className="shrink-0 text-sm font-semibold text-brand-600 hover:text-brand-500 transition"
-                >
-                  Tout voir
-                </button>
-              )}
+      <div className="bg-white dark:bg-ink-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-8">
+
+          {/* Services row */}
+          {!search && (
+            <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
+              {[
+                { label: 'Restaurants', emoji: '🍽️', id: 'all' },
+                { label: 'Pâtisseries', emoji: '🥐', id: 'dessert' },
+                { label: 'Pharmacies', emoji: '💊', id: 'pharmacy' },
+                { label: 'Parapharma', emoji: '🌿', id: 'parapharmacy' },
+                { label: 'Supermarchés', emoji: '🛒', id: 'supermarket' },
+                { label: 'Magasins', emoji: '🛍️', id: 'shop' },
+              ].map((s) => {
+                const active = isNonFoodFilter ? filter === s.id : s.id === 'all';
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setFilter(s.id)}
+                    className={`cursor-grow shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold border transition-all duration-200 ${
+                      active
+                        ? 'bg-ink-900 dark:bg-white text-white dark:text-ink-900 border-ink-900 dark:border-white shadow-md'
+                        : 'bg-white dark:bg-ink-900 text-ink-700 dark:text-ink-300 border-ink-200 dark:border-ink-800 hover:border-ink-400 dark:hover:border-ink-600'
+                    }`}
+                  >
+                    <span>{s.emoji}</span>
+                    <span>{s.label}</span>
+                  </button>
+                );
+              })}
             </div>
+          )}
 
-            {/* Services Grid (Gros boutons de services principaux) */}
-            {!search && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-8">
-                {[
-                  { label: 'Restaurants', emoji: '🍽️', id: 'all', gradient: 'from-orange-500 to-amber-500' },
-                  { label: 'Pâtisseries', emoji: '🥐', id: 'dessert', gradient: 'from-pink-500 to-rose-500' },
-                  { label: 'Pharmacies', emoji: '💊', id: 'pharmacy', gradient: 'from-emerald-500 to-teal-500' },
-                  { label: 'Parapharma', emoji: '🌿', id: 'parapharmacy', gradient: 'from-green-400 to-emerald-600' },
-                  { label: 'Supermarchés', emoji: '🛒', id: 'supermarket', gradient: 'from-blue-400 to-cyan-600' },
-                  { label: 'Magasins', emoji: '🛍️', id: 'shop', gradient: 'from-purple-400 to-fuchsia-600' },
-                ].map((s) => {
-                  const active = ['dessert', 'patisserie', 'pharmacy', 'parapharmacy', 'supermarket', 'shop'].includes(filter)
-                    ? filter === s.id
-                    : s.id === 'all';
-                  return (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => setFilter(s.id)}
-                      className={`group relative overflow-hidden h-20 sm:h-24 rounded-2xl p-4 text-left border flex flex-col justify-between transition-all duration-300 ${
-                        active
-                          ? 'border-brand-500 ring-2 ring-brand-500 shadow-[0_0_20px_-3px_rgba(249,115,22,0.3)] scale-[1.02]'
-                          : 'border-ink-200/60 dark:border-ink-800 hover:border-brand-500/40 hover:scale-[1.01]'
-                      }`}
-                    >
-                      <div className={`absolute inset-0 bg-gradient-to-br ${s.gradient} opacity-90 group-hover:opacity-100 transition-opacity duration-300`} />
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2),transparent_50%)]" />
-                      <div className="relative text-white h-full flex flex-col justify-between w-full">
-                        <div className="text-2xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.2)]">{s.emoji}</div>
-                        <div className="font-display font-black text-xs uppercase tracking-wider leading-tight">{s.label}</div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Boutons de catégories (masqués pour les sections non-restau) */}
-            {!['dessert', 'patisserie', 'pharmacy', 'parapharmacy', 'supermarket', 'shop'].includes(filter) && (
-            <div className="relative group/scroll-container -mx-4 px-4 sm:mx-0 sm:px-0">
-              {/* Left Fade + Arrow */}
-              <div
-                className={`absolute left-0 top-0 bottom-2 w-16 bg-gradient-to-r from-brand-50/90 to-transparent dark:from-ink-950/90 dark:to-transparent z-10 pointer-events-none flex items-center pl-4 transition-all duration-300 ${
-                  showLeftArrow ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={() => scrollCategories('left')}
-                  className="pointer-events-auto w-10 h-10 rounded-full bg-white dark:bg-ink-900 border border-ink-200/50 dark:border-ink-800/50 shadow-md hover:shadow-lg flex items-center justify-center text-ink-700 dark:text-ink-300 hover:text-brand-500 dark:hover:text-brand-400 active:scale-95 transition-transform duration-200 focus:outline-none"
-                  aria-label="Scroll left"
-                >
-                  <I.Left className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Right Fade + Arrow */}
-              <div
-                className={`absolute right-0 top-0 bottom-2 w-16 bg-gradient-to-l from-brand-50/90 to-transparent dark:from-ink-950/90 dark:to-transparent z-10 pointer-events-none flex items-center justify-end pr-4 transition-all duration-300 ${
-                  showRightArrow ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={() => scrollCategories('right')}
-                  className="pointer-events-auto w-10 h-10 rounded-full bg-white dark:bg-ink-900 border border-ink-200/50 dark:border-ink-800/50 shadow-md hover:shadow-lg flex items-center justify-center text-ink-700 dark:text-ink-300 hover:text-brand-500 dark:hover:text-brand-400 active:scale-95 transition-transform duration-200 focus:outline-none"
-                  aria-label="Scroll right"
-                >
-                  <I.Right className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div
-                ref={categoryContainerRef}
-                className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pt-2 pb-3 -mt-2 scroll-smooth w-full"
-              >
-                <button
-                  type="button"
-                  onClick={() => setFilter('all')}
-                  className={`cursor-grow shrink-0 snap-start group relative w-[7.5rem] sm:w-[8.5rem] h-28 sm:h-32 rounded-2xl overflow-hidden text-left p-3.5 transition-transform duration-300 border flex flex-col justify-between ${
-                    filter === 'all'
-                      ? 'border-brand-500 shadow-[0_0_0_2px_#f97316,0_8px_20px_-6px_rgba(0,0,0,0.25)] ring-offset-2 ring-offset-brand-50 dark:ring-offset-ink-950'
-                      : 'border-ink-200/60 dark:border-ink-800 hover:border-brand-500/40'
-                  }`}
-                  style={{ '--glow-color': '#f97316' }}
-                >
-                  <div className="absolute inset-0 z-0">
-                    <img 
-                      src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&auto=format&fit=crop&q=80" 
-                      alt="Tout" 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                    />
-                    <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-300" />
+          {/* Featured promo banner */}
+          {isDefault && promoRestaurants.length > 0 && (
+            <section>
+              <div className="rounded-2xl overflow-hidden bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 p-[1px]">
+                <div className="rounded-2xl bg-gradient-to-br from-ink-900 to-ink-950 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-500 text-white mb-2">
+                      <I.Flame size={10} className="text-yellow-300" /> Offre du jour
+                    </span>
+                    <h3 className="font-display font-black text-xl sm:text-2xl text-white">
+                      {promoRestaurants[0].promo || 'Profitez de nos offres'}
+                    </h3>
+                    <p className="text-sm text-white/70 mt-1">
+                      {promoRestaurants.length} établissement{promoRestaurants.length > 1 ? 's' : ''} avec promotion active
+                    </p>
                   </div>
-                  <div className="relative z-10 text-white h-full flex flex-col justify-between w-full">
-                    <div className="text-3xl transition-transform duration-300 select-none drop-shadow-[0_8px_16px_rgba(0,0,0,0.3)]">✨</div>
-                    <div className="mt-auto font-display font-black text-sm leading-tight uppercase tracking-wider">Tout</div>
-                  </div>
-                </button>
-
-                {CATEGORIES_BANNERS.map((c) => {
-                  const active = filter === c.id;
-                  const glowColor = CATEGORY_GLOW[c.id] || '#f97316';
-                  return (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => setFilter(active ? 'all' : c.id)}
-                      style={{
-                        '--glow-color': glowColor,
-                        borderColor: active ? glowColor : undefined,
-                        boxShadow: active ? `0 0 0 2px ${glowColor}, 0 8px 20px -6px rgba(0, 0, 0, 0.25)` : undefined
-                      }}
-                      className={`cursor-grow shrink-0 snap-start group relative w-[7.5rem] sm:w-[8.5rem] h-28 sm:h-32 rounded-2xl overflow-hidden text-left p-3.5 transition-transform duration-300 border flex flex-col justify-between ${
-                        active
-                          ? 'ring-offset-2 ring-offset-brand-50 dark:ring-offset-ink-950'
-                          : 'border-white/10 dark:border-white/5 hover:border-white/30 dark:hover:border-white/20'
-                      }`}
-                    >
-                      <div className="absolute inset-0 z-0">
-                        <img src={c.image} alt={c.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                        <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-300" />
-                      </div>
-                      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent_50%)]" />
-                      <div className="relative z-10 text-white h-full flex flex-col justify-between w-full">
-                        <div className="text-3xl transition-all duration-300 origin-left select-none drop-shadow-[0_8px_16px_rgba(0,0,0,0.3)]">
-                          {c.emoji}
-                        </div>
-                        <div className="mt-auto font-display font-black text-sm leading-tight uppercase tracking-wider">{c.label}</div>
-                      </div>
-                    </button>
-                  );
-                })}
+                  <button
+                    type="button"
+                    onClick={() => onPickRestaurant(promoRestaurants[0])}
+                    className="cursor-grow shrink-0 px-6 py-3 rounded-xl bg-white text-ink-900 font-extrabold text-sm hover:bg-brand-50 transition-colors shadow-lg"
+                  >
+                    Voir l&apos;offre →
+                  </button>
+                </div>
               </div>
-            </div>
-            )}
-          </section>
+            </section>
+          )}
 
-          {['dessert', 'patisserie', 'pharmacy', 'parapharmacy', 'supermarket', 'shop'].includes(filter) && (
+          {/* Category images - only show when not filtering to non-food */}
+          {isDefault && (
+            <section className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+              {CATEGORIES_BANNERS.map((c) => {
+                const active = filter === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setFilter(active ? 'all' : c.id)}
+                    className="cursor-grow shrink-0 flex flex-col items-center gap-2 w-20"
+                  >
+                    <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 transition-all duration-200 ${
+                      active ? 'border-brand-500 shadow-lg shadow-brand-500/20 scale-105' : 'border-transparent hover:border-ink-200 dark:hover:border-ink-700'
+                    }`}>
+                      <img src={c.image} alt={c.label} className="w-full h-full object-cover" />
+                    </div>
+                    <span className="text-[11px] font-semibold text-ink-700 dark:text-ink-300 text-center leading-tight">{c.label}</span>
+                  </button>
+                );
+              })}
+            </section>
+          )}
+
+          {/* Non-food category carousel */}
+          {isNonFoodFilter && (
             <section>
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-xs font-bold uppercase tracking-widest text-ink-500">
@@ -552,64 +384,202 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             </section>
           )}
 
-          {showFeatured && (
-            <section>
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
-                  </span>
-                  Sélection du moment
-                </span>
-                <span className="h-px flex-1 bg-gradient-to-r from-amber-500/40 to-transparent" />
-              </div>
-              <FeaturedSpotlight restaurant={featured} onClick={() => onPickRestaurant(featured)} />
-            </section>
+          {/* Horizontal restaurant sections */}
+          {!isNonFoodFilter && !search.trim() && (
+            <>
+              {/* À la une */}
+              {showFeatured && (
+                <section>
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="font-display font-extrabold text-lg sm:text-xl text-ink-900 dark:text-white">À la une</h2>
+                  </div>
+                  <FeaturedSpotlight restaurant={featured} onClick={() => onPickRestaurant(featured)} />
+                </section>
+              )}
+
+              {/* Promos */}
+              {promoRestaurants.length > 1 && (
+                <HorizontalRow title="Offres près de chez vous" count={promoRestaurants.length - 1} onSeeAll={() => {}}>
+                  {promoRestaurants.slice(1).map((r) => (
+                    <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                  ))}
+                </HorizontalRow>
+              )}
+
+              {/* Populaires */}
+              <HorizontalRow title="Populaires dans votre quartier" count={popularRestaurants.length} onSeeAll={() => {}}>
+                {popularRestaurants.map((r) => (
+                  <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                ))}
+              </HorizontalRow>
+
+              {/* Livraison rapide */}
+              <HorizontalRow title="Livraison la plus rapide" count={fastDelivery.length} onSeeAll={() => {}}>
+                {fastDelivery.map((r) => (
+                  <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                ))}
+              </HorizontalRow>
+            </>
           )}
 
-          {/* Grille */}
-          <section id="restaurant-grid">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
-              <div>
-                <h2 className="font-display font-extrabold text-2xl sm:text-3xl tracking-tight text-ink-900 dark:text-white">
-                  {filterLabel}
-                </h2>
-                <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
-                  {loading
-                    ? 'Chargement du catalogue…'
-                    : `${restaurants.length} adresse${restaurants.length > 1 ? 's' : ''} · triées par proximité`}
-                </p>
+          {/* Full grid: filtered or search results */}
+          {(isNonFoodFilter || search.trim()) && (
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="font-display font-extrabold text-lg sm:text-xl text-ink-900 dark:text-white">
+                    {search.trim() ? 'Résultats' : filterLabel}
+                  </h2>
+                  {!loading && (
+                    <p className="text-xs text-ink-500 dark:text-ink-400 mt-0.5">
+                      {restaurants.length} adresse{restaurants.length > 1 ? 's' : ''}
+                    </p>
+                  )}
+                </div>
               </div>
-              {!loading && restaurants.length > 0 && (
-                <span className="inline-flex items-center gap-2 self-start px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  {restaurants.filter((r) => isRestaurantOpen(r)).length} ouverts
-                </span>
-              )}
-            </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-              {loading
-                ? Array.from({ length: 6 }).map((_, i) => <RestaurantSkeleton key={i} />)
-                : restaurantsError
-                  ? <ApiErrorState message={restaurantsError} onRetry={refreshRestaurants} />
-                  : restaurants.length === 0
-                    ? <EmptyState catalogEmpty={catalog.length === 0} filter={filter} onShowAll={() => setFilter('all')} />
-                    : restaurants.map((r, i) => (
-                      <Reveal key={r.id} delay={Math.min(i * 60, 360)}>
-                        <Tilt max={5} className="rounded-3xl">
-                          <RestaurantCard restaurant={r} onClick={() => onPickRestaurant(r)} />
-                        </Tilt>
-                      </Reveal>
-                    ))}
-            </div>
-          </section>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {loading
+                  ? Array.from({ length: 4 }).map((_, i) => <RestaurantCardSkeletonHorizontal key={i} />)
+                  : restaurantsError
+                    ? <ApiErrorState message={restaurantsError} onRetry={refreshRestaurants} />
+                    : restaurants.length === 0
+                      ? <EmptyState catalogEmpty={catalog.length === 0} filter={filter} onShowAll={() => setFilter('all')} />
+                      : restaurants.map((r) => (
+                        <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                      ))}
+              </div>
+            </section>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HorizontalRow({ title, count, onSeeAll, children }) {
+  return (
+    <section>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-display font-extrabold text-lg sm:text-xl text-ink-900 dark:text-white">{title}</h2>
+        {count > 0 && (
+          <button
+            type="button"
+            onClick={onSeeAll}
+            className="text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline"
+          >
+            Tout voir ({count})
+          </button>
+        )}
+      </div>
+      <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function RestaurantCardHorizontal({ restaurant, onClick }) {
+  const open = isRestaurantOpen(restaurant);
+  const isCustom = restaurant.isCustomRequest;
+
+  return (
+    <div
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
+      className="cursor-grow shrink-0 w-[280px] sm:w-[320px] bg-white dark:bg-ink-900 rounded-2xl overflow-hidden border border-ink-100 dark:border-ink-800 hover:border-ink-300 dark:hover:border-ink-700 transition-all duration-200 hover:shadow-lg group"
+    >
+      <div className="relative h-40 sm:h-44 overflow-hidden bg-ink-100 dark:bg-ink-800">
+        <img
+          src={restaurantCover(restaurant.cover)}
+          alt={restaurant.name}
+          loading="lazy"
+          className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
+            !open ? 'filter blur-[1px] grayscale opacity-60' : ''
+          }`}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+
+        {/* Top badges */}
+        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between z-10">
+          {restaurant.promo && open ? (
+            <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-brand-500 text-white shadow-md">
+              🎁 {restaurant.promo}
+            </span>
+          ) : isCustom ? (
+            <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500 text-white shadow-md">
+              ✨ Sur-mesure
+            </span>
+          ) : <div />}
+          <span className="px-2 py-1 rounded-lg text-[10px] font-bold bg-black/60 backdrop-blur-sm text-white">
+            ⚡ {restaurant.eta || '20-35 min'}
+          </span>
+        </div>
+
+        {/* Closed overlay */}
+        {!open && (
+          <div className="absolute inset-0 bg-ink-950/50 flex items-center justify-center z-10">
+            <span className="px-3 py-1.5 rounded-full bg-black/70 text-white text-[11px] font-bold border border-white/20">
+              🔒 Fermé
+            </span>
+          </div>
+        )}
+
+        {/* Delivery fee badge bottom-left */}
+        <div className="absolute bottom-2.5 left-2.5 z-10">
+          <span className={`px-2 py-1 rounded-lg text-[10px] font-bold backdrop-blur-sm ${
+            isCustom || restaurant.cuisine === 'pharmacy' || restaurant.cuisine === 'dessert'
+              ? 'bg-white/90 text-ink-700'
+              : 'bg-emerald-500/90 text-white'
+          }`}>
+            {isCustom || restaurant.cuisine === 'pharmacy' || restaurant.cuisine === 'dessert'
+              ? '20 DH livr.'
+              : '0,00 € livr.'}
+          </span>
         </div>
       </div>
 
-      <LiveActivityTicker />
-      <FloatingCheckoutBar />
+      <div className="p-3.5">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="font-display font-extrabold text-sm text-ink-900 dark:text-white truncate group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+              {restaurant.name}
+            </h3>
+            <div className="text-[11px] text-ink-500 dark:text-ink-400 truncate mt-0.5">
+              {Array.isArray(restaurant.tags) ? restaurant.tags.join(' · ') : ''}
+            </div>
+          </div>
+          <span className="shrink-0 inline-flex items-center gap-0.5 text-xs font-bold text-ink-700 dark:text-ink-300">
+            <I.Star size={12} className="fill-current text-emerald-500" />{' '}
+            {(restaurant.rating ?? 4.8).toString().replace('.', ',')}
+          </span>
+        </div>
+        <div className="mt-2 flex items-center gap-2 text-[11px] text-ink-500 dark:text-ink-400">
+          <span className="flex items-center gap-1">
+            <I.MapPin size={11} className="text-brand-500 shrink-0" /> {restaurant.distance}
+          </span>
+          <span>·</span>
+          <span className="font-semibold text-brand-600 dark:text-brand-400">
+            {restaurant.menu?.length ? 'Voir le menu' : isCustom ? 'Commander' : 'Ouvrir'}
+          </span>
+          <I.Right size={10} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RestaurantCardSkeletonHorizontal() {
+  return (
+    <div className="shrink-0 w-[280px] sm:w-[320px] bg-white dark:bg-ink-900 rounded-2xl overflow-hidden border border-ink-100 dark:border-ink-800 animate-pulse">
+      <div className="h-40 sm:h-44 bg-ink-200 dark:bg-ink-800 skeleton" />
+      <div className="p-3.5 space-y-2">
+        <div className="h-4 w-2/3 rounded bg-ink-200 dark:bg-ink-800 skeleton" />
+        <div className="h-3 w-1/2 rounded bg-ink-200 dark:bg-ink-800 skeleton" />
+        <div className="h-3 w-1/3 rounded bg-ink-200 dark:bg-ink-800 skeleton" />
+      </div>
     </div>
   );
 }
@@ -1038,117 +1008,94 @@ export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = f
   );
 }
 
-export function DeliverooCard({ restaurant, onClick }) {
+export function RestaurantCard({ restaurant, onClick }) {
   const open = isRestaurantOpen(restaurant);
-  const isCustom = restaurant.isCustomRequest;
-  const rating = (restaurant.rating ?? 4.8).toString().replace('.', ',');
-  const reviews = restaurant.reviewsCount || Math.floor((restaurant.rating || 4.8) * 65);
+  const glowColor = CATEGORY_GLOW[restaurant.cuisine] || '#f97316';
 
   return (
     <div
       onClick={onClick}
+      onMouseMove={spotlightHandler}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      className={`group relative cursor-pointer text-left w-full rounded-2xl overflow-hidden bg-white dark:bg-ink-900 border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between ${
-        isCustom 
-          ? 'border-2 border-amber-400/80 shadow-[0_4px_25px_rgba(245,158,11,0.2)]'
-          : 'border-ink-200/70 dark:border-ink-800'
-      }`}
+      style={{ '--glow-color': glowColor }}
+      className="cursor-grow group text-left w-full bg-white dark:bg-ink-900 rounded-3xl overflow-hidden shadow-card hover:shadow-cardhover border border-ink-200/60 dark:border-ink-800 spotlight transition-transform duration-300 card-glow-hover"
     >
-      <div className="relative aspect-[16/9] overflow-hidden bg-ink-100 dark:bg-ink-950">
+      <div className="relative aspect-[16/10] overflow-hidden bg-ink-100 dark:bg-ink-950">
         <img
           src={restaurantCover(restaurant.cover)}
           alt={restaurant.name}
           loading="lazy"
-          className={`w-full h-full object-cover transition-transform duration-500 ${
-            !open ? 'filter blur-sm grayscale opacity-70' : 'group-hover:scale-105'
+          className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${
+            !open ? 'filter blur-sm grayscale opacity-70' : ''
           }`}
         />
-
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/10"></div>
+        
         {/* Closed Overlay */}
         {!open && (
-          <div className="absolute inset-0 bg-ink-950/50 backdrop-blur-[2px] flex flex-col items-center justify-center text-white z-20">
-            <span className="bg-ink-950/85 border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+          <div className="absolute inset-0 bg-ink-950/40 backdrop-blur-[2px] flex flex-col items-center justify-center text-white">
+            <span className="bg-ink-950/75 border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-red-500" />
               Fermé · Réouverture demain
             </span>
           </div>
         )}
 
-        {/* Favorite Heart Button */}
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); }}
-          className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/85 dark:bg-black/65 backdrop-blur-md flex items-center justify-center text-ink-700 dark:text-white hover:scale-110 active:scale-95 transition-transform shadow-md z-10"
-          aria-label="Ajouter aux favoris"
-        >
-          <I.Heart size={16} className="hover:text-red-500 transition-colors" />
-        </button>
-
-        {/* ETA Badge (Bottom Right of Image) */}
-        <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-xl bg-white/95 dark:bg-ink-950/95 text-ink-900 dark:text-white font-extrabold text-xs shadow-md border border-ink-100 dark:border-ink-800 flex items-center gap-1 z-10">
-          <span>{restaurant.eta || '25 min'}</span>
-        </div>
-
-        {/* Top-Left Promo / Custom Badge */}
-        {isCustom ? (
-          <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-brand-500 text-white font-black text-[11px] uppercase tracking-wider shadow-md animate-pulse z-10">
+        {restaurant.isCustomRequest && (
+          <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-md animate-pulse z-10">
             ✨ SUR-MESURE (+20 MAD)
-          </div>
-        ) : restaurant.promo && open ? (
-          <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-brand-500 text-white font-bold text-[11px] shadow-md z-10">
-            Sponsorisé
-          </div>
-        ) : null}
+          </span>
+        )}
+        {restaurant.promo && open && !restaurant.isCustomRequest && (
+          <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-md animate-pulse-slow">
+            🎁 {restaurant.promo}
+          </span>
+        )}
       </div>
 
-      <div className="p-3.5 flex flex-col justify-between gap-1.5 flex-1">
-        {/* Title */}
-        <h3 className={`font-display font-black text-base truncate transition-colors ${
-          isCustom ? 'text-amber-900 dark:text-amber-300' : 'text-ink-900 dark:text-white group-hover:text-brand-500'
-        }`}>
-          {restaurant.name}
-        </h3>
-
-        {/* Rating • Reviews • Distance • Speed */}
-        <div className="flex items-center gap-1.5 text-xs text-ink-600 dark:text-ink-300 flex-wrap">
-          <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
-            ★ {rating}
+      <div className="p-4 relative z-10">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="font-display font-extrabold text-sm sm:text-base md:text-lg truncate text-ink-900 dark:text-white group-hover:text-brand-500 transition-colors">
+              {restaurant.name}
+            </h3>
+            <div className="text-[10px] sm:text-xs text-ink-500 dark:text-ink-400 truncate mt-0.5">
+              {Array.isArray(restaurant.tags) ? restaurant.tags.join(' • ') : ''}
+            </div>
+          </div>
+          <span className="shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs font-bold border border-emerald-500/10">
+            <I.Star size={11} className="fill-emerald-500 text-emerald-500 sm:w-3 sm:h-3" />{' '}
+            {(restaurant.rating ?? 4.8).toString().replace('.', ',')}
           </span>
-          <span className="text-ink-400">({reviews})</span>
-          <span>•</span>
-          <span>{restaurant.distance}</span>
-          <span>•</span>
-          <span className="font-medium text-ink-500">Rapide</span>
         </div>
 
-        {/* Delivery Fee Line */}
-        <div className="flex items-center gap-1.5 text-xs">
-          <span className="line-through text-ink-400">15 DH</span>
-          <span className="font-bold text-emerald-600 dark:text-emerald-400">0,00 DH de livraison</span>
+        <div className="mt-3 pt-2.5 sm:mt-4 sm:pt-3 border-t border-ink-100 dark:border-ink-800/80 flex items-center justify-between text-[10px] sm:text-xs">
+          <div className="text-ink-500 dark:text-ink-400 flex items-center gap-1">
+            <I.MapPin size={12} className="text-ink-400 sm:w-3.5 sm:h-3.5" /> {restaurant.distance}
+          </div>
+          <div className="font-bold inline-flex items-center gap-0.5 text-brand-600 dark:text-brand-400">
+            Voir le menu <I.Right size={12} className="sm:w-3.5 sm:h-3.5" />
+          </div>
         </div>
-
-        {/* Offer / Promo Pill */}
-        {isCustom ? (
-          <div className="mt-1 inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-bold text-[11px] border border-amber-200 dark:border-amber-800">
-            🍰 Commandez dans l&apos;établissement de votre choix à Tanger
-          </div>
-        ) : restaurant.promo ? (
-          <div className="mt-1 inline-flex items-center px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-bold text-[11px]">
-            🏷️ {restaurant.promo}
-          </div>
-        ) : (
-          <div className="mt-1 inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold text-[11px]">
-            ⚡ Sélection YoHa Campus
-          </div>
-        )}
       </div>
     </div>
   );
 }
 
-export const RestaurantCard = DeliverooCard;
+export function RestaurantSkeleton() {
+  return (
+    <div className="bg-white dark:bg-ink-900 rounded-3xl overflow-hidden border border-ink-200/60 dark:border-ink-800 shadow-sm animate-pulse">
+      <div className="aspect-[16/10] bg-ink-200 dark:bg-ink-800/50 skeleton"></div>
+      <div className="p-5 space-y-3">
+        <div className="h-5 w-2/3 rounded bg-ink-200 dark:bg-ink-800/50 skeleton"></div>
+        <div className="h-3.5 w-1/2 rounded bg-ink-200 dark:bg-ink-800/50 skeleton"></div>
+        <div className="h-3 w-3/4 rounded bg-ink-200 dark:bg-ink-800/50 skeleton"></div>
+      </div>
+    </div>
+  );
+}
 
 export function EmptyState({ catalogEmpty, filter, onShowAll, onOpenCustomModal }) {
   return (
@@ -1207,89 +1154,6 @@ export function ApiErrorState({ message, onRetry }) {
           Réessayer
         </button>
       )}
-    </div>
-  );
-}
-
-export function LiveActivityTicker() {
-  const [tickerIndex, setTickerIndex] = useState(0);
-  const activities = [
-    { name: 'Yasmine (CHU Aile B)', action: 'a commandé chez New School Tacos', time: 'il y a 2 min' },
-    { name: 'Amine (BU ENCG)', action: 'a commandé 1 Healthy Bowl', time: 'il y a 5 min' },
-    { name: 'Omar (Alliance Tanger)', action: 'a demandé 1 Pâtisserie sur-mesure (+20 MAD)', time: 'il y a 8 min' },
-    { name: 'Dr. Benani (Hôpital CHU)', action: 'a commandé chez MedEat', time: 'il y a 11 min' },
-  ];
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTickerIndex((prev) => (prev + 1) % activities.length);
-    }, 5500);
-    return () => clearInterval(timer);
-  }, [activities.length]);
-
-  const current = activities[tickerIndex];
-
-  return (
-    <>
-      {/* Desktop: bottom-left floating ticker */}
-      <div className="hidden md:flex fixed bottom-6 left-6 z-40 items-center gap-3 p-3 px-4 rounded-2xl bg-white/90 dark:bg-ink-900/90 backdrop-blur-md border border-amber-200/60 dark:border-white/10 shadow-xl animate-fade-up pointer-events-none transition-all max-w-[380px]">
-        <span className="relative flex h-3 w-3 shrink-0">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75" />
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500" />
-        </span>
-        <div className="text-xs">
-          <span className="font-extrabold text-ink-900 dark:text-white">{current.name}</span>{' '}
-          <span className="text-ink-600 dark:text-ink-300">{current.action}</span>{' '}
-          <span className="text-brand-500 font-bold">• {current.time}</span>
-        </div>
-      </div>
-      {/* Mobile: compact top ticker bar */}
-      <div className="md:hidden fixed top-16 left-0 right-0 z-40 bg-white/90 dark:bg-ink-900/90 backdrop-blur-md border-b border-amber-200/40 dark:border-white/10 shadow-md animate-fade-up pointer-events-none">
-        <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-2">
-          <span className="relative flex h-2 w-2 shrink-0">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500" />
-          </span>
-          <div className="text-[11px] truncate">
-            <span className="font-extrabold text-ink-900 dark:text-white">{current.name}</span>{' '}
-            <span className="text-ink-600 dark:text-ink-300">{current.action}</span>{' '}
-            <span className="text-brand-500 font-bold">• {current.time}</span>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-export function FloatingCheckoutBar() {
-  const { cartItems, total } = useCart();
-  const { goto } = useYohaNav();
-
-  if (!cartItems || cartItems.length === 0) return null;
-
-  const totalCount = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
-
-  return (
-    <div className="fixed bottom-5 right-4 left-4 sm:left-auto sm:right-6 z-50 animate-fade-up">
-      <button
-        type="button"
-        onClick={() => goto('checkout')}
-        className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white font-bold text-base shadow-[0_10px_35px_rgba(249,115,22,0.45)] hover:shadow-[0_15px_45px_rgba(249,115,22,0.65)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-between gap-6 group border border-white/20 backdrop-blur-md cursor-pointer"
-      >
-        <div className="flex items-center gap-3">
-          <span className="w-8 h-8 rounded-xl bg-white/25 flex items-center justify-center font-black text-sm group-hover:rotate-12 transition-transform shadow-inner animate-pulse">
-            {totalCount}
-          </span>
-          <div className="flex flex-col items-start">
-            <span className="font-extrabold text-sm sm:text-base tracking-wide">Commander maintenant</span>
-            <span className="text-[10px] text-white/80 font-medium">⚡ Livraison en ~26 min</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 font-black text-base sm:text-lg">
-          <span>{formatMad(total)}</span>
-          <span className="text-xl group-hover:translate-x-1 transition-transform">→</span>
-        </div>
-      </button>
     </div>
   );
 }
