@@ -590,8 +590,8 @@ export function AdminPromos() {
         {promos.length > 0 && (
           <div className="divide-y divide-ink-100 dark:divide-ink-800">
             {promos.map(p => (
-              <div key={p.id} className="flex items-center gap-4 px-5 py-4 hover:bg-ink-50 dark:hover:bg-ink-950/30 transition">
-                <div className="min-w-0 flex-1 flex items-center gap-4">
+              <div key={p.id} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-5 py-4 hover:bg-ink-50 dark:hover:bg-ink-950/30 transition">
+                <div className="min-w-0 flex-1 flex flex-wrap items-center gap-2 sm:gap-4">
                   <span className={`px-3 py-1.5 rounded-lg font-black tracking-wider text-sm ${p.active !== false ? 'bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300' : 'bg-ink-100 text-ink-500 dark:bg-ink-800 dark:text-ink-400'}`}>
                     {p.code}
                   </span>
@@ -602,11 +602,11 @@ export function AdminPromos() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button onClick={() => toggleActive(p.id, p.active !== false)}
-                    className={`cursor-grow w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold transition-colors ${p.active !== false ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-ink-100 text-ink-500 hover:bg-ink-200'}`}>
+                    className={`cursor-grow w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-colors ${p.active !== false ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-ink-100 text-ink-500 hover:bg-ink-200'}`}>
                     {p.active !== false ? 'ON' : 'OFF'}
                   </button>
                   <button onClick={() => deletePromo(p.id)}
-                    className="cursor-grow w-9 h-9 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-colors flex items-center justify-center">
+                    className="cursor-grow w-10 h-10 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-colors flex items-center justify-center">
                     <I.Trash size={16} />
                   </button>
                 </div>
@@ -764,8 +764,10 @@ export function AdminRevenue({ orders }) {
 
       <div className="rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 shadow-card p-5">
         <h3 className="font-display font-bold mb-4">Détail par commande · calcul des profits</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm">
             <thead className="bg-ink-50 dark:bg-ink-950/50 text-xs uppercase tracking-wider text-ink-500">
               <tr>
                 <th className="px-4 py-3 text-left">Cmd</th>
@@ -820,6 +822,45 @@ export function AdminRevenue({ orders }) {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile cards */}
+        <div className="space-y-3 md:hidden">
+          {orders.map(o => (
+            <div key={o.id} className="rounded-xl border border-ink-200/60 bg-ink-50/50 p-3 dark:border-ink-800 dark:bg-ink-950/30 cursor-pointer" onClick={() => setExpanded(expanded === o.id ? null : o.id)}>
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="font-bold text-xs">#{o.id}</div>
+                  <div className="mt-0.5 truncate text-sm text-ink-500">{o.customer?.name || '—'}</div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="font-bold text-sm">{Number(o.totalDh || 0).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} MAD</div>
+                  <div className="text-[11px] text-emerald-600 font-bold">+{Number(o.netDh || 0).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} MAD</div>
+                </div>
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                <div className="min-w-0 rounded-lg bg-white p-2 dark:bg-ink-900">
+                  <div className="text-ink-400">Téléphone</div>
+                  <div className="truncate font-semibold">{o.customer?.phone || '—'}</div>
+                </div>
+                <div className="min-w-0 rounded-lg bg-white p-2 dark:bg-ink-900">
+                  <div className="text-ink-400">Brut</div>
+                  <div className="font-bold text-violet-600">+{Number(o.profitDh || 0).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} MAD</div>
+                </div>
+              </div>
+              {expanded === o.id && (
+                <div className="mt-3 pt-3 border-t border-ink-100 dark:border-ink-800 space-y-1.5">
+                  <span className="text-xs font-semibold text-ink-700 dark:text-ink-200">Articles :</span>
+                  {(o.items || []).map((item, i) => (
+                    <div key={i} className="flex items-center justify-between bg-white dark:bg-ink-900 rounded-lg px-3 py-1.5 border border-ink-200/60 dark:border-ink-800 text-xs">
+                      <span className="truncate min-w-0 flex-1">{item.name} <span className="text-ink-400">x{item.qty}</span></span>
+                      <span className="font-bold shrink-0 ml-2">{Number(item.price * item.qty).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} MAD</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>

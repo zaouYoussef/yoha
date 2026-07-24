@@ -51,12 +51,12 @@ export function ImageUpload({
           loading="lazy"
           decoding="async"
         />
-        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 focus-within:opacity-100 transition flex items-center justify-center">
           <button
             type="button"
             disabled={uploading || busy}
             onClick={() => inputRef.current?.click()}
-            className="px-4 py-2 rounded-xl bg-white text-ink-900 text-sm font-bold shadow-lg disabled:opacity-50"
+            className="px-4 py-2.5 rounded-xl bg-white text-ink-900 text-sm font-bold shadow-lg disabled:opacity-50 min-h-[44px]"
           >
             {uploading ? 'Envoi…' : 'Choisir une photo'}
           </button>

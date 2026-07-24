@@ -207,7 +207,7 @@ export function Navbar({
             onClick={onCart} 
             aria-label="Voir le panier"
             title="Voir le panier"
-            className={`cursor-grow relative px-3 py-2 rounded-xl flex items-center gap-1.5 bg-brand-500/10 text-brand-600 dark:text-brand-400 hover:bg-brand-500 hover:text-white transition-all duration-300 font-extrabold text-xs sm:text-sm shadow-sm ${cartShake ? 'cart-shake' : ''}`}
+            className={`cursor-grow relative px-3 py-2.5 rounded-xl flex items-center gap-1.5 bg-brand-500/10 text-brand-600 dark:text-brand-400 hover:bg-brand-500 hover:text-white transition-all duration-300 font-extrabold text-xs sm:text-sm shadow-sm min-h-[40px] ${cartShake ? 'cart-shake' : ''}`}
           >
             <I.Cart size={18}/>
             <span className="hidden sm:inline">Panier</span>

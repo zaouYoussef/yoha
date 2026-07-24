@@ -125,7 +125,7 @@ export function AuthPage({ redirect, goto, goHome }) {
   };
 
   return (
-    <div className="page-enter min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center px-4 py-10">
+    <div className="page-enter min-h-[calc(100dvh-8rem)] flex flex-col items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
         <button
           type="button"

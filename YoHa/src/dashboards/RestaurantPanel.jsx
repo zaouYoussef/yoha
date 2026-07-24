@@ -817,11 +817,11 @@ export function RestoPromos() {
                   </div>
                 </div>
                 <button type="button" onClick={() => handleToggle(offer)} disabled={busy}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
+                  className={`relative inline-flex h-8 w-12 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
                     offer.is_active ? 'bg-emerald-500' : 'bg-ink-300 dark:bg-ink-600'
                   } ${busy ? 'opacity-50' : ''}`}>
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                    offer.is_active ? 'translate-x-6' : 'translate-x-1'
+                  <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                    offer.is_active ? 'translate-x-[22px]' : 'translate-x-1'
                   }`} />
                 </button>
               </div>

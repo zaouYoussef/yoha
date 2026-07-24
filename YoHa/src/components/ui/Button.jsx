@@ -3,7 +3,7 @@
 import React from 'react';
 
 export function Button({ children, variant='primary', size='md', className='', onClick, disabled, ...rest }) {
-  const sizes = { md:'h-11 px-5 text-sm', lg:'h-14 px-7 text-base', sm:'h-9 px-3 text-sm' };
+  const sizes = { md:'h-11 px-5 text-sm', lg:'h-14 px-7 text-base', sm:'h-10 px-3 text-sm' };
   const variants = {
     primary:'bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white shadow-glow hover:shadow-glow-lg',
     ghost:  'bg-white/60 dark:bg-ink-900/60 border border-ink-200/60 dark:border-ink-800 hover:border-brand-500',

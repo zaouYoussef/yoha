@@ -131,7 +131,7 @@ function OrderItemsDetail({ order, restaurantPhone }) {
           <button
             type="button"
             onClick={handleCopy}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-ink-900 px-2.5 py-2 text-[11px] font-bold text-white transition hover:opacity-90 dark:bg-white dark:text-ink-900 sm:py-1.5"
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-ink-900 px-2.5 py-2.5 text-[11px] font-bold text-white transition hover:opacity-90 dark:bg-white dark:text-ink-900 sm:py-1.5"
           >
             {copied ? <I.Check size={13} /> : <I.Copy size={13} />}
             {copied ? 'Copié !' : 'Copier'}
@@ -141,7 +141,7 @@ function OrderItemsDetail({ order, restaurantPhone }) {
             onClick={handleWhatsApp}
             disabled={!waDigits}
             title={waDigits ? `WhatsApp ${restaurantPhone}` : 'Numéro restaurant indisponible'}
-            className="inline-flex items-center justify-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-2 text-[11px] font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40 sm:py-1.5"
+            className="inline-flex items-center justify-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-2.5 text-[11px] font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40 sm:py-1.5"
           >
             <I.Phone size={12} />
             <span className="truncate">WhatsApp</span>

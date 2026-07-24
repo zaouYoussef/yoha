@@ -216,11 +216,11 @@ export function CartLine({ item, setQty, remove }) {
       </div>
       <div className="flex flex-col items-end gap-2 shrink-0">
         <div className="flex items-center gap-1 bg-white dark:bg-ink-800 rounded-full p-0.5 border border-ink-200 dark:border-ink-700">
-          <button onClick={() => setQty(item.id, item.qty - 1)} className="cursor-grow w-7 h-7 rounded-full hover:bg-ink-100 dark:hover:bg-ink-700 grid place-items-center"><I.Minus size={14}/></button>
-          <span className="min-w-[22px] text-center text-sm font-bold">{item.qty}</span>
-          <button onClick={() => setQty(item.id, item.qty + 1)} className="cursor-grow w-7 h-7 rounded-full hover:bg-ink-100 dark:hover:bg-ink-700 grid place-items-center"><I.Plus size={14}/></button>
+          <button onClick={() => setQty(item.id, item.qty - 1)} className="cursor-grow w-9 h-9 rounded-full hover:bg-ink-100 dark:hover:bg-ink-700 grid place-items-center"><I.Minus size={14}/></button>
+          <span className="min-w-[24px] text-center text-sm font-bold">{item.qty}</span>
+          <button onClick={() => setQty(item.id, item.qty + 1)} className="cursor-grow w-9 h-9 rounded-full hover:bg-ink-100 dark:hover:bg-ink-700 grid place-items-center"><I.Plus size={14}/></button>
         </div>
-        <button onClick={() => remove(item.id)} className="cursor-grow text-ink-400 hover:text-red-500 transition" aria-label="Supprimer">
+        <button onClick={() => remove(item.id)} className="cursor-grow w-9 h-9 rounded-lg flex items-center justify-center text-ink-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition" aria-label="Supprimer">
           <I.Trash size={16}/>
         </button>
       </div>

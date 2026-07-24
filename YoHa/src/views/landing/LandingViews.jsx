@@ -930,7 +930,7 @@ export function ShowcaseSection() {
   return (
     <section 
       ref={sectionRef} 
-      className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-[#fffcf6] to-[#fdf4e3] text-slate-900 py-12 sm:py-16 lg:py-20 my-8 sm:my-12 lg:my-16 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] max-w-7xl mx-4 sm:mx-6 lg:mx-auto px-5 sm:px-8 lg:px-12 border border-amber-100 shadow-xl"
+      className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-[#fffcf6] to-[#fdf4e3] text-slate-900 py-12 sm:py-16 lg:py-20 my-8 sm:my-12 lg:my-16 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] max-w-7xl mx-4 sm:mx-6 lg:mx-auto px-4 sm:px-8 lg:px-12 border border-amber-100 shadow-xl"
     >
       {/* Background Scooter Video (Lazy loaded) */}
       <LazyBackgroundVideo
@@ -1020,7 +1020,7 @@ export function PizzaExplodedStage({ progress }) {
 
   return (
     <div className="relative mx-auto w-full max-w-[480px] h-[580px] select-none flex items-center justify-center">
-      <div className="relative w-[340px] h-[340px] flex items-center justify-center">
+      <div className="relative w-[280px] sm:w-[340px] h-[280px] sm:h-[340px] flex items-center justify-center">
         {layers.map((layer, idx) => {
           const y = layer.targetY * factor;
           const rotate = (idx % 2 === 0 ? 12 : -12) * (1 - factor);
@@ -1055,7 +1055,7 @@ export function TestimonialsSection() {
         <div className="flex items-end justify-between flex-wrap gap-4">
           <div className="max-w-2xl">
             <span className="text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">Ils en parlent</span>
-            <h2 className="mt-3 font-display font-extrabold text-4xl sm:text-5xl tracking-tight">
+            <h2 className="mt-3 font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight">
               Adoré sur les <span className="text-gradient">campus & dans les couloirs.</span>
             </h2>
           </div>
@@ -1282,11 +1282,11 @@ export function FlyingBurgerShowcase() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-16 items-center">
         {/* LEFT: 3D Stacked Figma screens */}
-        <div className="relative flex justify-center items-center h-[420px]" style={{ perspective: '1200px' }}>
+        <div className="relative flex justify-center items-center h-[300px] lg:h-[420px]" style={{ perspective: '1200px' }}>
           <div className="relative w-full max-w-[420px] h-full flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
             {/* Desktop Mockup Card */}
             <div 
-              className="absolute w-[360px] aspect-[16/10] rounded-2xl overflow-hidden shadow-2xl border border-white/20 dark:border-ink-800/80 bg-ink-900"
+              className="absolute w-[260px] lg:w-[360px] aspect-[16/10] rounded-2xl overflow-hidden shadow-2xl border border-white/20 dark:border-ink-800/80 bg-ink-900"
               style={{
                 transform: `rotateY(${mousePos.x * 20}deg) rotateX(${mousePos.y * -20}deg) translate3d(0, -40px, -50px)`,
                 zIndex: 10,
@@ -1309,7 +1309,7 @@ export function FlyingBurgerShowcase() {
 
             {/* Mobile Mockup Card */}
             <div 
-              className="absolute w-[170px] aspect-[9/19] rounded-[2.2rem] overflow-hidden shadow-2xl border-4 border-slate-800 dark:border-ink-950 bg-ink-900"
+              className="absolute w-[120px] lg:w-[170px] aspect-[9/19] rounded-[2.2rem] overflow-hidden shadow-2xl border-4 border-slate-800 dark:border-ink-950 bg-ink-900"
               style={{
                 transform: `rotateY(${mousePos.x * 30}deg) rotateX(${mousePos.y * -30}deg) translate3d(70px, 30px, 60px)`,
                 zIndex: 20,

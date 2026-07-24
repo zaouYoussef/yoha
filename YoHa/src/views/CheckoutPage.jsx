@@ -119,12 +119,12 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   }
 
   return (
-    <div className="page-enter max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <div className="page-enter max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-10">
       <button onClick={onBack} className="cursor-grow inline-flex items-center gap-2 mb-6 px-3 py-2 rounded-xl hover:bg-ink-100 dark:hover:bg-ink-800 transition">
         <I.Left size={18}/> Retour au panier
       </button>
 
-      <h1 className="font-display font-extrabold text-3xl sm:text-4xl tracking-tight">Validation de commande</h1>
+      <h1 className="font-display font-extrabold text-2xl sm:text-3xl lg:text-4xl tracking-tight">Validation de commande</h1>
       <p className="mt-1 text-ink-500 dark:text-ink-400">Presque fini — vérifiez vos infos et passons à table.</p>
 
       {!user && (
@@ -259,7 +259,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
           </Card>
         </div>
 
-        <div className="lg:sticky lg:top-24 self-start">
+        <div className="lg:sticky lg:top-20 self-start order-first lg:order-last">
           <Card>
             <div className="p-5 space-y-3">
               <h3 className="font-display font-bold text-lg">Total</h3>
@@ -302,7 +302,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                     <input value={promoInput} onChange={e => setPromoInput(e.target.value.toUpperCase())} placeholder="Code promo"
                       className="flex-1 rounded-xl border border-ink-200 bg-ink-50 px-3 py-2 text-sm font-bold tracking-wider outline-none focus:border-brand-500 dark:border-ink-700 dark:bg-ink-950 dark:text-white"/>
                     <button onClick={applyPromo}
-                      className="cursor-grow shrink-0 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 px-4 py-2 text-sm font-bold text-white shadow-md hover:shadow-lg active:scale-95 transition-transform">
+                      className="cursor-grow shrink-0 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 px-4 py-2.5 text-sm font-bold text-white shadow-md hover:shadow-lg active:scale-95 transition-transform min-h-[40px]">
                       OK
                     </button>
                   </div>
@@ -327,11 +327,11 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                   {submitting ? (
                     <span className="inline-flex items-center gap-2">Traitement<Loader/></span>
                   ) : (
-                    <span className="inline-flex items-center gap-2">
+                    <span className="inline-flex items-center gap-2 whitespace-nowrap">
                       Confirmer · {isCustom 
                         ? (total > 0 ? `${formatMad(grand)} + achats` : "20 DH + achats") 
                         : formatMad(grand)
-                      }{discountPct > 0 && <span className="text-emerald-300 text-xs line-through ml-1">{formatMad(total + deliveryFee)}</span>} <I.Check size={18} stroke={3}/>
+                      }{discountPct > 0 && <span className="text-emerald-300 text-xs line-through ml-1 hidden sm:inline">{formatMad(total + deliveryFee)}</span>} <I.Check size={18} stroke={3}/>
                     </span>
                   )}
                 </Button>
