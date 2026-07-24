@@ -28,7 +28,11 @@ export function Navbar({
   onMyOrders,
 }) {
   const pathname = usePathname();
-  const isBrowsePage = pathname === '/browse';
+  const [isBrowsePage, setIsBrowsePage] = useState(true);
+  useEffect(() => {
+    const p = pathname || (typeof window !== 'undefined' ? window.location.pathname : '');
+    setIsBrowsePage(p === '/browse' || p.startsWith('/browse') || p === '/');
+  }, [pathname]);
   const cartIconRef = useContext(CartIconRefCtx);
   const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
@@ -128,10 +132,10 @@ export function Navbar({
               onClick={onMyOrders}
               aria-label="Mes commandes"
               title="Mes commandes"
-              className="cursor-grow px-3.5 py-2 rounded-xl hidden md:flex items-center gap-2 bg-ink-100/80 dark:bg-ink-800/60 text-ink-900 dark:text-white border border-ink-200/60 dark:border-ink-700/60 hover:border-brand-500/50 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300 text-xs sm:text-sm font-bold shadow-xs active:scale-95"
+              className="cursor-grow px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl flex items-center gap-1.5 sm:gap-2 bg-ink-100/90 dark:bg-ink-800/80 text-ink-900 dark:text-white border border-ink-200/60 dark:border-ink-700/60 hover:border-brand-500/50 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300 text-xs sm:text-sm font-bold shadow-xs active:scale-95 shrink-0"
             >
-              <I.Receipt size={17} className="text-brand-500 shrink-0" />
-              <span>Mes commandes</span>
+              <I.Receipt size={16} className="text-brand-500 shrink-0" />
+              <span className="text-[11px] sm:text-xs">Mes commandes</span>
             </button>
           )}
 
