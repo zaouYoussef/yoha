@@ -588,19 +588,6 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
               </div>
             )}
 
-            {/* Bottom delivery fee */}
-            <div className="absolute bottom-2.5 left-2.5 z-10">
-              <span className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black backdrop-blur-md shadow-lg ${
-                isCustom || ['pharmacy','dessert','supermarket','shop','parapharmacy'].includes(restaurant.cuisine)
-                  ? 'bg-white/90 text-ink-700'
-                  : 'bg-emerald-500/90 text-white'
-              }`}>
-                {isCustom || ['pharmacy','dessert','supermarket','shop','parapharmacy'].includes(restaurant.cuisine)
-                  ? '20 DH livr.'
-                  : 'Livraison gratuite'}
-              </span>
-            </div>
-
             {/* Rating badge */}
             {open && (
               <div className="absolute bottom-2.5 right-2.5 z-10">
@@ -624,7 +611,20 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
                 </p>
               </div>
             </div>
-            <div className="mt-2.5 pt-2.5 border-t border-ink-100 dark:border-ink-800 flex items-center justify-between">
+
+            {/* Ligne Frais de livraison Deliveroo */}
+            <div className="mt-2 flex items-center gap-1.5 text-xs">
+              {isCustom || ['pharmacy','dessert','supermarket','shop','parapharmacy'].includes(restaurant.cuisine) ? (
+                <span className="font-bold text-amber-600 dark:text-amber-400 text-[11px]">20 MAD de livraison</span>
+              ) : (
+                <>
+                  <span className="line-through text-ink-400 text-[11px]">2,99 MAD</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400 text-[11px]">0,00 MAD de livraison</span>
+                </>
+              )}
+            </div>
+
+            <div className="mt-2.5 pt-2 border-t border-ink-100 dark:border-ink-800 flex items-center justify-between">
               <span className="flex items-center gap-1 text-[11px] text-ink-500 dark:text-ink-400 font-medium">
                 <I.MapPin size={11} className="text-brand-500 shrink-0" /> {restaurant.distance}
               </span>
