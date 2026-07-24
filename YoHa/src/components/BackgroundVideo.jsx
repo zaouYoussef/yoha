@@ -1,42 +1,55 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function BackgroundVideo({ webmSrc, mp4Src, poster, className = '' }) {
   const videoRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(true);
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
     const video = videoRef.current;
     if (!video) return;
 
-    // Enforce muted and playsinline for DOM autoplay policy
     video.muted = true;
     video.defaultMuted = true;
     video.setAttribute('muted', '');
     video.setAttribute('playsinline', '');
-    video.setAttribute('autoplay', '');
 
     const tryPlay = () => {
       const promise = video.play();
       if (promise !== undefined) {
         promise.catch((err) => {
           console.warn('Autoplay prevented by browser:', err);
-          const handleUserGesture = () => {
-            video.play().catch(() => {});
-            window.removeEventListener('click', handleUserGesture);
-            window.removeEventListener('touchstart', handleUserGesture);
-            window.removeEventListener('scroll', handleUserGesture);
-          };
-          window.addEventListener('click', handleUserGesture, { once: true });
-          window.addEventListener('touchstart', handleUserGesture, { once: true });
-          window.addEventListener('scroll', handleUserGesture, { once: true });
         });
       }
     };
 
     video.load();
     tryPlay();
-  }, [webmSrc, mp4Src]);
+  }, [webmSrc, mp4Src, isMobile]);
+
+  if (isMobile) {
+    return (
+      <img
+        src={poster}
+        alt="Hero Background"
+        className={className}
+        loading="eager"
+        decoding="async"
+        aria-hidden="true"
+      />
+    );
+  }
 
   return (
     <video
@@ -47,7 +60,7 @@ export default function BackgroundVideo({ webmSrc, mp4Src, poster, className = '
       loop
       muted
       playsInline
-      preload="auto"
+      preload="none"
       poster={poster}
       aria-hidden="true"
     >
