@@ -28,10 +28,10 @@ export function Navbar({
   onMyOrders,
 }) {
   const pathname = usePathname();
-  const [isBrowsePage, setIsBrowsePage] = useState(true);
+  const [isBrowsePage, setIsBrowsePage] = useState(false);
   useEffect(() => {
     const p = pathname || (typeof window !== 'undefined' ? window.location.pathname : '');
-    setIsBrowsePage(p === '/browse' || p.startsWith('/browse') || p === '/');
+    setIsBrowsePage(p === '/browse' || p === '/browse/' || p.startsWith('/browse?'));
   }, [pathname]);
   const cartIconRef = useContext(CartIconRefCtx);
   const { user, logout } = useAuth();
