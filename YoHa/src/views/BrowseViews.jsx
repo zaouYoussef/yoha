@@ -590,7 +590,14 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               )}
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+              {/* Card WOW Sur-Mesure Toujours en 1ère position */}
+              <Reveal delay={0}>
+                <Tilt max={5} className="rounded-3xl h-full">
+                  <CustomRestaurantCard onClick={() => setIsCustomModalOpen(true)} />
+                </Tilt>
+              </Reveal>
+
               {loading
                 ? Array.from({ length: 6 }).map((_, i) => <RestaurantSkeleton key={i} />)
                 : restaurantsError
@@ -1151,6 +1158,56 @@ export function EmptyState({ catalogEmpty, filter, onShowAll, onOpenCustomModal 
             🍰 Commander en sur-mesure (+20 MAD)
           </button>
         )}
+      </div>
+    </div>
+  );
+}
+
+export function CustomRestaurantCard({ onClick }) {
+  return (
+    <div
+      onClick={onClick}
+      className="group relative cursor-pointer rounded-3xl overflow-hidden bg-gradient-to-br from-amber-950 via-ink-900 to-black text-white border-2 border-amber-400/60 shadow-[0_10px_30px_rgba(249,115,22,0.25)] hover:shadow-[0_15px_40px_rgba(249,115,22,0.45)] hover:border-amber-400 transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between h-full min-h-[360px]"
+    >
+      <div className="relative aspect-[16/10] overflow-hidden">
+        <img
+          src="/custom_order_card.webp"
+          alt="Restaurant ou Pâtisserie sur-mesure"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/40 to-transparent" />
+        
+        {/* Top Badges */}
+        <div className="absolute top-3 left-3 flex items-center gap-2 flex-wrap z-10">
+          <span className="px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-brand-500 text-white text-[11px] font-black uppercase tracking-wider shadow-lg flex items-center gap-1.5 animate-pulse">
+            <span>✨</span> SUR-MESURE
+          </span>
+          <span className="px-2.5 py-1 rounded-full bg-black/80 backdrop-blur-md text-amber-300 text-[11px] font-black border border-amber-400/40">
+            +20 MAD
+          </span>
+        </div>
+
+        <div className="absolute bottom-3 left-4 right-4 z-10">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-amber-300">Pâtisserie · Restau non listé</div>
+          <h3 className="font-display font-black text-xl sm:text-2xl text-white leading-tight mt-0.5 group-hover:text-amber-300 transition-colors">
+            Établissement sur-mesure 🍰
+          </h3>
+        </div>
+      </div>
+
+      <div className="p-4 sm:p-5 flex flex-col justify-between gap-3 flex-1">
+        <p className="text-xs text-slate-300 leading-relaxed">
+          Sur-mesure • Pâtisserie • Envie spécifique • Hors partenaire. Le livreur apporte votre commande + le reçu officiel du commerce.
+        </p>
+
+        <div className="pt-3 border-t border-white/15 flex items-center justify-between text-xs gap-2">
+          <div className="text-amber-300 font-bold flex items-center gap-1">
+            <span>📍 Toute la ville de Tanger</span>
+          </div>
+          <span className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-brand-500 text-white font-bold shadow-glow group-hover:scale-105 transition-transform shrink-0">
+            Commander (+20 MAD) →
+          </span>
+        </div>
       </div>
     </div>
   );
