@@ -303,7 +303,6 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
           {!search && (
             <div className="flex gap-2.5 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
               {[
-                { label: 'Tout', emoji: '✨', id: 'all' },
                 { label: 'Offres', emoji: '🎁', id: 'offers' },
                 { label: 'Fast Food', emoji: '🍕', id: 'pizza' },
                 { label: 'Grillades', emoji: '🍗', id: 'grillades' },
