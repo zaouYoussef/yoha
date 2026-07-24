@@ -13,7 +13,16 @@ export const RESTAURANT_LOGO_FALLBACK =
   'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=160&q=80&auto=format&fit=crop';
 
 export function restaurantCover(url) {
-  return (typeof url === 'string' && url.trim()) ? url.trim() : RESTAURANT_COVER_FALLBACK;
+  if (typeof url === 'string' && url.trim()) {
+    const trimmed = url.trim();
+    if (trimmed.includes('custom-pharmacy')) return 'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=800&auto=format&fit=crop&q=80';
+    if (trimmed.includes('custom-supermarket')) return 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&auto=format&fit=crop&q=80';
+    if (trimmed.includes('custom-parapharmacy')) return 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800&auto=format&fit=crop&q=80';
+    if (trimmed.includes('custom-shop')) return 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&auto=format&fit=crop&q=80';
+    if (trimmed.includes('custom-patisserie')) return 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=800&auto=format&fit=crop&q=80';
+    return trimmed;
+  }
+  return RESTAURANT_COVER_FALLBACK;
 }
 
 export function restaurantLogo(url) {

@@ -433,7 +433,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                   {displayedList.map((r) => (
-                    <DeliverooCard key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                    <RestaurantCard key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
                   ))}
                 </div>
               )}
@@ -1302,6 +1302,8 @@ export function RestaurantCard({ restaurant, onClick }) {
     </div>
   );
 }
+
+export const DeliverooCard = RestaurantCard;
 
 export function RestaurantSkeleton() {
   return (
