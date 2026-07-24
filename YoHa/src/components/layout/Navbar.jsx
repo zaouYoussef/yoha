@@ -122,29 +122,17 @@ export function Navbar({
         </div>
 
         <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2.5">
-          {(!user || user.role === 'client') && (
-            isBrowsePage ? (
-              <button
-                type="button"
-                onClick={onMyOrders}
-                aria-label="Mes commandes"
-                title="Mes commandes"
-                className="cursor-grow px-3.5 py-2 rounded-xl hidden md:flex items-center gap-2 bg-ink-100/80 dark:bg-ink-800/60 text-ink-900 dark:text-white border border-ink-200/60 dark:border-ink-700/60 hover:border-brand-500/50 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300 text-xs sm:text-sm font-bold shadow-xs active:scale-95"
-              >
-                <I.Receipt size={17} className="text-brand-500 shrink-0" />
-                <span>Mes commandes</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={onMyOrders}
-                aria-label="Mes commandes"
-                title="Mes commandes"
-                className="cursor-grow w-10 h-10 rounded-xl hidden md:flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 text-ink-700 dark:text-ink-200"
-              >
-                <I.Receipt size={20}/>
-              </button>
-            )
+          {(!user || user.role === 'client') && isBrowsePage && (
+            <button
+              type="button"
+              onClick={onMyOrders}
+              aria-label="Mes commandes"
+              title="Mes commandes"
+              className="cursor-grow px-3.5 py-2 rounded-xl hidden md:flex items-center gap-2 bg-ink-100/80 dark:bg-ink-800/60 text-ink-900 dark:text-white border border-ink-200/60 dark:border-ink-700/60 hover:border-brand-500/50 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300 text-xs sm:text-sm font-bold shadow-xs active:scale-95"
+            >
+              <I.Receipt size={17} className="text-brand-500 shrink-0" />
+              <span>Mes commandes</span>
+            </button>
           )}
 
           {liveOrder && (
