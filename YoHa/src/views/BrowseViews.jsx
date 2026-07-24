@@ -1145,10 +1145,16 @@ export function RestaurantCard({ restaurant, onClick }) {
         </div>
 
         <div className="mt-3 pt-2.5 sm:mt-4 sm:pt-3 border-t border-ink-100 dark:border-ink-800/80 flex items-center justify-between text-[10px] sm:text-xs">
-          <div className="text-ink-500 dark:text-ink-400 flex items-center gap-1">
-            <I.MapPin size={12} className="text-ink-400 sm:w-3.5 sm:h-3.5" /> {restaurant.distance}
+          <div className="flex flex-col gap-0.5">
+            <div className="text-ink-500 dark:text-ink-400 flex items-center gap-1">
+              <I.MapPin size={12} className="text-ink-400 sm:w-3.5 sm:h-3.5" /> {restaurant.distance}
+            </div>
+            <div className="flex items-center gap-1.5 text-xs font-semibold mt-1">
+              <span className="line-through text-ink-400 font-normal">2,99 MAD</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">0,00 MAD de livraison</span>
+            </div>
           </div>
-          <div className="font-bold inline-flex items-center gap-0.5 text-brand-600 dark:text-brand-400">
+          <div className="font-bold inline-flex items-center gap-0.5 text-brand-600 dark:text-brand-400 shrink-0">
             Voir le menu <I.Right size={12} className="sm:w-3.5 sm:h-3.5" />
           </div>
         </div>
