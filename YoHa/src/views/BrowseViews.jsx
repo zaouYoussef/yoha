@@ -721,13 +721,14 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
   const [orderDetails, setOrderDetails] = useState('');
   const [isAdded, setIsAdded] = useState(false);
 
-  const themeGlow = CATEGORY_GLOW[r.cuisine] || '#f97316';
+  const tags = Array.isArray(r.tags) ? r.tags : [];
+  const totalItems = (r.menu || []).reduce((s, c) => s + (c.items?.length || 0), 0);
 
   const scrollToCat = (cat) => {
     setActiveCat(cat);
     const el = sectionRefs.current[cat];
     if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY - 180;
+      const top = el.getBoundingClientRect().top + window.scrollY - 140;
       window.scrollTo({ top, behavior:'smooth' });
     }
   };
@@ -739,161 +740,186 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
         cat: c.category,
         top: sectionRefs.current[c.category]?.getBoundingClientRect().top || 0
       }));
-      const visible = offsets.filter(o => o.top < 220).pop();
+      const visible = offsets.filter(o => o.top < 200).pop();
       if (visible) setActiveCat(visible.cat);
     };
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
   }, [r]);
 
+  const CUISINE_ICONS = {
+    pizza: '🍕', tacos: '🌮', kebab: '🥙', sushi: '🍣', burger: '🍔',
+    healthy: '🥗', asian: '🥢', dessert: '🍰', drinks: '🥤',
+    pharmacy: '💊', parapharmacy: '🧴', supermarket: '🛒', shop: '🛍️', medical: '⚕️',
+    patisserie: '🥐',
+  };
+
+  const populaires = (r.menu || []).flatMap(c =>
+    (c.items || []).filter(it => it.price > 12).slice(0, 4)
+  ).slice(0, 6);
+
   return (
-    <div className="page-enter">
-      {/* Dynamic Parallax-like Cover Image Header */}
-      <section className="relative h-[30vh] sm:h-[42vh] min-h-[220px] overflow-hidden group">
-        <img 
-          src={restaurantCover(r.cover)} 
-          alt={r.name} 
-          className="absolute inset-0 w-full h-full object-cover scale-105 transition-transform duration-[2000ms] will-change-transform"
+    <div className="page-enter bg-white dark:bg-ink-950 min-h-screen">
+      {/* Cover */}
+      <div className="relative h-[200px] sm:h-[280px] lg:h-[320px] overflow-hidden bg-ink-100 dark:bg-ink-900">
+        <img
+          src={restaurantCover(r.cover)}
+          alt={r.name}
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/15"></div>
-        
-        {/* Animated conically rotating glow mesh overlay in the cover */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.12)_0%,transparent_60%)] pointer-events-none mix-blend-screen animate-pulse" />
-
-        {/* Floating Back Button */}
-        <div className="absolute top-4 left-4 sm:left-6 z-20">
-          <button 
-            onClick={onBack} 
-            className="cursor-grow inline-flex items-center justify-center gap-2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 text-white border border-white/20 hover:bg-white/35 hover:border-white/40 active:scale-95 transition-transform shadow-lg shadow-black/20 text-sm sm:text-base font-bold"
-            title="Retour"
-          >
-            <I.Left size={18} stroke={3}/>
-          </button>
-        </div>
-      </section>
-
-      {/* Floating Glassmorphic Details Card overlapping Cover Image */}
-      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 -mt-20 sm:-mt-28">
-        <Tilt max={2} className="rounded-[2rem]">
-          <div 
-            style={{ '--glow-color': themeGlow }}
-            className="glass-strong rounded-[2rem] p-6 sm:p-8 shadow-cardhover border border-white/25 dark:border-ink-800/80 spotlight card-glow-hover transition-all duration-500"
-            onMouseMove={spotlightHandler}
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-              <div className="flex items-center gap-4 sm:gap-5 min-w-0">
-                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden border-4 border-white dark:border-ink-950 shadow-cardhover bg-white shrink-0">
-                  <img src={restaurantLogo(r.logo)} alt="" className="w-full h-full object-cover"/>
-                </div>
-                <div className="min-w-0">
-                  <h1 className="font-display font-black text-2xl sm:text-4xl tracking-tight text-ink-900 dark:text-white truncate text-glow-slow">
-                    {r.name}
-                  </h1>
-                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-sm text-ink-600 dark:text-ink-300">
-                    <span className="inline-flex items-center gap-1"><I.MapPin size={14} className="text-brand-500"/> {r.distance}</span>
-                    <span className="opacity-70">•</span>
-                    <span className="inline-flex items-center gap-1 text-brand-600 dark:text-brand-400 font-bold"><I.Bike size={14}/> {r.cuisine === 'pharmacy' || r.cuisine === 'dessert' ? 'Livraison 20 DH' : 'Livraison offerte'}</span>
-                    <span className="opacity-70">•</span>
-                    <span className={`inline-flex items-center gap-1.5 font-black uppercase tracking-wider text-[10px] px-2.5 py-1 rounded-full ${
-                      isOpen 
-                        ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20' 
-                        : 'bg-red-500/15 text-red-700 dark:text-red-300 border border-red-500/20'
-                    }`}>
-                      {isOpen ? (
-                        <>
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          Ouvert
-                        </>
-                      ) : (
-                        <>
-                          <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                          {openLabel}
-                        </>
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <p className="mt-4 text-ink-600 dark:text-ink-400 text-sm sm:text-base leading-relaxed max-w-4xl">
-              {r.description}
-            </p>
-          </div>
-        </Tilt>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        <button
+          onClick={onBack}
+          className="absolute top-3 left-3 sm:top-5 sm:left-5 z-20 w-10 h-10 rounded-full bg-white/90 dark:bg-ink-900/90 backdrop-blur flex items-center justify-center shadow-md hover:bg-white dark:hover:bg-ink-800 active:scale-95 transition"
+          title="Retour"
+        >
+          <I.Left size={18} />
+        </button>
       </div>
 
-      {/* Conditionally render sticky menu & items list or the custom form */}
-      {!r.isStatic ? (
-        <>
-          {/* Sticky Menu Navigation Bar */}
-          <div className="sticky top-16 z-30 bg-white/80 dark:bg-ink-950/80 backdrop-blur-xl border-b border-ink-200/60 dark:border-ink-800/60 mt-6 sm:mt-8">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 flex gap-1 overflow-x-auto no-scrollbar h-14 items-center">
-              {(r.menu || []).map(c => {
-                const active = activeCat === c.category;
-                return (
-                  <button 
-                    key={c.category} 
-                    onClick={() => scrollToCat(c.category)}
-                    className={`cursor-grow relative shrink-0 px-4 h-9 rounded-lg text-xs sm:text-sm font-semibold transition-colors duration-300 ${
-                      active
-                        ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10'
-                        : 'text-ink-500 dark:text-ink-400 hover:text-ink-700 dark:hover:text-white hover:bg-ink-100 dark:hover:bg-ink-800'
-                    }`}
-                  >
-                    {c.category}
-                    {active && (
-                      <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full bg-brand-500" />
-                    )}
-                  </button>
-                );
-              })}
+      {/* Info */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 -mt-10 relative z-10">
+        <div className="bg-white dark:bg-ink-900 rounded-2xl shadow-lg border border-ink-100 dark:border-ink-800 p-5 sm:p-6">
+          <div className="flex items-start gap-4">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 border-ink-100 dark:border-ink-800 bg-ink-50 dark:bg-ink-800 shrink-0">
+              <img src={restaurantLogo(r.logo)} alt="" className="w-full h-full object-cover" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h1 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white truncate">
+                {r.name}
+              </h1>
+              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-500 dark:text-ink-400">
+                {tags.map((t, i) => (
+                  <span key={i} className="flex items-center gap-1">
+                    {i > 0 && <span className="text-ink-300 dark:text-ink-600">·</span>}
+                    {t}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-ink-500 dark:text-ink-400">
+                <span className="flex items-center gap-1">
+                  <I.MapPin size={12} className="text-ink-400" /> {r.distance}
+                </span>
+                <span>·</span>
+                <span>{isOpen ? `Ouvre ${openLabel.toLowerCase()}` : openLabel}</span>
+                <span>·</span>
+                <span>Min. {formatMad(10, { decimals: 0 })}</span>
+              </div>
+              <div className="mt-2 flex items-center gap-3">
+                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
+                  <I.Star size={12} className="fill-emerald-500 text-emerald-500" />
+                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                    {(r.rating ?? 4.5).toString().replace('.', ',')}
+                  </span>
+                </div>
+                <span className="text-xs text-ink-500">Livraison {r.cuisine === 'pharmacy' || r.cuisine === 'shop' || r.cuisine === 'supermarket' ? '20' : '0,00'} MAD</span>
+              </div>
             </div>
           </div>
-
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-            {!isOpen && (
-              <div className="mb-8 rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/20 backdrop-blur-sm px-5 py-4 text-center">
-                <p className="font-display font-bold text-red-700 dark:text-red-300">🔒 Restaurant fermé</p>
-                <p className="mt-1 text-sm text-red-650/90 dark:text-red-300/80">{openLabel} — vous pouvez consulter le menu, la commande reprendra à l&apos;ouverture.</p>
-              </div>
-            )}
-            {(r.menu || []).map(cat => (
-              <div key={cat.category} ref={el => sectionRefs.current[cat.category] = el} className="mb-12 scroll-mt-44">
-                <h2 className="font-display font-extrabold text-xl sm:text-2xl mb-5 border-l-4 border-brand-500 pl-3">{cat.category}</h2>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {(cat.items || []).map((it, i) => (
-                    <Reveal key={it.db_id || it.id} delay={i*40}>
-                      <MenuItem item={it} restaurant={r} onAdd={onAdd} onOpen={() => setSelectedItem(it)} orderingDisabled={!isOpen} />
-                    </Reveal>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </section>
-
-          {selectedItem && (
-            <MenuItemDetailModal
-              item={selectedItem}
-              restaurant={r}
-              onClose={() => setSelectedItem(null)}
-              onAdd={onAdd}
-              orderingDisabled={!isOpen}
-            />
+          {r.description && (
+            <p className="mt-3 text-sm text-ink-500 dark:text-ink-400 leading-relaxed">
+              {r.name}, disponible en livraison directement chez vous ! {CUISINE_ICONS[r.cuisine] || '🍽️'} 🚴‍♂️
+            </p>
           )}
-        </>
+        </div>
+      </div>
+
+      {/* Category Tabs */}
+      {!r.isStatic && (r.menu || []).length > 0 && (
+        <div className="sticky top-14 z-30 bg-white dark:bg-ink-950 border-b border-ink-100 dark:border-ink-800 mt-4">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 flex gap-0.5 overflow-x-auto no-scrollbar h-12 items-center">
+            {(r.menu || []).map(c => {
+              const active = activeCat === c.category;
+              return (
+                <button
+                  key={c.category}
+                  onClick={() => scrollToCat(c.category)}
+                  className={`cursor-grow relative shrink-0 px-3 sm:px-4 h-9 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
+                    active
+                      ? 'text-ink-900 dark:text-white bg-ink-100 dark:bg-ink-800'
+                      : 'text-ink-400 dark:text-ink-500 hover:text-ink-600 dark:hover:text-ink-300'
+                  }`}
+                >
+                  {CUISINE_ICONS[c.category?.toLowerCase()] || ''} {c.category}
+                  {active && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-brand-500" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Content */}
+      {!r.isStatic ? (
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 pb-32">
+          {!isOpen && (
+            <div className="mb-6 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-500/5 px-4 py-3 text-center">
+              <p className="font-bold text-amber-700 dark:text-amber-300 text-sm">
+                🔒 Fermé — {openLabel}
+              </p>
+              <p className="text-xs text-amber-600/80 dark:text-amber-300/70 mt-0.5">
+                Vous pouvez consulter le menu, la commande reprendra à l&apos;ouverture.
+              </p>
+            </div>
+          )}
+
+          {/* Populaires */}
+          {populaires.length > 0 && (
+            <div className="mb-8">
+              <h2 className="font-display font-bold text-base sm:text-lg text-ink-900 dark:text-white mb-3">
+                Populaires
+              </h2>
+              <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
+                {populaires.map((it, i) => (
+                  <DeliverooItemCard
+                    key={it.db_id || it.id || i}
+                    item={it}
+                    restaurant={r}
+                    onAdd={onAdd}
+                    onOpen={() => setSelectedItem(it)}
+                    orderingDisabled={!isOpen}
+                    compact
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Menu Sections */}
+          {(r.menu || []).map(cat => (
+            <div key={cat.category} ref={el => sectionRefs.current[cat.category] = el} className="mb-10 scroll-mt-36">
+              <h2 className="font-display font-bold text-base sm:text-lg text-ink-900 dark:text-white mb-4">
+                {CUISINE_ICONS[cat.category?.toLowerCase()] || ''} {cat.category}
+              </h2>
+              <div className="space-y-0 divide-y divide-ink-100 dark:divide-ink-800/80">
+                {(cat.items || []).map((it, i) => (
+                  <DeliverooItemCard
+                    key={it.db_id || it.id || i}
+                    item={it}
+                    restaurant={r}
+                    onAdd={onAdd}
+                    onOpen={() => setSelectedItem(it)}
+                    orderingDisabled={!isOpen}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
         <section className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-          <div className="glass-card-premium rounded-3xl p-6 sm:p-8 border border-brand-500/10 shadow-lg">
-            <h2 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white mb-4">
+          <div className="rounded-2xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 p-6 sm:p-8 shadow-sm">
+            <h2 className="font-display font-bold text-xl text-ink-900 dark:text-white mb-3">
               📝 Commander sur-mesure
             </h2>
-            <p className="text-sm sm:text-base text-ink-600 dark:text-ink-400 leading-relaxed mb-6">
-              {r.cuisine === 'pharmacy' ? "Nous n'avons pas de menu pré-enregistré pour les pharmacies. Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
-               r.cuisine === 'parapharmacy' ? "Nous n'avons pas de menu pré-enregistré pour les parapharmacies. Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
-               r.cuisine === 'supermarket' ? "Nous n'avons pas de menu pré-enregistré pour les supermarchés. Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
-               r.cuisine === 'shop' ? "Nous n'avons pas de menu pré-enregistré pour les magasins. Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
-               "Nous n'avons pas de menu pré-enregistré pour les pâtisseries. Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !"}
+            <p className="text-sm text-ink-500 leading-relaxed mb-6">
+              {r.cuisine === 'pharmacy' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
+               r.cuisine === 'parapharmacy' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
+               r.cuisine === 'supermarket' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
+               r.cuisine === 'shop' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
+               "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !"}
             </p>
 
             <form onSubmit={(e) => {
@@ -906,10 +932,10 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 alert('Veuillez préciser votre commande.');
                 return;
               }
-              
+
               const customItem = {
                 id: `custom-${r.id}-${Date.now()}`,
-                name: r.isCustomRequest 
+                name: r.isCustomRequest
                   ? `[${storeName.trim()}] ${orderDetails.trim()}`
                   : `${r.name} - ${orderDetails.trim()}`,
                 price: 0,
@@ -938,86 +964,146 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
               setIsAdded(true);
               setTimeout(() => setIsAdded(false), 2000);
             }} className="space-y-4">
-              
               {r.isCustomRequest && (
                 <>
                   <label className="block space-y-1">
-                    <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">
-                      Nom de l&apos;établissement *
-                    </span>
-                    <input
-                      type="text"
-                      required
-                      value={storeName}
-                      onChange={(e) => setStoreName(e.target.value)}
-                      placeholder="Ex: Pharmacie du Progrès, Pâtisserie Paul..."
-                      className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-ink-900 dark:text-white"
-                    />
+                    <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">Nom de l&apos;établissement *</span>
+                    <input type="text" required value={storeName} onChange={(e) => setStoreName(e.target.value)}
+                      placeholder="Ex: Pharmacie du Progrès"
+                      className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-ink-900 dark:text-white" />
                   </label>
-                  
                   <label className="block space-y-1">
-                    <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">
-                      Adresse de l&apos;établissement *
-                    </span>
-                    <input
-                      type="text"
-                      required
-                      value={storeAddress}
-                      onChange={(e) => setStoreAddress(e.target.value)}
+                    <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">Adresse *</span>
+                    <input type="text" required value={storeAddress} onChange={(e) => setStoreAddress(e.target.value)}
                       placeholder="Ex: Boulevard Mohammed V, Tanger"
-                      className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-ink-900 dark:text-white"
-                    />
+                      className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-ink-900 dark:text-white" />
                   </label>
                 </>
               )}
-
               <label className="block space-y-1">
-                <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">
-                  Détaillez votre commande *
-                </span>
-                <textarea
-                  required
-                  value={orderDetails}
-                  onChange={(e) => setOrderDetails(e.target.value)}
+                <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">Détaillez votre commande *</span>
+                <textarea required value={orderDetails} onChange={(e) => setOrderDetails(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-ink-900 dark:text-white resize-none"
                   rows={4}
-                  placeholder={
-                    r.cuisine === 'pharmacy'
-                      ? "Ex: 2 boîtes de Doliprane 1000mg, 1 boîte de Spasfon, 1 sirop Toplexil..."
-                      : r.cuisine === 'parapharmacy'
-                      ? "Ex: Crème solaire SPF 50+, gel moussant Bioderma..."
-                      : r.cuisine === 'supermarket'
-                      ? "Ex: 2L de lait, 1kg de sucre, 1 paquet de café..."
-                      : r.cuisine === 'shop'
-                      ? "Ex: Chargeur iPhone USB-C, écouteurs, piles AA..."
-                      : "Ex: 1 boîte de 12 macarons, 1 tarte au citron pour 6 personnes..."
-                  }
-                />
+                  placeholder="Ex: 2 boîtes de Doliprane 1000mg, 1 boîte de Spasfon..." />
               </label>
-
-              {/* Informational Banner */}
-              <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4 text-xs sm:text-sm text-amber-800 dark:text-amber-300">
-                <p className="font-bold flex items-center gap-1.5 mb-1">
-                  <span>💵</span> Mode de tarification
-                </p>
-                <p className="leading-relaxed">
-                  Frais de livraison fixes de <b>20 DH</b> pour cette commande. Le prix d&apos;achat réel des articles sera ajouté directement à la livraison sur présentation du ticket de caisse.
-                </p>
+              <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs text-amber-800 dark:text-amber-300">
+                <p className="font-bold mb-0.5">💵 Frais de livraison fixes : 20 MAD</p>
+                <p>Le prix d&apos;achat réel sera ajouté à la livraison.</p>
               </div>
-
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-bold transition-colors shadow-md active:scale-[0.98]"
-                >
-                  <I.Bag size={18} />
-                  {isAdded ? 'Commande ajoutée !' : 'Ajouter à mon panier'}
-                </button>
-              </div>
+              <button type="submit"
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold transition shadow-md active:scale-[0.98]">
+                <I.Bag size={18} />
+                {isAdded ? 'Ajouté ! ✓' : 'Ajouter à mon panier'}
+              </button>
             </form>
           </div>
         </section>
       )}
+
+      {selectedItem && (
+        <MenuItemDetailModal
+          item={selectedItem}
+          restaurant={r}
+          onClose={() => setSelectedItem(null)}
+          onAdd={onAdd}
+          orderingDisabled={!isOpen}
+        />
+      )}
+    </div>
+  );
+}
+
+function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled = false, compact = false }) {
+  const [adding, setAdding] = useState(false);
+
+  const handleAdd = (e) => {
+    e.stopPropagation();
+    if (orderingDisabled) return;
+    onAdd(item, restaurant);
+    setAdding(true);
+    setTimeout(() => setAdding(false), 1200);
+  };
+
+  if (compact) {
+    return (
+      <button
+        type="button"
+        onClick={() => onOpen?.()}
+        className="cursor-grow shrink-0 w-[200px] sm:w-[220px] text-left group"
+      >
+        <div className="relative rounded-xl overflow-hidden bg-ink-50 dark:bg-ink-800 aspect-[4/3] border border-ink-100 dark:border-ink-800">
+          <MenuItemImage src={item.img} alt={item.name} loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          {item.price > 14 && (
+            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-white/90 dark:bg-ink-900/90 text-[10px] font-bold text-ink-900 dark:text-white shadow-sm">
+              Populaire
+            </span>
+          )}
+          {!orderingDisabled && (
+            <button
+              type="button"
+              onClick={handleAdd}
+              className={`absolute bottom-2 right-2 w-8 h-8 rounded-lg grid place-items-center text-sm font-bold shadow transition-all ${
+                adding
+                  ? 'bg-emerald-500 text-white scale-110'
+                  : 'bg-white dark:bg-ink-900 text-ink-900 dark:text-white hover:bg-brand-500 hover:text-white active:scale-95'
+              }`}
+            >
+              {adding ? '✓' : '+'}
+            </button>
+          )}
+        </div>
+        <div className="mt-2 px-0.5">
+          <h3 className="font-semibold text-sm text-ink-900 dark:text-white truncate group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+            {item.name}
+          </h3>
+          <p className="text-[11px] text-ink-400 dark:text-ink-500 line-clamp-1 mt-0.5">{item.desc}</p>
+          <div className="mt-1 font-bold text-sm text-ink-900 dark:text-white">{formatMad(item.price)}</div>
+        </div>
+      </button>
+    );
+  }
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpen?.()}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen?.(); } }}
+      className="flex gap-3 py-4 cursor-grow group"
+    >
+      <div className="flex-1 min-w-0">
+        <h3 className="font-semibold text-sm sm:text-base text-ink-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors line-clamp-2">
+          {item.name}
+        </h3>
+        <p className="text-xs text-ink-400 dark:text-ink-500 line-clamp-2 mt-1 leading-relaxed">{item.desc}</p>
+        <div className="mt-2 flex items-center gap-2">
+          <span className="font-bold text-sm text-ink-900 dark:text-white">{formatMad(item.price)}</span>
+          {!orderingDisabled && (
+            <button
+              type="button"
+              onClick={handleAdd}
+              className={`ml-auto w-8 h-8 rounded-lg grid place-items-center text-sm font-bold shadow-sm transition-all ${
+                adding
+                  ? 'bg-emerald-500 text-white scale-110'
+                  : 'bg-white dark:bg-ink-800 text-ink-900 dark:text-white border border-ink-200 dark:border-ink-700 hover:bg-brand-500 hover:text-white hover:border-brand-500 active:scale-95'
+              }`}
+            >
+              {adding ? '✓' : '+'}
+            </button>
+          )}
+        </div>
+      </div>
+      <div className="shrink-0 w-[100px] sm:w-[120px] h-[80px] sm:h-[90px] rounded-xl overflow-hidden bg-ink-50 dark:bg-ink-800 relative">
+        <MenuItemImage src={item.img} alt={item.name} loading="lazy"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        {item.price > 14 && (
+          <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-white/90 dark:bg-ink-900/90 text-[9px] font-bold text-ink-900 dark:text-white shadow-sm">
+            Populaire
+          </span>
+        )}
+      </div>
     </div>
   );
 }

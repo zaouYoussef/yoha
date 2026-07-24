@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useContext } from 'react';
+import { usePathname } from 'next/navigation';
 import { I } from '../../icons/Icons.jsx';
 import { Logo } from './Logo.jsx';
 import { Magnetic } from '../ui/Magnetic.jsx';
@@ -26,6 +27,8 @@ export function Navbar({
   onLiveOrder,
   onMyOrders,
 }) {
+  const pathname = usePathname();
+  const isBrowsePage = pathname === '/browse';
   const cartIconRef = useContext(CartIconRefCtx);
   const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
@@ -37,63 +40,70 @@ export function Navbar({
 
   return (
     <header className="fixed top-0 inset-x-0 z-40 transition-all duration-500 pointer-events-none">
-      <div className={`mx-auto flex h-14 sm:h-16 min-w-0 items-center gap-1 sm:gap-2 transition-all duration-500 pointer-events-auto ${
+      <div className={`mx-auto flex h-14 sm:h-16 min-w-0 items-center justify-between gap-1 sm:gap-2 transition-all duration-500 pointer-events-auto ${
         scrolled 
           ? 'w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] max-w-6xl mt-2 sm:mt-3 px-3 sm:px-6 rounded-2xl glass-card-premium shadow-cardhover border border-white/20 dark:border-white/5' 
           : 'w-full max-w-7xl px-3 sm:px-6 bg-transparent border-transparent'
       }`}>
-        <button onClick={onLogo} className="group flex min-w-0 shrink cursor-grow items-center gap-2">
-          <Logo />
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={onLogo} className="group flex min-w-0 shrink cursor-grow items-center gap-2">
+            <Logo />
+          </button>
 
-        <button
-          type="button"
-          onClick={onHome}
-          className="cursor-grow hidden md:inline-flex ml-4 items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
-        >
-          <span>🍔</span>
-          <span className="hidden lg:inline">Restos</span>
-        </button>
-        <button
-          type="button"
-          onClick={onPharmacy}
-          className="cursor-grow hidden md:inline-flex items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
-        >
-          <span>💊</span>
-          <span className="hidden lg:inline">Pharmacie</span>
-        </button>
-        <button
-          type="button"
-          onClick={onParapharmacy}
-          className="cursor-grow hidden md:inline-flex items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
-        >
-          <span>🌿</span>
-          <span className="hidden lg:inline">Parapharma</span>
-        </button>
-        <button
-          type="button"
-          onClick={onPastry}
-          className="cursor-grow hidden md:inline-flex items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
-        >
-          <span>🥐</span>
-          <span className="hidden lg:inline">Pâtisserie</span>
-        </button>
-        <button
-          type="button"
-          onClick={onSupermarket}
-          className="cursor-grow hidden md:inline-flex items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
-        >
-          <span>🛒</span>
-          <span className="hidden lg:inline">Supermarché</span>
-        </button>
-        <button
-          type="button"
-          onClick={onShop}
-          className="cursor-grow hidden md:inline-flex items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
-        >
-          <span>🛍️</span>
-          <span className="hidden lg:inline">Magasins</span>
-        </button>
+          {/* Affiché uniquement en dehors des pages de recherche /browse */}
+          {!isBrowsePage && (
+            <div className="hidden md:flex items-center gap-1 ml-4">
+              <button
+                type="button"
+                onClick={onHome}
+                className="cursor-grow items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
+              >
+                <span>🍔</span>
+                <span className="hidden lg:inline">Restos</span>
+              </button>
+              <button
+                type="button"
+                onClick={onPharmacy}
+                className="cursor-grow items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
+              >
+                <span>💊</span>
+                <span className="hidden lg:inline">Pharmacie</span>
+              </button>
+              <button
+                type="button"
+                onClick={onParapharmacy}
+                className="cursor-grow items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
+              >
+                <span>🌿</span>
+                <span className="hidden lg:inline">Parapharma</span>
+              </button>
+              <button
+                type="button"
+                onClick={onPastry}
+                className="cursor-grow items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
+              >
+                <span>🥐</span>
+                <span className="hidden lg:inline">Pâtisserie</span>
+              </button>
+              <button
+                type="button"
+                onClick={onSupermarket}
+                className="cursor-grow items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
+              >
+                <span>🛒</span>
+                <span className="hidden lg:inline">Supermarché</span>
+              </button>
+              <button
+                type="button"
+                onClick={onShop}
+                className="cursor-grow items-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium text-ink-700 dark:text-ink-200 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-300"
+              >
+                <span>🛍️</span>
+                <span className="hidden lg:inline">Magasins</span>
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="ml-auto flex min-w-0 items-center gap-1 sm:gap-2">
           {(!user || user.role === 'client') && (
@@ -102,9 +112,10 @@ export function Navbar({
               onClick={onMyOrders}
               aria-label="Mes commandes"
               title="Mes commandes"
-              className="cursor-grow w-10 h-10 rounded-xl hidden md:flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 text-ink-700 dark:text-ink-200"
+              className="cursor-grow px-3 py-2 rounded-xl hidden md:flex items-center gap-1.5 hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 text-ink-700 dark:text-ink-200 text-sm font-semibold"
             >
-              <I.Receipt size={20}/>
+              <I.Receipt size={18}/>
+              <span className="hidden lg:inline">Mes commandes</span>
             </button>
           )}
 
@@ -155,9 +166,11 @@ export function Navbar({
             </button>
           )}
 
+          {/* Mode Sombre */}
           <button
             onClick={() => setDark(d => !d)}
             aria-label="Changer le thème"
+            title="Mode sombre / clair"
             className="cursor-grow relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 group text-ink-700 dark:text-ink-200"
           >
             <span className={`absolute transition-all duration-500 ${dark ? 'opacity-0 -rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'}`}>
@@ -168,7 +181,14 @@ export function Navbar({
             </span>
           </button>
 
-          <button ref={cartIconRef} onClick={onCart} className={`cursor-grow relative w-10 h-10 rounded-xl hidden md:flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 text-ink-700 dark:text-ink-200 ${cartShake ? 'cart-shake' : ''}`}>
+          {/* Panier */}
+          <button 
+            ref={cartIconRef} 
+            onClick={onCart} 
+            aria-label="Voir le panier"
+            title="Voir le panier"
+            className={`cursor-grow relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-300 text-ink-700 dark:text-ink-200 ${cartShake ? 'cart-shake' : ''}`}
+          >
             <I.Cart size={20}/>
             {cartCount > 0 && (
               <span key={cartCount} className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white grid place-items-center animate-pop shadow-glow">
@@ -177,6 +197,7 @@ export function Navbar({
             )}
           </button>
 
+          {/* Connexion / Compte */}
           {user ? (
             <>
               <div className="hidden sm:flex items-center gap-2 ml-1">
