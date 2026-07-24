@@ -305,12 +305,15 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               {[
                 { label: 'Tout', emoji: '✨', id: 'all' },
                 { label: 'Offres', emoji: '🎁', id: 'offers' },
-                { label: 'Restaurants', emoji: '🍽️', id: 'all_resto' },
-                { label: 'Pâtisseries', emoji: '🥐', id: 'dessert' },
+                { label: 'Fast Food', emoji: '🍕', id: 'pizza' },
+                { label: 'Grillades', emoji: '🍗', id: 'grillades' },
+                { label: 'Cuisine du monde', emoji: '🍣', id: 'sushi' },
+                { label: 'Healthy', emoji: '🥗', id: 'healthy' },
+                { label: 'Petit-déjeuner', emoji: '☕', id: 'breakfast' },
+                { label: 'Sucré', emoji: '🍰', id: 'dessert' },
+                { label: 'Boissons', emoji: '🧋', id: 'drinks' },
                 { label: 'Pharmacies', emoji: '💊', id: 'pharmacy' },
-                { label: 'Parapharma', emoji: '🌿', id: 'parapharmacy' },
                 { label: 'Supermarchés', emoji: '🛒', id: 'supermarket' },
-                { label: 'Magasins', emoji: '🛍️', id: 'shop' },
               ].map((s) => {
                 const active = filter === s.id || (s.id === 'all' && filter === 'all');
                 return (

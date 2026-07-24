@@ -1,5 +1,5 @@
 export { CUISINES } from './cuisines.js';
-export { CATEGORIES_BANNERS } from './categories.js';
+export { CATEGORIES_BANNERS, CATEGORY_GROUPS } from './categories.js';
 export { FEATURES } from './features.jsx';
 export { TESTIMONIALS } from './testimonials.js';
 export { HOW_STEPS } from './howSteps.jsx';
