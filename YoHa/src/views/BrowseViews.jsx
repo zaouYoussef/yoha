@@ -959,21 +959,196 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
 
               <div className="pt-2">
                 <button
+                  type="submit"
+                  className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-bold transition-colors shadow-md active:scale-[0.98]"
+                >
+                  <I.Bag size={18} />
+                  {isAdded ? 'Commande ajoutée !' : 'Ajouter à mon panier'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+      )}
+    </div>
   );
 }
 
-export function RestaurantSkeleton() {
+export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = false }) {
+  const [adding, setAdding] = useState(false);
+  const imgRef = useRef();
+
+  const handleAdd = (e) => {
+    e.stopPropagation();
+    if (orderingDisabled) return;
+    onAdd(item, restaurant, imgRef.current);
+    setAdding(true);
+    setTimeout(() => setAdding(false), 1200);
+  };
+
+  const isBestseller = item.price > 80;
+  const itemGlow = CATEGORY_GLOW[restaurant.cuisine] || '#f97316';
+
   return (
-    <div className="bg-white dark:bg-ink-900 rounded-3xl overflow-hidden border border-ink-200/60 dark:border-ink-800 shadow-sm animate-pulse">
-      <div className="aspect-[16/10] bg-ink-200 dark:bg-ink-800/50 skeleton"></div>
-      <div className="p-5 space-y-3">
-        <div className="h-5 w-2/3 rounded bg-ink-200 dark:bg-ink-800/50 skeleton"></div>
-        <div className="h-3.5 w-1/2 rounded bg-ink-200 dark:bg-ink-800/50 skeleton"></div>
-        <div className="h-3 w-3/4 rounded bg-ink-200 dark:bg-ink-800/50 skeleton"></div>
+    <Tilt max={4} className="rounded-2xl">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => onOpen?.()}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen?.(); } }}
+        style={{ '--glow-color': itemGlow }}
+        className="cursor-grow group relative bg-white dark:bg-ink-900 rounded-2xl overflow-hidden border border-ink-200/50 dark:border-ink-800/80 shadow-card hover:shadow-cardhover transition-all duration-300 spotlight hover:border-brand-500/20 card-glow-hover"
+        onMouseMove={spotlightHandler}
+      >
+        <div className="flex p-3 gap-3">
+          <div ref={imgRef} className="menu-img relative shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shadow-sm border border-ink-100 dark:border-ink-900">
+            <MenuItemImage src={item.img} alt={item.name} loading="lazy"
+              className="w-full h-full object-cover transition-transform duration-700" />
+            {isBestseller && (
+              <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-glow tracking-wider animate-pulse">
+                Populaire
+              </span>
+            )}
+          </div>
+          <div className="flex-1 min-w-0 flex flex-col">
+            <h3 className="font-display font-bold text-sm sm:text-base leading-tight text-ink-900 dark:text-white line-clamp-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{item.name}</h3>
+            <p className="mt-1 text-[11px] sm:text-xs text-ink-500 dark:text-ink-400 line-clamp-2 leading-relaxed">{item.desc}</p>
+            <div className="mt-auto pt-2 flex items-center justify-between">
+              <div className="font-display font-black text-base sm:text-lg text-ink-900 dark:text-white">{formatMad(item.price)}</div>
+              <button
+                type="button"
+                onClick={handleAdd}
+                disabled={orderingDisabled}
+                title={orderingDisabled ? 'Restaurant fermé' : 'Ajouter au panier'}
+                className={`cursor-grow relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl grid place-items-center transition-transform ${
+                  orderingDisabled
+                    ? 'bg-ink-200 text-ink-400 dark:bg-ink-800 dark:text-ink-500 cursor-not-allowed'
+                    : adding
+                      ? 'bg-emerald-500 text-white shadow-glow scale-110'
+                      : 'bg-ink-900 text-white dark:bg-white dark:text-ink-900 hover:bg-brand-500 hover:text-white dark:hover:bg-brand-500 dark:hover:text-white active:scale-95 shadow-md'
+                }`}
+              >
+                {adding ? <I.Check size={18} stroke={3}/> : <I.Plus size={18} stroke={3}/>}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Tilt>
+  );
+}
+
+export function DeliverooCard({ restaurant, onClick }) {
+  const open = isRestaurantOpen(restaurant);
+  const isCustom = restaurant.isCustomRequest;
+  const rating = (restaurant.rating ?? 4.8).toString().replace('.', ',');
+  const reviews = restaurant.reviewsCount || Math.floor((restaurant.rating || 4.8) * 65);
+
+  return (
+    <div
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
+      className={`group relative cursor-pointer text-left w-full rounded-2xl overflow-hidden bg-white dark:bg-ink-900 border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between ${
+        isCustom 
+          ? 'border-2 border-amber-400/80 shadow-[0_4px_25px_rgba(245,158,11,0.2)]'
+          : 'border-ink-200/70 dark:border-ink-800'
+      }`}
+    >
+      <div className="relative aspect-[16/9] overflow-hidden bg-ink-100 dark:bg-ink-950">
+        <img
+          src={restaurantCover(restaurant.cover)}
+          alt={restaurant.name}
+          loading="lazy"
+          className={`w-full h-full object-cover transition-transform duration-500 ${
+            !open ? 'filter blur-sm grayscale opacity-70' : 'group-hover:scale-105'
+          }`}
+        />
+
+        {/* Closed Overlay */}
+        {!open && (
+          <div className="absolute inset-0 bg-ink-950/50 backdrop-blur-[2px] flex flex-col items-center justify-center text-white z-20">
+            <span className="bg-ink-950/85 border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              Fermé · Réouverture demain
+            </span>
+          </div>
+        )}
+
+        {/* Favorite Heart Button */}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); }}
+          className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/85 dark:bg-black/65 backdrop-blur-md flex items-center justify-center text-ink-700 dark:text-white hover:scale-110 active:scale-95 transition-transform shadow-md z-10"
+          aria-label="Ajouter aux favoris"
+        >
+          <I.Heart size={16} className="hover:text-red-500 transition-colors" />
+        </button>
+
+        {/* ETA Badge (Bottom Right of Image) */}
+        <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-xl bg-white/95 dark:bg-ink-950/95 text-ink-900 dark:text-white font-extrabold text-xs shadow-md border border-ink-100 dark:border-ink-800 flex items-center gap-1 z-10">
+          <span>{restaurant.eta || '25 min'}</span>
+        </div>
+
+        {/* Top-Left Promo / Custom Badge */}
+        {isCustom ? (
+          <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-brand-500 text-white font-black text-[11px] uppercase tracking-wider shadow-md animate-pulse z-10">
+            ✨ SUR-MESURE (+20 MAD)
+          </div>
+        ) : restaurant.promo && open ? (
+          <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-brand-500 text-white font-bold text-[11px] shadow-md z-10">
+            Sponsorisé
+          </div>
+        ) : null}
+      </div>
+
+      <div className="p-3.5 flex flex-col justify-between gap-1.5 flex-1">
+        {/* Title */}
+        <h3 className={`font-display font-black text-base truncate transition-colors ${
+          isCustom ? 'text-amber-900 dark:text-amber-300' : 'text-ink-900 dark:text-white group-hover:text-brand-500'
+        }`}>
+          {restaurant.name}
+        </h3>
+
+        {/* Rating • Reviews • Distance • Speed */}
+        <div className="flex items-center gap-1.5 text-xs text-ink-600 dark:text-ink-300 flex-wrap">
+          <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
+            ★ {rating}
+          </span>
+          <span className="text-ink-400">({reviews})</span>
+          <span>•</span>
+          <span>{restaurant.distance}</span>
+          <span>•</span>
+          <span className="font-medium text-ink-500">Rapide</span>
+        </div>
+
+        {/* Delivery Fee Line */}
+        <div className="flex items-center gap-1.5 text-xs">
+          <span className="line-through text-ink-400">15 DH</span>
+          <span className="font-bold text-emerald-600 dark:text-emerald-400">0,00 DH de livraison</span>
+        </div>
+
+        {/* Offer / Promo Pill */}
+        {isCustom ? (
+          <div className="mt-1 inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-bold text-[11px] border border-amber-200 dark:border-amber-800">
+            🍰 Commandez dans l&apos;établissement de votre choix à Tanger
+          </div>
+        ) : restaurant.promo ? (
+          <div className="mt-1 inline-flex items-center px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-bold text-[11px]">
+            🏷️ {restaurant.promo}
+          </div>
+        ) : (
+          <div className="mt-1 inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold text-[11px]">
+            ⚡ Sélection YoHa Campus
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+export const RestaurantCard = DeliverooCard;
 
 export function EmptyState({ catalogEmpty, filter, onShowAll, onOpenCustomModal }) {
   return (
