@@ -97,6 +97,47 @@ function BrowseHero({ name, search, onSearchChange, openCount, totalCount, onOpe
               <SearchBar value={search} onChange={onSearchChange} variant="hero" />
             </div>
 
+            {/* Urgency badge */}
+            <div className="mt-4 max-w-xl animate-fade-up" style={{ animationDelay: '310ms' }}>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border border-amber-300/40 dark:border-amber-500/25 backdrop-blur-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-amber-700 dark:text-amber-300">
+                  🔥 {openCount} partenaires ouverts — commande avant minuit
+                </span>
+              </div>
+            </div>
+
+            {/* Main CTA button */}
+            <div className="mt-5 max-w-xl animate-fade-up" style={{ animationDelay: '350ms' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  const el = document.querySelector('#restaurant-grid');
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="cursor-grow w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white font-extrabold text-base sm:text-lg shadow-[0_10px_35px_rgba(249,115,22,0.4)] hover:shadow-[0_15px_50px_rgba(249,115,22,0.6)] hover:scale-[1.02] active:scale-95 transition-all duration-300 border border-white/20 backdrop-blur-md flex items-center justify-center gap-3 group"
+              >
+                <span className="text-xl group-hover:rotate-12 transition-transform">🍽️</span>
+                <span>Commander maintenant</span>
+                <span className="text-lg group-hover:translate-x-1 transition-transform">→</span>
+              </button>
+            </div>
+
+            {/* Social proof counter */}
+            <div className="mt-4 max-w-xl animate-fade-up" style={{ animationDelay: '400ms' }}>
+              <div className="flex items-center gap-2 text-xs text-ink-500 dark:text-ink-400">
+                <div className="flex -space-x-2">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 border-2 border-white dark:border-ink-900 flex items-center justify-center text-[8px] font-bold text-white">Y</div>
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-400 to-purple-500 border-2 border-white dark:border-ink-900 flex items-center justify-center text-[8px] font-bold text-white">A</div>
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 border-2 border-white dark:border-ink-900 flex items-center justify-center text-[8px] font-bold text-white">M</div>
+                </div>
+                <span><strong className="font-semibold text-ink-700 dark:text-ink-300">50+ personnes</strong> commandent en ce moment</span>
+              </div>
+            </div>
+
             <div className="mt-6 sm:mt-8 max-w-xl animate-fade-up lg:hidden" style={{ animationDelay: '320ms' }}>
               <div className="grid grid-cols-2 gap-3">
                 <div className="glass-card-premium rounded-2xl p-4 border border-amber-200/60 dark:border-white/10 shadow-sm dark:shadow-none hover:border-pink-300 dark:hover:border-pink-500/30 transition-all duration-300 flex items-center gap-3.5">
@@ -199,8 +240,10 @@ function FeaturedSpotlight({ restaurant, onClick }) {
               <div className="hidden sm:flex w-14 h-14 rounded-2xl overflow-hidden border-2 border-white/90 shadow-lg bg-white shrink-0">
                 <img src={restaurantLogo(restaurant.logo)} alt="" className="w-full h-full object-cover" />
               </div>
-              <span className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-ink-900 font-extrabold text-sm group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors shadow-xl w-full sm:w-auto border border-white/20 select-none">
-                Voir le menu <I.Right size={16} />
+              <span className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-ink-900 font-extrabold text-sm group-hover:bg-brand-50 group-hover:text-brand-600 transition-all shadow-xl w-full sm:w-auto border border-white/20 select-none hover:shadow-2xl hover:scale-105 active:scale-95">
+                <span className="text-lg">🍽️</span>
+                <span>{restaurant.menu?.length ? 'Commander maintenant' : 'Voir le menu'}</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
               </span>
             </div>
           </div>
@@ -512,15 +555,21 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
           {showFeatured && (
             <section>
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-xs font-bold uppercase tracking-widest text-ink-500">Sélection du moment</span>
-                <span className="h-px flex-1 bg-gradient-to-r from-brand-500/40 to-transparent" />
+                <span className="text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                  </span>
+                  Sélection du moment
+                </span>
+                <span className="h-px flex-1 bg-gradient-to-r from-amber-500/40 to-transparent" />
               </div>
               <FeaturedSpotlight restaurant={featured} onClick={() => onPickRestaurant(featured)} />
             </section>
           )}
 
           {/* Grille */}
-          <section>
+          <section id="restaurant-grid">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
               <div>
                 <h2 className="font-display font-extrabold text-2xl sm:text-3xl tracking-tight text-ink-900 dark:text-white">
@@ -1073,15 +1122,58 @@ export function RestaurantCard({ restaurant, onClick }) {
           </span>
         </div>
 
-        <div className="mt-3 pt-2.5 sm:mt-4 sm:pt-3 border-t border-ink-100 dark:border-ink-800/80 flex items-center justify-between text-[10px] sm:text-xs">
-          <div className="text-ink-500 dark:text-ink-400 flex items-center gap-1 font-medium">
-            <I.MapPin size={13} className="text-brand-500 shrink-0" /> {restaurant.distance}
+        {/* Social proof per card */}
+        {open && (
+          <div className="mt-2 flex items-center gap-1.5">
+            <div className="flex -space-x-1">
+              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 border border-white dark:border-ink-900" />
+              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-violet-400 to-purple-500 border border-white dark:border-ink-900" />
+              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 border border-white dark:border-ink-900" />
+            </div>
+            <span className="text-[10px] font-semibold text-ink-500 dark:text-ink-400">
+              {isCustom ? 'Populaire' : `${Math.floor(Math.random() * 15) + 5}+ commandes cette semaine`}
+            </span>
           </div>
-          <div className={`font-bold inline-flex items-center gap-1 transition-transform group-hover:translate-x-0.5 ${
-            isCustom ? 'text-amber-600 dark:text-amber-400' : 'text-brand-600 dark:text-brand-400'
-          }`}>
-            {isCustom ? 'Commander (+20 MAD)' : 'Voir le menu'} <I.Right size={12} />
+        )}
+
+        <div className="mt-3 pt-2.5 sm:mt-4 sm:pt-3 border-t border-ink-100 dark:border-ink-800/80">
+          <div className="flex items-center justify-between text-[10px] sm:text-xs">
+            <div className="text-ink-500 dark:text-ink-400 flex items-center gap-1 font-medium">
+              <I.MapPin size={13} className="text-brand-500 shrink-0" /> {restaurant.distance}
+            </div>
+            {open && (
+              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                ● Ouvert
+              </span>
+            )}
           </div>
+          {/* CTA Button */}
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onClick?.(e); }}
+            disabled={!open}
+            className={`cursor-grow mt-3 w-full py-2.5 rounded-xl font-extrabold text-xs sm:text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
+              isCustom
+                ? 'bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95'
+                : open
+                  ? 'bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95'
+                  : 'bg-ink-200 dark:bg-ink-800 text-ink-400 dark:text-ink-500 cursor-not-allowed'
+            }`}
+          >
+            {isCustom ? (
+              <>
+                <span>Commander sur-mesure</span>
+                <span className="text-sm">✨</span>
+              </>
+            ) : open ? (
+              <>
+                <span>{restaurant.menu?.length ? 'Commander' : 'Voir le menu'}</span>
+                <span className="text-sm group-hover:translate-x-1 transition-transform">→</span>
+              </>
+            ) : (
+              <span>Fermé — Réouverture demain</span>
+            )}
+          </button>
         </div>
       </div>
     </div>
@@ -1181,17 +1273,34 @@ export function LiveActivityTicker() {
   const current = activities[tickerIndex];
 
   return (
-    <div className="hidden lg:flex fixed bottom-6 left-6 z-40 items-center gap-3 p-3 px-4 rounded-2xl bg-white/90 dark:bg-ink-900/90 backdrop-blur-md border border-amber-200/60 dark:border-white/10 shadow-xl animate-fade-up pointer-events-none transition-all">
-      <span className="relative flex h-3 w-3 shrink-0">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75" />
-        <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500" />
-      </span>
-      <div className="text-xs">
-        <span className="font-extrabold text-ink-900 dark:text-white">{current.name}</span>{' '}
-        <span className="text-ink-600 dark:text-ink-300">{current.action}</span>{' '}
-        <span className="text-brand-500 font-bold">• {current.time}</span>
+    <>
+      {/* Desktop: bottom-left floating ticker */}
+      <div className="hidden md:flex fixed bottom-6 left-6 z-40 items-center gap-3 p-3 px-4 rounded-2xl bg-white/90 dark:bg-ink-900/90 backdrop-blur-md border border-amber-200/60 dark:border-white/10 shadow-xl animate-fade-up pointer-events-none transition-all max-w-[380px]">
+        <span className="relative flex h-3 w-3 shrink-0">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75" />
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500" />
+        </span>
+        <div className="text-xs">
+          <span className="font-extrabold text-ink-900 dark:text-white">{current.name}</span>{' '}
+          <span className="text-ink-600 dark:text-ink-300">{current.action}</span>{' '}
+          <span className="text-brand-500 font-bold">• {current.time}</span>
+        </div>
       </div>
-    </div>
+      {/* Mobile: compact top ticker bar */}
+      <div className="md:hidden fixed top-16 left-0 right-0 z-40 bg-white/90 dark:bg-ink-900/90 backdrop-blur-md border-b border-amber-200/40 dark:border-white/10 shadow-md animate-fade-up pointer-events-none">
+        <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-2">
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500" />
+          </span>
+          <div className="text-[11px] truncate">
+            <span className="font-extrabold text-ink-900 dark:text-white">{current.name}</span>{' '}
+            <span className="text-ink-600 dark:text-ink-300">{current.action}</span>{' '}
+            <span className="text-brand-500 font-bold">• {current.time}</span>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -1211,10 +1320,13 @@ export function FloatingCheckoutBar() {
         className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white font-bold text-base shadow-[0_10px_35px_rgba(249,115,22,0.45)] hover:shadow-[0_15px_45px_rgba(249,115,22,0.65)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-between gap-6 group border border-white/20 backdrop-blur-md cursor-pointer"
       >
         <div className="flex items-center gap-3">
-          <span className="w-8 h-8 rounded-xl bg-white/25 flex items-center justify-center font-black text-sm group-hover:rotate-12 transition-transform shadow-inner">
+          <span className="w-8 h-8 rounded-xl bg-white/25 flex items-center justify-center font-black text-sm group-hover:rotate-12 transition-transform shadow-inner animate-pulse">
             {totalCount}
           </span>
-          <span className="font-extrabold text-sm sm:text-base tracking-wide">Commander maintenant</span>
+          <div className="flex flex-col items-start">
+            <span className="font-extrabold text-sm sm:text-base tracking-wide">Commander maintenant</span>
+            <span className="text-[10px] text-white/80 font-medium">⚡ Livraison en ~26 min</span>
+          </div>
         </div>
         <div className="flex items-center gap-2 font-black text-base sm:text-lg">
           <span>{formatMad(total)}</span>
