@@ -1298,9 +1298,12 @@ export function FlyingBurgerShowcase() {
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500/60" />
               </div>
               <img 
-                src="/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d.png" 
+                src="/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d.webp" 
                 alt="Figma Desktop Mockup" 
                 className="w-full h-full object-cover"
+                loading="lazy"
+                width={800}
+                height={500}
               />
             </div>
 
@@ -1317,9 +1320,12 @@ export function FlyingBurgerShowcase() {
                 <span className="w-6 h-0.5 bg-white/10 rounded-full" />
               </div>
               <img 
-                src="/burger-img/e2b24f321f9ea9e999a0c4675aa5c3c96f9ef6ca.png" 
+                src="/burger-img/e2b24f321f9ea9e999a0c4675aa5c3c96f9ef6ca.webp" 
                 alt="Figma Mobile Mockup" 
                 className="w-full h-full object-cover"
+                loading="lazy"
+                width={170}
+                height={360}
               />
             </div>
           </div>

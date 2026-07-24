@@ -812,11 +812,11 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                   ? `[${storeName.trim()}] ${orderDetails.trim()}`
                   : `${r.name} - ${orderDetails.trim()}`,
                 price: 0,
-                img: r.cuisine === 'pharmacy' ? '/media/restaurants/custom-pharmacy.png' :
-                     r.cuisine === 'parapharmacy' ? '/media/restaurants/custom-parapharmacy.png' :
-                     r.cuisine === 'supermarket' ? '/media/restaurants/custom-supermarket.png' :
-                     r.cuisine === 'shop' ? '/media/restaurants/custom-shop.png' :
-                     '/media/restaurants/custom-patisserie.png',
+                img: r.cuisine === 'pharmacy' ? '/media/restaurants/custom-pharmacy.webp' :
+                     r.cuisine === 'parapharmacy' ? '/media/restaurants/custom-parapharmacy.webp' :
+                     r.cuisine === 'supermarket' ? '/media/restaurants/custom-supermarket.webp' :
+                     r.cuisine === 'shop' ? '/media/restaurants/custom-shop.webp' :
+                     '/media/restaurants/custom-patisserie.webp',
                 restaurantId: r.id,
                 restaurantName: r.isCustomRequest ? storeName.trim() : r.name,
                 restaurantCuisine: r.cuisine,
