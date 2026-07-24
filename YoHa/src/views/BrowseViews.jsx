@@ -264,16 +264,30 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   const promoRestaurants = useMemo(() => catalog.filter(r => r.promo && isRestaurantOpen(r)), [catalog]);
   const popularRestaurants = useMemo(() => {
     const open = catalog.filter(r => isRestaurantOpen(r));
-    return open.sort((a, b) => (b.rating ?? 4.8) - (a.rating ?? 4.8)).slice(0, 12);
+    return open.sort((a, b) => (b.rating ?? 4.8) - (a.rating ?? 4.8));
   }, [catalog]);
-  const fastDelivery = useMemo(() => catalog.filter(r => isRestaurantOpen(r)).slice(0, 10), [catalog]);
+  const fastDelivery = useMemo(() => catalog.filter(r => isRestaurantOpen(r)), [catalog]);
   const dessertItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'dessert' || s.cuisine === 'patisserie'), []);
   const pharmacyItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'pharmacy'), []);
   const paraItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'parapharmacy'), []);
   const marketItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'supermarket'), []);
   const shopItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'shop'), []);
 
-  const isNonFoodFilter = ['dessert', 'patisserie', 'pharmacy', 'parapharmacy', 'supermarket', 'shop'].includes(filter);
+  const displayedList = useMemo(() => {
+    if (filter === 'offers') return promoRestaurants;
+    if (filter === 'popular') return popularRestaurants;
+    if (filter === 'fast') return fastDelivery;
+    if (filter === 'dessert' || filter === 'patisserie') return dessertItems;
+    if (filter === 'pharmacy') return pharmacyItems;
+    if (filter === 'parapharmacy') return paraItems;
+    if (filter === 'supermarket') return marketItems;
+    if (filter === 'shop') return shopItems;
+    if (['pizza', 'tacos', 'kebab', 'healthy', 'burger', 'sushi', 'asian'].includes(filter)) {
+      return catalog.filter(r => r.cuisine === filter);
+    }
+    return restaurants;
+  }, [filter, promoRestaurants, popularRestaurants, fastDelivery, dessertItems, pharmacyItems, paraItems, marketItems, shopItems, catalog, restaurants]);
+
   const isDefault = filter === 'all' && !search.trim();
 
   return (
@@ -290,6 +304,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             <div className="flex gap-2.5 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
               {[
                 { label: 'Tout', emoji: '✨', id: 'all' },
+                { label: 'Offres', emoji: '🎁', id: 'offers' },
                 { label: 'Restaurants', emoji: '🍽️', id: 'all_resto' },
                 { label: 'Pâtisseries', emoji: '🥐', id: 'dessert' },
                 { label: 'Pharmacies', emoji: '💊', id: 'pharmacy' },
@@ -297,7 +312,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 { label: 'Supermarchés', emoji: '🛒', id: 'supermarket' },
                 { label: 'Magasins', emoji: '🛍️', id: 'shop' },
               ].map((s) => {
-                const active = isNonFoodFilter ? filter === s.id : (s.id === 'all' ? filter === 'all' : false);
+                const active = filter === s.id || (s.id === 'all' && filter === 'all');
                 return (
                   <button
                     key={s.id}
@@ -375,29 +390,56 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             </section>
           )}
 
-          {/* ═══ NON-FOOD HORIZONTAL ROWS ═══ */}
-          {isNonFoodFilter && (
-            <>
-              <HorizontalRow
-                title={`${filter === 'pharmacy' ? '💊 Pharmacies' : filter === 'parapharmacy' ? '🌿 Parapharmacie' : filter === 'supermarket' ? '🛒 Supermarchés' : filter === 'shop' ? '🛍️ Magasins' : '🥐 Pâtisseries'}`}
-                count={restaurants.length}
-              >
-                {loading
-                  ? Array.from({ length: 4 }).map((_, i) => <RestaurantCardSkeletonHorizontal key={i} />)
-                  : restaurants.map((r) => (
-                      <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                    ))
-                }
-              </HorizontalRow>
+          {/* ═══ FILTERED / CATEGORY GRID VIEW ═══ */}
+          {(filter !== 'all' || search.trim()) && (
+            <section className="px-4 sm:px-0">
+              <div className="flex items-center justify-between mb-6 pb-3 border-b border-ink-100 dark:border-ink-800">
+                <div>
+                  <h2 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white flex items-center gap-2">
+                    <span>
+                      {filter === 'offers' ? '🎁 Offres près de chez vous' :
+                       filter === 'popular' ? '🔥 Populaires dans votre quartier' :
+                       filter === 'fast' ? '⚡ Livraison la plus rapide' :
+                       filter === 'dessert' || filter === 'patisserie' ? '🥐 Pâtisseries' :
+                       filter === 'pharmacy' ? '💊 Pharmacies' :
+                       filter === 'parapharmacy' ? '🌿 Parapharmacies' :
+                       filter === 'supermarket' ? '🛒 Supermarchés' :
+                       filter === 'shop' ? '🛍️ Magasins' :
+                       `Résultats pour « ${search} »`}
+                    </span>
+                  </h2>
+                  <p className="text-xs sm:text-sm text-ink-500 dark:text-ink-400 mt-1">
+                    {displayedList.length} établissement{displayedList.length > 1 ? 's' : ''} disponible{displayedList.length > 1 ? 's' : ''}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setFilter('all'); setSearch(''); }}
+                  className="cursor-grow px-3.5 py-2 rounded-xl bg-ink-100 dark:bg-ink-800 text-ink-900 dark:text-white font-bold text-xs hover:bg-brand-500 hover:text-white active:scale-95 transition-all shadow-sm flex items-center gap-1.5"
+                >
+                  <span>Toutes les catégories</span>
+                  <span>✕</span>
+                </button>
+              </div>
 
-              {restaurants.length === 0 && !loading && (
-                <EmptyState catalogEmpty={catalog.length === 0} filter={filter} onShowAll={() => setFilter('all')} />
+              {loading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {Array.from({ length: 6 }).map((_, i) => <RestaurantSkeleton key={i} />)}
+                </div>
+              ) : displayedList.length === 0 ? (
+                <EmptyState catalogEmpty={catalog.length === 0} filter={filter || search} onShowAll={() => { setFilter('all'); setSearch(''); }} />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                  {displayedList.map((r) => (
+                    <DeliverooCard key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                  ))}
+                </div>
               )}
-            </>
+            </section>
           )}
 
-          {/* ═══ DEFAULT: ALL HORIZONTAL SECTIONS ═══ */}
-          {!isNonFoodFilter && !search.trim() && (
+          {/* ═══ DEFAULT HOME SECTIONS (CAROUSELS) ═══ */}
+          {filter === 'all' && !search.trim() && (
             <>
               {/* À la une */}
               {showFeatured && (
@@ -415,7 +457,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
               {/* Offres */}
               {promoRestaurants.length > 1 && (
-                <HorizontalRow title="🎁 Offres près de chez vous" count={promoRestaurants.length - 1} onSeeAll={() => setFilter('all')}>
+                <HorizontalRow title="🎁 Offres près de chez vous" count={promoRestaurants.length - 1} onSeeAll={() => setFilter('offers')}>
                   {promoRestaurants.slice(1).map((r) => (
                     <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
                   ))}
@@ -423,14 +465,14 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               )}
 
               {/* Populaires */}
-              <HorizontalRow title="🔥 Populaires dans votre quartier" count={popularRestaurants.length} onSeeAll={() => setFilter('all')}>
+              <HorizontalRow title="🔥 Populaires dans votre quartier" count={popularRestaurants.length} onSeeAll={() => setFilter('popular')}>
                 {popularRestaurants.map((r) => (
                   <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
                 ))}
               </HorizontalRow>
 
               {/* Rapide */}
-              <HorizontalRow title="⚡ Livraison la plus rapide" count={fastDelivery.length} onSeeAll={() => setFilter('all')}>
+              <HorizontalRow title="⚡ Livraison la plus rapide" count={fastDelivery.length} onSeeAll={() => setFilter('fast')}>
                 {fastDelivery.map((r) => (
                   <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
                 ))}
@@ -544,7 +586,7 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      className="cursor-grow shrink-0 w-[260px] sm:w-[300px] snap-start group"
+      className="cursor-grow shrink-0 w-[72vw] sm:w-[260px] lg:w-[300px] snap-start group"
     >
       {/* Card with gradient border on hover */}
       <div className={`relative rounded-[1.25rem] overflow-hidden transition-all duration-300 ${
@@ -647,7 +689,7 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
 
 function RestaurantCardSkeletonHorizontal() {
   return (
-    <div className="shrink-0 w-[260px] sm:w-[300px] bg-white dark:bg-ink-900 rounded-[1.25rem] overflow-hidden border border-ink-100 dark:border-ink-800 animate-pulse">
+    <div className="shrink-0 w-[72vw] sm:w-[260px] lg:w-[300px] bg-white dark:bg-ink-900 rounded-[1.25rem] overflow-hidden border border-ink-100 dark:border-ink-800 animate-pulse">
       <div className="h-40 sm:h-44 bg-ink-200 dark:bg-ink-800 skeleton" />
       <div className="p-3.5 space-y-2.5">
         <div className="h-4 w-3/4 rounded-lg bg-ink-200 dark:bg-ink-800 skeleton" />
@@ -909,7 +951,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
           ))}
         </div>
       ) : (
-        <section className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+        <section className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
           <div className="rounded-2xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 p-6 sm:p-8 shadow-sm">
             <h2 className="font-display font-bold text-xl text-ink-900 dark:text-white mb-3">
               📝 Commander sur-mesure
@@ -1030,7 +1072,7 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
       <button
         type="button"
         onClick={() => onOpen?.()}
-        className="cursor-grow shrink-0 w-[200px] sm:w-[220px] text-left group"
+        className="cursor-grow shrink-0 w-[42vw] sm:w-[200px] lg:w-[220px] text-left group"
       >
         <div className="relative rounded-xl overflow-hidden bg-ink-50 dark:bg-ink-800 aspect-[4/3] border border-ink-100 dark:border-ink-800">
           <MenuItemImage src={item.img} alt={item.name} loading="lazy"
@@ -1044,7 +1086,7 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
             <button
               type="button"
               onClick={handleAdd}
-              className={`absolute bottom-2 right-2 w-8 h-8 rounded-lg grid place-items-center text-sm font-bold shadow transition-all ${
+              className={`absolute bottom-2 right-2 w-10 h-10 rounded-lg grid place-items-center text-sm font-bold shadow transition-all ${
                 adding
                   ? 'bg-emerald-500 text-white scale-110'
                   : 'bg-white dark:bg-ink-900 text-ink-900 dark:text-white hover:bg-brand-500 hover:text-white active:scale-95'
@@ -1084,7 +1126,7 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
             <button
               type="button"
               onClick={handleAdd}
-              className={`ml-auto w-8 h-8 rounded-lg grid place-items-center text-sm font-bold shadow-sm transition-all ${
+              className={`ml-auto w-10 h-10 rounded-lg grid place-items-center text-sm font-bold shadow-sm transition-all ${
                 adding
                   ? 'bg-emerald-500 text-white scale-110'
                   : 'bg-white dark:bg-ink-800 text-ink-900 dark:text-white border border-ink-200 dark:border-ink-700 hover:bg-brand-500 hover:text-white hover:border-brand-500 active:scale-95'
@@ -1154,7 +1196,7 @@ export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = f
                 onClick={handleAdd}
                 disabled={orderingDisabled}
                 title={orderingDisabled ? 'Restaurant fermé' : 'Ajouter au panier'}
-                className={`cursor-grow relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl grid place-items-center transition-transform ${
+                className={`cursor-grow relative w-10 h-10 rounded-xl grid place-items-center transition-transform ${
                   orderingDisabled
                     ? 'bg-ink-200 text-ink-400 dark:bg-ink-800 dark:text-ink-500 cursor-not-allowed'
                     : adding
