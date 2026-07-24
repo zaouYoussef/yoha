@@ -752,10 +752,11 @@ export function SearchBar({ value, onChange, variant = 'default' }) {
   );
 }
 export function RestaurantPage({ restaurant, onBack, onAdd }) {
+  if (!restaurant) return null;
   const r = restaurant;
-  const openStatus = restaurantOpenStatus(r.openingHours);
-  const isOpen = r.isOpen ?? openStatus.isOpen;
-  const openLabel = r.openLabel ?? openStatus.openLabel;
+  const openStatus = r.openingHours ? restaurantOpenStatus(r.openingHours) : { isOpen: true, openLabel: 'Ouvert' };
+  const isOpen = r.isOpen ?? openStatus.isOpen ?? true;
+  const openLabel = r.openLabel ?? openStatus.openLabel ?? 'Ouvert';
   const [activeCat, setActiveCat] = useState(r.menu?.[0]?.category ?? '');
   const [selectedItem, setSelectedItem] = useState(null);
   const sectionRefs = useRef({});
@@ -794,7 +795,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
   const CUISINE_ICONS = {
     pizza: '🍕', tacos: '🌮', kebab: '🥙', sushi: '🍣', burger: '🍔',
     healthy: '🥗', asian: '🥢', dessert: '🍰', drinks: '🥤',
-    pharmacy: '💊', parapharmacy: '🧴', supermarket: '🛒', shop: '🛍️', medical: '⚕️',
+    pharmacy: '💊', parapharmacy: '🌿', supermarket: '🛒', shop: '🛍️', medical: '⚕️',
     patisserie: '🥐',
   };
 
@@ -808,7 +809,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
       <div className="relative h-[200px] sm:h-[280px] lg:h-[320px] overflow-hidden bg-ink-100 dark:bg-ink-900">
         <img
           src={restaurantCover(r.cover)}
-          alt={r.name}
+          alt={r.name || ''}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
@@ -825,8 +826,12 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 -mt-10 relative z-10">
         <div className="bg-white dark:bg-ink-900 rounded-2xl shadow-lg border border-ink-100 dark:border-ink-800 p-5 sm:p-6">
           <div className="flex items-start gap-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 border-ink-100 dark:border-ink-800 bg-ink-50 dark:bg-ink-800 shrink-0">
-              <img src={restaurantLogo(r.logo)} alt="" className="w-full h-full object-cover" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 border-ink-100 dark:border-ink-800 bg-ink-50 dark:bg-ink-800 shrink-0 flex items-center justify-center">
+              {typeof r.logo === 'string' && (r.logo.startsWith('http') || r.logo.startsWith('/')) ? (
+                <img src={r.logo} alt={r.name || ''} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-3xl sm:text-4xl select-none">{r.logo || '💊'}</span>
+              )}
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white truncate">
@@ -842,10 +847,10 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-ink-500 dark:text-ink-400">
                 <span className="flex items-center gap-1">
-                  <I.MapPin size={12} className="text-ink-400" /> {r.distance}
+                  <I.MapPin size={12} className="text-ink-400" /> {r.distance || 'Tanger'}
                 </span>
                 <span>·</span>
-                <span>{isOpen ? `Ouvre ${openLabel.toLowerCase()}` : openLabel}</span>
+                <span>{isOpen ? 'Ouvert 24h/7d' : (openLabel || 'Fermé')}</span>
                 <span>·</span>
                 <span>Min. {formatMad(10, { decimals: 0 })}</span>
               </div>

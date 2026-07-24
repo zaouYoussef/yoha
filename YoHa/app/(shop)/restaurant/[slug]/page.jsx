@@ -21,7 +21,8 @@ export default function RestaurantRoutePage() {
     setError('');
 
     // Check if it is a static store
-    const staticStore = STATIC_STORES.find(s => s.id === slug);
+    const decodedSlug = decodeURIComponent(slug || '');
+    const staticStore = STATIC_STORES.find(s => s.id === slug || s.id === decodedSlug);
     if (staticStore) {
       setRestaurant(staticStore);
       return;
