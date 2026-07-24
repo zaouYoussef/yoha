@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { I } from '../icons/Icons.jsx';
 import { CUISINES, CATEGORIES_BANNERS, STATIC_STORES } from '../data/index.js';
-import { useOrders } from '../contexts/AppContexts.jsx';
+import { useOrders, useCart } from '../contexts/AppContexts.jsx';
+import { useYohaNav } from '../contexts/YohaNavContext.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { Reveal } from '../components/ui/Reveal.jsx';
 import { Tilt } from '../components/ui/Tilt.jsx';
@@ -557,6 +558,9 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
           </section>
         </div>
       </div>
+
+      <LiveActivityTicker />
+      <FloatingCheckoutBar />
     </div>
   );
 }
@@ -1154,6 +1158,69 @@ export function ApiErrorState({ message, onRetry }) {
           Réessayer
         </button>
       )}
+    </div>
+  );
+}
+
+export function LiveActivityTicker() {
+  const [tickerIndex, setTickerIndex] = useState(0);
+  const activities = [
+    { name: 'Yasmine (CHU Aile B)', action: 'a commandé chez New School Tacos', time: 'il y a 2 min' },
+    { name: 'Amine (BU ENCG)', action: 'a commandé 1 Healthy Bowl', time: 'il y a 5 min' },
+    { name: 'Omar (Alliance Tanger)', action: 'a demandé 1 Pâtisserie sur-mesure (+20 MAD)', time: 'il y a 8 min' },
+    { name: 'Dr. Benani (Hôpital CHU)', action: 'a commandé chez MedEat', time: 'il y a 11 min' },
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTickerIndex((prev) => (prev + 1) % activities.length);
+    }, 5500);
+    return () => clearInterval(timer);
+  }, [activities.length]);
+
+  const current = activities[tickerIndex];
+
+  return (
+    <div className="hidden lg:flex fixed bottom-6 left-6 z-40 items-center gap-3 p-3 px-4 rounded-2xl bg-white/90 dark:bg-ink-900/90 backdrop-blur-md border border-amber-200/60 dark:border-white/10 shadow-xl animate-fade-up pointer-events-none transition-all">
+      <span className="relative flex h-3 w-3 shrink-0">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75" />
+        <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500" />
+      </span>
+      <div className="text-xs">
+        <span className="font-extrabold text-ink-900 dark:text-white">{current.name}</span>{' '}
+        <span className="text-ink-600 dark:text-ink-300">{current.action}</span>{' '}
+        <span className="text-brand-500 font-bold">• {current.time}</span>
+      </div>
+    </div>
+  );
+}
+
+export function FloatingCheckoutBar() {
+  const { cartItems, total } = useCart();
+  const { goto } = useYohaNav();
+
+  if (!cartItems || cartItems.length === 0) return null;
+
+  const totalCount = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+
+  return (
+    <div className="fixed bottom-5 right-4 left-4 sm:left-auto sm:right-6 z-50 animate-fade-up">
+      <button
+        type="button"
+        onClick={() => goto('checkout')}
+        className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white font-bold text-base shadow-[0_10px_35px_rgba(249,115,22,0.45)] hover:shadow-[0_15px_45px_rgba(249,115,22,0.65)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-between gap-6 group border border-white/20 backdrop-blur-md cursor-pointer"
+      >
+        <div className="flex items-center gap-3">
+          <span className="w-8 h-8 rounded-xl bg-white/25 flex items-center justify-center font-black text-sm group-hover:rotate-12 transition-transform shadow-inner">
+            {totalCount}
+          </span>
+          <span className="font-extrabold text-sm sm:text-base tracking-wide">Commander maintenant</span>
+        </div>
+        <div className="flex items-center gap-2 font-black text-base sm:text-lg">
+          <span>{formatMad(total)}</span>
+          <span className="text-xl group-hover:translate-x-1 transition-transform">→</span>
+        </div>
+      </button>
     </div>
   );
 }
