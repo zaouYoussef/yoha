@@ -5,21 +5,29 @@ import React, { useEffect, useRef } from 'react';
 export function ParticleCanvas() {
   const ref = useRef();
   useEffect(() => {
-    const canvas = ref.current; if (!canvas) return;
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 768 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+      }
+    }
+
+    const canvas = ref.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let particles = [], mouse = { x: -1000, y: -1000 }, raf;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
 
     const resize = () => {
       const w = canvas.offsetWidth, h = canvas.offsetHeight;
+      if (!w || !h) return;
       canvas.width = w * dpr; canvas.height = h * dpr;
       ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr, dpr);
-      const count = Math.min(75, Math.floor((w * h) / 16000));
+      const count = Math.min(40, Math.floor((w * h) / 25000));
       particles = Array.from({ length: count }, () => ({
         x: Math.random() * w, y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
-        r: 1 + Math.random() * 2.4,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        r: 1 + Math.random() * 2,
       }));
     };
 
@@ -32,14 +40,15 @@ export function ParticleCanvas() {
 
     const draw = () => {
       const w = canvas.offsetWidth, h = canvas.offsetHeight;
+      if (!w || !h) return;
       ctx.clearRect(0, 0, w, h);
 
       particles.forEach(p => {
         const dx = p.x - mouse.x, dy = p.y - mouse.y;
         const d2 = dx*dx + dy*dy;
-        if (d2 < 140*140) {
+        if (d2 < 120*120) {
           const dist = Math.sqrt(d2) || 1;
-          const force = (140 - dist) / 140 * 1.4;
+          const force = (120 - dist) / 120 * 1.2;
           p.x += (dx / dist) * force;
           p.y += (dy / dist) * force;
         }
@@ -51,15 +60,15 @@ export function ParticleCanvas() {
       });
 
       /* connections */
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 0.8;
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const a = particles[i], b = particles[j];
           const dx = a.x - b.x, dy = a.y - b.y;
           const d2 = dx*dx + dy*dy;
-          if (d2 < 130*130) {
+          if (d2 < 110*110) {
             const dist = Math.sqrt(d2);
-            const alpha = (1 - dist / 130) * 0.28;
+            const alpha = (1 - dist / 110) * 0.22;
             ctx.strokeStyle = `rgba(249, 115, 22, ${alpha})`;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
@@ -73,7 +82,7 @@ export function ParticleCanvas() {
       particles.forEach(p => {
         const dx = p.x - mouse.x, dy = p.y - mouse.y;
         const d2 = dx*dx + dy*dy;
-        const near = d2 < 140*140;
+        const near = d2 < 120*120;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r + (near ? 1 : 0), 0, Math.PI * 2);
         ctx.fillStyle = near ? 'rgba(236,72,153,0.85)' : 'rgba(249,115,22,0.65)';
@@ -96,5 +105,6 @@ export function ParticleCanvas() {
       canvas.removeEventListener('mouseleave', onLeave);
     };
   }, []);
+
   return <canvas ref={ref} className="absolute inset-0 w-full h-full" />;
 }

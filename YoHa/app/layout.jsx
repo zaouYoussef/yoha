@@ -32,7 +32,7 @@ export const metadata = {
     siteName: 'YoHa',
     images: [
       {
-        url: '/logo.png',
+        url: '/logo.webp',
         width: 512,
         height: 512,
         alt: 'YoHa Logo',
@@ -45,7 +45,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'YoHa — Livraison campus & CHU · Tanger',
     description: 'Livraison ultra rapide pensée pour le campus et les hôpitaux.',
-    images: ['/logo.png'],
+    images: ['/logo.webp'],
   },
 };
 

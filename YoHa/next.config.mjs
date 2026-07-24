@@ -2,9 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  compress: true,
   skipTrailingSlashRedirect: true,
-  // Proxy API → Django via app/api/v1/[[...path]]/route.js (évite ERR_TOO_MANY_REDIRECTS)
-  images: {    remotePatterns: [
+  images: {
+    remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'i.pravatar.cc' },
       { protocol: 'https', hostname: 'www.lesiteinfo.com' },
@@ -13,13 +14,35 @@ const nextConfig = {
       { protocol: 'https', hostname: 'alliancesdarna.ma' },
     ],
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 86400,
+    minimumCacheTTL: 31536000,
   },
   experimental: {
-    optimizePackageImports: ['@/icons/Icons'],
+    optimizePackageImports: [
+      '@/icons/Icons',
+      'lucide-react',
+      'framer-motion',
+      'clsx',
+      'tailwind-merge'
+    ],
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
+  },
+  async headers() {
+    return [
+      {
+        source: '/videos/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/:path*.(png|jpg|jpeg|gif|webp|svg|ico)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+    ];
   },
 };
 

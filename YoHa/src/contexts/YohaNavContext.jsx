@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useMemo } from 'react';
+import { createContext, useCallback, useContext, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, DASHBOARD_REQUIRED_ROLE, ROLE_LABELS } from './AuthContext';
 import { useToast } from './AppContexts';
@@ -45,6 +45,17 @@ export function YohaNavProvider({ children }) {
   const router = useRouter();
   const { user } = useAuth();
   const toast = useToast();
+
+  // Instant prefetching of main routes for zero-latency button clicks
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      router.prefetch('/');
+      router.prefetch('/browse');
+      router.prefetch('/checkout');
+      router.prefetch('/orders');
+      router.prefetch('/auth');
+    }
+  }, [router]);
 
   const goto = useCallback(
     (name, params = {}, opts = {}) => {

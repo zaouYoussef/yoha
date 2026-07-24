@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, Fragment, useRef } from 'react';
+import BackgroundVideo from '../../components/BackgroundVideo.jsx';
+import LazyBackgroundVideo from '../../components/LazyBackgroundVideo.jsx';
 import { I } from '../../icons/Icons.jsx';
 import { useOrders } from '../../contexts/AppContexts.jsx';
 import { FEATURES } from '../../data/features.jsx';
@@ -119,14 +121,30 @@ export function Hero({ onStart, onHowItWorks }) {
 
   return (
     <section ref={heroRef} className="relative overflow-hidden hero-spot">
-      {/* Animated blobs */}
-      <div aria-hidden className="absolute inset-0 -z-10">
-        <div className="absolute top-[-10%] left-[-10%] w-[16rem] sm:w-[32rem] lg:w-[42rem] h-[16rem] sm:h-[32rem] lg:h-[42rem] rounded-full bg-brand-400/40 blur-3xl animate-blob"></div>
-        <div className="absolute top-[10%] right-[-15%] w-[14rem] sm:w-[28rem] lg:w-[36rem] h-[14rem] sm:h-[28rem] lg:h-[36rem] rounded-full bg-fuchsia-400/40 blur-3xl animate-blob" style={{ animationDelay:'4s' }}></div>
-        <div className="absolute bottom-[-20%] left-[20%] w-[18rem] sm:w-[34rem] lg:w-[44rem] h-[18rem] sm:h-[34rem] lg:h-[44rem] rounded-full bg-violet-400/30 blur-3xl animate-blob" style={{ animationDelay:'8s' }}></div>
-        <div className="absolute inset-0 mesh-bg opacity-70"></div>
+      {/* Rich Harmonized Background: Blobs + Mesh Gradient + Food Orbit Video + Grid */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+        {/* Animated glowing color blobs */}
+        <div className="absolute top-[-10%] left-[-10%] w-[16rem] sm:w-[32rem] lg:w-[42rem] h-[16rem] sm:h-[32rem] lg:h-[42rem] rounded-full bg-brand-400/50 blur-3xl animate-blob"></div>
+        <div className="absolute top-[10%] right-[-15%] w-[14rem] sm:w-[28rem] lg:w-[36rem] h-[14rem] sm:h-[28rem] lg:h-[36rem] rounded-full bg-fuchsia-400/50 blur-3xl animate-blob" style={{ animationDelay:'4s' }}></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-[18rem] sm:w-[34rem] lg:w-[44rem] h-[18rem] sm:h-[34rem] lg:h-[44rem] rounded-full bg-violet-400/40 blur-3xl animate-blob" style={{ animationDelay:'8s' }}></div>
+        
+        {/* Mesh Background & Conic Glow */}
+        <div className="absolute inset-0 mesh-bg opacity-75"></div>
         <div className="mesh-conic-glow"></div>
-        <div className="absolute inset-0 grid-bg"></div>
+
+        {/* Video blended into the gradient light */}
+        <BackgroundVideo
+          webmSrc="/videos/hero-food-orbit.webm"
+          mp4Src="/videos/hero-food-orbit.mp4"
+          poster="/videos/hero-food-orbit-poster.webp"
+          className="absolute inset-0 h-full w-full object-cover opacity-40 dark:opacity-50 mix-blend-overlay transition-opacity duration-1000"
+        />
+
+        {/* Tech Grid Pattern */}
+        <div className="absolute inset-0 grid-bg opacity-80"></div>
+
+        {/* Soft Contrast Mask for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-transparent to-white/85 dark:from-ink-950/25 dark:via-transparent dark:to-ink-950/85"></div>
       </div>
 
       {/* Particules — desktop uniquement */}
@@ -180,7 +198,7 @@ export function Hero({ onStart, onHowItWorks }) {
           <div className="mt-6 sm:mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 animate-fade-up" style={{ animationDelay:'900ms' }}>
             <div className="flex -space-x-2 shrink-0">
               {[1,2,3,4].map(i => (
-                <img key={i} src={`https://i.pravatar.cc/64?img=${i+10}`} alt=""
+                <img key={i} src={`https://i.pravatar.cc/64?img=${i+10}`} alt="Avatar utilisateur" width="36" height="36" loading="lazy" decoding="async"
                   className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-white dark:border-ink-900 object-cover" />
               ))}
             </div>
@@ -243,8 +261,9 @@ function BentoSpotlightCard({ spot, spotFade, n, restaurants, spotIdx, onSelectS
                 <button
                   key={r.id}
                   type="button"
-                  aria-label={r.name}
-                  aria-current={i === spotIdx ? 'true' : undefined}
+                  role="tab"
+                  aria-selected={i === spotIdx}
+                  aria-label={`Restaurant ${r.name}`}
                   onClick={() => onSelectSpot(i)}
                   className={`h-1.5 rounded-full transition-colors ${i === spotIdx ? 'w-6 bg-white' : 'w-1.5 bg-white/45 hover:bg-white/75'}`}
                 />
@@ -913,6 +932,16 @@ export function ShowcaseSection() {
       ref={sectionRef} 
       className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-[#fffcf6] to-[#fdf4e3] text-slate-900 py-12 sm:py-16 lg:py-20 my-8 sm:my-12 lg:my-16 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] max-w-7xl mx-4 sm:mx-6 lg:mx-auto px-5 sm:px-8 lg:px-12 border border-amber-100 shadow-xl"
     >
+      {/* Background Scooter Video (Lazy loaded) */}
+      <LazyBackgroundVideo
+        containerClassName="absolute inset-0 pointer-events-none overflow-hidden z-0"
+        webmSrc="/videos/speed-scooter.webm"
+        mp4Src="/videos/speed-scooter.mp4"
+        poster="/videos/speed-scooter-poster.webp"
+        className="w-full h-full object-cover opacity-50 transition-opacity duration-1000"
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-amber-50/70 via-transparent to-amber-50/70 pointer-events-none z-0" />
+
       {/* Premium Background Effects */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* Soft glowing mesh gradient blobs */}
@@ -956,7 +985,7 @@ export function ShowcaseSection() {
                     {item.icon}
                   </span>
                   <div>
-                    <h4 className="font-bold text-sm text-slate-900 group-hover:text-brand-600 transition-colors">{item.title}</h4>
+                    <h3 className="font-bold text-sm text-slate-900 group-hover:text-brand-600 transition-colors">{item.title}</h3>
                     <p className="text-xs text-slate-500 mt-1">{item.desc}</p>
                   </div>
                 </div>

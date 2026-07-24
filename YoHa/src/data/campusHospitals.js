@@ -8,12 +8,12 @@ export const CAMPUS_HOSPITALS = [
   {
     name: 'FMPT de Tanger',
     subtitle: 'Faculté de Médecine et de Pharmacie',
-    img: '/fmpt.jpeg',
+    img: '/fmp_tanger.webp',
   },
   {
     name: 'ISPITS Tanger',
     subtitle: 'Institut Supérieur des Professions Infirmières et Techniques de Santé',
-    img: '/ispits.jpg',
+    img: '/ispits.webp',
   },
   {
     name: 'Résidence universitaire Alliance Tanger',

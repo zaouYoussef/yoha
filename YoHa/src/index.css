@@ -7,6 +7,10 @@
   *::before,
   *::after {
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  button, a, input, select, textarea, [role="button"] {
+    touch-action: manipulation;
   }
   html {
     scroll-behavior: smooth;

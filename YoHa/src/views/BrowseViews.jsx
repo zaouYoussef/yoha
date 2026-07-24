@@ -14,6 +14,7 @@ import { spotlightHandler } from '../utils/spotlight.js';
 import { formatMad, restaurantOpenStatus } from '../data/index.js';
 import { MenuItemImage, restaurantCover, restaurantLogo } from '../components/ui/MenuItemImage.jsx';
 import { MenuItemDetailModal } from '../components/ui/MenuItemDetailModal.jsx';
+import { CustomOrderModal } from '../components/ui/CustomOrderModal.jsx';
 
 function greetingName(user) {
   const raw = user?.displayName?.trim();
@@ -50,7 +51,7 @@ const CATEGORY_GLOW = {
   drinks: '#06b6d4',
 };
 
-function BrowseHero({ name, search, onSearchChange, openCount, totalCount }) {
+function BrowseHero({ name, search, onSearchChange, openCount, totalCount, onOpenCustomModal }) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-ink-950 dark:via-[#120a06] dark:to-ink-950">
       <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.07)_0%,rgba(236,72,153,0.04)_30%,transparent_50%)] animate-rotate-slow pointer-events-none dark:opacity-100 opacity-50" aria-hidden />
@@ -93,6 +94,33 @@ function BrowseHero({ name, search, onSearchChange, openCount, totalCount }) {
 
             <div className="mt-7 sm:mt-8 max-w-xl animate-fade-up" style={{ animationDelay: '280ms' }}>
               <SearchBar value={search} onChange={onSearchChange} variant="hero" />
+            </div>
+
+            {/* Bouton Commande sur-mesure / Restaurant hors-partenaire */}
+            <div className="mt-4 max-w-xl animate-fade-up" style={{ animationDelay: '300ms' }}>
+              <button
+                type="button"
+                onClick={onOpenCustomModal}
+                className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-brand-500/15 border border-amber-300/60 dark:border-white/20 hover:border-amber-400 dark:hover:border-white/40 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-between gap-3 text-left shadow-sm group"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-brand-500 text-white flex items-center justify-center text-lg shrink-0 group-hover:rotate-12 transition-transform shadow-sm">
+                    🍰
+                  </span>
+                  <div className="min-w-0">
+                    <div className="font-bold text-sm text-ink-900 dark:text-white flex items-center gap-2 flex-wrap">
+                      <span>Pâtisserie ou Restaurant non listé ?</span>
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-black shrink-0">+20 MAD</span>
+                    </div>
+                    <div className="text-xs text-ink-600 dark:text-ink-300 truncate">
+                      Commandez dans l&apos;établissement de votre choix à Tanger — Le livreur apporte le reçu !
+                    </div>
+                  </div>
+                </div>
+                <span className="px-3.5 py-2 rounded-xl bg-brand-500 text-white font-bold text-xs shrink-0 group-hover:bg-brand-600 transition-colors shadow-sm">
+                  Commander
+                </span>
+              </button>
             </div>
 
             <div className="mt-6 sm:mt-8 max-w-xl animate-fade-up lg:hidden" style={{ animationDelay: '320ms' }}>
@@ -213,6 +241,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   const { restaurants: catalog, loadingRestaurants, restaurantsError, refreshRestaurants } = useOrders();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState(initialFilter);
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
 
   useEffect(() => {
     setFilter(initialFilter);
@@ -321,6 +350,12 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
         onSearchChange={setSearch}
         openCount={openCount}
         totalCount={catalog.length}
+        onOpenCustomModal={() => setIsCustomModalOpen(true)}
+      />
+
+      <CustomOrderModal
+        isOpen={isCustomModalOpen}
+        onClose={() => setIsCustomModalOpen(false)}
       />
 
       <div className="relative browse-grid-bg bg-brand-50/50 dark:bg-ink-950">
@@ -532,7 +567,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 : restaurantsError
                   ? <ApiErrorState message={restaurantsError} onRetry={refreshRestaurants} />
                   : restaurants.length === 0
-                    ? <EmptyState catalogEmpty={catalog.length === 0} filter={filter} onShowAll={() => setFilter('all')} />
+                    ? <EmptyState catalogEmpty={catalog.length === 0} filter={filter} onShowAll={() => setFilter('all')} onOpenCustomModal={() => setIsCustomModalOpen(true)} />
                     : restaurants.map((r, i) => (
                       <Reveal key={r.id} delay={Math.min(i * 60, 360)}>
                         <Tilt max={5} className="rounded-3xl">
@@ -1056,7 +1091,7 @@ export function RestaurantSkeleton() {
   );
 }
 
-export function EmptyState({ catalogEmpty, filter, onShowAll }) {
+export function EmptyState({ catalogEmpty, filter, onShowAll, onOpenCustomModal }) {
   return (
     <div className="col-span-full flex flex-col items-center justify-center text-center py-16 px-4 glass-card-premium rounded-3xl border border-ink-200/60 dark:border-ink-800/80 shadow-md">
       <div className="text-5xl mb-4 animate-bounce-vertical">🍽️</div>
@@ -1068,15 +1103,26 @@ export function EmptyState({ catalogEmpty, filter, onShowAll }) {
           ? "Nous n'avons pas pu charger d'établissements. Veuillez vérifier votre connexion."
           : `Aucun partenaire ne correspond à la catégorie "${filter}" ou à votre recherche.`}
       </p>
-      {!catalogEmpty && onShowAll && (
-        <button
-          type="button"
-          onClick={onShowAll}
-          className="mt-5 cursor-grow px-4 py-2 rounded-xl bg-ink-900 text-white dark:bg-white dark:text-ink-900 font-bold text-xs shadow active:scale-95 transition-transform"
-        >
-          Voir tous les établissements
-        </button>
-      )}
+      <div className="mt-5 flex flex-wrap justify-center gap-3">
+        {!catalogEmpty && onShowAll && (
+          <button
+            type="button"
+            onClick={onShowAll}
+            className="cursor-grow px-4 py-2.5 rounded-xl bg-ink-900 text-white dark:bg-white dark:text-ink-900 font-bold text-xs shadow active:scale-95 transition-transform"
+          >
+            Voir tous les établissements
+          </button>
+        )}
+        {onOpenCustomModal && (
+          <button
+            type="button"
+            onClick={onOpenCustomModal}
+            className="cursor-grow px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-brand-500 text-white font-bold text-xs shadow-glow active:scale-95 transition-transform"
+          >
+            🍰 Commander en sur-mesure (+20 MAD)
+          </button>
+        )}
+      </div>
     </div>
   );
 }

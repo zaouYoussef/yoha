@@ -14,7 +14,8 @@ export function Button({ children, variant='primary', size='md', className='', o
     <button
       onClick={(e) => { onClick && onClick(e); }}
       disabled={disabled}
-      className={`cursor-grow relative inline-flex items-center justify-center gap-2 font-semibold rounded-2xl transition-transform active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed ${sizes[size]} ${variants[variant]} ${className}`}
+      style={{ touchAction: 'manipulation', transform: 'translateZ(0)' }}
+      className={`cursor-grow relative inline-flex items-center justify-center gap-2 font-semibold rounded-2xl transition-all duration-100 active:scale-[0.96] disabled:opacity-60 disabled:cursor-not-allowed will-change-transform ${sizes[size]} ${variants[variant]} ${className}`}
       {...rest}
     >
       {children}
