@@ -325,6 +325,9 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       <div className="bg-white dark:bg-ink-950">
         <div className="max-w-7xl mx-auto px-0 sm:px-6 py-4 space-y-7">
 
+          {/* ═══ LOYALTY REWARD BANNER (-50 MAD FOR 6 DELIVERED ORDERS) ═══ */}
+          {!search && <LoyaltyRewardBanner />}
+
           {/* ═══ SERVICES ROW ═══ */}
           {!search && (
             <div className="flex gap-2.5 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
@@ -1525,6 +1528,73 @@ export function ApiErrorState({ message, onRetry }) {
           Réessayer
         </button>
       )}
+    </div>
+  );
+}
+
+export function LoyaltyRewardBanner() {
+  const { orders = [] } = useOrders() || {};
+
+  // Count ONLY orders confirmed delivered by courier (DELIVERED or LIVRÉ or COMPLETED)
+  const deliveredOrders = useMemo(() => {
+    return orders.filter(o => o.status === 'DELIVERED' || o.status === 'LIVRÉ' || o.status === 'COMPLETED');
+  }, [orders]);
+
+  const deliveredCount = deliveredOrders.length;
+  const currentStep = deliveredCount % 6;
+  const isGoalReached = currentStep === 0 && deliveredCount > 0;
+  const remaining = isGoalReached ? 0 : 6 - currentStep;
+  const progressPct = isGoalReached ? 100 : (currentStep / 6) * 100;
+
+  return (
+    <div className="px-4 sm:px-0">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white p-4 sm:p-5 shadow-lg border border-emerald-400/30">
+        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+        
+        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+            <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl shrink-0 shadow-inner">
+              🎁
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-extrabold text-xs sm:text-sm tracking-wide uppercase text-emerald-200">
+                  Offre Récompense Fidélité
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-extrabold uppercase">
+                  {deliveredCount} commande{deliveredCount > 1 ? 's' : ''} livrée{deliveredCount > 1 ? 's' : ''}
+                </span>
+              </div>
+              
+              {isGoalReached ? (
+                <h3 className="font-display font-black text-base sm:text-lg text-white mt-0.5">
+                  🎉 Félicitations ! Votre réduction de <span className="text-amber-300">-50 MAD</span> est débloquée avec le code YOHA50 !
+                </h3>
+              ) : (
+                <h3 className="font-display font-black text-base sm:text-lg text-white mt-0.5">
+                  Encore <span className="underline decoration-amber-400 decoration-2 underline-offset-2">{remaining} commande{remaining > 1 ? 's' : ''} livrée{remaining > 1 ? 's' : ''}</span> pour avoir <span className="text-amber-300 font-black">-50 MAD</span> !
+                </h3>
+              )}
+              <p className="text-[11px] text-white/85 mt-0.5 flex items-center gap-1 font-medium">
+                <span>⚡ Seules les commandes confirmées « LIVRÉES » par le livreur comptent.</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="sm:w-48 shrink-0 flex flex-col gap-1.5 bg-black/10 p-2.5 rounded-xl border border-white/10">
+            <div className="flex justify-between items-center text-xs font-bold text-emerald-100">
+              <span>Livraisons validées</span>
+              <span>{isGoalReached ? '6 / 6' : `${currentStep} / 6`}</span>
+            </div>
+            <div className="w-full h-3 rounded-full bg-black/30 overflow-hidden p-0.5 border border-white/20">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 transition-all duration-500 shadow-sm"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
