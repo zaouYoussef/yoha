@@ -328,6 +328,9 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
           {/* ═══ LOYALTY REWARD BANNER (-50 MAD FOR 6 DELIVERED ORDERS) ═══ */}
           {!search && <LoyaltyRewardBanner />}
 
+          {/* ═══ DELIVEROO PROMO BANNERS CAROUSEL ═══ */}
+          {!search && <DeliverooPromoBannersCarousel onSelectFilter={setFilter} />}
+
           {/* ═══ SERVICES ROW ═══ */}
           {!search && (
             <div className="flex gap-2.5 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
@@ -1617,6 +1620,123 @@ export function LoyaltyRewardBanner() {
         </div>
       </div>
     </div>
+  );
+}
+
+const PROMO_BANNERS = [
+  {
+    id: 'promo-1',
+    bg: 'from-rose-100 via-pink-50 to-pink-100 dark:from-pink-950 dark:via-ink-900 dark:to-rose-950 border-pink-200 dark:border-pink-800/40',
+    tag: 'OFFRE DE BIENVENUE',
+    tagBg: 'bg-rose-500 text-white',
+    title: '50 MAD OFFERTS',
+    subtitle: 'sur votre première commande à l\'Alliance & CHU',
+    code: 'CODE : YOHA50',
+    cta: 'J\'en profite 🚀',
+    image: '/pizza-img/section_2_06.webp',
+    filterId: 'offers',
+  },
+  {
+    id: 'promo-2',
+    bg: 'from-pink-200 via-pink-100 to-rose-200 dark:from-pink-900 dark:via-purple-950 dark:to-pink-900 border-pink-300 dark:border-pink-700/50',
+    tag: 'DOUCEURS & DESSERTS',
+    tagBg: 'bg-pink-600 text-white',
+    title: 'UNE ENVIE GLACÉE ?',
+    subtitle: 'Glaces artisanales, gaufres & crêpes livrées chaudes',
+    code: 'C\'EST PAR ICI ➔',
+    cta: 'Voir les pâtisseries 🍰',
+    image: '/pizza-img/section_2_05.webp',
+    filterId: 'dessert',
+  },
+  {
+    id: 'promo-3',
+    bg: 'from-emerald-800 via-teal-900 to-emerald-950 text-white border-emerald-600/40',
+    tag: 'EXCLUSIVITÉ CAMPUS',
+    tagBg: 'bg-amber-400 text-slate-950 font-black',
+    title: '1 ACHETÉ = 1 OFFERT',
+    subtitle: 'Sur une sélection de sushis, burgers & tacos du moment',
+    code: 'JE DOUBLE ➔',
+    cta: 'Découvrir l\'offre ⚡',
+    image: '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d.webp',
+    filterId: 'popular',
+  },
+  {
+    id: 'promo-4',
+    bg: 'from-amber-50 via-orange-50 to-amber-100 dark:from-amber-950 dark:via-ink-900 dark:to-orange-950 border-amber-200 dark:border-amber-800/40',
+    tag: 'SÉLECTION YOHA',
+    tagBg: 'bg-brand-500 text-white',
+    title: 'SÉLECTION DU CHEF',
+    subtitle: 'Un excellent service, les meilleures notes et les prix resto garantis',
+    code: 'QUALITÉ 100% ⭐️',
+    cta: 'Voir les mieux notés →',
+    image: '/pizza-img/section_4_04.webp',
+    filterId: 'top_rated',
+  },
+];
+
+export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
+  const trackRef = useRef(null);
+
+  const scrollNext = () => {
+    trackRef.current?.scrollBy({ left: 340, behavior: 'smooth' });
+  };
+
+  return (
+    <section className="relative px-4 sm:px-0">
+      <div
+        ref={trackRef}
+        className="flex gap-4 overflow-x-auto no-scrollbar pb-2 snap-x snap-mandatory scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0"
+      >
+        {PROMO_BANNERS.map((b) => (
+          <div
+            key={b.id}
+            onClick={() => onSelectFilter(b.filterId)}
+            className={`cursor-pointer shrink-0 w-[300px] sm:w-[380px] md:w-[420px] rounded-3xl p-4 sm:p-5 border shadow-card hover:shadow-cardhover transition-all duration-300 relative overflow-hidden group snap-start bg-gradient-to-br ${b.bg}`}
+          >
+            <div className="absolute -right-8 -bottom-8 w-36 h-36 rounded-full bg-white/20 dark:bg-white/5 blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
+            
+            <div className="relative flex items-center justify-between gap-3 h-full">
+              <div className="flex-1 min-w-0 pr-1">
+                <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider mb-2 shadow-xs ${b.tagBg}`}>
+                  {b.tag}
+                </span>
+
+                <h3 className="font-display font-black text-lg sm:text-2xl tracking-tight leading-none text-ink-900 dark:text-white group-hover:text-brand-500 transition-colors">
+                  {b.title}
+                </h3>
+
+                <p className="text-xs text-ink-600 dark:text-ink-300 mt-1.5 line-clamp-2 leading-relaxed font-medium">
+                  {b.subtitle}
+                </p>
+
+                <div className="mt-4 flex items-center gap-2 flex-wrap">
+                  <span className="inline-block px-2.5 py-1 rounded-xl bg-amber-300 dark:bg-amber-400 text-slate-950 font-black text-[10px] sm:text-[11px] uppercase tracking-wide shadow-sm border border-amber-400">
+                    {b.code}
+                  </span>
+                  <span className="text-xs font-bold text-ink-900 dark:text-white group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                    <span>{b.cta}</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shrink-0 border-2 border-white/60 shadow-md transform group-hover:scale-105 transition-transform duration-500">
+                <img src={b.image} alt={b.title} className="w-full h-full object-cover" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Floating Next Button Arrow */}
+      <button
+        type="button"
+        onClick={scrollNext}
+        aria-label="Suivant"
+        className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-ink-800 text-ink-900 dark:text-white shadow-xl border border-ink-100 dark:border-ink-700 items-center justify-center hover:scale-110 active:scale-95 transition-all z-10"
+      >
+        <span className="text-lg font-black text-brand-600 dark:text-brand-400">→</span>
+      </button>
+    </section>
   );
 }
 
