@@ -2,90 +2,38 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-const FOOD_COVERS_POOL = [
-  '/pizza-img/section_1_01.webp', // Pizza
-  '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d.webp', // Burger
-  '/pizza-img/section_2_03.webp', // Tacos
-  '/pizza-img/section_2_04.webp', // Kebab
-  '/pizza-img/section_4_03.webp', // Sushi
-  '/pizza-img/section_1_07.webp', // Asian/Wok
-  '/pizza-img/section_2_02.webp', // Fast food
-  '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d_1.webp', // Cheese burger
-  '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d_2.webp', // Double burger
-  '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d_3.webp', // Smash burger
-  '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d_4.webp', // Chicken burger
-  '/pizza-img/section_2_01.webp', // Pasta
-  '/pizza-img/section_2_06.webp', // Grillades
-  '/pizza-img/section_2_07.webp', // Fresh meal
-  '/pizza-img/section_4_01.webp', // Calzone
-  '/pizza-img/section_4_04.webp', // Healthy bowl
+export const UNSPLASH_FALLBACKS = [
+  'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=800&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=800&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=800&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=800&auto=format&fit=crop&q=80',
 ];
 
-export const FOOD_IMAGE_FALLBACK = FOOD_COVERS_POOL[0];
-export const RESTAURANT_COVER_FALLBACK = FOOD_COVERS_POOL[0];
+/** Image de remplacement si l’URL du plat est invalide ou inaccessible */
+export const FOOD_IMAGE_FALLBACK = UNSPLASH_FALLBACKS[0];
+export const RESTAURANT_COVER_FALLBACK = UNSPLASH_FALLBACKS[0];
 export const RESTAURANT_LOGO_FALLBACK = '/logo.webp';
 
 export function restaurantCover(url) {
   if (typeof url === 'string' && url.trim()) {
-    const trimmed = url.trim();
-    if (trimmed.includes('custom-pharmacy')) return '/media/restaurants/custom-pharmacy.webp';
-    if (trimmed.includes('custom-supermarket')) return '/media/restaurants/custom-supermarket.webp';
-    if (trimmed.includes('custom-parapharmacy')) return '/media/restaurants/custom-parapharmacy.webp';
-    if (trimmed.includes('custom-shop')) return '/media/restaurants/custom-shop.webp';
-    if (trimmed.includes('custom-patisserie')) return '/media/restaurants/custom-patisserie.webp';
-
-    // If valid local image path, return directly!
-    if (trimmed.startsWith('/') && !trimmed.includes('custom_order_card')) {
-      return trimmed;
-    }
-
-    const lower = trimmed.toLowerCase();
-    if (lower.includes('kebab') || lower.includes('bomo') || lower.includes('mevlana')) {
-      return '/pizza-img/section_2_04.webp';
-    }
-    if (lower.includes('healthy') || lower.includes('bowl')) {
-      return '/pizza-img/section_4_04.webp';
-    }
-    if (lower.includes('medeat') || lower.includes('medical') || lower.includes('hopital')) {
-      return '/pizza-img/section_2_07.webp';
-    }
-    if (lower.includes('tacos') || lower.includes('school') || lower.includes('chamas') || lower.includes('otacos')) {
-      return '/pizza-img/section_2_03.webp';
-    }
-    if (lower.includes('pizza') || lower.includes('detroit') || lower.includes('saveur')) {
-      return '/pizza-img/section_1_01.webp';
-    }
-    if (lower.includes('sushi') || lower.includes('soju') || lower.includes('asian') || lower.includes('wok')) {
-      return '/pizza-img/section_4_03.webp';
-    }
-    if (lower.includes('burger') || lower.includes('dalle') || lower.includes('big') || lower.includes('quick') || lower.includes('chicken')) {
-      return '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d.webp';
-    }
-
-    // Deterministic hash over food covers pool
-    let hash = 0;
-    for (let i = 0; i < trimmed.length; i++) {
-      hash = (hash << 5) - hash + trimmed.charCodeAt(i);
-      hash |= 0;
-    }
-    return FOOD_COVERS_POOL[Math.abs(hash) % FOOD_COVERS_POOL.length];
+    return url.trim();
   }
-  return FOOD_COVERS_POOL[0];
+  return RESTAURANT_COVER_FALLBACK;
 }
 
 export function restaurantLogo(url) {
   if (typeof url === 'string' && url.trim()) {
-    const trimmed = url.trim();
-    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-      return '/logo.webp';
-    }
-    return trimmed;
+    return url.trim();
   }
   return RESTAURANT_LOGO_FALLBACK;
 }
 
 /**
- * Image plat : secours local si l’URL casse, puis placeholder 🍽️ si besoin.
+ * Image plat : secours CDN si l’URL casse, puis placeholder 🍽️ si besoin.
  */
 export function MenuItemImage({ src, alt = '', className = '', loading = 'lazy' }) {
   const primary = typeof src === 'string' ? src.trim() : '';
@@ -96,37 +44,18 @@ export function MenuItemImage({ src, alt = '', className = '', loading = 'lazy' 
   }, [primary]);
 
   const url = useMemo(() => {
-    if (primary.startsWith('http://') || primary.startsWith('https://')) {
-      let hash = 0;
-      for (let i = 0; i < primary.length; i++) {
-        hash = (hash << 5) - hash + primary.charCodeAt(i);
-        hash |= 0;
-      }
-      return DISTINCT_COVERS[Math.abs(hash) % DISTINCT_COVERS.length];
-    }
-    if (phase === 0) return primary || DISTINCT_COVERS[0];
-    if (phase === 1) return DISTINCT_COVERS[0];
+    if (phase === 0) return primary || FOOD_IMAGE_FALLBACK;
+    if (phase === 1) return FOOD_IMAGE_FALLBACK;
     return null;
   }, [primary, phase]);
 
   const onError = () => {
-    setPhase((p) => {
-      if (p === 0) {
-        if (!primary) return 2;
-        return 1;
-      }
-      if (p === 1) return 2;
-      return p;
-    });
+    setPhase((p) => Math.min(p + 1, 2));
   };
 
-  if (phase >= 2 || url == null) {
+  if (!url) {
     return (
-      <div
-        className={`flex items-center justify-center bg-gradient-to-br from-brand-100/90 to-ink-200/90 dark:from-ink-800 dark:to-ink-900 text-4xl select-none ${className}`}
-        role="img"
-        aria-label={alt || 'Illustration plat'}
-      >
+      <div className={`flex items-center justify-center bg-slate-200 dark:bg-ink-800 text-ink-400 ${className}`}>
         🍽️
       </div>
     );
@@ -136,10 +65,9 @@ export function MenuItemImage({ src, alt = '', className = '', loading = 'lazy' 
     <img
       src={url}
       alt={alt}
-      className={className}
       loading={loading}
-      decoding="async"
       onError={onError}
+      className={className}
     />
   );
 }
