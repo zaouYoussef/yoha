@@ -61,14 +61,15 @@ export function Landing({ onStart }) {
   return (
     <div className="page-enter">
       <Hero onStart={onStart} onHowItWorks={scrollToHowItWorks} />
-      <PartnersMarquee />
-      <PizzaAssemblySection />
-      <ShowcaseSection />
-      <PartnerCategoriesSection />
-      <Carousel3DSection />
-      <FeaturesSection />
-      <HowItWorksSection />
-      <TestimonialsSection />
+      <PartnersMarquee onStart={onStart} />
+      <PizzaAssemblySection onStart={onStart} />
+      <ShowcaseSection onStart={onStart} />
+      <PartnerCategoriesSection onStart={onStart} />
+      <Carousel3DSection onStart={onStart} />
+      <FeaturesSection onStart={onStart} />
+      <HowItWorksSection onStart={onStart} />
+      <TestimonialsSection onStart={onStart} />
+      <CampusHospitalsSection onStart={onStart} />
       <FinalCTA onStart={onStart} />
     </div>
   );
@@ -186,12 +187,12 @@ export function Hero({ onStart, onHowItWorks }) {
 
           <div className="mt-5 sm:mt-8 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 animate-fade-up" style={{ animationDelay:'750ms' }}>
             <Magnetic strength={20} className="block w-full sm:inline-block sm:w-auto">
-              <Button onClick={onStart} variant="primary" size="lg" className="w-full sm:w-auto">
-                Commander maintenant <I.Right size={18}/>
+              <Button onClick={onStart} variant="primary" size="lg" className="w-full sm:w-auto shadow-lg shadow-brand-500/25">
+                Commander maintenant ⚡ <I.Right size={18}/>
               </Button>
             </Magnetic>
-            <Button type="button" variant="ghost" size="lg" onClick={onHowItWorks} className="w-full sm:w-auto">
-              <I.Bike size={18}/> Comment ça marche
+            <Button type="button" variant="secondary" size="lg" onClick={onStart} className="w-full sm:w-auto bg-white/80 dark:bg-ink-900/80 border border-brand-500/30 text-brand-600 dark:text-brand-400 hover:bg-brand-500/10">
+              <I.Chef size={18}/> Voir tous les restaurants 🍕
             </Button>
           </div>
 
@@ -636,7 +637,7 @@ function useCarouselRadius() {
   return radius;
 }
 
-export function Carousel3DSection() {
+export function Carousel3DSection({ onStart }) {
   const { restaurants } = useOrders();
   const items = restaurants.slice(0, 6);
   const count = Math.max(items.length, 1);
@@ -664,7 +665,7 @@ export function Carousel3DSection() {
           {items.map((r, i) => {
             const angle = i * angleStep;
             return (
-              <div key={r.id} className="carousel-3d-card cursor-grow group"
+              <div key={r.id} onClick={onStart} className="carousel-3d-card cursor-grow group"
                 style={{ transform: `rotateY(${angle}deg) translateZ(${radius}px)` }}>
                 <CarouselPartnerCard restaurant={r} className="group-hover:border-brand-500/30 transition-all duration-500 group-hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]"/>
               </div>
@@ -672,12 +673,18 @@ export function Carousel3DSection() {
           })}
         </div>
       </div>
+
+      <div className="mt-8 text-center relative z-10">
+        <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/25">
+          Voir tous les restaurants 🚀 <I.Right size={18}/>
+        </Button>
+      </div>
     </section>
   );
 }
 
 /* === Features === */
-export function FeaturesSection() {
+export function FeaturesSection({ onStart }) {
   const sectionRef = useRef(null);
   const progress = useSectionScrollProgress(sectionRef);
 
@@ -742,12 +749,18 @@ export function FeaturesSection() {
           );
         })}
       </div>
+
+      <div className="mt-12 text-center">
+        <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/25">
+          Commander avec la livraison ultra-rapide ⚡ <I.Right size={18}/>
+        </Button>
+      </div>
     </section>
   );
 }
 
 /* === How It Works === */
-export function HowItWorksSection() {
+export function HowItWorksSection({ onStart }) {
   const sectionRef = useRef(null);
   const progress = useSectionScrollProgress(sectionRef);
 
@@ -824,12 +837,18 @@ export function HowItWorksSection() {
           );
         })}
       </div>
+
+      <div className="mt-12 text-center">
+        <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/25">
+          Lancer ma commande en 1 clic 🚀 <I.Right size={18}/>
+        </Button>
+      </div>
     </section>
   );
 }
 
 /* === Pizza Assembly Section === */
-export function PizzaAssemblySection() {
+export function PizzaAssemblySection({ onStart }) {
   const sectionRef = useRef(null);
   const progress = useSectionScrollProgress(sectionRef);
 
@@ -849,6 +868,11 @@ export function PizzaAssemblySection() {
             <p className="mt-4 text-base sm:text-lg text-ink-600 dark:text-ink-400 leading-relaxed">
               Faites défiler pour voir nos ingrédients frais (champignons, pepperoni, olives fraîches, feuilles de basilic odorantes et oignons) s'assembler et atterrir directement sur notre pâte artisanale cuite sur pierre.
             </p>
+            <div className="mt-6">
+              <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/20">
+                Commandez votre pizza 🍕 <I.Right size={18}/>
+              </Button>
+            </div>
           </div>
         </Reveal>
 
@@ -924,7 +948,7 @@ export function PizzaCookingStage({ progress }) {
 }
 
 /* === Showcase === */
-export function ShowcaseSection() {
+export function ShowcaseSection({ onStart }) {
   const sectionRef = useRef(null);
 
   return (
@@ -968,6 +992,11 @@ export function ShowcaseSection() {
               <p className="mt-6 text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed">
                 Tout a été méticuleusement conçu pour éliminer l'attente et vous offrir le meilleur de vos campus.
               </p>
+              <div className="mt-6">
+                <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/20">
+                  Commander en 1 clic 🚀 <I.Right size={18}/>
+                </Button>
+              </div>
             </div>
           </Reveal>
 
@@ -1044,7 +1073,7 @@ export function PizzaExplodedStage({ progress }) {
 }
 
 /* === Testimonials === */
-export function TestimonialsSection() {
+export function TestimonialsSection({ onStart }) {
   const sectionRef = useRef(null);
   const progress = useSectionScrollProgress(sectionRef);
 
@@ -1091,6 +1120,12 @@ export function TestimonialsSection() {
               </Fragment>
             ))}
           </div>
+        </div>
+
+        <div className="mt-8 text-center">
+          <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/25">
+            Commander & rejoindre la communauté 😋 <I.Right size={18}/>
+          </Button>
         </div>
       </div>
     </section>
@@ -1193,7 +1228,7 @@ export function FinalCTA({ onStart }) {
   );
 }
 
-export function CampusHospitalsSection() {
+export function CampusHospitalsSection({ onStart }) {
   return (
     <section className="mt-2 sm:mt-4">
       <Reveal>
@@ -1218,6 +1253,11 @@ export function CampusHospitalsSection() {
                 <p className="mt-3 text-sm sm:text-base text-white/70 leading-relaxed">
                   Hôpitaux universitaires, instituts de santé et résidences étudiantes — livraison prioritaire sur tout le campus.
                 </p>
+                <div className="mt-5">
+                  <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/25">
+                    Commander sur mon campus ou CHU 📍 <I.Right size={18}/>
+                  </Button>
+                </div>
               </div>
               <div className="flex gap-3 shrink-0">
                 <div className="px-5 py-4 rounded-2xl bg-white/10 backdrop-blur border border-white/10 text-center">

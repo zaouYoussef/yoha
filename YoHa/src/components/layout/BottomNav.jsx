@@ -7,8 +7,8 @@ export function BottomNav({ active, onHome, onSearch, onCart, onProfile, cartCou
   return (
     <nav className="fixed md:hidden bottom-0 inset-x-0 z-30 glass-strong border-t border-ink-200/60 dark:border-ink-800/60 pb-[env(safe-area-inset-bottom)]">
       <div className="grid grid-cols-4 h-16">
-        <BNBtn active={active==='home'||active==='landing'} onClick={onHome} icon={<I.Home size={20}/>} label="Accueil"/>
-        <BNBtn onClick={onSearch} icon={<I.Search size={20}/>} label="Recherche"/>
+        <BNBtn active={active==='landing'} onClick={onHome} icon={<I.Home size={20}/>} label="Accueil"/>
+        <BNBtn active={active==='browse'||active==='home'} onClick={onSearch} icon={<I.Chef size={20}/>} label="Commander"/>
         <BNBtn onClick={onCart} icon={
           <span className="relative">
             <I.Cart size={20}/>
