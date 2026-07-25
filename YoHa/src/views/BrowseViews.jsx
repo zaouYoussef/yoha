@@ -467,33 +467,6 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 ))}
               </HorizontalRow>
 
-              {/* Pâtisseries preview */}
-              {dessertItems.length > 0 && (
-                <HorizontalRow title="🥐 Pâtisseries" count={dessertItems.length} onSeeAll={() => setFilter('dessert')}>
-                  {dessertItems.map((r) => (
-                    <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                  ))}
-                </HorizontalRow>
-              )}
-
-              {/* Pharmacies preview */}
-              {pharmacyItems.length > 0 && (
-                <HorizontalRow title="💊 Pharmacies" count={pharmacyItems.length} onSeeAll={() => setFilter('pharmacy')}>
-                  {pharmacyItems.map((r) => (
-                    <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                  ))}
-                </HorizontalRow>
-              )}
-
-              {/* Supermarchés preview */}
-              {marketItems.length > 0 && (
-                <HorizontalRow title="🛒 Supermarchés" count={marketItems.length} onSeeAll={() => setFilter('supermarket')}>
-                  {marketItems.map((r) => (
-                    <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                  ))}
-                </HorizontalRow>
-              )}
-
               {/* Search results */}
               {restaurantsError && <ApiErrorState message={restaurantsError} onRetry={refreshRestaurants} />}
             </>
