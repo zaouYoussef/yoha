@@ -325,19 +325,19 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       <div className="bg-white dark:bg-ink-950">
         <div className="max-w-7xl mx-auto px-0 sm:px-6 py-4 space-y-7">
 
-          {/* ═══ TOP TABS BAR (Deliveroo style) ═══ */}
+          {/* ═══ TOP TABS BAR (6 Main Services) ═══ */}
           {!search && (
             <div className="border-b border-ink-100 dark:border-ink-800 -mx-4 px-4 sm:mx-0 sm:px-0 mb-1 overflow-x-auto no-scrollbar">
               <div className="flex items-center gap-6 text-sm font-bold text-ink-600 dark:text-ink-300 min-w-max">
                 {[
-                  { id: 'all', label: 'Accueil' },
-                  { id: 'restaurants', label: 'Restaurants' },
-                  { id: 'supermarket', label: 'Courses' },
-                  { id: 'offers', label: 'Offres' },
-                  { id: 'takeaway', label: 'À emporter' },
-                  { id: 'shop', label: 'Shopping' },
+                  { id: 'all', label: 'Restos 🍔' },
+                  { id: 'pharmacy', label: 'Pharmacies 💊' },
+                  { id: 'parapharmacy', label: 'Parapharma 🌿' },
+                  { id: 'dessert', label: 'Pâtisseries 🥐' },
+                  { id: 'supermarket', label: 'Supermarché 🛒' },
+                  { id: 'shop', label: 'Magasins 🛍️' },
                 ].map((tab) => {
-                  const active = (tab.id === 'all' && filter === 'all') || filter === tab.id;
+                  const active = (tab.id === 'all' && (filter === 'all' || filter === 'restaurants')) || filter === tab.id;
                   return (
                     <button
                       key={tab.id}
@@ -388,39 +388,6 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 );
               })}
             </section>
-          )}
-
-          {/* ═══ FILTER PILLS ROW (Deliveroo style) ═══ */}
-          {!search && (
-            <div className="relative -mx-4 px-4 sm:mx-0 sm:px-0">
-              <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1 scroll-smooth">
-                {[
-                  { id: 'offers', label: 'Offres', icon: '🏷️' },
-                  { id: 'vouchers', label: 'Titres-restaurant', icon: '🎫' },
-                  { id: 'takeaway', label: 'À emporter', icon: '🚶' },
-                  { id: 'diet', label: 'Régimes alimentaires', icon: '🥗' },
-                  { id: 'fast', label: 'Moins de 30 min', icon: '⏱️' },
-                  { id: 'cuisines', label: 'Types de cuisine', icon: '🍳' },
-                  { id: 'dishes', label: 'Plats', icon: '🍽️' },
-                  { id: 'top_rated', label: 'Mieux notés', icon: '⭐' },
-                ].map((chip) => (
-                  <button
-                    key={chip.id}
-                    type="button"
-                    onClick={() => setFilter(chip.id)}
-                    className={`cursor-pointer shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold border transition-all ${
-                      filter === chip.id
-                        ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
-                        : 'bg-white dark:bg-ink-900 text-ink-800 dark:text-ink-200 border-ink-200 dark:border-ink-800 hover:border-teal-500'
-                    }`}
-                  >
-                    <span>{chip.icon}</span>
-                    <span>{chip.label}</span>
-                    <span className="text-[10px] opacity-60">▼</span>
-                  </button>
-                ))}
-              </div>
-            </div>
           )}
 
           {/* ═══ SUB-CAROUSEL per filter ═══ */}
