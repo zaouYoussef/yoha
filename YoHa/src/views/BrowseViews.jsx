@@ -317,23 +317,19 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
           {!search && (
             <div className="flex gap-2.5 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
               {[
-                { label: 'Offres', emoji: '🎁', id: 'offers' },
-                { label: 'Fast Food', emoji: '🍕', id: 'pizza' },
-                { label: 'Grillades', emoji: '🍗', id: 'grillades' },
-                { label: 'Cuisine du monde', emoji: '🍣', id: 'sushi' },
-                { label: 'Healthy', emoji: '🥗', id: 'healthy' },
-                { label: 'Petit-déjeuner', emoji: '☕', id: 'breakfast' },
-                { label: 'Sucré', emoji: '🍰', id: 'dessert' },
-                { label: 'Boissons', emoji: '🧋', id: 'drinks' },
-                { label: 'Pharmacies', emoji: '💊', id: 'pharmacy' },
-                { label: 'Supermarchés', emoji: '🛒', id: 'supermarket' },
+                { label: 'Restos', emoji: '🍔', id: 'all' },
+                { label: 'Pharmacie', emoji: '💊', id: 'pharmacy' },
+                { label: 'Parapharma', emoji: '🌿', id: 'parapharmacy' },
+                { label: 'Pâtisserie', emoji: '🥐', id: 'dessert' },
+                { label: 'Supermarché', emoji: '🛒', id: 'supermarket' },
+                { label: 'Magasins', emoji: '🛍️', id: 'shop' },
               ].map((s) => {
-                const active = filter === s.id || (s.id === 'all' && filter === 'all');
+                const active = filter === s.id || (s.id === 'all' && (filter === 'all' || filter === 'restaurants'));
                 return (
                   <button
                     key={s.id}
                     type="button"
-                    onClick={() => setFilter(s.id === 'all_resto' ? 'all' : s.id)}
+                    onClick={() => setFilter(s.id)}
                     className={`cursor-grow shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold border-2 transition-all duration-200 ${
                       active
                         ? 'bg-brand-500 text-white border-brand-500 shadow-lg shadow-brand-500/30 scale-[1.03]'
@@ -386,7 +382,8 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 <div>
                   <h2 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white flex items-center gap-2">
                     <span>
-                      {filter === 'offers' ? '🎁 Offres près de chez vous' :
+                      {filter === 'restaurants' ? '🍕 Restaurants' :
+                       filter === 'offers' ? '🎁 Offres près de chez vous' :
                        filter === 'popular' ? '🔥 Populaires dans votre quartier' :
                        filter === 'fast' ? '⚡ Livraison la plus rapide' :
                        filter === 'dessert' || filter === 'patisserie' ? '🥐 Pâtisseries' :
