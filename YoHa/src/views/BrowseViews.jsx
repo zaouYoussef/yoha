@@ -281,6 +281,12 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     return open.sort((a, b) => (b.rating ?? 4.8) - (a.rating ?? 4.8));
   }, [foodRestaurants]);
   const fastDelivery = useMemo(() => foodRestaurants.filter(r => isRestaurantOpen(r)), [foodRestaurants]);
+  const topRatedList = useMemo(() => foodRestaurants.filter(r => (r.rating ?? 4.8) >= 4.7).sort((a, b) => (b.rating ?? 4.8) - (a.rating ?? 4.8)), [foodRestaurants]);
+  const favoritesList = useMemo(() => foodRestaurants.slice().reverse(), [foodRestaurants]);
+  const burgerList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'burger' || r.tags?.includes('Burgers') || r.name.toLowerCase().includes('burger')), [foodRestaurants]);
+  const pizzaList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'pizza' || r.tags?.includes('Pizza') || r.name.toLowerCase().includes('pizza')), [foodRestaurants]);
+  const asianList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'sushi' || r.cuisine === 'asian' || r.tags?.includes('Sushi') || r.name.toLowerCase().includes('sushi') || r.name.toLowerCase().includes('wok')), [foodRestaurants]);
+
   const dessertItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'dessert' || s.cuisine === 'patisserie'), []);
   const pharmacyItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'pharmacy'), []);
   const paraItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'parapharmacy'), []);
@@ -291,6 +297,12 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     if (filter === 'offers') return promoRestaurants;
     if (filter === 'popular') return popularRestaurants;
     if (filter === 'fast') return fastDelivery;
+    if (filter === 'free_delivery') return foodRestaurants;
+    if (filter === 'top_rated') return topRatedList;
+    if (filter === 'favorites') return favoritesList;
+    if (filter === 'burgers_sec') return burgerList.length ? burgerList : foodRestaurants.filter(r => r.cuisine === 'burger');
+    if (filter === 'pizzas_sec') return pizzaList.length ? pizzaList : foodRestaurants.filter(r => r.cuisine === 'pizza');
+    if (filter === 'asian_sec') return asianList.length ? asianList : foodRestaurants.filter(r => r.cuisine === 'sushi' || r.cuisine === 'asian');
     if (filter === 'dessert' || filter === 'patisserie') return dessertItems;
     if (filter === 'pharmacy') return pharmacyItems;
     if (filter === 'parapharmacy') return paraItems;
@@ -300,7 +312,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       return foodRestaurants.filter(r => r.cuisine === filter);
     }
     return foodRestaurants;
-  }, [filter, promoRestaurants, popularRestaurants, fastDelivery, dessertItems, pharmacyItems, paraItems, marketItems, shopItems, foodRestaurants]);
+  }, [filter, promoRestaurants, popularRestaurants, fastDelivery, topRatedList, favoritesList, burgerList, pizzaList, asianList, dessertItems, pharmacyItems, paraItems, marketItems, shopItems, foodRestaurants]);
 
   const isDefault = filter === 'all' && !search.trim();
 
@@ -442,7 +454,13 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                       {filter === 'restaurants' ? '🍕 Restaurants' :
                        filter === 'offers' ? '🎁 Offres près de chez vous' :
                        filter === 'popular' ? '🔥 Populaires dans votre quartier' :
-                       filter === 'fast' ? '⚡ Livraison la plus rapide' :
+                       filter === 'fast' ? '⚡ Frais de livraison tout doux' :
+                       filter === 'free_delivery' ? '🛵 Frais de livraison offerts' :
+                       filter === 'top_rated' ? '🌟 Mieux notés' :
+                       filter === 'favorites' ? '❤️ Favoris les plus populaires' :
+                       filter === 'burgers_sec' ? '🍔 Burgers' :
+                       filter === 'pizzas_sec' ? '🍕 Pizzas' :
+                       filter === 'asian_sec' ? '🍣 Asian & Sushi' :
                        filter === 'dessert' || filter === 'patisserie' ? '🥐 Pâtisseries' :
                        filter === 'pharmacy' ? '💊 Pharmacies' :
                        filter === 'parapharmacy' ? '🌿 Parapharmacies' :
@@ -481,13 +499,13 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             </section>
           )}
 
-          {/* ═══ DEFAULT HOME SECTIONS (CAROUSELS) ═══ */}
+          {/* ═══ DEFAULT HOME SECTIONS (DELIVEROO STRUCTURE) ═══ */}
           {filter === 'all' && !search.trim() && (
             <>
-              {/* À la une */}
+              {/* 1. À la une */}
               {showFeatured && (
                 <section className="px-4 sm:px-0">
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-3.5">
                     <span className="relative flex h-3 w-3 shrink-0">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75" />
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500" />
@@ -498,30 +516,153 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 </section>
               )}
 
-              {/* Offres */}
-              {promoRestaurants.length > 1 && (
-                <HorizontalRow title="🎁 Offres près de chez vous" count={promoRestaurants.length - 1} onSeeAll={() => setFilter('offers')}>
-                  {promoRestaurants.slice(1).map((r) => (
-                    <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
+              {/* 2. Frais de livraison offerts */}
+              <HorizontalRow
+                title="🛵 Frais de livraison offerts"
+                subtitle="Livraison 0 MAD sur tout l'Alliance & CHU"
+                count={foodRestaurants.length}
+                onSeeAll={() => setFilter('free_delivery')}
+              >
+                {foodRestaurants.map((r) => (
+                  <RestaurantCardHorizontal key={`free-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
+                ))}
+              </HorizontalRow>
+
+              {/* 3. Marques populaires */}
+              <section className="px-4 sm:px-0">
+                <div className="flex items-center justify-between mb-3.5">
+                  <div>
+                    <h2 className="font-display font-black text-lg sm:text-xl text-ink-900 dark:text-white flex items-center gap-2">
+                      🏆 Marques populaires
+                    </h2>
+                    <p className="text-xs text-ink-500 dark:text-ink-400 mt-0.5 font-medium">Les enseignes incontournables de la ville</p>
+                  </div>
+                </div>
+                <div className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
+                  {foodRestaurants.slice(0, 8).map((r) => (
+                    <button
+                      key={`brand-${r.id}`}
+                      type="button"
+                      onClick={() => onPickRestaurant(r)}
+                      className="cursor-grow shrink-0 flex flex-col items-center gap-2 group w-20"
+                    >
+                      <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-ink-100 dark:border-ink-800 shadow-sm group-hover:border-brand-500 group-hover:shadow-md transition-all duration-300">
+                        <img src={r.cover} alt={r.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
+                      </div>
+                      <span className="text-[11px] font-bold text-center text-ink-700 dark:text-ink-300 line-clamp-1 group-hover:text-brand-500 transition-colors">
+                        {r.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              {/* 4. Populaires dans votre quartier */}
+              <HorizontalRow
+                title="🔥 Populaires dans votre quartier"
+                subtitle="Établissements très prisés au campus & hôpitaux"
+                count={popularRestaurants.length}
+                onSeeAll={() => setFilter('popular')}
+              >
+                {popularRestaurants.map((r) => (
+                  <RestaurantCardHorizontal key={`pop-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                ))}
+              </HorizontalRow>
+
+              {/* 5. Frais de livraison tout doux */}
+              <HorizontalRow
+                title="⚡ Frais de livraison tout doux"
+                subtitle="Livraison ultra rapide en moins de 30 min"
+                count={fastDelivery.length}
+                onSeeAll={() => setFilter('fast')}
+              >
+                {fastDelivery.map((r) => (
+                  <RestaurantCardHorizontal key={`fast-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                ))}
+              </HorizontalRow>
+
+              {/* 6. Offres près de chez vous */}
+              {promoRestaurants.length > 0 && (
+                <HorizontalRow
+                  title="🎁 Offres près de chez vous"
+                  subtitle="Promotions actives et menus avantageux"
+                  count={promoRestaurants.length}
+                  onSeeAll={() => setFilter('offers')}
+                >
+                  {promoRestaurants.map((r) => (
+                    <RestaurantCardHorizontal key={`promo-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
                   ))}
                 </HorizontalRow>
               )}
 
-              {/* Populaires */}
-              <HorizontalRow title="🔥 Populaires dans votre quartier" count={popularRestaurants.length} onSeeAll={() => setFilter('popular')}>
-                {popularRestaurants.map((r) => (
-                  <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
+              {/* 7. Mieux notés */}
+              <HorizontalRow
+                title="🌟 Mieux notés"
+                subtitle="Les meilleures adresses notées 4.8 et plus"
+                count={topRatedList.length}
+                onSeeAll={() => setFilter('top_rated')}
+              >
+                {topRatedList.map((r) => (
+                  <RestaurantCardHorizontal key={`top-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
                 ))}
               </HorizontalRow>
 
-              {/* Rapide */}
-              <HorizontalRow title="⚡ Livraison la plus rapide" count={fastDelivery.length} onSeeAll={() => setFilter('fast')}>
-                {fastDelivery.map((r) => (
-                  <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
+              {/* 8. Favoris les plus populaires */}
+              <HorizontalRow
+                title="❤️ Favoris les plus populaires"
+                subtitle="Adresses fréquemment ajoutées en coup de cœur"
+                count={favoritesList.length}
+                onSeeAll={() => setFilter('favorites')}
+              >
+                {favoritesList.map((r) => (
+                  <RestaurantCardHorizontal key={`fav-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
                 ))}
               </HorizontalRow>
 
-              {/* Search results */}
+              {/* 9. Burgers */}
+              {burgerList.length > 0 && (
+                <HorizontalRow
+                  title="🍔 Burgers"
+                  subtitle="Smash burgers, double cheese et frites dorées"
+                  count={burgerList.length}
+                  onSeeAll={() => setFilter('burgers_sec')}
+                >
+                  {burgerList.map((r) => (
+                    <RestaurantCardHorizontal key={`burger-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                  ))}
+                </HorizontalRow>
+              )}
+
+              {/* 10. Pizzas */}
+              {pizzaList.length > 0 && (
+                <HorizontalRow
+                  title="🍕 Pizzas"
+                  subtitle="Pizzas napolitaines et recettes italiennes"
+                  count={pizzaList.length}
+                  onSeeAll={() => setFilter('pizzas_sec')}
+                >
+                  {pizzaList.map((r) => (
+                    <RestaurantCardHorizontal key={`pizza-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                  ))}
+                </HorizontalRow>
+              )}
+
+              {/* 11. Asian & Sushi */}
+              {asianList.length > 0 && (
+                <HorizontalRow
+                  title="🍣 Asian & Sushi"
+                  subtitle="Maki, nigiri, pad thaï et ramen chaud"
+                  count={asianList.length}
+                  onSeeAll={() => setFilter('asian_sec')}
+                >
+                  {asianList.map((r) => (
+                    <RestaurantCardHorizontal key={`asian-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                  ))}
+                </HorizontalRow>
+              )}
+
+              {/* Search results error */}
               {restaurantsError && <ApiErrorState message={restaurantsError} onRetry={refreshRestaurants} />}
             </>
           )}
@@ -552,16 +693,21 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   );
 }
 
-function HorizontalRow({ title, count, children, onSeeAll }) {
+function HorizontalRow({ title, subtitle, count, children, onSeeAll }) {
   return (
     <section className="px-4 sm:px-0">
       <div className="flex items-center justify-between mb-3.5">
-        <h2 className="font-display font-extrabold text-base sm:text-lg text-ink-900 dark:text-white">{title}</h2>
+        <div>
+          <h2 className="font-display font-extrabold text-base sm:text-lg text-ink-900 dark:text-white">{title}</h2>
+          {subtitle && (
+            <p className="text-xs text-ink-500 dark:text-ink-400 mt-0.5 font-medium">{subtitle}</p>
+          )}
+        </div>
         {count > 0 && (
           <button
             type="button"
             onClick={onSeeAll}
-            className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-brand-500 hover:underline cursor-pointer flex items-center gap-1 active:scale-95 transition-transform"
+            className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-brand-500 hover:underline cursor-pointer flex items-center gap-1 active:scale-95 transition-transform shrink-0"
           >
             <span>Tout voir ({count})</span>
             <span>→</span>
