@@ -1268,7 +1268,7 @@ function ItemDraftModal({ item, busy, onClose, onSave }) {
 
           <label className="block space-y-1.5">
             <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Accroche courte</span>
-            <input placeholder="Ex: Spécialité maison,从 depuis 1985" value={form.desc}
+            <input placeholder="Ex: Spécialité maison, depuis 1985" value={form.desc}
               onChange={(e) => setForm((f) => ({ ...f, desc: e.target.value }))}
               className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
           </label>
