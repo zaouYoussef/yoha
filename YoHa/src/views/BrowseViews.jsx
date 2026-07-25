@@ -1543,8 +1543,8 @@ export function LoyaltyRewardBanner() {
   const deliveredCount = deliveredOrders.length;
   const currentStep = deliveredCount % 6;
   const isGoalReached = currentStep === 0 && deliveredCount > 0;
+  const activeStepCount = isGoalReached ? 6 : currentStep;
   const remaining = isGoalReached ? 0 : 6 - currentStep;
-  const progressPct = isGoalReached ? 100 : (currentStep / 6) * 100;
 
   return (
     <div className="px-4 sm:px-0">
@@ -1578,17 +1578,41 @@ export function LoyaltyRewardBanner() {
             </div>
           </div>
 
-          <div className="sm:w-48 shrink-0 flex flex-col gap-1.5 bg-black/10 p-2.5 rounded-xl border border-white/10">
-            <div className="flex justify-between items-center text-xs font-bold text-emerald-100">
-              <span>Livraisons validées</span>
-              <span>{isGoalReached ? '6 / 6' : `${currentStep} / 6`}</span>
-            </div>
-            <div className="w-full h-3 rounded-full bg-black/30 overflow-hidden p-0.5 border border-white/20">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 transition-all duration-500 shadow-sm"
-                style={{ width: `${progressPct}%` }}
-              />
-            </div>
+          {/* Connected Circles Deliveroo-style Stamp Indicator */}
+          <div className="shrink-0 bg-white/95 dark:bg-ink-900/95 text-ink-900 dark:text-white px-3.5 py-2.5 rounded-2xl shadow-md border border-white/50 flex items-center gap-1 sm:gap-1.5 self-start sm:self-center">
+            {[1, 2, 3, 4, 5, 6].map((step, idx) => {
+              const isDone = activeStepCount >= step;
+              const isCurrent = !isGoalReached && currentStep + 1 === step;
+              return (
+                <React.Fragment key={step}>
+                  {/* Circle Node */}
+                  <div
+                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-extrabold text-xs transition-all duration-300 ${
+                      isDone
+                        ? 'bg-amber-400 text-slate-950 border-2 border-amber-300 shadow-sm scale-105'
+                        : isCurrent
+                        ? 'bg-emerald-500/20 border-2 border-amber-400 text-amber-500 dark:text-amber-300 animate-pulse'
+                        : 'bg-slate-100 dark:bg-ink-800 border-2 border-slate-300 dark:border-ink-600 text-slate-400 dark:text-ink-400'
+                    }`}
+                  >
+                    {isDone ? (
+                      step === 6 ? '🎁' : '✓'
+                    ) : (
+                      step
+                    )}
+                  </div>
+
+                  {/* Connecting Line (except after last circle) */}
+                  {idx < 5 && (
+                    <div
+                      className={`h-1 w-2.5 sm:w-3.5 rounded-full transition-colors duration-300 ${
+                        activeStepCount > step ? 'bg-amber-400' : 'bg-slate-200 dark:bg-ink-700'
+                      }`}
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })}
           </div>
         </div>
       </div>
