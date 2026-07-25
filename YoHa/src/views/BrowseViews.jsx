@@ -261,12 +261,26 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     });
   };
 
-  const promoRestaurants = useMemo(() => catalog.filter(r => r.promo && isRestaurantOpen(r)), [catalog]);
-  const popularRestaurants = useMemo(() => {
-    const open = catalog.filter(r => isRestaurantOpen(r));
-    return open.sort((a, b) => (b.rating ?? 4.8) - (a.rating ?? 4.8));
+  // Only real food restaurants (exclude non-food static stores like pharmacy, supermarket, patisserie)
+  const foodRestaurants = useMemo(() => {
+    const nonFoodCuisines = ['pharmacy', 'parapharmacy', 'supermarket', 'shop', 'dessert', 'patisserie'];
+    const seen = new Set();
+    return catalog.filter((r) => {
+      if (!r || !r.name) return false;
+      if (nonFoodCuisines.includes(r.cuisine)) return false;
+      const key = r.id || r.name.toLowerCase().trim();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   }, [catalog]);
-  const fastDelivery = useMemo(() => catalog.filter(r => isRestaurantOpen(r)), [catalog]);
+
+  const promoRestaurants = useMemo(() => foodRestaurants.filter(r => r.promo && isRestaurantOpen(r)), [foodRestaurants]);
+  const popularRestaurants = useMemo(() => {
+    const open = foodRestaurants.filter(r => isRestaurantOpen(r));
+    return open.sort((a, b) => (b.rating ?? 4.8) - (a.rating ?? 4.8));
+  }, [foodRestaurants]);
+  const fastDelivery = useMemo(() => foodRestaurants.filter(r => isRestaurantOpen(r)), [foodRestaurants]);
   const dessertItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'dessert' || s.cuisine === 'patisserie'), []);
   const pharmacyItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'pharmacy'), []);
   const paraItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'parapharmacy'), []);
@@ -283,10 +297,10 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     if (filter === 'supermarket') return marketItems;
     if (filter === 'shop') return shopItems;
     if (['pizza', 'tacos', 'kebab', 'healthy', 'burger', 'sushi', 'asian'].includes(filter)) {
-      return catalog.filter(r => r.cuisine === filter);
+      return foodRestaurants.filter(r => r.cuisine === filter);
     }
-    return restaurants;
-  }, [filter, promoRestaurants, popularRestaurants, fastDelivery, dessertItems, pharmacyItems, paraItems, marketItems, shopItems, catalog, restaurants]);
+    return foodRestaurants;
+  }, [filter, promoRestaurants, popularRestaurants, fastDelivery, dessertItems, pharmacyItems, paraItems, marketItems, shopItems, foodRestaurants]);
 
   const isDefault = filter === 'all' && !search.trim();
 
