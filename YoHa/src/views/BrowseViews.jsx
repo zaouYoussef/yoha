@@ -1608,6 +1608,7 @@ const PROMO_BANNERS = [
     cta: 'J\'en profite 🚀',
     image: '/pizza-img/section_2_06.webp',
     filterId: 'offers',
+    textColor: 'text-rose-950 dark:text-white',
   },
   {
     id: 'promo-2',
@@ -1620,18 +1621,21 @@ const PROMO_BANNERS = [
     cta: 'Voir les pâtisseries 🍰',
     image: '/pizza-img/section_2_05.webp',
     filterId: 'dessert',
+    textColor: 'text-pink-950 dark:text-white',
   },
   {
     id: 'promo-3',
-    bg: 'from-emerald-800 via-teal-900 to-emerald-950 text-white border-emerald-600/40',
-    tag: 'EXCLUSIVITÉ CAMPUS',
-    tagBg: 'bg-amber-400 text-slate-950 font-black',
+    bg: 'from-teal-500 via-emerald-500 to-teal-600 text-white border-teal-400/60 shadow-lg shadow-teal-500/20',
+    tag: 'EXCLUSIVITÉ ALLIANCE',
+    tagBg: 'bg-slate-950 text-amber-300 font-black',
     title: '1 ACHETÉ = 1 OFFERT',
     subtitle: 'Sur une sélection de sushis, burgers & tacos du moment',
     code: 'JE DOUBLE ➔',
     cta: 'Découvrir l\'offre ⚡',
     image: '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d.webp',
     filterId: 'popular',
+    textColor: 'text-white',
+    subColor: 'text-emerald-50 font-medium',
   },
   {
     id: 'promo-4',
@@ -1644,6 +1648,7 @@ const PROMO_BANNERS = [
     cta: 'Voir les mieux notés →',
     image: '/pizza-img/section_4_04.webp',
     filterId: 'top_rated',
+    textColor: 'text-amber-950 dark:text-white',
   },
 ];
 
@@ -1674,11 +1679,11 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
                   {b.tag}
                 </span>
 
-                <h3 className="font-display font-black text-lg sm:text-2xl tracking-tight leading-none text-ink-900 dark:text-white group-hover:text-brand-500 transition-colors">
+                <h3 className={`font-display font-black text-lg sm:text-2xl tracking-tight leading-none ${b.textColor || 'text-ink-900 dark:text-white'} transition-colors`}>
                   {b.title}
                 </h3>
 
-                <p className="text-xs text-ink-600 dark:text-ink-300 mt-1.5 line-clamp-2 leading-relaxed font-medium">
+                <p className={`text-xs ${b.subColor || 'text-ink-600 dark:text-ink-300'} mt-1.5 line-clamp-2 leading-relaxed font-medium`}>
                   {b.subtitle}
                 </p>
 
