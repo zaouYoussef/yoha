@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { I } from '../icons/Icons.jsx';
-import { CUISINES, CATEGORIES_BANNERS, STATIC_STORES } from '../data/index.js';
+import { CUISINES, CATEGORIES_BANNERS, CATEGORY_GROUPS, STATIC_STORES } from '../data/index.js';
 import { useOrders } from '../contexts/AppContexts.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { Reveal } from '../components/ui/Reveal.jsx';
@@ -349,7 +349,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
           {/* ═══ CATEGORY CIRCLES ═══ */}
           {isDefault && (
             <section className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
-              {CATEGORIES_BANNERS.map((c) => {
+              {CATEGORIES_BANNERS.filter(c => !['pharmacy','parapharmacy','supermarket','shop'].includes(c.id)).map((c) => {
                 const active = filter === c.id;
                 return (
                   <button
@@ -374,6 +374,63 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               })}
             </section>
           )}
+
+          {/* ═══ SUB-CAROUSEL per filter ═══ */}
+          {!isDefault && !search.trim() && (() => {
+            const subItems = {
+              restaurants: CATEGORY_GROUPS.filter(g => g.id !== 'services_group').flatMap(g => g.items),
+              dessert: CATEGORY_GROUPS.find(g => g.id === 'sweet')?.items || [],
+              pharmacy: [
+                { label: 'Médicaments', image: '/pizza-img/section_4_04.webp', emoji: '💊', id: 'pharmacy' },
+                { label: 'Hygiène', image: '/pizza-img/section_2_07.webp', emoji: '🧼', id: 'hygiene' },
+                { label: 'Bébé', image: '/pizza-img/section_2_01.webp', emoji: '👶', id: 'bebe' },
+                { label: 'Vitamines', image: '/pizza-img/section_1_05.webp', emoji: '💪', id: 'vitamines' },
+                { label: 'Douleur', image: '/pizza-img/section_2_05.webp', emoji: '🩹', id: 'douleur' },
+              ],
+              parapharmacy: [
+                { label: 'Beauté', image: '/pizza-img/section_1_06.webp', emoji: '💄', id: 'beaute' },
+                { label: 'Soin visage', image: '/pizza-img/section_2_05.webp', emoji: '🧴', id: 'soin' },
+                { label: 'Compléments', image: '/pizza-img/section_1_05.webp', emoji: '🌿', id: 'complement' },
+                { label: 'Cheveux', image: '/pizza-img/section_2_07.webp', emoji: '💆', id: 'cheveux' },
+              ],
+              supermarket: [
+                { label: 'Fruits', image: '/pizza-img/section_1_05.webp', emoji: '🍎', id: 'fruits' },
+                { label: 'Légumes', image: '/pizza-img/section_1_06.webp', emoji: '🥬', id: 'legumes' },
+                { label: 'Laitiers', image: '/pizza-img/section_2_01.webp', emoji: '🥛', id: 'laitiers' },
+                { label: 'Boulangerie', image: '/pizza-img/section_2_02.webp', emoji: '🍞', id: 'boulangerie' },
+                { label: 'Surgelés', image: '/pizza-img/section_2_06.webp', emoji: '🧊', id: 'surgeles' },
+                { label: 'Boissons', image: '/pizza-img/section_2_07.webp', emoji: '🥤', id: 'drinks' },
+              ],
+              shop: [
+                { label: 'Vêtements', image: '/pizza-img/section_1_09.webp', emoji: '👕', id: 'vetements' },
+                { label: 'Électronique', image: '/pizza-img/section_1_08.webp', emoji: '📱', id: 'electronique' },
+                { label: 'Accessoires', image: '/pizza-img/section_1_04.webp', emoji: '👟', id: 'accessoires' },
+                { label: 'Maison', image: '/pizza-img/section_1_02.webp', emoji: '🏠', id: 'maison' },
+              ],
+            };
+            const items = subItems[filter];
+            if (!items || items.length === 0) return null;
+            return (
+              <section className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+                {items.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setFilter(c.id === filter ? 'all' : c.id)}
+                    className="cursor-grow shrink-0 flex flex-col items-center gap-2.5 w-[4.5rem]"
+                  >
+                    <div className="relative w-[4.5rem] h-[4.5rem] rounded-[1.25rem] overflow-hidden transition-all duration-300 group border border-ink-100 dark:border-ink-800">
+                      <img src={c.image} alt={c.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                      <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors duration-300" />
+                    </div>
+                    <span className="text-[11px] font-bold text-center leading-tight text-ink-600 dark:text-ink-400">
+                      {c.label}
+                    </span>
+                  </button>
+                ))}
+              </section>
+            );
+          })()}
 
           {/* ═══ FILTERED / CATEGORY GRID VIEW ═══ */}
           {(filter !== 'all' || search.trim()) && (

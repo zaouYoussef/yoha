@@ -3,34 +3,41 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 /** Image de remplacement si l’URL du plat est invalide ou inaccessible */
-export const FOOD_IMAGE_FALLBACK =
-  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80&auto=format&fit=crop';
+export const FOOD_IMAGE_FALLBACK = '/custom_order_card.webp';
 
-export const RESTAURANT_COVER_FALLBACK =
-  'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200&q=80&auto=format&fit=crop';
+export const RESTAURANT_COVER_FALLBACK = '/custom_order_card.webp';
 
-export const RESTAURANT_LOGO_FALLBACK =
-  'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=160&q=80&auto=format&fit=crop';
+export const RESTAURANT_LOGO_FALLBACK = '/logo.webp';
 
 export function restaurantCover(url) {
   if (typeof url === 'string' && url.trim()) {
     const trimmed = url.trim();
-    if (trimmed.includes('custom-pharmacy')) return 'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=800&auto=format&fit=crop&q=80';
-    if (trimmed.includes('custom-supermarket')) return 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&auto=format&fit=crop&q=80';
-    if (trimmed.includes('custom-parapharmacy')) return 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800&auto=format&fit=crop&q=80';
-    if (trimmed.includes('custom-shop')) return 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&auto=format&fit=crop&q=80';
-    if (trimmed.includes('custom-patisserie')) return 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=800&auto=format&fit=crop&q=80';
+    if (trimmed.includes('custom-pharmacy')) return '/media/restaurants/custom-pharmacy.webp';
+    if (trimmed.includes('custom-supermarket')) return '/media/restaurants/custom-supermarket.webp';
+    if (trimmed.includes('custom-parapharmacy')) return '/media/restaurants/custom-parapharmacy.webp';
+    if (trimmed.includes('custom-shop')) return '/media/restaurants/custom-shop.webp';
+    if (trimmed.includes('custom-patisserie')) return '/media/restaurants/custom-patisserie.webp';
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return '/custom_order_card.webp';
+    }
     return trimmed;
   }
   return RESTAURANT_COVER_FALLBACK;
 }
 
 export function restaurantLogo(url) {
-  return (typeof url === 'string' && url.trim()) ? url.trim() : RESTAURANT_LOGO_FALLBACK;
+  if (typeof url === 'string' && url.trim()) {
+    const trimmed = url.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return '/logo.webp';
+    }
+    return trimmed;
+  }
+  return RESTAURANT_LOGO_FALLBACK;
 }
 
 /**
- * Image plat : secours Unsplash si l’URL casse, puis placeholder 🍽️ si besoin.
+ * Image plat : secours local si l’URL casse, puis placeholder 🍽️ si besoin.
  */
 export function MenuItemImage({ src, alt = '', className = '', loading = 'lazy' }) {
   const primary = typeof src === 'string' ? src.trim() : '';
@@ -41,6 +48,9 @@ export function MenuItemImage({ src, alt = '', className = '', loading = 'lazy' 
   }, [primary]);
 
   const url = useMemo(() => {
+    if (primary.startsWith('http://') || primary.startsWith('https://')) {
+      return FOOD_IMAGE_FALLBACK;
+    }
     if (phase === 0) return primary || FOOD_IMAGE_FALLBACK;
     if (phase === 1) return FOOD_IMAGE_FALLBACK;
     return null;

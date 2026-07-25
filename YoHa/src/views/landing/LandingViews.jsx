@@ -198,7 +198,7 @@ export function Hero({ onStart, onHowItWorks }) {
           <div className="mt-6 sm:mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 animate-fade-up" style={{ animationDelay:'900ms' }}>
             <div className="flex -space-x-2 shrink-0">
               {[1,2,3,4].map(i => (
-                <img key={i} src={`https://i.pravatar.cc/64?img=${i+10}`} alt="Avatar utilisateur" width="36" height="36" loading="lazy" decoding="async"
+                <img key={i} src="/logo.webp" alt="Avatar utilisateur" width="36" height="36" loading="lazy" decoding="async"
                   className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-white dark:border-ink-900 object-cover" />
               ))}
             </div>
@@ -396,7 +396,7 @@ export function BentoHero() {
           </div>
           <div className="mt-3 flex -space-x-2.5">
             {[5,16,18,22,33].map(i => (
-              <img key={i} src={`https://i.pravatar.cc/48?img=${i}`} alt=""
+              <img key={i} src="/logo.webp" alt=""
                 className="w-8 h-8 rounded-full border-2 border-white dark:border-ink-950 object-cover cursor-pointer"/>
             ))}
           </div>

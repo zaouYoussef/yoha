@@ -2,25 +2,25 @@ export const HERO_RESTAURANTS = [
   {
     id: 'hero-new-school-tacos',
     name: 'New School Tacos Tanger',
-    cover: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=350&q=50&auto=format&fit=crop',
+    cover: '/pizza-img/section_1_01.webp',
     tags: ['Tacos'],
   },
   {
     id: 'hero-burger-house',
     name: 'Burger House',
-    cover: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=350&q=50&auto=format&fit=crop',
+    cover: '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d.webp',
     tags: ['Burgers'],
   },
   {
     id: 'hero-pizza-italia',
     name: 'Pizza Italia',
-    cover: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=350&q=50&auto=format&fit=crop',
+    cover: '/pizza-img/section_4_04.webp',
     tags: ['Pizza'],
   },
   {
     id: 'hero-sushi-wok',
     name: 'Sushi Wok',
-    cover: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=350&q=50&auto=format&fit=crop',
+    cover: '/pizza-img/section_1_07.webp',
     tags: ['Sushi'],
   },
 ];

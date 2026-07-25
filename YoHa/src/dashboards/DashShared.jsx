@@ -6,7 +6,7 @@ import { Logo } from '../components/layout/Logo.jsx';
 import { ORDER_STATES } from '../data/index.js';
 import { spotlightHandler } from '../utils/spotlight.js';
 
-const gerantPhoto = 'https://i.pravatar.cc/120?img=33';
+const gerantPhoto = '/logo.webp';
 
 const DASH_LINKS = {
   admin: [
