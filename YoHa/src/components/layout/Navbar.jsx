@@ -54,24 +54,7 @@ export function Navbar({
             <Logo />
           </button>
 
-          {/* Sur /browse, on affiche la pilule slogan YoHa Delivery */}
-          {isBrowsePage ? (
-            <div className="hidden md:flex items-center gap-3 ml-4">
-              <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-ink-900/80 border border-ink-200/60 dark:border-ink-800/80 text-xs font-bold text-ink-800 dark:text-ink-200 shadow-sm backdrop-blur-md transition-all hover:bg-white dark:hover:bg-ink-900 hover:shadow">
-                <span className="text-brand-500 font-extrabold flex items-center gap-1.5">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500" />
-                  </span>
-                  YoHa Delivery
-                </span>
-                <span className="text-ink-300 dark:text-ink-700">·</span>
-                <span className="text-ink-600 dark:text-ink-300 font-semibold">
-                  Vos envies livrées en moins de 30 min ⚡
-                </span>
-              </div>
-            </div>
-          ) : (
+          {!isBrowsePage && (
             <div className="hidden md:flex items-center gap-1 ml-4">
               <button
                 type="button"

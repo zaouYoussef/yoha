@@ -380,7 +380,6 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             <section className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
               {CATEGORIES_BANNERS.map((c) => {
                 const active = filter === c.id;
-                const glowColor = CATEGORY_GLOW[c.id] || '#f97316';
                 return (
                   <button
                     key={c.id}
@@ -389,15 +388,14 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                     className="cursor-grow shrink-0 flex flex-col items-center gap-2.5 w-[4.5rem]"
                   >
                     <div
-                      className="relative w-[4.5rem] h-[4.5rem] rounded-[1.25rem] overflow-hidden transition-all duration-300 group"
-                      style={{
-                        boxShadow: active ? `0 0 0 3px ${glowColor}, 0 8px 25px -5px ${glowColor}40` : undefined,
-                      }}
+                      className={`relative w-[4.5rem] h-[4.5rem] rounded-[1.25rem] overflow-hidden transition-all duration-300 group ${
+                        active ? 'ring-2 ring-ink-900 dark:ring-white scale-105' : 'border border-ink-100 dark:border-ink-800'
+                      }`}
                     >
                       <img src={c.image} alt={c.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                      <div className={`absolute inset-0 transition-colors duration-300 ${active ? 'bg-brand-500/20' : 'bg-black/10 group-hover:bg-black/5'}`} />
+                      <div className={`absolute inset-0 transition-colors duration-300 ${active ? 'bg-black/10' : 'bg-black/10 group-hover:bg-black/5'}`} />
                     </div>
-                    <span className={`text-[11px] font-bold text-center leading-tight ${active ? 'text-brand-600 dark:text-brand-400' : 'text-ink-600 dark:text-ink-400'}`}>
+                    <span className={`text-[11px] font-bold text-center leading-tight ${active ? 'text-ink-900 dark:text-white font-black' : 'text-ink-600 dark:text-ink-400'}`}>
                       {c.label}
                     </span>
                   </button>
@@ -604,15 +602,8 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
       className="cursor-grow shrink-0 w-[72vw] sm:w-[260px] lg:w-[300px] snap-start group"
     >
-      {/* Card with gradient border on hover */}
-      <div className={`relative rounded-[1.25rem] overflow-hidden transition-all duration-300 ${
-        promo
-          ? 'ring-2 ring-brand-500/40 shadow-lg shadow-brand-500/10'
-          : 'border border-ink-100 dark:border-ink-800 hover:border-transparent'
-      }`}>
-        {/* Animated gradient border (visible on hover) */}
-        <div className={`absolute -inset-[1px] rounded-[1.25rem] bg-gradient-to-br ${glowGrad} opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-[1px] pointer-events-none z-0`} />
-
+      {/* Card with clean subtle border */}
+      <div className="relative rounded-[1.25rem] overflow-hidden transition-all duration-300 border border-ink-100 dark:border-ink-800/80 shadow-sm hover:shadow-md">
         <div className="relative bg-white dark:bg-ink-900 rounded-[1.25rem] overflow-hidden z-[1]">
           {/* Image */}
           <div className="relative h-40 sm:h-44 overflow-hidden bg-ink-100 dark:bg-ink-800">
@@ -1237,17 +1228,14 @@ export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = f
 
 export function RestaurantCard({ restaurant, onClick }) {
   const open = isRestaurantOpen(restaurant);
-  const glowColor = CATEGORY_GLOW[restaurant.cuisine] || '#f97316';
 
   return (
     <div
       onClick={onClick}
-      onMouseMove={spotlightHandler}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      style={{ '--glow-color': glowColor }}
-      className="cursor-grow group text-left w-full bg-white dark:bg-ink-900 rounded-3xl overflow-hidden shadow-card hover:shadow-cardhover border border-ink-200/60 dark:border-ink-800 spotlight transition-transform duration-300 card-glow-hover"
+      className="cursor-grow group text-left w-full bg-white dark:bg-ink-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-md border border-ink-200/60 dark:border-ink-800 transition-all duration-300"
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-ink-100 dark:bg-ink-950">
         <img
