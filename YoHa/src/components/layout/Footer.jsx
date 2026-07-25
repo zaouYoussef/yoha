@@ -28,7 +28,7 @@ export function Footer({ goto }) {
       </div>
       <div className="border-t border-ink-200/60 dark:border-ink-800/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-500">
-          <span>© {new Date().getFullYear()} YoHa. Conçu sur le campus, livré chez vous.</span>
+          <span>© {new Date().getFullYear()} YoHa. Conçu à l&apos;Alliance, livré chez vous.</span>
           <span className="inline-flex items-center gap-3">
             <span>Fait avec ❤️ + Next.js + Tailwind</span>
           </span>

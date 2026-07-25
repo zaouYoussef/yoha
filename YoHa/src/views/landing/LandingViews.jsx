@@ -80,7 +80,7 @@ export function Hero({ onStart, onHowItWorks }) {
   const slogans = [
     'Livraison intelligente',
     'pour votre CHU',
-    'Pensé pour la vie de campus',
+    'Pensé pour la vie à l\'Alliance',
     'Plus rapide que ta faim.',
   ];
   const [sloganIdx, setSloganIdx] = useState(0);
@@ -163,7 +163,7 @@ export function Hero({ onStart, onHowItWorks }) {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-500"></span>
             </span>
-            <span className="truncate">En direct · campus & CHU</span>
+            <span className="truncate">En direct · Alliance & CHU</span>
           </span>
 
           <h1 className="mt-4 sm:mt-6 font-display font-black tracking-tight text-5xl sm:text-6xl lg:text-7xl leading-[1.05] sm:leading-[0.95]">
@@ -423,7 +423,7 @@ export function BentoHero() {
           <span className="w-9 h-9 rounded-xl bg-emerald-500 text-white grid place-items-center shadow-sm shrink-0"><I.Bike size={18}/></span>
           <div className="text-sm min-w-0">
             <div className="font-bold text-emerald-800 dark:text-emerald-300">Livraison offerte</div>
-            <div className="text-ink-500 dark:text-ink-400 text-xs">Sur tout le campus & CHU</div>
+            <div className="text-ink-500 dark:text-ink-400 text-xs">Sur toute l&apos;Alliance & CHU</div>
           </div>
         </div>
       </Tilt>
@@ -432,7 +432,7 @@ export function BentoHero() {
         <div className="h-full rounded-3xl glass-card-premium border border-white/20 dark:border-white/5 px-4 flex items-center gap-3 shadow-card hover:shadow-cardhover transition-all duration-300 hover:border-brand-500/20 cursor-pointer">
           <span className="w-9 h-9 rounded-xl bg-brand-500 text-white grid place-items-center text-lg shadow-sm shrink-0">🍽️</span>
           <div className="text-sm min-w-0">
-            <div className="font-bold">Campus & CHU</div>
+            <div className="font-bold">Alliance & CHU</div>
             <div className="text-ink-500 dark:text-ink-400 text-xs">Livraison prioritaire 24h/24</div>
           </div>
         </div>
@@ -551,7 +551,7 @@ export function PartnerCategoriesSection() {
             Tout ce dont vous avez besoin, <span className="text-gradient text-glow">au même endroit.</span>
           </h2>
           <p className="mt-4 text-base sm:text-lg text-ink-600 dark:text-ink-400 leading-relaxed">
-            En plus des restaurants, YoHa regroupe tous les commerces et services de Tanger essentiels pour votre quotidien au campus ou au CHU.
+            En plus des restaurants, YoHa regroupe tous les commerces et services de Tanger essentiels pour votre quotidien à l&apos;Alliance ou au CHU.
           </p>
         </div>
       </Reveal>
@@ -696,7 +696,7 @@ export function FeaturesSection({ onStart }) {
           ✨ Avantages
         </span>
         <h2 className="mt-4 font-display font-extrabold text-4xl sm:text-5xl tracking-tight leading-tight">
-          Pensé pour le <span className="text-gradient text-glow">rythme du campus.</span>
+          Pensé pour le <span className="text-gradient text-glow">rythme de l&apos;Alliance.</span>
         </h2>
         <p className="mt-4 text-base sm:text-lg text-ink-600 dark:text-ink-300 leading-relaxed">
           Conçu main dans la main avec des étudiants et des soignants — rapide, silencieux et ridiculement simple à utiliser.
@@ -775,7 +775,7 @@ export function HowItWorksSection({ onStart }) {
           3 étapes. <span className="text-gradient text-glow">Zéro friction.</span>
         </h2>
         <p className="mt-3 text-ink-500 dark:text-ink-400 text-base leading-relaxed">
-          De votre faim à votre assiette en un temps record. Une logistique sur-mesure conçue pour la vie de campus.
+          De votre faim à votre assiette en un temps record. Une logistique sur-mesure conçue pour la vie à l&apos;Alliance.
         </p>
       </div>
 
@@ -986,27 +986,6 @@ export function ShowcaseSection({ onStart }) {
               <h2 className="mt-4 sm:mt-6 font-display font-black text-3xl sm:text-4xl lg:text-5xl xl:text-6xl tracking-tight leading-[1.1] text-slate-900">
                 Une expérience{' '}
                 <span className="bg-gradient-to-r from-amber-600 via-brand-500 to-rose-500 bg-clip-text text-transparent text-glow">
-                  extraordinairement fluide.
-                </span>
-              </h2>
-              <p className="mt-4 sm:mt-6 text-sm sm:text-base lg:text-lg text-slate-600 max-w-xl leading-relaxed">
-                Tout a été méticuleusement conçu pour éliminer l'attente et vous offrir le meilleur de vos campus.
-              </p>
-              <div className="mt-5 sm:mt-6">
-                <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/20">
-                  Commander en 1 clic 🚀 <I.Right size={18}/>
-                </Button>
-              </div>
-            </div>
-          </Reveal>
-
-          {/* Premium Highlights Grid */}
-          <div className="mt-6 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {[
-              { icon: '⚡', title: '14 min de livraison', desc: 'Moyenne record sur le campus' },
-              { icon: '🍔', title: 'Gourmet & Ultra-frais', desc: 'Préparé sous vos yeux' },
-              { icon: '🛵', title: 'Suivi live interactif', desc: 'Savoir exactement où est le livreur' },
-              { icon: '🔒', title: 'Zéro friction', desc: 'Commande en 3 clics sans friction' }
             ].map((item, idx) => (
               <Reveal key={item.title} delay={100 + idx * 80}>
                 <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/60 border border-amber-100 hover:border-brand-500/20 hover:bg-white transition-all duration-300 flex items-start gap-3 group shadow-sm hover:shadow-md">
@@ -1085,7 +1064,7 @@ export function TestimonialsSection({ onStart }) {
           <div className="max-w-2xl">
             <span className="text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">Ils en parlent</span>
             <h2 className="mt-3 font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight">
-              Adoré sur les <span className="text-gradient">campus & dans les couloirs.</span>
+              Adoré à l&apos;<span className="text-gradient">Alliance & dans les couloirs.</span>
             </h2>
           </div>
         </div>
@@ -1242,7 +1221,7 @@ export function CampusHospitalsSection({ onStart }) {
               <div className="max-w-2xl">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur text-xs font-semibold border border-white/10">
                   <I.MapPin size={14} className="text-brand-400" />
-                  Campus & Hôpitaux — Tanger
+                  Alliance & Hôpitaux — Tanger
                 </div>
                 <h3 className="mt-4 font-display font-extrabold text-2xl sm:text-4xl tracking-tight leading-tight">
                   Zones couvertes{' '}
@@ -1251,11 +1230,11 @@ export function CampusHospitalsSection({ onStart }) {
                   </span>
                 </h3>
                 <p className="mt-3 text-sm sm:text-base text-white/70 leading-relaxed">
-                  Hôpitaux universitaires, instituts de santé et résidences étudiantes — livraison prioritaire sur tout le campus.
+                  Hôpitaux universitaires, instituts de santé et résidences étudiantes — livraison prioritaire sur toute l&apos;Alliance.
                 </p>
                 <div className="mt-5">
                   <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/25">
-                    Commander sur mon campus ou CHU 📍 <I.Right size={18}/>
+                    Commander sur l&apos;Alliance ou CHU 📍 <I.Right size={18}/>
                   </Button>
                 </div>
               </div>

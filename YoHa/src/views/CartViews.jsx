@@ -85,7 +85,7 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                         <span className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-600 grid place-items-center shrink-0"><I.Bike size={18}/></span>
                         <div>
                           <div className="font-semibold text-sm text-emerald-800 dark:text-emerald-300">Livraison Offerte ✨</div>
-                          <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">Sur tout le campus Tangérois</div>
+                          <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">Sur toute l&apos;Alliance Tangéroise</div>
                         </div>
                       </div>
                     )}

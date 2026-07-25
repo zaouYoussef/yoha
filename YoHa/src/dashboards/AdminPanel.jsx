@@ -85,7 +85,7 @@ export function AdminOverview({ orders, restaurantCount = 0 }) {
         <StatCard label="Aujourd'hui"        value={today.length}                              sub="Dernières 24 h"   icon={<I.Bell size={18}/>}   color="from-pink-500 to-rose-500"/>
         <StatCard label="Revenus totaux"     value={`${totalRev.toLocaleString('fr-FR')} MAD`}              sub="Somme des commandes" icon={<I.Star size={18}/>} color="from-violet-500 to-fuchsia-500"/>
         <StatCard label="Livraisons actives" value={active.length}                             sub="Non livrées"        icon={<I.Bike size={18}/>}   color="from-sky-500 to-indigo-500"/>
-        <StatCard label="Restaurants & co." value={restaurantCount}                        sub="Sans pharmacie campus"     icon={<I.Chef size={18}/>}   color="from-emerald-500 to-teal-500"/>
+        <StatCard label="Restaurants & co." value={restaurantCount}                        sub="Sans pharmacie Alliance"     icon={<I.Chef size={18}/>}   color="from-emerald-500 to-teal-500"/>
       </div>
 
       {/* Charts row */}

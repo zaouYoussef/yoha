@@ -46,7 +46,7 @@ export function CustomOrderModal({ isOpen, onClose }) {
       };
 
       const customerInfo = {
-        name: user?.displayName || 'Client Campus',
+        name: user?.displayName || 'Client Alliance',
         phone: phone.trim(),
         address: deliveryAddress.trim(),
         restaurantNotes: `[RESTAURANT NON LISTÉ] Nom: ${placeName.trim()} | Adresse lieu: ${placeAddress.trim()} | Commande: ${orderDetails.trim()} | Note: ${notes.trim()} | FRAIS COURSIER: 20 MAD (à ajouter au reçu)`,
@@ -164,7 +164,7 @@ export function CustomOrderModal({ isOpen, onClose }) {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-ink-700 dark:text-ink-300 mb-1.5">
-                4. Lieu de livraison (Campus / CHU) *
+                4. Lieu de livraison (Alliance / CHU) *
               </label>
               <input
                 type="text"

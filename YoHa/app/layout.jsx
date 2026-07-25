@@ -16,7 +16,7 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata = {
   title: {
-    default: 'YoHa — Livraison Alliance campus & CHU à Tanger | repas en ~30 min',
+    default: 'YoHa — Livraison Alliance & CHU à Tanger | repas en ~30 min',
     template: '%s | YoHa'
   },
   description: "Commandez vos repas et produits préférés avec YoHa et soyez livrés en moins de 30 minutes directement au CHU, à la BU ou en résidence universitaire Alliance. Livraison rapide et gratuite.",
@@ -24,10 +24,10 @@ export const metadata = {
   alternates: {
     canonical: './',
   },
-  keywords: ['YoHa', 'Livraison Tanger', 'Livraison campus', 'Livraison CHU', 'ENCG Tanger', 'FMP Tanger', 'repas étudiant', 'Tanger food delivery'],
+  keywords: ['YoHa', 'Livraison Tanger', 'Livraison Alliance', 'Livraison CHU', 'ENCG Tanger', 'FMP Tanger', 'repas étudiant', 'Tanger food delivery'],
   openGraph: {
-    title: 'YoHa — Livraison campus & CHU · Tanger',
-    description: 'Ultra rapide. Livraison de repas intelligente sur les campus et CHU de Tanger.',
+    title: 'YoHa — Livraison Alliance & CHU · Tanger',
+    description: 'Ultra rapide. Livraison de repas intelligente sur les zones Alliance et CHU de Tanger.',
     url: 'https://yoha.ma',
     siteName: 'YoHa',
     images: [
@@ -43,8 +43,8 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'YoHa — Livraison campus & CHU · Tanger',
-    description: 'Livraison ultra rapide pensée pour le campus et les hôpitaux.',
+    title: 'YoHa — Livraison Alliance & CHU · Tanger',
+    description: 'Livraison ultra rapide pensée pour la résidence Alliance et les hôpitaux.',
     images: ['/logo.webp'],
   },
 };
@@ -67,7 +67,7 @@ const jsonLd = {
   'priceRange': 'MAD',
   'address': {
     '@type': 'PostalAddress',
-    'streetAddress': 'Campus Universitaire & CHU',
+    'streetAddress': 'Résidence Alliance & CHU',
     'addressLocality': 'Tanger',
     'addressCountry': 'MA'
   },
