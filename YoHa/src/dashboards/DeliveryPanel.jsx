@@ -1,14 +1,24 @@
 'use client';
 
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { I } from '../icons/Icons.jsx';
 import { MOCK_COURIER_GAIN_PER_DELIVERY_MAD, formatMad, isActiveOrderStatus } from '../data/index.js';
 import { useOrders } from '../contexts/AppContexts.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
-import { DashLayout, StatusPill } from './DashShared.jsx';
+import {
+  DashLayout,
+  GlassCard,
+  GradientHeader,
+  EmptyState,
+  StatCard,
+  StatusPill,
+  FilterChip,
+  ActionButton,
+  SectionHeader,
+  RecentOrdersTable,
+} from './DashShared.jsx';
 import { Button } from '../components/ui/Button.jsx';
-import { spotlightHandler } from '../utils/spotlight.js';
-import { RecentOrdersTable } from './AdminPanel.jsx';
+import { RecentOrdersTable as AdminRecentOrdersTable } from './AdminPanel.jsx';
 import { OrderRestaurantNotes } from '../components/ui/OrderRestaurantNotes.jsx';
 import { CancelOrderButton, CancelPhaseBadge, OrderCancellationNote } from '../components/ui/CancelOrderButton.jsx';
 import { ordersApi } from '../lib/api.js';
@@ -96,6 +106,95 @@ function whatsAppUrl(phone, text) {
   return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
 }
 
+function buildMapsDirectionsUrl(address) {
+  if (!address) return null;
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+}
+
+function useDeliveryTimer(assignedAt) {
+  const [elapsed, setElapsed] = useState('');
+  useEffect(() => {
+    if (!assignedAt) return;
+    const update = () => {
+      const diff = Date.now() - new Date(assignedAt).getTime();
+      if (diff < 0) { setElapsed('0 min'); return; }
+      const mins = Math.floor(diff / 60000);
+      const hrs = Math.floor(mins / 60);
+      const rem = mins % 60;
+      if (hrs > 0) setElapsed(`${hrs}h ${rem}min`);
+      else setElapsed(`${mins} min`);
+    };
+    update();
+    const id = setInterval(update, 60000);
+    return () => clearInterval(id);
+  }, [assignedAt]);
+  return elapsed;
+}
+
+const DELIVERY_STEPS = [
+  { key: 'placed', label: 'Assignée', icon: <I.Bell size={12} /> },
+  { key: 'preparing', label: 'En préparation', icon: <I.Chef size={12} /> },
+  { key: 'pickup_confirmed', label: 'Récupérée', icon: <I.Bike size={12} /> },
+  { key: 'delivering', label: 'En livraison', icon: <I.MapPin size={12} /> },
+  { key: 'delivered', label: 'Livrée', icon: <I.Check size={12} /> },
+];
+
+function DeliveryTimeline({ currentStatus }) {
+  const activeIdx = DELIVERY_STEPS.findIndex((s) => s.key === currentStatus);
+  const effectiveIdx = activeIdx >= 0 ? activeIdx : 0;
+
+  return (
+    <div className="flex items-center gap-0 w-full">
+      {DELIVERY_STEPS.map((step, i) => {
+        const done = i <= effectiveIdx;
+        const isCurrent = i === effectiveIdx;
+        return (
+          <React.Fragment key={step.key}>
+            <div className="flex flex-col items-center gap-1 min-w-0">
+              <div
+                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-all sm:h-7 sm:w-7 ${
+                  done
+                    ? 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-md'
+                    : 'bg-ink-200/60 text-ink-400 dark:bg-ink-700/50 dark:text-ink-500'
+                } ${isCurrent ? 'ring-2 ring-emerald-400/40 ring-offset-1 dark:ring-offset-ink-900' : ''}`}
+              >
+                {done ? <I.Check size={10} /> : i + 1}
+              </div>
+              <span
+                className={`hidden text-[9px] font-bold sm:block ${
+                  done ? 'text-emerald-600 dark:text-emerald-400' : 'text-ink-400'
+                }`}
+              >
+                {step.label}
+              </span>
+            </div>
+            {i < DELIVERY_STEPS.length - 1 && (
+              <div
+                className={`mx-0.5 h-0.5 flex-1 rounded-full sm:mx-1 ${
+                  i < effectiveIdx
+                    ? 'bg-emerald-500'
+                    : 'bg-ink-200/60 dark:bg-ink-700/50'
+                }`}
+              />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+function DeliveryTimerBadge({ assignedAt }) {
+  const elapsed = useDeliveryTimer(assignedAt);
+  if (!assignedAt) return null;
+  return (
+    <span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/10 px-2 py-1 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+      <I.Clock size={10} />
+      {elapsed}
+    </span>
+  );
+}
+
 function OrderItemsDetail({ order, restaurantPhone }) {
   const [copied, setCopied] = useState(false);
   const items = Array.isArray(order.items) ? order.items : [];
@@ -119,8 +218,8 @@ function OrderItemsDetail({ order, restaurantPhone }) {
   }, [order, restaurantPhone]);
 
   return (
-    <div className="mt-4 overflow-hidden rounded-xl border border-ink-200/70 bg-ink-50/80 dark:border-ink-700 dark:bg-ink-950/40">
-      <div className="flex flex-col gap-2 border-b border-ink-200/60 bg-white/60 px-3 py-2.5 dark:border-ink-800 dark:bg-ink-900/40 sm:flex-row sm:items-center sm:justify-between sm:px-3.5">
+    <div className="mt-4 overflow-hidden rounded-2xl border border-white/20 bg-white/70 backdrop-blur-xl dark:border-ink-700/30 dark:bg-ink-900/70">
+      <div className="flex flex-col gap-2 border-b border-ink-200/60 bg-white/60 px-3 py-2.5 dark:border-ink-800 dark:bg-ink-900/40 sm:flex-row sm:items-center sm:justify-between sm:px-4">
         <div className="flex min-w-0 items-center gap-2">
           <I.Receipt size={15} className="shrink-0 text-brand-500" />
           <span className="text-xs font-bold uppercase tracking-wider text-ink-600 dark:text-ink-300">
@@ -131,7 +230,7 @@ function OrderItemsDetail({ order, restaurantPhone }) {
           <button
             type="button"
             onClick={handleCopy}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-ink-900 px-2.5 py-2.5 text-[11px] font-bold text-white transition hover:opacity-90 dark:bg-white dark:text-ink-900 sm:py-1.5"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-ink-900 px-3 py-2 text-[11px] font-bold text-white transition hover:opacity-90 dark:bg-white dark:text-ink-900 sm:py-1.5"
           >
             {copied ? <I.Check size={13} /> : <I.Copy size={13} />}
             {copied ? 'Copié !' : 'Copier'}
@@ -141,7 +240,7 @@ function OrderItemsDetail({ order, restaurantPhone }) {
             onClick={handleWhatsApp}
             disabled={!waDigits}
             title={waDigits ? `WhatsApp ${restaurantPhone}` : 'Numéro restaurant indisponible'}
-            className="inline-flex items-center justify-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-2.5 text-[11px] font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40 sm:py-1.5"
+            className="inline-flex items-center justify-center gap-1 rounded-xl bg-emerald-600 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40 sm:py-1.5"
           >
             <I.Phone size={12} />
             <span className="truncate">WhatsApp</span>
@@ -151,18 +250,18 @@ function OrderItemsDetail({ order, restaurantPhone }) {
 
       <ul className="divide-y divide-ink-200/50 dark:divide-ink-800/80">
         {items.length === 0 ? (
-          <li className="px-3.5 py-3 text-sm text-ink-500">Aucun article listé</li>
+          <li className="px-4 py-3 text-sm text-ink-500">Aucun article listé</li>
         ) : (
           items.map((item, idx) => {
             const qty = item.qty || 1;
             const unit = parseAmount(item.price);
             return (
-              <li key={item.id || idx} className="px-3.5 py-2.5 flex items-start justify-between gap-3 text-sm">
+              <li key={item.id || idx} className="flex items-start justify-between gap-3 px-4 py-2.5 text-sm">
                 <div className="min-w-0 flex-1">
                   <span className="font-bold text-brand-600 dark:text-brand-400">{qty}×</span>{' '}
                   <span className="font-semibold text-ink-900 dark:text-white">{item.name}</span>
                 </div>
-                <span className="shrink-0 font-semibold text-ink-600 dark:text-ink-300 tabular-nums">
+                <span className="shrink-0 font-semibold text-ink-600 tabular-nums dark:text-ink-300">
                   {formatMad(unit * qty, { decimals: 2 })}
                 </span>
               </li>
@@ -172,7 +271,7 @@ function OrderItemsDetail({ order, restaurantPhone }) {
       </ul>
 
       {items.length > 0 && (
-        <div className="px-3.5 py-2.5 flex justify-between items-center border-t border-ink-200/60 dark:border-ink-800 bg-white/40 dark:bg-ink-900/30 text-sm">
+        <div className="flex items-center justify-between border-t border-ink-200/60 bg-white/40 px-4 py-2.5 text-sm dark:border-ink-800 dark:bg-ink-900/30">
           <span className="font-semibold text-ink-500">Total commande</span>
           <span className="font-display font-extrabold text-brand-600 dark:text-brand-400">
             {formatMad(order.totalDh, { decimals: 2 })}
@@ -180,7 +279,74 @@ function OrderItemsDetail({ order, restaurantPhone }) {
         </div>
       )}
 
-      <OrderRestaurantNotes notes={order.restaurantNotes} className="m-3 mt-0" title="Remarques client (restaurant)" />
+      <OrderRestaurantNotes notes={order.restaurantNotes} className="m-4 mt-0" title="Remarques client (restaurant)" />
+    </div>
+  );
+}
+
+function OrderActionButtons({ order }) {
+  const [copied, setCopied] = useState(false);
+  const phone = order.customer?.phone;
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await copyToClipboard(buildOrderCopyText(order));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  }, [order]);
+
+  const handleWhatsAppCustomer = useCallback(() => {
+    const text = buildOrderCopyText(order);
+    const url = whatsAppUrl(phone, text);
+    if (!url) return;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }, [order, phone]);
+
+  const mapsUrl = buildMapsDirectionsUrl(order.customer?.address);
+
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {mapsUrl && (
+        <a
+          href={mapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 rounded-lg bg-sky-500/10 px-2.5 py-1.5 text-[10px] font-bold text-sky-600 transition hover:bg-sky-500/20 dark:text-sky-400"
+        >
+          <I.MapPin size={11} />
+          Itinéraire
+        </a>
+      )}
+      <button
+        type="button"
+        onClick={handleCopy}
+        className="inline-flex items-center gap-1 rounded-lg bg-ink-900/5 px-2.5 py-1.5 text-[10px] font-bold text-ink-600 transition hover:bg-ink-900/10 dark:text-ink-400"
+      >
+        {copied ? <I.Check size={10} /> : <I.Copy size={10} />}
+        {copied ? 'Copié' : 'Copier'}
+      </button>
+      {phone && (
+        <button
+          type="button"
+          onClick={handleWhatsAppCustomer}
+          className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/10 px-2.5 py-1.5 text-[10px] font-bold text-emerald-600 transition hover:bg-emerald-500/20 dark:text-emerald-400"
+        >
+          <I.Phone size={10} />
+          WhatsApp
+        </button>
+      )}
+      {phone && (
+        <a
+          href={`tel:${phone.replace(/\s/g, '')}`}
+          className="inline-flex items-center gap-1 rounded-lg bg-violet-500/10 px-2.5 py-1.5 text-[10px] font-bold text-violet-600 transition hover:bg-violet-500/20 dark:text-violet-400"
+        >
+          <I.Phone size={10} />
+          Appeler
+        </a>
+      )}
     </div>
   );
 }
@@ -189,26 +355,30 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
   const [current, setCurrent] = useState('available');
   const { orders, couriers } = useOrders();
   const { user } = useAuth();
-  const COURIER_ME = couriers.find((c) => c.userId === user?.id)
-    || couriers[0]
-    || { id: '0', name: user?.displayName || 'Livreur' };
+  const COURIER_ME =
+    couriers.find((c) => c.userId === user?.id) ||
+    couriers[0] ||
+    { id: '0', name: user?.displayName || 'Livreur' };
 
   const titles = {
-    available:'Commandes disponibles',
-    mine:'Mes courses en cours',
-    history:'Historique',
+    available: 'Commandes disponibles',
+    mine: 'Mes courses en cours',
+    history: 'Historique',
   };
 
   return (
     <DashLayout kind="delivery" current={current} setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
       title={titles[current]} subtitle={`Connecté en tant que ${COURIER_ME.name}`}>
-      {current === 'available' && <DeliveryAvailable courier={COURIER_ME}/>}
-      {current === 'mine'      && <DeliveryMine courier={COURIER_ME}/>}
-      {current === 'history'   && <DeliveryHistory courier={COURIER_ME}/>}
+      {current === 'available' && <DeliveryAvailable courier={COURIER_ME} />}
+      {current === 'mine' && <DeliveryMine courier={COURIER_ME} />}
+      {current === 'history' && <DeliveryHistory courier={COURIER_ME} />}
     </DashLayout>
   );
 }
 
+/* ═══════════════════════════════════════════════════
+   AVAILABLE ORDERS
+   ═══════════════════════════════════════════════════ */
 export function DeliveryAvailable({ courier }) {
   const { orders, assignCourier } = useOrders();
   const available = orders.filter(
@@ -216,40 +386,67 @@ export function DeliveryAvailable({ courier }) {
   );
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col items-start gap-3 rounded-2xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 p-4 text-white shadow-glow-lg sm:flex-row sm:items-center sm:gap-4 sm:p-5">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white/15 text-xl sm:h-12 sm:w-12">🛵</span>
-        <div className="min-w-0 flex-1">
-          <div className="font-display text-lg font-extrabold sm:text-xl">
-            {available.length} commande{available.length > 1 ? 's' : ''} en attente
+    <div className="space-y-5">
+      <GradientHeader
+        title={`${available.length} commande${available.length > 1 ? 's' : ''} en attente`}
+        subtitle="Confirmez en premier — la course est à vous. Les autres livreurs la verront disparaître."
+        icon="🛵"
+        gradient="from-violet-500 via-fuchsia-500 to-pink-500"
+      >
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="rounded-xl bg-white/15 px-3 py-2 backdrop-blur-sm">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-white/70">Disponibles</div>
+            <div className="font-display text-xl font-extrabold">{available.length}</div>
           </div>
-          <div className="text-sm text-white/80">
-            Confirmez en premier — la course est à vous. Les autres livreurs la verront disparaître.
+          <div className="rounded-xl bg-white/15 px-3 py-2 backdrop-blur-sm">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-white/70">Prêtes</div>
+            <div className="font-display text-xl font-extrabold">
+              {available.filter((o) => o.status === 'preparing').length}
+            </div>
+          </div>
+          <div className="hidden rounded-xl bg-white/15 px-3 py-2 backdrop-blur-sm sm:block">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-white/70">Programmées</div>
+            <div className="font-display text-xl font-extrabold">
+              {available.filter((o) => o.scheduledDeliveryAt).length}
+            </div>
           </div>
         </div>
-      </div>
+      </GradientHeader>
 
       {available.length === 0 ? (
-        <div className="text-center py-20 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800">
-          <div className="text-6xl mb-4 animate-float-med">🍕</div>
-          <h3 className="font-display font-bold text-xl">Pause bien méritée</h3>
-          <p className="mt-1 text-ink-500">Aucune commande disponible pour l'instant.</p>
-        </div>
+        <EmptyState
+          icon="🍕"
+          title="Pause bien méritée"
+          description="Aucune commande disponible pour l'instant. Revenez dans quelques instants."
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          {available.map(o => (
-            <DeliveryOrderCard key={o.id} order={o} action={
-              <>
-                {o.status === 'preparing' && (
-                  <div className="mb-2 px-3 py-2 rounded-xl bg-violet-500/10 text-violet-700 dark:text-violet-300 text-xs font-bold text-center">
-                    📦 Déjà prête au restaurant — confirmez pour récupérer
-                  </div>
-                )}
-                <Button onClick={() => assignCourier(o.id, courier)} variant="primary" size="lg" className="w-full justify-center">
-                  ✅ Confirmer la course
-                </Button>
-              </>
-            }/>
+          {available.map((o) => (
+            <DeliveryOrderCard
+              key={o.id}
+              order={o}
+              variant="available"
+              action={
+                <>
+                  {o.status === 'preparing' && (
+                    <div className="mb-2 flex items-center gap-2 rounded-xl bg-violet-500/10 px-3 py-2.5 text-xs font-bold text-violet-700 dark:text-violet-300">
+                      <I.Chef size={14} />
+                      Déjà prête au restaurant — confirmez pour récupérer
+                    </div>
+                  )}
+                  <OrderActionButtons order={o} />
+                  <ActionButton
+                    onClick={() => assignCourier(o.id, courier)}
+                    variant="success"
+                    size="lg"
+                    icon={<I.Check size={16} />}
+                    className="mt-3 w-full justify-center"
+                  >
+                    Confirmer la course
+                  </ActionButton>
+                </>
+              }
+            />
           ))}
         </div>
       )}
@@ -257,7 +454,10 @@ export function DeliveryAvailable({ courier }) {
   );
 }
 
-function CourierStatusButton({ orderId, nextStatus, label, className, updateOrderStatus }) {
+/* ═══════════════════════════════════════════════════
+   ACTIVE DELIVERIES (Mine)
+   ═══════════════════════════════════════════════════ */
+function CourierStatusButton({ orderId, nextStatus, label, className, updateOrderStatus, icon }) {
   const [busy, setBusy] = useState(false);
 
   const handleClick = async () => {
@@ -273,15 +473,16 @@ function CourierStatusButton({ orderId, nextStatus, label, className, updateOrde
   };
 
   return (
-    <Button
+    <ActionButton
       onClick={handleClick}
       disabled={busy}
-      variant="primary"
+      variant="success"
       size="lg"
-      className={className}
+      icon={icon}
+      className={`w-full justify-center ${className || ''}`}
     >
       {busy ? 'Mise à jour…' : label}
-    </Button>
+    </ActionButton>
   );
 }
 
@@ -303,83 +504,141 @@ export function DeliveryMine({ courier }) {
     }
   };
 
+  const activeCount = mine.filter((o) => o.status !== 'placed').length;
+
   return (
-    <div className="space-y-4">
-      {mine.length === 0 ? (
-        <div className="text-center py-20 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800">
-          <div className="text-6xl mb-4 animate-wiggle">📍</div>
-          <h3 className="font-display font-bold text-xl">Aucune course en cours</h3>
-          <p className="mt-1 text-ink-500">Allez prendre une commande dans "Disponibles".</p>
+    <div className="space-y-5">
+      <GradientHeader
+        title={`${mine.length} course${mine.length > 1 ? 's' : ''} en cours`}
+        subtitle={activeCount > 0 ? `${activeCount} en livraison active` : 'En attente de progression'}
+        icon="📍"
+        gradient="from-sky-500 via-blue-500 to-indigo-500"
+      >
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="rounded-xl bg-white/15 px-3 py-2 backdrop-blur-sm">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-white/70">Assignées</div>
+            <div className="font-display text-xl font-extrabold">{mine.length}</div>
+          </div>
+          <div className="rounded-xl bg-white/15 px-3 py-2 backdrop-blur-sm">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-white/70">En livraison</div>
+            <div className="font-display text-xl font-extrabold">{activeCount}</div>
+          </div>
+          <div className="hidden rounded-xl bg-white/15 px-3 py-2 backdrop-blur-sm sm:block">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-white/70">Gain potentiel</div>
+            <div className="font-display text-xl font-extrabold">+{mine.length * MOCK_COURIER_GAIN_PER_DELIVERY_MAD} MAD</div>
+          </div>
         </div>
+      </GradientHeader>
+
+      {mine.length === 0 ? (
+        <EmptyState
+          icon="📍"
+          title="Aucune course en cours"
+          description="Allez prendre une commande dans « Disponibles »."
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          {mine.map(o => (
-            <DeliveryOrderCard key={o.id} order={o} showMap action={
-              <div className="space-y-2">
-                {o.status === 'placed' && o.scheduledDeliveryAt ? (
-                  <>
-                    <div className="px-4 py-3 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300 text-sm font-semibold flex items-center gap-2">
-                      🕐 Commande programmée — envoyer au restaurant
-                    </div>
-                    <Button
-                      onClick={() => handleSendToRestaurant(o.id)}
-                      disabled={sendingId === o.id}
-                      variant="primary"
-                      size="lg"
-                      className="w-full justify-center bg-gradient-to-r from-amber-500 to-orange-500"
-                    >
-                      {sendingId === o.id ? 'Envoi…' : '📤 Envoyer au restaurant'}
-                    </Button>
-                    <CancelOrderButton
-                      phase="before_pickup"
-                      onCancel={(reason) => cancelOrder(o.id, reason)}
-                    />
-                  </>
-                ) : null}
-                {(o.status === 'pickup_confirmed' || o.status === 'preparing') && (
-                  <>
-                    <div className={`px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2 ${
-                      o.status === 'preparing'
-                        ? 'bg-violet-500/10 text-violet-600'
-                        : 'bg-sky-500/10 text-sky-700 dark:text-sky-300'
-                    }`}>
-                      {o.status === 'preparing'
-                        ? <>📦 La commande vous attend au restaurant</>
-                        : <><I.Bike size={16}/> Direction le restaurant…</>}
-                    </div>
-                    <CourierStatusButton
-                      orderId={o.id}
-                      nextStatus="delivering"
-                      label="✅ J'ai récupéré la commande"
-                      updateOrderStatus={updateOrderStatus}
-                      className="w-full justify-center bg-gradient-to-r from-brand-500 to-pink-500"
-                    />
-                    <CancelOrderButton
-                      phase="before_pickup"
-                      onCancel={(reason) => cancelOrder(o.id, reason)}
-                    />
-                  </>
-                )}
-                {o.status === 'delivering' && (
-                  <>
-                    <div className="px-4 py-3 rounded-xl bg-pink-500/10 text-pink-600 text-sm font-semibold flex items-center gap-2">
-                      <I.MapPin size={16}/> Livraison en cours vers le client
-                    </div>
-                    <CourierStatusButton
-                      orderId={o.id}
-                      nextStatus="delivered"
-                      label="✅ Marquer comme livré"
-                      updateOrderStatus={updateOrderStatus}
-                      className="w-full justify-center bg-gradient-to-r from-emerald-500 to-teal-500"
-                    />
-                    <CancelOrderButton
-                      phase="after_pickup"
-                      onCancel={(reason) => cancelOrder(o.id, reason)}
-                    />
-                  </>
-                )}
-              </div>
-            }/>
+          {mine.map((o) => (
+            <DeliveryOrderCard
+              key={o.id}
+              order={o}
+              showMap
+              variant="active"
+              action={
+                <div className="space-y-3">
+                  <DeliveryTimeline currentStatus={o.status} />
+
+                  {o.status === 'placed' && o.scheduledDeliveryAt ? (
+                    <>
+                      <div className="flex items-center gap-2 rounded-xl bg-amber-500/10 px-3 py-2.5 text-sm font-semibold text-amber-700 dark:text-amber-300">
+                        <I.Clock size={16} />
+                        Commande programmée — envoyer au restaurant
+                      </div>
+                      <OrderActionButtons order={o} />
+                      <ActionButton
+                        onClick={() => handleSendToRestaurant(o.id)}
+                        disabled={sendingId === o.id}
+                        variant="warning"
+                        size="lg"
+                        icon={sendingId === o.id ? null : <I.Bell size={16} />}
+                        className="w-full justify-center"
+                      >
+                        {sendingId === o.id ? 'Envoi…' : 'Envoyer au restaurant'}
+                      </ActionButton>
+                      <CancelOrderButton
+                        phase="before_pickup"
+                        onCancel={(reason) => cancelOrder(o.id, reason)}
+                      />
+                    </>
+                  ) : null}
+
+                  {(o.status === 'pickup_confirmed' || o.status === 'preparing') && (
+                    <>
+                      <div
+                        className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold ${
+                          o.status === 'preparing'
+                            ? 'bg-violet-500/10 text-violet-600 dark:text-violet-400'
+                            : 'bg-sky-500/10 text-sky-700 dark:text-sky-300'
+                        }`}
+                      >
+                        {o.status === 'preparing' ? (
+                          <>
+                            <I.Chef size={16} /> La commande vous attend au restaurant
+                          </>
+                        ) : (
+                          <>
+                            <I.Bike size={16} /> Direction le restaurant…
+                          </>
+                        )}
+                      </div>
+                      <OrderActionButtons order={o} />
+                      <CourierStatusButton
+                        orderId={o.id}
+                        nextStatus="delivering"
+                        label="J'ai récupéré la commande"
+                        icon={<I.Check size={16} />}
+                        updateOrderStatus={updateOrderStatus}
+                      />
+                      <CancelOrderButton
+                        phase="before_pickup"
+                        onCancel={(reason) => cancelOrder(o.id, reason)}
+                      />
+                    </>
+                  )}
+
+                  {o.status === 'delivering' && (
+                    <>
+                      <div className="flex items-center gap-2 rounded-xl bg-pink-500/10 px-3 py-2.5 text-sm font-semibold text-pink-600 dark:text-pink-400">
+                        <I.MapPin size={16} /> Livraison en cours vers le client
+                      </div>
+                      {o.customer?.address && (
+                        <a
+                          href={buildMapsDirectionsUrl(o.customer.address)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 rounded-xl bg-sky-500/10 px-3 py-2.5 text-sm font-bold text-sky-600 transition hover:bg-sky-500/20 dark:text-sky-400"
+                        >
+                          <I.MapPin size={16} />
+                          Ouvrir dans Google Maps
+                        </a>
+                      )}
+                      <OrderActionButtons order={o} />
+                      <CourierStatusButton
+                        orderId={o.id}
+                        nextStatus="delivered"
+                        label="Marquer comme livré"
+                        icon={<I.Check size={16} />}
+                        updateOrderStatus={updateOrderStatus}
+                      />
+                      <CancelOrderButton
+                        phase="after_pickup"
+                        onCancel={(reason) => cancelOrder(o.id, reason)}
+                      />
+                    </>
+                  )}
+                </div>
+              }
+            />
           ))}
         </div>
       )}
@@ -387,6 +646,9 @@ export function DeliveryMine({ courier }) {
   );
 }
 
+/* ═══════════════════════════════════════════════════
+   HISTORY
+   ═══════════════════════════════════════════════════ */
 function getTodayCourierStats(orders, gainMad) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -398,23 +660,64 @@ function getTodayCourierStats(orders, gainMad) {
   return { count, totalMad: count * gainMad };
 }
 
-function CourierTodayGains({ count, totalMad }) {
+function getWeekStats(orders, gainMad) {
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - now.getDay());
+  weekStart.setHours(0, 0, 0, 0);
+
+  const thisWeek = orders.filter((o) => {
+    const d = new Date(o.createdAt || 0);
+    return d >= weekStart && o.status === 'delivered';
+  });
+
+  const byDay = {};
+  const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+  for (let i = 0; i <= 6; i++) {
+    const dt = new Date(weekStart);
+    dt.setDate(weekStart.getDate() + i);
+    const key = dt.toDateString();
+    byDay[key] = { count: 0, day: dayNames[dt.getDay()] };
+  }
+  thisWeek.forEach((o) => {
+    const d = new Date(o.createdAt || 0);
+    const key = d.toDateString();
+    if (byDay[key]) byDay[key].count++;
+  });
+
+  return {
+    count: thisWeek.length,
+    totalMad: thisWeek.length * gainMad,
+    days: Object.values(byDay),
+  };
+}
+
+function getMonthStats(orders, gainMad) {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const delivered = orders.filter((o) => {
+    const d = new Date(o.createdAt || 0);
+    return d >= monthStart && o.status === 'delivered';
+  });
+  return {
+    count: delivered.length,
+    totalMad: delivered.length * gainMad,
+  };
+}
+
+function WeekMiniChart({ days }) {
+  const max = Math.max(1, ...days.map((d) => d.count));
   return (
-    <div className="rounded-2xl border border-emerald-200/60 bg-gradient-to-br from-emerald-50 to-teal-50 p-4 dark:border-emerald-900/40 dark:from-emerald-950/40 dark:to-teal-950/30 sm:p-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <div className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-            Aujourd&apos;hui
+    <div className="flex items-end gap-1 h-12">
+      {days.map((d, i) => {
+        const pct = max > 0 ? (d.count / max) * 100 : 0;
+        return (
+          <div key={i} className="flex flex-1 flex-col items-center gap-0.5">
+            <div className="w-full rounded-t bg-gradient-to-t from-emerald-500 to-teal-400 transition-all" style={{ height: `${Math.max(pct, 4)}%` }} />
+            <span className="text-[8px] font-bold text-ink-400">{d.day}</span>
           </div>
-          <div className="font-display text-2xl font-extrabold text-emerald-600 sm:text-3xl">
-            +{formatMad(totalMad, { decimals: 0 })}
-          </div>
-          <div className="mt-0.5 text-sm text-ink-500">
-            {count} livraison{count > 1 ? 's' : ''}
-          </div>
-        </div>
-        <span className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/15 text-2xl">💰</span>
-      </div>
+        );
+      })}
     </div>
   );
 }
@@ -427,8 +730,9 @@ export function DeliveryHistory({ courier }) {
     () =>
       orders
         .filter(
-          (o) => String(o.courierId) === String(courier.id)
-            && (o.status === 'delivered' || o.status === 'cancelled'),
+          (o) =>
+            String(o.courierId) === String(courier.id) &&
+            (o.status === 'delivered' || o.status === 'cancelled'),
         )
         .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)),
     [orders, courier.id],
@@ -440,10 +744,67 @@ export function DeliveryHistory({ courier }) {
   );
 
   const todayStats = useMemo(() => getTodayCourierStats(deliveredOnly, gainMad), [deliveredOnly, gainMad]);
+  const weekStats = useMemo(() => getWeekStats(deliveredOnly, gainMad), [deliveredOnly, gainMad]);
+  const monthStats = useMemo(() => getMonthStats(deliveredOnly, gainMad), [deliveredOnly, gainMad]);
+
+  const avgPerDay = weekStats.days.length > 0
+    ? (weekStats.count / 7).toFixed(1)
+    : '0';
 
   return (
-    <div className="space-y-4">
-      <CourierTodayGains count={todayStats.count} totalMad={todayStats.totalMad} />
+    <div className="space-y-5">
+      <GradientHeader
+        title="Historique des livraisons"
+        subtitle={`Total : ${deliveredOnly.length} livraison${deliveredOnly.length > 1 ? 's' : ''} effectuée${deliveredOnly.length > 1 ? 's' : ''}`}
+        icon="📊"
+        gradient="from-emerald-500 via-teal-500 to-cyan-500"
+      />
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Aujourd'hui"
+          value={`+${formatMad(todayStats.totalMad, { decimals: 0 })}`}
+          sub={`${todayStats.count} livraison${todayStats.count > 1 ? 's' : ''}`}
+          icon={<I.Bell size={18} />}
+          color="from-emerald-500 to-teal-500"
+          animate
+        />
+        <StatCard
+          label="Cette semaine"
+          value={`+${formatMad(weekStats.totalMad, { decimals: 0 })}`}
+          sub={`${weekStats.count} livraisons`}
+          icon={<I.Clock size={18} />}
+          color="from-violet-500 to-fuchsia-500"
+          animate
+        />
+        <StatCard
+          label="Ce mois"
+          value={`+${formatMad(monthStats.totalMad, { decimals: 0 })}`}
+          sub={`${monthStats.count} livraisons`}
+          icon={<I.Star size={18} />}
+          color="from-amber-500 to-orange-500"
+          animate
+        />
+        <StatCard
+          label="Moy. / jour"
+          value={`${avgPerDay}`}
+          sub={`${MOCK_COURIER_GAIN_PER_DELIVERY_MAD} MAD / course`}
+          icon={<I.Bike size={18} />}
+          color="from-sky-500 to-blue-500"
+        />
+      </div>
+
+      <GlassCard className="p-4 sm:p-5" hover={false}>
+        <SectionHeader title="Activité de la semaine" icon="📈" />
+        <div className="mt-4">
+          <WeekMiniChart days={weekStats.days} />
+        </div>
+        <div className="mt-3 flex items-center justify-between text-xs text-ink-500">
+          <span>{weekStats.count} livraison{weekStats.count > 1 ? 's' : ''} cette semaine</span>
+          <span className="font-bold text-emerald-600">+{formatMad(weekStats.totalMad, { decimals: 0 })} gagnés</span>
+        </div>
+      </GlassCard>
+
       <RecentOrdersTable
         orders={done}
         title={`${done.length} course${done.length > 1 ? 's' : ''} terminée${done.length > 1 ? 's' : ''}`}
@@ -456,117 +817,191 @@ export function DeliveryHistory({ courier }) {
   );
 }
 
-export function DeliveryOrderCard({ order, action, showMap }) {
+/* ═══════════════════════════════════════════════════
+   ORDER CARD
+   ═══════════════════════════════════════════════════ */
+function AnimatedMapSvg() {
+  return (
+    <svg viewBox="0 0 300 120" className="absolute inset-0 h-full w-full">
+      <defs>
+        <pattern id="map-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(100,116,139,.15)" strokeWidth="0.5" />
+        </pattern>
+        <linearGradient id="route-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#ec4899" />
+          <stop offset="100%" stopColor="#10b981" />
+        </linearGradient>
+      </defs>
+      <rect width="300" height="120" fill="url(#map-grid)" />
+      <path
+        d="M 20 80 Q 90 30, 160 60 T 280 30"
+        stroke="url(#route-grad)"
+        strokeWidth="3"
+        fill="none"
+        strokeLinecap="round"
+        strokeDasharray="6 6"
+      />
+      <circle cx="20" cy="80" r="6" fill="#ec4899" />
+      <circle cx="20" cy="80" r="12" fill="#ec4899" opacity="0.15">
+        <animate attributeName="r" values="6;14;6" dur="2s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite" />
+      </circle>
+      <text x="20" y="103" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#ec4899">
+        Resto
+      </text>
+      <circle cx="280" cy="30" r="6" fill="#10b981" />
+      <circle cx="280" cy="30" r="12" fill="#10b981" opacity="0.15">
+        <animate attributeName="r" values="6;14;6" dur="2s" repeatCount="indefinite" begin="1s" />
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite" begin="1s" />
+      </circle>
+      <text x="280" y="20" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#10b981">
+        Client
+      </text>
+      <g style={{ offsetPath: "path('M 20 80 Q 90 30, 160 60 T 280 30')", animation: 'bike-go 4s ease-in-out infinite alternate' }}>
+        <circle r="10" fill="white" stroke="#f97316" strokeWidth="2" />
+        <text textAnchor="middle" y="3" fontSize="10">🛵</text>
+      </g>
+    </svg>
+  );
+}
+
+export function DeliveryOrderCard({ order, action, showMap, variant = 'available' }) {
   const { restaurants } = useOrders();
   const restaurantPhone =
-    order.restaurantPhone
-    || restaurants.find((r) => r.id === order.restaurantId)?.phone
-    || '';
+    order.restaurantPhone ||
+    restaurants.find((r) => r.id === order.restaurantId)?.phone ||
+    '';
+
+  const customerPhone = order.customer?.phone || '';
+  const mapsUrl = buildMapsDirectionsUrl(order.customer?.address);
+
+  const isPrep = order.status === 'preparing';
+  const isPreparingBadge = isPrep && variant === 'available';
 
   return (
-    <div
-      className="lift-on-hover spotlight overflow-hidden rounded-2xl border border-ink-200/60 bg-white shadow-card dark:border-ink-800 dark:bg-ink-900"
-      onMouseMove={spotlightHandler}
-    >
+    <GlassCard className="p-0" glow={variant === 'active' ? 'from-sky-500 to-blue-500' : undefined}>
       <div className="p-4 sm:p-5">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <div className="break-anywhere font-display text-lg font-extrabold sm:text-xl">#{order.id}</div>
-            <div className="truncate text-xs text-ink-500">{order.restaurantName}</div>
+            <div className="flex items-center gap-2">
+              <span className="break-anywhere font-display text-lg font-extrabold sm:text-xl">#{order.id}</span>
+              <DeliveryTimerBadge assignedAt={order.assignedAt} />
+            </div>
+            <div className="mt-0.5 truncate text-xs text-ink-500">{order.restaurantName}</div>
           </div>
           <StatusPill status={order.status} className="self-start" />
         </div>
 
         {showMap && (
           <div className="relative mt-4 h-28 overflow-hidden rounded-xl border border-ink-200/60 bg-gradient-to-br from-sky-100 to-indigo-100 dark:border-ink-800 dark:from-sky-900/40 dark:to-indigo-900/40 sm:h-32">
-            <svg viewBox="0 0 300 120" className="absolute inset-0 w-full h-full">
+            <AnimatedMapSvg />
+          </div>
+        )}
+
+        {isPrep && !showMap && (
+          <div className="relative mt-4 h-20 overflow-hidden rounded-xl border border-ink-200/40 bg-gradient-to-br from-violet-100/50 to-fuchsia-100/50 dark:border-ink-800/50 dark:from-violet-900/20 dark:to-fuchsia-900/20">
+            <svg viewBox="0 0 300 80" className="absolute inset-0 h-full w-full">
               <defs>
-                <pattern id="g1" width="20" height="20" patternUnits="userSpaceOnUse">
-                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(100,116,139,.2)" strokeWidth="0.5"/>
+                <pattern id="prep-grid" width="16" height="16" patternUnits="userSpaceOnUse">
+                  <circle cx="8" cy="8" r="1" fill="rgba(139,92,246,0.15)" />
                 </pattern>
               </defs>
-              <rect width="300" height="120" fill="url(#g1)"/>
-              <path d="M 20 80 Q 90 30, 160 60 T 280 30" stroke="#f97316" strokeWidth="3" fill="none" strokeLinecap="round" strokeDasharray="6 6"/>
-              <circle cx="20" cy="80" r="6" fill="#ec4899"/>
-              <text x="20" y="103" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#ec4899">Resto</text>
-              <circle cx="280" cy="30" r="6" fill="#10b981"/>
-              <text x="280" y="20" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#10b981">Client</text>
-              <g style={{ offsetPath:"path('M 20 80 Q 90 30, 160 60 T 280 30')", animation:'bike-go 3s ease-in-out infinite alternate' }}>
-                <circle r="10" fill="white" stroke="#f97316" strokeWidth="2"/>
-                <text textAnchor="middle" y="3" fontSize="10">🛵</text>
-              </g>
+              <rect width="300" height="80" fill="url(#prep-grid)" />
+              <text x="150" y="45" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#8b5cf6" opacity="0.6">
+                En préparation au restaurant...
+              </text>
+              <circle cx="40" cy="40" r="4" fill="#8b5cf6" opacity="0.3">
+                <animate attributeName="r" values="3;6;3" dur="1.5s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="260" cy="40" r="4" fill="#ec4899" opacity="0.3">
+                <animate attributeName="r" values="3;6;3" dur="1.5s" repeatCount="indefinite" begin="0.7s" />
+              </circle>
             </svg>
           </div>
         )}
 
         <div className="mt-4 space-y-3 text-sm">
           <div className="flex items-start gap-2.5">
-            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-pink-500/10 text-pink-600">
-              <I.Chef size={14} />
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-pink-500/10 text-pink-600">
+              <I.Chef size={15} />
             </span>
-            <div className="min-w-0">
-              <div className="text-[10px] uppercase tracking-wider text-ink-500">Récupérer</div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-ink-500">Récupérer</div>
               <div className="break-words font-semibold">{order.restaurantName}</div>
               {restaurantPhone && (
                 <a
                   href={`tel:${restaurantPhone.replace(/\s/g, '')}`}
                   className="mt-0.5 flex items-center gap-1 text-xs text-ink-500 hover:text-brand-600"
                 >
-                  <I.Phone size={12} className="shrink-0 text-emerald-600" />
+                  <I.Phone size={11} className="shrink-0 text-emerald-600" />
                   <span className="break-all">{restaurantPhone}</span>
                 </a>
               )}
             </div>
           </div>
           <div className="flex items-start gap-2.5">
-            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-emerald-500/10 text-emerald-600">
-              <I.MapPin size={14} />
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600">
+              <I.MapPin size={15} />
             </span>
-            <div className="min-w-0">
-              <div className="text-[10px] uppercase tracking-wider text-ink-500">Livrer à</div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-ink-500">Livrer à</div>
               <div className="break-words font-semibold">
                 {order.customer?.name}
                 {order.customer?.address ? ` · ${order.customer.address}` : ''}
               </div>
-              {order.customer?.phone && (
+              {customerPhone && (
                 <a
-                  href={`tel:${order.customer.phone.replace(/\s/g, '')}`}
-                  className="mt-0.5 block break-all text-xs text-ink-500 hover:text-brand-600"
+                  href={`tel:${customerPhone.replace(/\s/g, '')}`}
+                  className="mt-0.5 flex items-center gap-1 text-xs text-ink-500 hover:text-brand-600"
                 >
-                  {order.customer.phone}
+                  <I.Phone size={11} className="shrink-0 text-violet-600" />
+                  <span className="break-all">{customerPhone}</span>
                 </a>
               )}
             </div>
+            {mapsUrl && (
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-sky-500/10 text-sky-600 transition hover:bg-sky-500/20"
+                title="Ouvrir dans Google Maps"
+              >
+                <I.MapPin size={15} />
+              </a>
+            )}
           </div>
         </div>
 
-        {order.scheduledDeliveryAt ? (
-          <div className="mt-4 flex items-center gap-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40 px-4 py-3">
+        {order.scheduledDeliveryAt && (
+          <div className="mt-4 flex items-center gap-3 rounded-xl border border-amber-200/60 bg-amber-50 px-4 py-3 dark:border-amber-800/40 dark:bg-amber-950/30">
             <span className="text-lg">🕐</span>
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Livraison programmée</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                Livraison programmée
+              </div>
               <div className="text-sm font-bold text-amber-800 dark:text-amber-300">
                 {formatScheduledRange(order.scheduledDeliveryAt)}
               </div>
             </div>
           </div>
-        ) : null}
+        )}
 
         <OrderItemsDetail order={order} restaurantPhone={restaurantPhone} />
 
         <div className="mt-4 flex items-center justify-between gap-3 border-t border-dashed border-ink-200 pt-4 dark:border-ink-800">
           <div className="min-w-0">
-            <div className="text-[10px] uppercase tracking-wider text-ink-500">Total</div>
-            <div className="font-bold tabular-nums">{formatMad(order.totalDh, { decimals: 2 })}</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-ink-500">Total</div>
+            <div className="font-display font-bold tabular-nums">{formatMad(order.totalDh, { decimals: 2 })}</div>
           </div>
           <div className="shrink-0 text-right">
-            <div className="text-[10px] uppercase tracking-wider text-ink-500">Vous gagnez</div>
-            <div className="font-bold text-emerald-600">+{MOCK_COURIER_GAIN_PER_DELIVERY_MAD} MAD</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-ink-500">Vous gagnez</div>
+            <div className="font-display font-bold text-emerald-600">+{MOCK_COURIER_GAIN_PER_DELIVERY_MAD} MAD</div>
           </div>
         </div>
 
-        <div className="mt-4">{action}</div>
+        {action && <div className="mt-4">{action}</div>}
       </div>
-    </div>
+    </GlassCard>
   );
 }

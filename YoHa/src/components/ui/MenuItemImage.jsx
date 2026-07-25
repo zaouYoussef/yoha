@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export const UNSPLASH_FALLBACKS = [
   'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&auto=format&fit=crop&q=80',
@@ -13,14 +13,16 @@ export const UNSPLASH_FALLBACKS = [
   'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=800&auto=format&fit=crop&q=80',
 ];
 
-/** Image de remplacement si l’URL du plat est invalide ou inaccessible */
 export const FOOD_IMAGE_FALLBACK = UNSPLASH_FALLBACKS[0];
 export const RESTAURANT_COVER_FALLBACK = UNSPLASH_FALLBACKS[0];
 export const RESTAURANT_LOGO_FALLBACK = '/logo.webp';
 
 export function restaurantCover(url) {
   if (typeof url === 'string' && url.trim()) {
-    return url.trim();
+    const trimmed = url.trim();
+    if (!trimmed.startsWith('/stores/') && !trimmed.startsWith('/media/')) {
+      return trimmed;
+    }
   }
   return RESTAURANT_COVER_FALLBACK;
 }
@@ -33,40 +35,29 @@ export function restaurantLogo(url) {
 }
 
 /**
- * Image plat : secours CDN si l’URL casse, puis placeholder 🍽️ si besoin.
+ * Component pour afficher les images sans aucune erreur "photo introuvable".
+ * Si l'URL principale casse ou est 404, elle bascule immédiatement sur une image HD Unsplash valide.
  */
 export function MenuItemImage({ src, alt = '', className = '', loading = 'lazy' }) {
   const primary = typeof src === 'string' ? src.trim() : '';
-  const [phase, setPhase] = useState(0);
+  const [currentSrc, setCurrentSrc] = useState(primary || FOOD_IMAGE_FALLBACK);
 
   useEffect(() => {
-    setPhase(0);
+    setCurrentSrc(primary || FOOD_IMAGE_FALLBACK);
   }, [primary]);
 
-  const url = useMemo(() => {
-    if (phase === 0) return primary || FOOD_IMAGE_FALLBACK;
-    if (phase === 1) return FOOD_IMAGE_FALLBACK;
-    return null;
-  }, [primary, phase]);
-
-  const onError = () => {
-    setPhase((p) => Math.min(p + 1, 2));
+  const handleError = () => {
+    if (currentSrc !== FOOD_IMAGE_FALLBACK) {
+      setCurrentSrc(FOOD_IMAGE_FALLBACK);
+    }
   };
-
-  if (!url) {
-    return (
-      <div className={`flex items-center justify-center bg-slate-200 dark:bg-ink-800 text-ink-400 ${className}`}>
-        🍽️
-      </div>
-    );
-  }
 
   return (
     <img
-      src={url}
+      src={currentSrc}
       alt={alt}
       loading={loading}
-      onError={onError}
+      onError={handleError}
       className={className}
     />
   );
