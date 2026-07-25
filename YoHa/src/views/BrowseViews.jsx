@@ -1572,12 +1572,9 @@ export function LoyaltyRewardBanner() {
                 </h3>
               ) : (
                 <h3 className="font-display font-black text-base sm:text-lg text-white mt-0.5">
-                  Encore <span className="underline decoration-amber-400 decoration-2 underline-offset-2">{remaining} commande{remaining > 1 ? 's' : ''} livrée{remaining > 1 ? 's' : ''}</span> pour avoir <span className="text-amber-300 font-black">-50 MAD</span> !
+                  Encore <span className="underline decoration-amber-400 decoration-2 underline-offset-2">{remaining} commande{remaining > 1 ? 's' : ''}</span> pour avoir <span className="text-amber-300 font-black">-50 MAD</span> !
                 </h3>
               )}
-              <p className="text-[11px] text-white/85 mt-0.5 flex items-center gap-1 font-medium">
-                <span>⚡ Seules les commandes confirmées « LIVRÉES » par le livreur comptent.</span>
-              </p>
             </div>
           </div>
 
