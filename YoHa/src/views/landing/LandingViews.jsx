@@ -975,7 +975,7 @@ export function ShowcaseSection({ onStart }) {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.015)_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_at_center,black_60%,transparent_100%)]" />
       </div>
 
-      <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center">
+      <div className="relative z-10 grid lg:grid-cols-12 gap-6 sm:gap-10 lg:gap-12 items-center">
         {/* LEFT COLUMN: Text and highlights */}
         <div className="lg:col-span-7 text-left flex flex-col justify-center">
           <Reveal>
@@ -983,16 +983,16 @@ export function ShowcaseSection({ onStart }) {
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 text-xs font-semibold uppercase tracking-widest border border-brand-500/20">
                 ✨ Technologie & Expérience
               </span>
-              <h2 className="mt-6 font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.05] text-slate-900">
-                Une expérience <br />
+              <h2 className="mt-4 sm:mt-6 font-display font-black text-3xl sm:text-4xl lg:text-5xl xl:text-6xl tracking-tight leading-[1.1] text-slate-900">
+                Une expérience{' '}
                 <span className="bg-gradient-to-r from-amber-600 via-brand-500 to-rose-500 bg-clip-text text-transparent text-glow">
                   extraordinairement fluide.
                 </span>
               </h2>
-              <p className="mt-6 text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed">
+              <p className="mt-4 sm:mt-6 text-sm sm:text-base lg:text-lg text-slate-600 max-w-xl leading-relaxed">
                 Tout a été méticuleusement conçu pour éliminer l'attente et vous offrir le meilleur de vos campus.
               </p>
-              <div className="mt-6">
+              <div className="mt-5 sm:mt-6">
                 <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/20">
                   Commander en 1 clic 🚀 <I.Right size={18}/>
                 </Button>
@@ -1001,7 +1001,7 @@ export function ShowcaseSection({ onStart }) {
           </Reveal>
 
           {/* Premium Highlights Grid */}
-          <div className="mt-10 grid sm:grid-cols-2 gap-4">
+          <div className="mt-6 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {[
               { icon: '⚡', title: '14 min de livraison', desc: 'Moyenne record sur le campus' },
               { icon: '🍔', title: 'Gourmet & Ultra-frais', desc: 'Préparé sous vos yeux' },
@@ -1009,13 +1009,13 @@ export function ShowcaseSection({ onStart }) {
               { icon: '🔒', title: 'Zéro friction', desc: 'Commande en 3 clics sans friction' }
             ].map((item, idx) => (
               <Reveal key={item.title} delay={100 + idx * 80}>
-                <div className="p-4 rounded-2xl bg-white/60 border border-amber-100 hover:border-brand-500/20 hover:bg-white transition-all duration-300 flex items-start gap-3.5 group shadow-sm hover:shadow-md">
-                  <span className="w-10 h-10 rounded-xl bg-amber-100/50 text-amber-800 group-hover:bg-brand-500/20 group-hover:text-brand-600 transition-all duration-300 flex items-center justify-center text-lg shrink-0">
+                <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/60 border border-amber-100 hover:border-brand-500/20 hover:bg-white transition-all duration-300 flex items-start gap-3 group shadow-sm hover:shadow-md">
+                  <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-amber-100/50 text-amber-800 group-hover:bg-brand-500/20 group-hover:text-brand-600 transition-all duration-300 flex items-center justify-center text-base sm:text-lg shrink-0">
                     {item.icon}
                   </span>
-                  <div>
+                  <div className="min-w-0">
                     <h3 className="font-bold text-sm text-slate-900 group-hover:text-brand-600 transition-colors">{item.title}</h3>
-                    <p className="text-xs text-slate-500 mt-1">{item.desc}</p>
+                    <p className="text-xs text-slate-500 mt-0.5 sm:mt-1 leading-relaxed">{item.desc}</p>
                   </div>
                 </div>
               </Reveal>
@@ -1024,7 +1024,7 @@ export function ShowcaseSection({ onStart }) {
         </div>
 
         {/* RIGHT COLUMN: Interactive Exploded Burger */}
-        <div className="lg:col-span-5 flex justify-center items-center relative min-h-[380px] lg:min-h-[480px]">
+        <div className="lg:col-span-5 flex justify-center items-center relative min-h-[240px] sm:min-h-[320px] lg:min-h-[480px]">
           <Reveal delay={200} className="w-full flex justify-center">
             <InteractiveBurger3D />
           </Reveal>
