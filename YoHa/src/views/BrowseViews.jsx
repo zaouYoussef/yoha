@@ -348,32 +348,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             </div>
           )}
 
-          {/* ═══ PROMO BANNER ═══ */}
-          {isDefault && promoRestaurants.length > 0 && (
-            <section className="px-4 sm:px-0">
-              <div className="relative rounded-3xl overflow-hidden group cursor-pointer" onClick={() => onPickRestaurant(promoRestaurants[0])}>
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-500 via-pink-500 to-violet-600 transition-transform duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.2),transparent_50%)]" />
-                <div className="absolute top-[-50%] right-[-20%] w-[300px] h-[300px] rounded-full bg-white/10 blur-3xl group-hover:bg-white/20 transition-all duration-700 pointer-events-none" />
-                <div className="relative p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-white/20 text-white backdrop-blur-sm mb-3">
-                      <I.Flame size={11} className="text-yellow-200 animate-pulse" /> Offre du jour
-                    </span>
-                    <h3 className="font-display font-black text-2xl sm:text-3xl text-white leading-tight">
-                      {promoRestaurants[0].promo || 'Profitez de nos offres'}
-                    </h3>
-                    <p className="mt-2 text-sm text-white/80">
-                      {promoRestaurants.length} établissement{promoRestaurants.length > 1 ? 's' : ''} avec promotion active
-                    </p>
-                  </div>
-                  <span className="shrink-0 inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-white text-ink-900 font-extrabold text-sm shadow-xl group-hover:shadow-2xl group-hover:scale-105 transition-all duration-300">
-                    Voir l&apos;offre <span className="text-lg group-hover:translate-x-1 transition-transform">→</span>
-                  </span>
-                </div>
-              </div>
-            </section>
-          )}
+
 
           {/* ═══ CATEGORY CIRCLES ═══ */}
           {isDefault && (
