@@ -535,34 +535,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               </HorizontalRow>
 
               {/* 3. Marques populaires */}
-              <section className="px-4 sm:px-0">
-                <div className="flex items-center justify-between mb-3.5">
-                  <div>
-                    <h2 className="font-display font-black text-lg sm:text-xl text-ink-900 dark:text-white flex items-center gap-2">
-                      🏆 Marques populaires
-                    </h2>
-                    <p className="text-xs text-ink-500 dark:text-ink-400 mt-0.5 font-medium">Les enseignes incontournables de la ville</p>
-                  </div>
-                </div>
-                <div className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
-                  {foodRestaurants.slice(0, 8).map((r) => (
-                    <button
-                      key={`brand-${r.id}`}
-                      type="button"
-                      onClick={() => onPickRestaurant(r)}
-                      className="cursor-grow shrink-0 flex flex-col items-center gap-2 group w-20"
-                    >
-                      <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-ink-100 dark:border-ink-800 shadow-sm group-hover:border-brand-500 group-hover:shadow-md transition-all duration-300">
-                        <img src={r.cover} alt={r.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
-                      </div>
-                      <span className="text-[11px] font-bold text-center text-ink-700 dark:text-ink-300 line-clamp-1 group-hover:text-brand-500 transition-colors">
-                        {r.name}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </section>
+              <DeliverooPopularBrandsSection restaurants={foodRestaurants} onPick={onPickRestaurant} />
 
               {/* 4. Populaires dans votre quartier */}
               <HorizontalRow
@@ -1736,6 +1709,90 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
       >
         <span className="text-lg font-black text-brand-600 dark:text-brand-400">→</span>
       </button>
+    </section>
+  );
+}
+
+function DeliverooPopularBrandsSection({ restaurants, onPick }) {
+  const trackRef = useRef(null);
+
+  const scrollNext = () => {
+    trackRef.current?.scrollBy({ left: 300, behavior: 'smooth' });
+  };
+
+  const bgColors = [
+    'from-amber-400 to-yellow-500',
+    'from-slate-900 to-indigo-950',
+    'from-slate-950 to-black',
+    'from-rose-600 to-red-700',
+    'from-orange-500 to-amber-600',
+    'from-emerald-600 to-teal-700',
+    'from-violet-600 to-purple-800',
+    'from-sky-500 to-blue-700',
+  ];
+
+  return (
+    <section className="relative px-4 sm:px-0">
+      <div className="flex items-center justify-between mb-3.5">
+        <h2 className="font-display font-black text-lg sm:text-xl text-ink-900 dark:text-white flex items-center gap-2">
+          Marques populaires
+        </h2>
+      </div>
+
+      <div className="relative">
+        <div
+          ref={trackRef}
+          className="grid grid-rows-2 grid-flow-col gap-3 overflow-x-auto no-scrollbar pb-2 scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0"
+        >
+          {restaurants.map((r, idx) => {
+            const bgGrad = bgColors[idx % bgColors.length];
+            return (
+              <div
+                key={`popular-brand-${r.id}`}
+                onClick={() => onPick(r)}
+                className="cursor-pointer shrink-0 w-[270px] sm:w-[300px] h-[82px] rounded-2xl border border-ink-100 dark:border-ink-800 bg-white dark:bg-ink-900 shadow-sm hover:shadow-md hover:border-brand-300 dark:hover:border-brand-700 transition-all flex items-center overflow-hidden group"
+              >
+                {/* Left Logo Box */}
+                <div className={`w-[82px] h-[82px] shrink-0 bg-gradient-to-br ${bgGrad} relative overflow-hidden flex items-center justify-center p-2`}>
+                  <img
+                    src={r.cover}
+                    alt={r.name}
+                    className="w-full h-full object-cover rounded-xl group-hover:scale-110 transition-transform duration-500 shadow-inner"
+                  />
+                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
+                </div>
+
+                {/* Right Info Box */}
+                <div className="flex-1 min-w-0 px-3 py-2 flex flex-col justify-center">
+                  <h3 className="font-extrabold text-sm text-ink-900 dark:text-white truncate group-hover:text-brand-500 transition-colors">
+                    {r.name}
+                  </h3>
+                  <div className="text-xs font-semibold text-ink-500 dark:text-ink-400 flex items-center gap-1 mt-0.5">
+                    <span className="text-amber-500">★</span>
+                    <span>{r.rating ?? 4.8}</span>
+                    <span>·</span>
+                    <span>{r.eta || '20-35 min'}</span>
+                  </div>
+                  <div className="text-[11px] font-bold text-rose-600 dark:text-rose-400 truncate mt-0.5 flex items-center gap-1">
+                    <span className="text-xs">%</span>
+                    <span>0,00 MAD de livraison</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Floating Next Button Arrow */}
+        <button
+          type="button"
+          onClick={scrollNext}
+          aria-label="Suivant"
+          className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-ink-800 text-ink-900 dark:text-white shadow-xl border border-ink-100 dark:border-ink-700 items-center justify-center hover:scale-110 active:scale-95 transition-all z-10"
+        >
+          <span className="text-lg font-black text-brand-600 dark:text-brand-400">→</span>
+        </button>
+      </div>
     </section>
   );
 }
