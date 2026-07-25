@@ -325,46 +325,43 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       <div className="bg-white dark:bg-ink-950">
         <div className="max-w-7xl mx-auto px-0 sm:px-6 py-4 space-y-7">
 
-          {/* ═══ LOYALTY REWARD BANNER (-50 MAD FOR 6 DELIVERED ORDERS) ═══ */}
-          {!search && <LoyaltyRewardBanner />}
-
-          {/* ═══ DELIVEROO PROMO BANNERS CAROUSEL ═══ */}
-          {!search && <DeliverooPromoBannersCarousel onSelectFilter={setFilter} />}
-
-          {/* ═══ SERVICES ROW ═══ */}
+          {/* ═══ TOP TABS BAR (Deliveroo style) ═══ */}
           {!search && (
-            <div className="flex gap-2.5 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
-              {[
-                { label: 'Restos', emoji: '🍔', id: 'all' },
-                { label: 'Pharmacie', emoji: '💊', id: 'pharmacy' },
-                { label: 'Parapharma', emoji: '🌿', id: 'parapharmacy' },
-                { label: 'Pâtisserie', emoji: '🥐', id: 'dessert' },
-                { label: 'Supermarché', emoji: '🛒', id: 'supermarket' },
-                { label: 'Magasins', emoji: '🛍️', id: 'shop' },
-              ].map((s) => {
-                const active = filter === s.id || (s.id === 'all' && (filter === 'all' || filter === 'restaurants'));
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => setFilter(s.id)}
-                    className={`cursor-grow shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold border-2 transition-all duration-200 ${
-                      active
-                        ? 'bg-brand-500 text-white border-brand-500 shadow-lg shadow-brand-500/30 scale-[1.03]'
-                        : 'bg-white dark:bg-ink-900 text-ink-700 dark:text-ink-300 border-ink-100 dark:border-ink-800 hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-md'
-                    }`}
-                  >
-                    <span className="text-base">{s.emoji}</span>
-                    <span>{s.label}</span>
-                  </button>
-                );
-              })}
+            <div className="border-b border-ink-100 dark:border-ink-800 -mx-4 px-4 sm:mx-0 sm:px-0 mb-1 overflow-x-auto no-scrollbar">
+              <div className="flex items-center gap-6 text-sm font-bold text-ink-600 dark:text-ink-300 min-w-max">
+                {[
+                  { id: 'all', label: 'Accueil' },
+                  { id: 'restaurants', label: 'Restaurants' },
+                  { id: 'supermarket', label: 'Courses' },
+                  { id: 'offers', label: 'Offres' },
+                  { id: 'takeaway', label: 'À emporter' },
+                  { id: 'shop', label: 'Shopping' },
+                ].map((tab) => {
+                  const active = (tab.id === 'all' && filter === 'all') || filter === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setFilter(tab.id)}
+                      className={`py-3 relative transition-colors ${
+                        active ? 'text-teal-600 dark:text-teal-400 font-extrabold' : 'hover:text-ink-900 dark:hover:text-white'
+                      }`}
+                    >
+                      <span>{tab.label}</span>
+                      {active && (
+                        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-600 dark:bg-teal-400 rounded-full" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 
+          {/* ═══ LOYALTY REWARD BANNER (-50 MAD FOR 6 DELIVERED ORDERS) ═══ */}
+          {!search && <LoyaltyRewardBanner />}
 
-
-          {/* ═══ CATEGORY CIRCLES ═══ */}
+          {/* ═══ CATEGORY CIRCLES (Deliveroo style) ═══ */}
           {isDefault && (
             <section className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
               {CATEGORIES_BANNERS.filter(c => !['pharmacy','parapharmacy','supermarket','shop'].includes(c.id)).map((c) => {
@@ -374,23 +371,56 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                     key={c.id}
                     type="button"
                     onClick={() => setFilter(active ? 'all' : c.id)}
-                    className="cursor-grow shrink-0 flex flex-col items-center gap-2.5 w-[4.5rem]"
+                    className="cursor-pointer shrink-0 flex flex-col items-center gap-2 w-[4.5rem] group"
                   >
                     <div
-                      className={`relative w-[4.5rem] h-[4.5rem] rounded-[1.25rem] overflow-hidden transition-all duration-300 group ${
-                        active ? 'ring-2 ring-ink-900 dark:ring-white scale-105' : 'border border-ink-100 dark:border-ink-800'
+                      className={`relative w-[4.2rem] h-[4.2rem] rounded-full overflow-hidden transition-all duration-300 ${
+                        active ? 'ring-3 ring-teal-600 dark:ring-teal-400 scale-105 shadow-md' : 'border border-ink-100 dark:border-ink-800'
                       }`}
                     >
-                      <img src={c.image} alt={c.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                      <img src={c.image} alt={c.label} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                       <div className={`absolute inset-0 transition-colors duration-300 ${active ? 'bg-black/10' : 'bg-black/10 group-hover:bg-black/5'}`} />
                     </div>
-                    <span className={`text-[11px] font-bold text-center leading-tight ${active ? 'text-ink-900 dark:text-white font-black' : 'text-ink-600 dark:text-ink-400'}`}>
+                    <span className={`text-[11px] font-bold text-center leading-tight ${active ? 'text-teal-600 dark:text-teal-400 font-extrabold' : 'text-ink-700 dark:text-ink-300'}`}>
                       {c.label}
                     </span>
                   </button>
                 );
               })}
             </section>
+          )}
+
+          {/* ═══ FILTER PILLS ROW (Deliveroo style) ═══ */}
+          {!search && (
+            <div className="relative -mx-4 px-4 sm:mx-0 sm:px-0">
+              <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1 scroll-smooth">
+                {[
+                  { id: 'offers', label: 'Offres', icon: '🏷️' },
+                  { id: 'vouchers', label: 'Titres-restaurant', icon: '🎫' },
+                  { id: 'takeaway', label: 'À emporter', icon: '🚶' },
+                  { id: 'diet', label: 'Régimes alimentaires', icon: '🥗' },
+                  { id: 'fast', label: 'Moins de 30 min', icon: '⏱️' },
+                  { id: 'cuisines', label: 'Types de cuisine', icon: '🍳' },
+                  { id: 'dishes', label: 'Plats', icon: '🍽️' },
+                  { id: 'top_rated', label: 'Mieux notés', icon: '⭐' },
+                ].map((chip) => (
+                  <button
+                    key={chip.id}
+                    type="button"
+                    onClick={() => setFilter(chip.id)}
+                    className={`cursor-pointer shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold border transition-all ${
+                      filter === chip.id
+                        ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
+                        : 'bg-white dark:bg-ink-900 text-ink-800 dark:text-ink-200 border-ink-200 dark:border-ink-800 hover:border-teal-500'
+                    }`}
+                  >
+                    <span>{chip.icon}</span>
+                    <span>{chip.label}</span>
+                    <span className="text-[10px] opacity-60">▼</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* ═══ SUB-CAROUSEL per filter ═══ */}
@@ -508,23 +538,9 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
           {/* ═══ DEFAULT HOME SECTIONS (DELIVEROO STRUCTURE) ═══ */}
           {filter === 'all' && !search.trim() && (
             <>
-              {/* 1. À la une */}
-              {showFeatured && (
-                <section className="px-4 sm:px-0">
-                  <div className="flex items-center gap-2 mb-3.5">
-                    <span className="relative flex h-3 w-3 shrink-0">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500" />
-                    </span>
-                    <h2 className="font-display font-extrabold text-lg sm:text-xl text-ink-900 dark:text-white">À la une</h2>
-                  </div>
-                  <FeaturedSpotlight restaurant={featured} onClick={() => onPickRestaurant(featured)} />
-                </section>
-              )}
-
-              {/* 2. Frais de livraison offerts */}
+              {/* 1. Frais de livraison offerts */}
               <HorizontalRow
-                title="🛵 Frais de livraison offerts"
+                title="Frais de livraison offerts"
                 subtitle="Livraison 0 MAD sur tout l'Alliance & CHU"
                 count={foodRestaurants.length}
                 onSeeAll={() => setFilter('free_delivery')}
@@ -534,7 +550,23 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 ))}
               </HorizontalRow>
 
-              {/* 3. Marques populaires */}
+              {/* 2. À la une */}
+              <section className="px-4 sm:px-0">
+                <div className="flex flex-col mb-2">
+                  <h2 className="font-display font-black text-lg sm:text-xl text-ink-900 dark:text-white">À la une</h2>
+                  <p className="text-xs text-ink-500 dark:text-ink-400 font-medium mt-0.5">Annonces payantes de nos partenaires</p>
+                </div>
+                <div className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
+                  {foodRestaurants.slice(0, 8).map((r) => (
+                    <RestaurantCardHorizontal key={`featured-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
+                  ))}
+                </div>
+              </section>
+
+              {/* 3. Promo Banners Carousel */}
+              <DeliverooPromoBannersCarousel onSelectFilter={setFilter} />
+
+              {/* 4. Marques populaires */}
               <DeliverooPopularBrandsSection restaurants={foodRestaurants} onPick={onPickRestaurant} />
 
               {/* 4. Populaires dans votre quartier */}
@@ -719,7 +751,7 @@ const CUISINE_GLOW_MAP = {
 function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
   const open = isRestaurantOpen(restaurant);
   const isCustom = restaurant.isCustomRequest;
-  const glowGrad = CUISINE_GLOW_MAP[restaurant.cuisine] || 'from-brand-500 to-pink-500';
+  const [isFav, setIsFav] = useState(false);
 
   return (
     <div
@@ -727,93 +759,86 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      className="cursor-grow shrink-0 w-[72vw] sm:w-[260px] lg:w-[300px] snap-start group"
+      className="cursor-pointer shrink-0 w-[240px] sm:w-[270px] lg:w-[290px] snap-start group"
     >
-      {/* Card with clean subtle border */}
-      <div className="relative rounded-[1.25rem] overflow-hidden transition-all duration-300 border border-ink-100 dark:border-ink-800/80 shadow-sm hover:shadow-md">
-        <div className="relative bg-white dark:bg-ink-900 rounded-[1.25rem] overflow-hidden z-[1]">
-          {/* Image */}
-          <div className="relative h-40 sm:h-44 overflow-hidden bg-ink-100 dark:bg-ink-800">
-            <img
-              src={restaurantCover(restaurant.cover)}
-              alt={restaurant.name}
-              loading="lazy"
-              className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${
-                !open ? 'filter blur-[2px] grayscale opacity-50' : ''
-              }`}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+      <div className="relative rounded-2xl overflow-hidden transition-all duration-300 border border-ink-100 dark:border-ink-800/80 bg-white dark:bg-ink-900 shadow-sm hover:shadow-md">
+        {/* Cover Image Container */}
+        <div className="relative h-36 sm:h-40 overflow-hidden bg-ink-100 dark:bg-ink-800">
+          <img
+            src={restaurantCover(restaurant.cover)}
+            alt={restaurant.name}
+            loading="lazy"
+            className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${
+              !open ? 'filter blur-[2px] grayscale opacity-50' : ''
+            }`}
+          />
 
-            {/* Floating badges */}
-            <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between z-10">
-              {restaurant.promo && open ? (
-                <span className="px-2.5 py-1.5 rounded-xl text-[10px] font-black bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-lg shadow-brand-500/30 backdrop-blur-sm animate-pulse-slow">
-                  🎁 {restaurant.promo}
-                </span>
-              ) : isCustom ? (
-                <span className="px-2.5 py-1.5 rounded-xl text-[10px] font-black bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30">
-                  ✨ Sur-mesure
-                </span>
-              ) : <div />}
-              <span className="px-2.5 py-1.5 rounded-xl text-[10px] font-black bg-black/60 backdrop-blur-md text-white shadow-lg">
-                ⚡ {restaurant.eta || '20-35 min'}
+          {/* Heart Icon Top-Right (Deliveroo style) */}
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setIsFav(!isFav); }}
+            aria-label="Ajouter aux favoris"
+            className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/95 dark:bg-ink-900/95 text-ink-700 dark:text-white shadow-md flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-10 border border-black/5"
+          >
+            <span className={`text-sm ${isFav ? 'text-rose-500' : 'text-ink-600 dark:text-ink-300'}`}>
+              {isFav ? '❤️' : '♡'}
+            </span>
+          </button>
+
+          {/* Time Badge Pill Bottom-Right (Deliveroo style) */}
+          <div className="absolute bottom-2.5 right-2.5 z-10">
+            <span className="px-2.5 py-1 rounded-full bg-white text-ink-950 font-extrabold text-xs shadow-md border border-black/5">
+              {restaurant.eta || '20 min'}
+            </span>
+          </div>
+
+          {/* Closed overlay */}
+          {!open && (
+            <div className="absolute inset-0 bg-ink-950/60 backdrop-blur-[2px] flex items-center justify-center z-10">
+              <span className="px-3.5 py-1.5 rounded-full bg-black/80 text-white text-xs font-black border border-white/20 shadow-xl uppercase tracking-wider">
+                🔒 Fermé
               </span>
             </div>
+          )}
+        </div>
 
-            {/* Closed overlay */}
-            {!open && (
-              <div className="absolute inset-0 bg-ink-950/60 backdrop-blur-[2px] flex items-center justify-center z-10">
-                <span className="px-4 py-2 rounded-2xl bg-black/80 text-white text-xs font-black border border-white/20 shadow-2xl uppercase tracking-wider">
-                  🔒 Fermé
-                </span>
-              </div>
-            )}
+        {/* Card Content Body */}
+        <div className="p-3.5 flex flex-col gap-1 text-left">
+          <h3 className="font-extrabold text-base text-ink-900 dark:text-white truncate group-hover:text-brand-500 transition-colors">
+            {restaurant.name}
+          </h3>
 
-            {/* Rating badge */}
-            {open && (
-              <div className="absolute bottom-2.5 right-2.5 z-10">
-                <span className="inline-flex items-center gap-0.5 px-2 py-1.5 rounded-xl bg-black/60 backdrop-blur-md text-white text-[10px] font-black shadow-lg">
-                  <I.Star size={10} className="fill-yellow-400 text-yellow-400" />
-                  {(restaurant.rating ?? 4.8).toString().replace('.', ',')}
-                </span>
-              </div>
+          <div className="flex items-center gap-1.5 text-xs text-ink-500 dark:text-ink-400 font-medium truncate">
+            <span className="text-teal-600 dark:text-teal-400 font-extrabold">★</span>
+            <span className="font-bold text-ink-900 dark:text-white">{(restaurant.rating ?? 4.4).toString().replace('.', ',')}</span>
+            <span>·</span>
+            <span>{restaurant.distance || '1.5 km'}</span>
+            <span>·</span>
+            <span className="text-teal-600 dark:text-teal-400 font-bold">⚡ Rapide</span>
+          </div>
+
+          {/* Delivery Fee Line */}
+          <div className="flex items-center gap-1.5 text-xs mt-0.5 font-bold">
+            {isCustom || ['pharmacy','dessert','supermarket','shop','parapharmacy'].includes(restaurant.cuisine) ? (
+              <span className="text-amber-600 dark:text-amber-400 text-[11px]">20 MAD de livraison</span>
+            ) : (
+              <>
+                <span className="line-through text-rose-600 font-bold">% 2,99 MAD</span>
+                <span className="text-rose-600 dark:text-rose-400 font-bold">0,00 MAD de livraison</span>
+              </>
             )}
           </div>
 
-          {/* Content */}
-          <div className="p-3.5">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <h3 className="font-display font-extrabold text-sm text-ink-900 dark:text-white truncate group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors leading-tight">
-                  {restaurant.name}
-                </h3>
-                <p className="text-[11px] text-ink-500 dark:text-ink-400 truncate mt-1">
-                  {Array.isArray(restaurant.tags) ? restaurant.tags.join(' · ') : ''}
-                </p>
-              </div>
-            </div>
-
-            {/* Ligne Frais de livraison Deliveroo */}
-            <div className="mt-2 flex items-center gap-1.5 text-xs">
-              {isCustom || ['pharmacy','dessert','supermarket','shop','parapharmacy'].includes(restaurant.cuisine) ? (
-                <span className="font-bold text-amber-600 dark:text-amber-400 text-[11px]">20 MAD de livraison</span>
-              ) : (
-                <>
-                  <span className="line-through text-ink-400 text-[11px]">2,99 MAD</span>
-                  <span className="font-bold text-emerald-600 dark:text-emerald-400 text-[11px]">0,00 MAD de livraison</span>
-                </>
-              )}
-            </div>
-
-            <div className="mt-2.5 pt-2 border-t border-ink-100 dark:border-ink-800 flex items-center justify-between">
-              <span className="flex items-center gap-1 text-[11px] text-ink-500 dark:text-ink-400 font-medium">
-                <I.MapPin size={11} className="text-brand-500 shrink-0" /> {restaurant.distance}
+          {/* Promo Tag Pills (Deliveroo style) */}
+          <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+            <span className="px-2 py-0.5 rounded-lg bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/40 text-[11px] font-extrabold">
+              1 plat acheté = 1 plat offert
+            </span>
+            {promo && (
+              <span className="px-2 py-0.5 rounded-lg bg-ink-100 dark:bg-ink-800 text-ink-500 text-[10px] font-bold">
+                Sponsorisé
               </span>
-              <span className="flex items-center gap-1 text-[11px] font-extrabold text-brand-600 dark:text-brand-400 group-hover:gap-1.5 transition-all">
-                {restaurant.menu?.length ? 'Voir le menu' : isCustom ? 'Commander' : 'Ouvrir'}
-                <I.Right size={10} className="group-hover:translate-x-0.5 transition-transform" />
-              </span>
-            </div>
+            )}
           </div>
         </div>
       </div>
