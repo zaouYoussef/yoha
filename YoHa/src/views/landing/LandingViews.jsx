@@ -69,7 +69,6 @@ export function Landing({ onStart }) {
       <FeaturesSection onStart={onStart} />
       <HowItWorksSection onStart={onStart} />
       <TestimonialsSection onStart={onStart} />
-      <CampusHospitalsSection onStart={onStart} />
       <FinalCTA onStart={onStart} />
     </div>
   );
@@ -752,7 +751,7 @@ export function FeaturesSection({ onStart }) {
 
       <div className="mt-12 text-center">
         <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/25">
-          Commander avec la livraison ultra-rapide ⚡ <I.Right size={18}/>
+          Commander maintenant ⚡ <I.Right size={18}/>
         </Button>
       </div>
     </section>
@@ -986,6 +985,27 @@ export function ShowcaseSection({ onStart }) {
               <h2 className="mt-4 sm:mt-6 font-display font-black text-3xl sm:text-4xl lg:text-5xl xl:text-6xl tracking-tight leading-[1.1] text-slate-900">
                 Une expérience{' '}
                 <span className="bg-gradient-to-r from-amber-600 via-brand-500 to-rose-500 bg-clip-text text-transparent text-glow">
+                  extraordinairement fluide.
+                </span>
+              </h2>
+              <p className="mt-4 sm:mt-6 text-sm sm:text-base lg:text-lg text-slate-600 max-w-xl leading-relaxed">
+                Tout a été méticuleusement conçu pour éliminer l'attente et vous offrir le meilleur de vos campus.
+              </p>
+              <div className="mt-5 sm:mt-6">
+                <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/20">
+                  Commander en 1 clic 🚀 <I.Right size={18}/>
+                </Button>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Premium Highlights Grid */}
+          <div className="mt-6 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            {[
+              { icon: '⚡', title: '14 min de livraison', desc: 'Moyenne record sur le campus' },
+              { icon: '🍔', title: 'Gourmet & Ultra-frais', desc: 'Préparé sous vos yeux' },
+              { icon: '🛵', title: 'Suivi live interactif', desc: 'Savoir exactement où est le livreur' },
+              { icon: '🔒', title: 'Zéro friction', desc: 'Commande en 3 clics sans friction' }
             ].map((item, idx) => (
               <Reveal key={item.title} delay={100 + idx * 80}>
                 <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/60 border border-amber-100 hover:border-brand-500/20 hover:bg-white transition-all duration-300 flex items-start gap-3 group shadow-sm hover:shadow-md">
