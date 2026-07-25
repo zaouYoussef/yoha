@@ -2,10 +2,30 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-/** Image de remplacement si l’URL du plat est invalide ou inaccessible */
-export const FOOD_IMAGE_FALLBACK = '/custom_order_card.webp';
+const DISTINCT_COVERS = [
+  '/pizza-img/section_1_01.webp',
+  '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d.webp',
+  '/pizza-img/section_1_05.webp',
+  '/pizza-img/section_2_03.webp',
+  '/pizza-img/section_2_04.webp',
+  '/pizza-img/section_4_03.webp',
+  '/pizza-img/section_1_07.webp',
+  '/pizza-img/section_2_02.webp',
+  '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d_1.webp',
+  '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d_2.webp',
+  '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d_3.webp',
+  '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d_4.webp',
+  '/pizza-img/section_2_01.webp',
+  '/pizza-img/section_2_06.webp',
+  '/pizza-img/section_2_07.webp',
+  '/pizza-img/section_4_01.webp',
+  '/pizza-img/section_4_04.webp',
+];
 
-export const RESTAURANT_COVER_FALLBACK = '/custom_order_card.webp';
+/** Image de remplacement si l’URL du plat est invalide ou inaccessible */
+export const FOOD_IMAGE_FALLBACK = DISTINCT_COVERS[0];
+
+export const RESTAURANT_COVER_FALLBACK = DISTINCT_COVERS[0];
 
 export const RESTAURANT_LOGO_FALLBACK = '/logo.webp';
 
@@ -17,12 +37,22 @@ export function restaurantCover(url) {
     if (trimmed.includes('custom-parapharmacy')) return '/media/restaurants/custom-parapharmacy.webp';
     if (trimmed.includes('custom-shop')) return '/media/restaurants/custom-shop.webp';
     if (trimmed.includes('custom-patisserie')) return '/media/restaurants/custom-patisserie.webp';
-    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-      return '/custom_order_card.webp';
+
+    // If local path, return directly
+    if (trimmed.startsWith('/') && !trimmed.includes('custom_order_card')) {
+      return trimmed;
     }
-    return trimmed;
+
+    // Deterministic hash so every food restaurant gets its OWN unique distinct image
+    let hash = 0;
+    for (let i = 0; i < trimmed.length; i++) {
+      hash = (hash << 5) - hash + trimmed.charCodeAt(i);
+      hash |= 0;
+    }
+    const index = Math.abs(hash) % DISTINCT_COVERS.length;
+    return DISTINCT_COVERS[index];
   }
-  return RESTAURANT_COVER_FALLBACK;
+  return DISTINCT_COVERS[0];
 }
 
 export function restaurantLogo(url) {
@@ -49,10 +79,15 @@ export function MenuItemImage({ src, alt = '', className = '', loading = 'lazy' 
 
   const url = useMemo(() => {
     if (primary.startsWith('http://') || primary.startsWith('https://')) {
-      return FOOD_IMAGE_FALLBACK;
+      let hash = 0;
+      for (let i = 0; i < primary.length; i++) {
+        hash = (hash << 5) - hash + primary.charCodeAt(i);
+        hash |= 0;
+      }
+      return DISTINCT_COVERS[Math.abs(hash) % DISTINCT_COVERS.length];
     }
-    if (phase === 0) return primary || FOOD_IMAGE_FALLBACK;
-    if (phase === 1) return FOOD_IMAGE_FALLBACK;
+    if (phase === 0) return primary || DISTINCT_COVERS[0];
+    if (phase === 1) return DISTINCT_COVERS[0];
     return null;
   }, [primary, phase]);
 
