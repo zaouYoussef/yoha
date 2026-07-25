@@ -1,4 +1,4 @@
-"""Templates HTML e-mail YoHa (inline CSS, compatible clients mail)."""
+"""Templates HTML e-mail YoHa — Design premium glass morphism."""
 from __future__ import annotations
 
 import html
@@ -44,34 +44,57 @@ def render_order_email_html(ctx: dict) -> str:
     step_index = ctx["step_index"]
     courier = _esc(ctx.get("courier", ""))
     logo_url = _esc(_abs_url("/logo.png"))
+    tracking_url = _esc(_tracking_url(order_id))
 
+    # ── Progress steps ──
     steps_html = ""
     for i, (_status, label) in enumerate(ctx["steps"]):
         active = i <= step_index
-        dot_bg = accent if active and i == step_index else ("#10b981" if active else "#e2e8f0")
-        dot_color = "#ffffff" if active else "#94a3b8"
-        label_color = "#0f172a" if active else "#94a3b8"
+        current = i == step_index
+        if current:
+            dot_bg = f"background:linear-gradient(135deg,{accent},#ec4899);box-shadow:0 0 0 4px {accent}33;"
+            dot_color = "#ffffff"
+            label_color = "#0f172a"
+            label_weight = "800"
+        elif active:
+            dot_bg = "background:linear-gradient(135deg,#10b981,#059669);"
+            dot_color = "#ffffff"
+            label_color = "#475569"
+            label_weight = "600"
+        else:
+            dot_bg = "background:#e2e8f0;"
+            dot_color = "#94a3b8"
+            label_color = "#94a3b8"
+            label_weight = "500"
         steps_html += f"""
-        <td align="center" style="padding:0 2px;vertical-align:top;width:20%;">
-          <div style="width:28px;height:28px;border-radius:999px;background:{dot_bg};color:{dot_color};
-            font-size:11px;font-weight:700;line-height:28px;text-align:center;margin:0 auto;">{i + 1}</div>
-          <div style="font-size:10px;color:{label_color};margin-top:6px;font-weight:600;">{_esc(label)}</div>
+        <td align="center" style="padding:0 1px;vertical-align:top;width:25%;">
+          <div style="width:32px;height:32px;border-radius:999px;{dot_bg}color:{dot_color};
+            font-size:12px;font-weight:700;line-height:32px;text-align:center;margin:0 auto;
+            transition:all .3s;">{i + 1}</div>
+          <div style="font-size:10px;color:{label_color};margin-top:8px;font-weight:{label_weight};
+            letter-spacing:0.01em;">{_esc(label)}</div>
         </td>"""
 
     progress_pct = int(((step_index + 1) / len(ctx["steps"])) * 100)
 
+    # ── Order lines ──
     lines_html = ""
     for line in ctx.get("line_preview", []):
         lines_html += f"""
         <tr>
-          <td style="padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:14px;color:#334155;">
-            <strong style="color:#f97316;">{line.quantity}×</strong> {_esc(line.item_name)}
+          <td style="padding:10px 0;border-bottom:1px solid #f1f5f920;font-size:13px;color:#334155;">
+            <span style="display:inline-block;background:linear-gradient(135deg,{accent}18,{accent}08);
+              color:{accent};font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;
+              margin-right:8px;">{line.quantity}×</span>
+            {_esc(line.item_name)}
           </td>
-          <td align="right" style="padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:14px;color:#334155;font-weight:600;">
-            {line.line_total_mad:.2f} MAD
+          <td align="right" style="padding:10px 0;border-bottom:1px solid #f1f5f920;font-size:13px;
+            color:#334155;font-weight:700;font-variant-numeric:tabular-nums;">
+            {line.line_total_mad:.2f} <span style="color:#94a3b8;font-weight:500;">MAD</span>
           </td>
         </tr>"""
 
+    # ── Offers grid ──
     offers_html = ""
     for offer in ctx.get("offers", []):
         cover = _abs_url(offer.get("cover", ""))
@@ -80,36 +103,49 @@ def render_order_email_html(ctx: dict) -> str:
         eta = _esc(offer.get("eta", ""))
         link = _browse_url(offer.get("slug", ""))
         img_cell = (
-            f'<img src="{_esc(cover)}" alt="" width="72" height="72" '
-            f'style="display:block;width:72px;height:72px;border-radius:12px;object-fit:cover;" />'
+            f'<img src="{_esc(cover)}" alt="" width="80" height="80" '
+            f'style="display:block;width:80px;height:80px;border-radius:14px;object-fit:cover;" />'
             if cover
-            else f'<div style="width:72px;height:72px;border-radius:12px;background:linear-gradient(135deg,#f97316,#ec4899);"></div>'
+            else f'<div style="width:80px;height:80px;border-radius:14px;background:linear-gradient(135deg,#f97316,#ec4899);"></div>'
         )
         offers_html += f"""
-        <td width="33%" style="padding:8px;vertical-align:top;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed;border:1px solid #fed7aa;border-radius:16px;overflow:hidden;">
-            <tr><td style="padding:10px;">{img_cell}</td></tr>
-            <tr><td style="padding:0 12px 4px;font-size:14px;font-weight:700;color:#0f172a;">{oname}</td></tr>
-            <tr><td style="padding:0 12px 4px;font-size:11px;color:#ea580c;font-weight:700;">🔥 {promo}</td></tr>
-            <tr><td style="padding:0 12px 10px;font-size:11px;color:#64748b;">⚡ {eta}</td></tr>
+        <td width="33%" style="padding:6px;vertical-align:top;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(145deg,#ffffff,#fefce8);
+            border:1px solid #fef3c7;border-radius:18px;overflow:hidden;
+            box-shadow:0 4px 16px rgba(249,115,22,0.08);">
+            <tr><td style="padding:8px 8px 0;">{img_cell}</td></tr>
+            <tr><td style="padding:10px 12px 4px;font-size:13px;font-weight:800;color:#0f172a;
+              line-height:1.2;">{oname}</td></tr>
+            <tr><td style="padding:2px 12px 4px;font-size:11px;color:#ea580c;font-weight:700;
+              letter-spacing:0.01em;">🔥 {promo}</td></tr>
+            <tr><td style="padding:2px 12px 10px;font-size:10px;color:#94a3b8;">⚡ {eta}</td></tr>
             <tr><td style="padding:0 12px 12px;">
-              <a href="{_esc(link)}" style="font-size:12px;font-weight:700;color:#f97316;text-decoration:none;">Commander →</a>
+              <a href="{_esc(link)}" style="display:inline-block;background:linear-gradient(135deg,#f97316,#fb923c);
+                color:#ffffff;font-size:11px;font-weight:700;text-decoration:none;padding:7px 16px;
+                border-radius:8px;box-shadow:0 2px 8px rgba(249,115,22,0.25);">Commander →</a>
             </td></tr>
           </table>
         </td>"""
 
     if not offers_html:
         offers_html = """
-        <td colspan="3" style="padding:12px;text-align:center;color:#64748b;font-size:13px;">
+        <td colspan="3" style="padding:16px;text-align:center;color:#94a3b8;font-size:13px;">
           Découvrez nos restaurants partenaires sur YoHa.
         </td>"""
 
+    # ── Courier row ──
     courier_row = ""
     if courier:
         courier_row = f"""
         <tr>
-          <td colspan="2" style="padding-top:12px;font-size:13px;color:#64748b;">
-            Livreur : <strong style="color:#0f172a;">{courier}</strong>
+          <td colspan="2" style="padding:14px 0 0;font-size:13px;">
+            <table cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#eff6ff,#f0f9ff);
+              border:1px solid #bfdbfe;border-radius:12px;padding:0;">
+              <tr><td style="padding:12px 16px;">
+                <span style="color:#64748b;">Livreur :</span>
+                <strong style="color:#1d4ed8;margin-left:4px;">🛵 {courier}</strong>
+              </td></tr>
+            </table>
           </td>
         </tr>"""
 
@@ -118,114 +154,207 @@ def render_order_email_html(ctx: dict) -> str:
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light"/>
+  <meta name="supported-color-schemes" content="light"/>
   <title>{headline} · YoHa</title>
+  <!--[if mso]>
+  <style>table,td,div,a {{font-family:Arial,sans-serif!important;}}</style>
+  <![endif]-->
 </head>
-<body style="margin:0;padding:0;background:#fff7ed;font-family:Inter,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed;padding:24px 12px;">
-    <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+<body style="margin:0;padding:0;background:#faf8f5;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;color:#0f172a;">
 
-        <!-- Header -->
-        <tr><td style="padding:8px 0 24px;">
-          <table width="100%" cellpadding="0" cellspacing="0">
-            <tr>
-              <td>
-                <table cellpadding="0" cellspacing="0"><tr>
-                  <td style="width:44px;height:44px;vertical-align:middle;">
-                    <img src="{logo_url}" width="44" height="44" alt="YoHa" style="display:block;border-radius:12px;object-fit:contain;background:#ffffff;" />
-                  </td>
-                  <td style="padding-left:12px;">
-                    <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#0f172a;">YoHa</div>
-                    <div style="font-size:12px;color:#64748b;">Livraison campus &amp; CHU · Tanger</div>
-                  </td>
-                </tr></table>
-              </td>
-            </tr>
-          </table>
-        </td></tr>
+<!-- Preheader -->
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#faf8f5;">
+  {emoji} {headline} — Commande #{order_id} · {total} MAD
+</div>
 
-        <!-- Hero -->
-        <tr><td style="background:#ffffff;border-radius:24px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 4px 24px rgba(15,23,42,0.06);">
-          <table width="100%" cellpadding="0" cellspacing="0">
-            <tr><td style="height:6px;background:linear-gradient(90deg,#f97316,#ec4899,#8b5cf6,#10b981);"></td></tr>
-            <tr><td style="padding:32px 28px 20px;text-align:center;">
-              <div style="font-size:48px;line-height:1;margin-bottom:12px;">{emoji}</div>
-              <h1 style="margin:0 0 8px;font-size:28px;font-weight:800;letter-spacing:-0.03em;color:#0f172a;">{headline}</h1>
-              <p style="margin:0;font-size:16px;line-height:1.6;color:#475569;max-width:420px;display:inline-block;">Bonjour {name}, {body}</p>
-            </td></tr>
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#faf8f5;padding:32px 16px;">
+  <tr><td align="center">
 
-            <!-- Progress -->
-            <tr><td style="padding:0 28px 28px;">
-              <div style="background:#f1f5f9;border-radius:999px;height:8px;overflow:hidden;margin-bottom:16px;">
-                <div style="width:{progress_pct}%;height:8px;background:linear-gradient(90deg,#f97316,#ec4899,#10b981);border-radius:999px;"></div>
-              </div>
-              <table width="100%" cellpadding="0" cellspacing="0"><tr>{steps_html}</tr></table>
-            </td></tr>
-          </table>
-        </td></tr>
+    <!-- Outer wrapper -->
+    <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
 
-        <!-- Order recap -->
-        <tr><td style="padding:20px 0 8px;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:20px;border:1px solid #e2e8f0;padding:4px;">
-            <tr><td style="padding:20px 24px;">
-              <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:12px;">
-                Récapitulatif · #{order_id}
-              </div>
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="font-size:15px;color:#64748b;padding-bottom:4px;">Restaurant</td>
-                  <td align="right" style="font-size:15px;font-weight:700;color:#0f172a;padding-bottom:4px;">{restaurant}</td>
-                </tr>
-                <tr>
-                  <td style="font-size:15px;color:#64748b;padding-bottom:12px;">Articles</td>
-                  <td align="right" style="font-size:15px;font-weight:700;color:#0f172a;padding-bottom:12px;">{items_count}</td>
-                </tr>
-              </table>
-              <table width="100%" cellpadding="0" cellspacing="0">{lines_html}</table>
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
-                <tr>
-                  <td style="font-size:16px;font-weight:800;color:#0f172a;">Total</td>
-                  <td align="right" style="font-size:20px;font-weight:800;color:#f97316;">{total} MAD</td>
-                </tr>
-                {courier_row}
-              </table>
-            </td></tr>
-          </table>
-        </td></tr>
+      <!-- ═══ LOGO ═══ -->
+      <tr><td style="padding:8px 0 28px;">
+        <table cellpadding="0" cellspacing="0" align="center"><tr>
+          <td style="width:48px;height:48px;vertical-align:middle;">
+            <img src="{logo_url}" width="48" height="48" alt="YoHa"
+              style="display:block;border-radius:14px;object-fit:contain;background:#ffffff;
+              box-shadow:0 4px 12px rgba(0,0,0,0.08);" />
+          </td>
+          <td style="padding-left:14px;">
+            <div style="font-size:24px;font-weight:900;letter-spacing:-0.03em;
+              background:linear-gradient(135deg,#f97316,#ec4899);-webkit-background-clip:text;
+              -webkit-text-fill-color:transparent;background-clip:text;">YoHa</div>
+            <div style="font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:0.04em;
+              text-transform:uppercase;">Campus &amp; CHU · Tanger</div>
+          </td>
+        </tr></table>
+      </td></tr>
 
-        <!-- Offers -->
-        <tr><td style="padding:12px 0;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:20px;border:1px solid #e2e8f0;">
-            <tr><td style="padding:24px 20px 8px;">
-              <div style="font-size:20px;font-weight:800;color:#0f172a;">🔥 Offres du moment</div>
-              <div style="font-size:13px;color:#64748b;margin-top:4px;">Pendant que vous attendez, profitez de ces promos campus</div>
-            </td></tr>
-            <tr><td style="padding:8px 12px 20px;">
-              <table width="100%" cellpadding="0" cellspacing="0"><tr>{offers_html}</tr></table>
-            </td></tr>
-            <tr><td style="padding:0 20px 24px;text-align:center;">
-              <a href="{_esc(browse_url)}" style="display:inline-block;border:2px solid #f97316;color:#f97316;
-                font-size:14px;font-weight:700;text-decoration:none;padding:12px 24px;border-radius:12px;">
-                Voir tous les restaurants
-              </a>
-            </td></tr>
-          </table>
-        </td></tr>
+      <!-- ═══ HERO CARD ═══ -->
+      <tr><td style="background:#ffffff;border-radius:28px;border:1px solid #f1f5f9;
+        overflow:hidden;box-shadow:0 20px 60px rgba(15,23,42,0.06),0 1px 3px rgba(15,23,42,0.04);">
 
-        <!-- Footer -->
-        <tr><td style="padding:24px 12px;text-align:center;">
-          <p style="margin:0 0 8px;font-size:12px;color:#94a3b8;line-height:1.6;">
-            YoHa · Livraison intelligente pour les résidences universitaires et les hôpitaux.<br/>
-            Conçu sur le campus, livré chez vous.
-          </p>
-          <p style="margin:0;font-size:11px;color:#cbd5e1;">
-            © 2026 YoHa · Fait avec ❤️ à Tanger
-          </p>
-        </td></tr>
+        <!-- Gradient accent bar -->
+        <div style="height:5px;background:linear-gradient(90deg,{accent},#ec4899,#8b5cf6,#10b981);
+          font-size:0;line-height:0;">&nbsp;</div>
+        <table width="100%" cellpadding="0" cellspacing="0">
 
-      </table>
-    </td></tr>
-  </table>
+          <!-- Hero section -->
+          <tr><td style="padding:36px 32px 24px;text-align:center;position:relative;">
+
+            <!-- Decorative dots -->
+            <div style="position:absolute;top:20px;right:24px;width:60px;height:60px;
+              background:radial-gradient(circle,{accent}12 1px,transparent 1px);
+              background-size:8px 8px;opacity:0.6;"></div>
+
+            <!-- Emoji badge -->
+            <div style="display:inline-block;width:72px;height:72px;border-radius:22px;
+              background:linear-gradient(135deg,{accent}15,#ec489910);line-height:72px;
+              font-size:36px;text-align:center;margin-bottom:16px;
+              box-shadow:0 8px 24px {accent}15;">{emoji}</div>
+
+            <h1 style="margin:0 0 10px;font-size:28px;font-weight:900;letter-spacing:-0.03em;
+              color:#0f172a;line-height:1.15;">{headline}</h1>
+            <p style="margin:0;font-size:15px;line-height:1.65;color:#64748b;max-width:420px;
+              margin-left:auto;margin-right:auto;">Bonjour <strong style="color:#0f172a;">{name}</strong>,
+              {body}</p>
+          </td></tr>
+
+          <!-- ═══ PROGRESS BAR ═══ -->
+          <tr><td style="padding:0 32px 32px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;
+              border-radius:16px;border:1px solid #f1f5f9;">
+              <tr><td style="padding:20px 20px 8px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+                  <span style="font-size:10px;font-weight:700;text-transform:uppercase;
+                    letter-spacing:0.08em;color:#94a3b8;">Progression</span>
+                  <span style="font-size:10px;font-weight:800;color:{accent};">{progress_pct}%</span>
+                </div>
+                <!-- Track -->
+                <div style="background:#e2e8f0;border-radius:999px;height:8px;overflow:hidden;">
+                  <div style="width:{progress_pct}%;height:8px;background:linear-gradient(90deg,{accent},#ec4899);
+                    border-radius:999px;box-shadow:0 0 12px {accent}40;"></div>
+                </div>
+              </td></tr>
+              <!-- Steps -->
+              <tr><td style="padding:16px 12px 20px;">
+                <table width="100%" cellpadding="0" cellspacing="0"><tr>{steps_html}</tr></table>
+              </td></tr>
+            </table>
+          </td></tr>
+
+        </table>
+      </td></tr>
+
+      <!-- ═══ ORDER RECAP ═══ -->
+      <tr><td style="padding:20px 0 8px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;
+          border-radius:22px;border:1px solid #f1f5f9;overflow:hidden;
+          box-shadow:0 8px 24px rgba(15,23,42,0.04);">
+          <tr><td style="padding:24px 24px 8px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+              <div style="display:inline-block;width:8px;height:8px;border-radius:4px;
+                background:linear-gradient(135deg,{accent},#ec4899);"></div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;
+                letter-spacing:0.1em;color:#94a3b8;">Récapitulatif</div>
+              <div style="font-size:12px;font-weight:800;color:#0f172a;margin-left:4px;">#{order_id}</div>
+            </div>
+
+            <!-- Info rows -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="font-size:13px;color:#94a3b8;padding-bottom:6px;">Restaurant</td>
+                <td align="right" style="font-size:13px;font-weight:700;color:#0f172a;padding-bottom:6px;">{restaurant}</td>
+              </tr>
+              <tr>
+                <td style="font-size:13px;color:#94a3b8;padding-bottom:12px;">Articles</td>
+                <td align="right" style="font-size:13px;font-weight:700;color:#0f172a;padding-bottom:12px;">{items_count}</td>
+              </tr>
+            </table>
+
+            <!-- Divider -->
+            <div style="height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent);
+              margin:0 0 12px;"></div>
+
+            <!-- Items -->
+            <table width="100%" cellpadding="0" cellspacing="0">{lines_html}</table>
+
+            <!-- Total -->
+            <div style="height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent);
+              margin:12px 0;"></div>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="font-size:15px;font-weight:800;color:#0f172a;">Total</td>
+                <td align="right" style="font-size:22px;font-weight:900;
+                  background:linear-gradient(135deg,{accent},#ec4899);-webkit-background-clip:text;
+                  -webkit-text-fill-color:transparent;background-clip:text;">{total} <span style="font-size:14px;font-weight:600;">MAD</span></td>
+              </tr>
+              {courier_row}
+            </table>
+          </td></tr>
+        </table>
+      </td></tr>
+
+      <!-- ═══ CTA BUTTON ═══ -->
+      <tr><td style="padding:24px 0 8px;text-align:center;">
+        <a href="{tracking_url}" style="display:inline-block;
+          background:linear-gradient(135deg,{accent},#ec4899);color:#ffffff;
+          font-size:15px;font-weight:800;text-decoration:none;padding:16px 40px;
+          border-radius:16px;box-shadow:0 8px 24px {accent}35;letter-spacing:0.01em;
+          mso-padding-alt:0;text-align:center;">
+          <!--[if mso]><i style="letter-spacing:40px;mso-font-width:-100%;mso-text-raise:28pt;">&nbsp;</i><![endif]-->
+          <span style="mso-text-raise:14pt;">📱 Suivre ma commande en direct</span>
+          <!--[if mso]><i style="letter-spacing:40px;mso-font-width:-100%;">&nbsp;</i><![endif]-->
+        </a>
+      </td></tr>
+
+      <!-- ═══ OFFERS ═══ -->
+      <tr><td style="padding:16px 0 8px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;
+          border-radius:22px;border:1px solid #f1f5f9;overflow:hidden;
+          box-shadow:0 8px 24px rgba(15,23,42,0.04);">
+          <tr><td style="padding:28px 24px 8px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:20px;">🔥</span>
+              <div style="font-size:18px;font-weight:900;color:#0f172a;letter-spacing:-0.01em;">Offres du moment</div>
+            </div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:4px;">Pendant que vous attendez, profitez de ces promos campus</div>
+          </td></tr>
+          <tr><td style="padding:12px 12px 24px;">
+            <table width="100%" cellpadding="0" cellspacing="0"><tr>{offers_html}</tr></table>
+          </td></tr>
+          <tr><td style="padding:0 24px 28px;text-align:center;">
+            <a href="{_esc(browse_url)}" style="display:inline-block;
+              border:2px solid #f1f5f9;color:#64748b;font-size:13px;font-weight:700;
+              text-decoration:none;padding:12px 28px;border-radius:12px;
+              transition:all .2s;">Voir tous les restaurants →</a>
+          </td></tr>
+        </table>
+      </td></tr>
+
+      <!-- ═══ FOOTER ═══ -->
+      <tr><td style="padding:40px 16px 24px;text-align:center;">
+        <!-- Divider -->
+        <div style="height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent);
+          margin:0 auto 24px;max-width:200px;"></div>
+
+        <p style="margin:0 0 6px;font-size:12px;color:#94a3b8;line-height:1.6;font-weight:500;">
+          YoHa · Livraison intelligente pour les résidences universitaires et les hôpitaux.
+        </p>
+        <p style="margin:0 0 16px;font-size:11px;color:#cbd5e1;">
+          Conçu sur le campus, livré chez vous. 🎓
+        </p>
+        <p style="margin:0;font-size:10px;color:#cbd5e1;letter-spacing:0.02em;">
+          © 2026 YoHa · Fait avec ❤️ à Tanger
+        </p>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
 </body>
 </html>"""
 
