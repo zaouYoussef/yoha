@@ -13,6 +13,7 @@ import {
   MOCK_ADMIN_ORDERS_7D,
   MOCK_ADMIN_DONUT,
   isActiveOrderStatus,
+  CUISINE_CATEGORIES,
 } from '../data/index.js';
 import { useOrders } from '../contexts/AppContexts.jsx';
 import { apiFetch } from '../lib/api.js';
@@ -609,6 +610,8 @@ export function AdminRestaurants() {
   const [editDist, setEditDist] = useState({});
   const [editRating, setEditRating] = useState({});
   const [editDelivery, setEditDelivery] = useState({});
+  const [editTags, setEditTags] = useState({});
+  const [showTagsPicker, setShowTagsPicker] = useState({});
   const [saving, setSaving] = useState(null);
 
   const saveRestoField = async (r, field, value) => {
@@ -830,6 +833,40 @@ export function AdminRestaurants() {
                       <span className="ml-auto font-mono text-[11px] truncate" title={r.ownerEmail}>{r.ownerEmail}</span>
                     </div>
                   )}
+                  {/* Tags / Catégories */}
+                  <div className="pt-1 border-t border-ink-200/50 dark:border-ink-700/50">
+                    <button onClick={() => setShowTagsPicker((d) => ({ ...d, [r.pk]: !d[r.pk] }))}
+                      className="flex items-center gap-1.5 text-[10px] font-bold text-brand-600 dark:text-brand-400 hover:text-brand-700 transition-colors">
+                      <span>📂</span> Catégories ({r.tags?.length || 0})
+                      <span className="text-[8px]">{showTagsPicker[r.pk] ? '▲' : '▼'}</span>
+                    </button>
+                    {showTagsPicker[r.pk] && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {CUISINE_CATEGORIES.map((cat) => {
+                          const currentTags = editTags[r.pk] ?? r.tags ?? [];
+                          const isSelected = currentTags.some((t) => t.toLowerCase() === cat.label.toLowerCase());
+                          return (
+                            <button key={cat.id}
+                              onClick={() => {
+                                const old = editTags[r.pk] ?? r.tags ?? [];
+                                const next = isSelected
+                                  ? old.filter((t) => t.toLowerCase() !== cat.label.toLowerCase())
+                                  : [...old, cat.label];
+                                setEditTags((d) => ({ ...d, [r.pk]: next }));
+                                saveRestoField(r, 'tags', next);
+                              }}
+                              className={`px-2 py-0.5 rounded-full text-[9px] font-bold border transition-all ${
+                                isSelected
+                                  ? 'bg-brand-500 text-white border-brand-500'
+                                  : 'bg-white dark:bg-ink-800 text-ink-500 border-ink-200 dark:border-ink-600 hover:border-brand-300'
+                              }`}>
+                              {cat.emoji} {cat.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </GlassCard>
