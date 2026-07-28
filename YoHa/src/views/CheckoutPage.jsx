@@ -25,10 +25,19 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   const [appliedPromo, setAppliedPromo] = useState(null);
   const [promoErr, setPromoErr] = useState('');
 
+  const MIN_ORDER_TOTAL = 40;
   const isCustom = cart.some(i => i.isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes(i.restaurantCuisine));
   const customItems = cart.filter(i => i.isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes(i.restaurantCuisine));
   const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
-  const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
+  
+  // Smart Win-Win Fee Structure:
+  // - Total >= 200 MAD (Group Order): 0 MAD delivery + 0 MAD service fee!
+  // - Total >= 120 MAD: 4.99 MAD delivery + 3.99 MAD service fee.
+  // - Total < 120 MAD: 7.99 MAD delivery + 3.99 MAD service fee.
+  const isGroupOrder = total >= 200;
+  const isEcoDelivery = total >= 120 && total < 200;
+  const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : (isGroupOrder ? 0 : (isEcoDelivery ? 4.99 : 7.99));
+  const serviceFee = isCustom ? 0 : (isGroupOrder ? 0 : 3.99);
 
   const cartSection = useMemo(() => {
     const cuisines = cart.map(i => i.restaurantCuisine).filter(Boolean);
@@ -43,7 +52,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   const discountPct = appliedPromo ? (appliedPromo.discount || 0) : 0;
   const fixedDiscount = appliedPromo && appliedPromo.fixed_amount ? appliedPromo.fixed_amount : (appliedPromo?.code === 'YOHA50' ? 50 : 0);
   const discountAmount = fixedDiscount > 0 ? Math.min(total, fixedDiscount) : (discountPct > 0 ? Math.round(total * discountPct) / 100 : 0);
-  const grand = Math.max(0, total + deliveryFee - discountAmount);
+  const grand = Math.max(0, total + deliveryFee + serviceFee - discountAmount);
 
   const mainStoreName = cart[0]?.restaurantName || 'YoHa Partner';
 
@@ -321,10 +330,45 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
             <div className="p-5 sm:p-6 space-y-4">
               <h3 className="font-display font-black text-xl text-ink-900 dark:text-white border-b border-ink-100 dark:border-ink-800 pb-3 flex items-center justify-between">
                 <span>Récapitulatif</span>
-                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                  ⚡ 0 MAD livraison
-                </span>
+                {isGroupOrder ? (
+                  <span className="text-xs font-black text-white bg-gradient-to-r from-emerald-500 to-teal-500 px-2.5 py-1 rounded-full shadow-md animate-pulse">
+                    🎉 OFFRE GROUPE
+                  </span>
+                ) : (
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                    {deliveryFee === 0 ? '⚡ 0 MAD livraison' : '⚡ 30-45 min'}
+                  </span>
+                )}
               </h3>
+
+              {/* Group Order Offer Banner */}
+              {!isCustom && (
+                <div className={`p-3 rounded-2xl border text-xs ${
+                  isGroupOrder
+                    ? 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-700 text-emerald-900 dark:text-emerald-200'
+                    : 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200'
+                }`}>
+                  {isGroupOrder ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🎉</span>
+                      <div>
+                        <strong className="font-black">Offre Commande de Groupe Activée !</strong>
+                        <div className="text-[11px] opacity-90">Livraison & Frais de service 100% OFFERTS sur ce panier.</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">💡</span>
+                      <div>
+                        <strong className="font-black">Astuce Commande de Groupe :</strong>
+                        <div className="text-[11px] opacity-90">
+                          Ajoutez <strong className="font-black text-brand-600 dark:text-brand-400">{formatMad(200 - total)}</strong> de plus pour profiter de la <strong>Livraison & Service 100% OFFERTS</strong> !
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <Row 
                 label="Sous-total plats" 
@@ -333,7 +377,26 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                   : formatMad(total)
                 } 
               />
-              <Row label="Frais de livraison" value={<span className="text-emerald-600 dark:text-emerald-400 font-bold">{formatMad(deliveryFee)}</span>} />
+              <Row
+                label="Frais de livraison"
+                value={
+                  deliveryFee === 0 ? (
+                    <span className="text-emerald-600 dark:text-emerald-400 font-black">OFFERT 🚀</span>
+                  ) : (
+                    <span className="text-ink-900 dark:text-white font-bold">{formatMad(deliveryFee)}</span>
+                  )
+                }
+              />
+              <Row
+                label="Frais de service"
+                value={
+                  serviceFee === 0 ? (
+                    <span className="text-emerald-600 dark:text-emerald-400 font-black">OFFERT 🎉</span>
+                  ) : (
+                    <span className="text-ink-900 dark:text-white font-bold">{formatMad(serviceFee)}</span>
+                  )
+                }
+              />
               
               {discountAmount > 0 && (
                 <Row 
@@ -355,6 +418,13 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                   } 
                 />
               </div>
+
+              {/* Minimum Order Threshold Notice */}
+              {!isCustom && total < MIN_ORDER_TOTAL && (
+                <p className="text-xs text-rose-600 dark:text-rose-400 font-extrabold bg-rose-50 dark:bg-rose-950/50 p-3 rounded-2xl border border-rose-200 dark:border-rose-800">
+                  ⚠️ Minimum de commande : {MIN_ORDER_TOTAL} MAD. Ajoutez encore {formatMad(MIN_ORDER_TOTAL - total)} pour valider.
+                </p>
+              )}
 
               {/* OFFRE DE BIENVENUE 50 MAD OFFERTS BUTTON CARD */}
               {!appliedPromo && (
@@ -410,17 +480,11 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
 
               {err && <p className="text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-200">{err}</p>}
               
-              {!isCustom && total < 70 && (
-                <p className="text-xs text-amber-600 dark:text-amber-400 font-extrabold bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-xl border border-amber-200">
-                  ⚠️ Minimum de commande : 70 DH pour cet établissement.
-                </p>
-              )}
-
               {/* Main CTA Confirmation Button */}
               <div className="pt-2">
                 <Button
                   onClick={handleConfirm}
-                  disabled={submitting || (!isCustom && total < 70)}
+                  disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
                   variant="primary"
                   size="lg"
                   className="w-full justify-center py-4 rounded-2xl text-base shadow-glow hover:scale-[1.02] active:scale-95 transition-all font-black"

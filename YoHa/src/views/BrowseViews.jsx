@@ -372,6 +372,29 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             </div>
           )}
 
+          {/* ═══ GROUP ORDER PROMO BANNER ═══ */}
+          {!search && (
+            <div className="mb-4 p-4 rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white shadow-lg border border-emerald-400/40 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-3 text-left">
+                <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl shrink-0">
+                  🎉
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-black text-sm sm:text-base">OFFRE COMMANDE DE GROUPE</span>
+                    <span className="px-2 py-0.5 rounded-full bg-amber-300 text-slate-950 font-black text-[10px]">100% OFFERTS</span>
+                  </div>
+                  <p className="text-xs text-emerald-100 font-bold mt-0.5">
+                    Frais de livraison & frais de service <strong>GRATUITS</strong> dès 200 MAD de commande !
+                  </p>
+                </div>
+              </div>
+              <span className="shrink-0 px-4 py-2 rounded-2xl bg-white text-emerald-950 font-black text-xs uppercase tracking-wider shadow-md hover:scale-105 transition-all">
+                En profiter 🚀
+              </span>
+            </div>
+          )}
+
           {/* ═══ LOYALTY REWARD BANNER (-50 MAD FOR 6 DELIVERED ORDERS) ═══ */}
           {!search && <LoyaltyRewardBanner />}
 
@@ -810,22 +833,6 @@ const CUISINE_GLOW_MAP = {
   supermarket: 'from-blue-500 to-cyan-500',
   shop: 'from-violet-500 to-purple-500',
 };
-
-function getFavorites() {
-  if (typeof window === 'undefined') return [];
-  try {
-    return JSON.parse(localStorage.getItem('yoha_favorites') || '[]');
-  } catch {
-    return [];
-  }
-}
-
-function saveFavorites(list) {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem('yoha_favorites', JSON.stringify(list));
-  } catch {}
-}
 
 export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
   const cartContext = useCart();
