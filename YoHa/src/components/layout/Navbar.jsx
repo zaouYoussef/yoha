@@ -44,53 +44,40 @@ export function Navbar({
 
   return (
     <header className="fixed top-0 inset-x-0 z-40 transition-all duration-500 pointer-events-none">
-      <div className={`mx-auto flex h-14 sm:h-16 min-w-0 items-center justify-between transition-all duration-500 pointer-events-auto ${
+      <div className={`mx-auto flex h-12 sm:h-14 md:h-16 items-center justify-between transition-all duration-500 pointer-events-auto overflow-hidden ${
         scrolled 
-          ? 'w-[calc(100%-0.5rem)] sm:w-[calc(100%-2rem)] max-w-6xl mt-1.5 sm:mt-3 px-2 sm:px-6 rounded-2xl glass-card-premium shadow-cardhover border border-white/20 dark:border-white/5' 
-          : 'w-full max-w-7xl px-2 sm:px-6 bg-transparent border-transparent'
+          ? 'w-[calc(100%-0.5rem)] sm:w-[calc(100%-2rem)] max-w-6xl mt-1.5 sm:mt-3 px-2 sm:px-5 rounded-2xl glass-card-premium shadow-cardhover border border-white/20 dark:border-white/5' 
+          : 'w-full max-w-7xl px-2 sm:px-5 bg-transparent border-transparent'
       }`}>
-        {/* LEFT: Logo + nav links */}
-        <div className="flex items-center gap-1 min-w-0 shrink">
-          <button onClick={onLogo} className="group flex min-w-0 shrink cursor-grow items-center gap-2">
-            <Logo />
-          </button>
+        {/* LEFT: Logo */}
+        <button onClick={onLogo} className="group flex items-center gap-2 shrink-0 cursor-grow">
+          <Logo />
+        </button>
 
-          {!isBrowsePage && (
-            <div className="hidden md:flex items-center gap-1 ml-4">
-              <NavBtn onClick={onHome} emoji="🍔" label="Restos" />
-              <NavBtn onClick={onPharmacy} emoji="💊" label="Pharmacie" />
-              <NavBtn onClick={onParapharmacy} emoji="🌿" label="Parapharma" />
-              <NavBtn onClick={onPastry} emoji="🥐" label="Pâtisserie" />
-              <NavBtn onClick={onSupermarket} emoji="🛒" label="Supermarché" />
-              <NavBtn onClick={onShop} emoji="🛍️" label="Magasins" />
-            </div>
-          )}
-        </div>
+        {/* RIGHT: Actions — max 3 items on mobile */}
+        <div className="flex items-center gap-0.5 sm:gap-1.5 shrink-0 ml-auto">
 
-        {/* RIGHT: Actions */}
-        <div className="flex min-w-0 items-center gap-1 sm:gap-2 shrink-0">
-
-          {/* Mes commandes */}
+          {/* Mes commandes — icon only on mobile */}
           {(!user || user.role === 'client') && isBrowsePage && (
             <button
               type="button"
               onClick={onMyOrders}
               aria-label="Mes commandes"
               title="Mes commandes"
-              className="cursor-grow px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl flex items-center gap-1.5 bg-ink-100/90 dark:bg-ink-800/80 text-ink-900 dark:text-white border border-ink-200/60 dark:border-ink-700/60 hover:border-brand-500/50 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300 text-xs font-bold shadow-xs active:scale-95 shrink-0"
+              className="cursor-grow w-8 h-8 sm:w-9 sm:h-9 md:w-auto md:h-auto md:px-3 md:py-2 rounded-xl flex items-center justify-center md:gap-1.5 bg-ink-100/90 dark:bg-ink-800/80 text-ink-900 dark:text-white border border-ink-200/60 dark:border-ink-700/60 hover:border-brand-500/50 hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300 text-xs font-bold shadow-xs active:scale-95 shrink-0"
             >
               <I.Receipt size={15} className="text-brand-500 shrink-0" />
-              <span className="hidden sm:inline">Mes commandes</span>
+              <span className="hidden md:inline">Mes commandes</span>
             </button>
           )}
 
-          {/* Live order badge */}
+          {/* Live order — sm+ only */}
           {liveOrder && (
             <button
               type="button"
               onClick={onLiveOrder}
               title="Suivi de commande"
-              className="cursor-grow hidden sm:flex min-w-0 max-w-[14rem] items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-xs font-semibold text-emerald-800 dark:text-emerald-200 hover:bg-emerald-500/25 transition"
+              className="cursor-grow hidden md:flex min-w-0 max-w-[14rem] items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-xs font-semibold text-emerald-800 dark:text-emerald-200 hover:bg-emerald-500/25 transition"
             >
               <span className="relative flex h-2 w-2 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"/>
@@ -101,23 +88,23 @@ export function Navbar({
             </button>
           )}
 
-          {/* Dashboard (admin/courier/restaurant) */}
+          {/* Dashboard icon — role-only */}
           {user?.role === 'admin' && (
-            <DashBtn onClick={() => goto('admin')} label="Admin" />
+            <DashBtn onClick={() => goto('admin')} />
           )}
           {user?.role === 'courier' && (
-            <DashBtn onClick={() => goto('delivery')} label="Livreur" />
+            <DashBtn onClick={() => goto('delivery')} />
           )}
           {user?.role === 'restaurant' && (
-            <DashBtn onClick={() => goto('restaurant-dash')} label="Restaurant" />
+            <DashBtn onClick={() => goto('restaurant-dash')} />
           )}
 
-          {/* Dark mode toggle */}
+          {/* Dark mode — md+ only */}
           <button
             onClick={() => setDark(d => !d)}
             aria-label="Changer le thème"
             title="Mode sombre / clair"
-            className="cursor-grow w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-all duration-300 text-ink-700 dark:text-ink-200 bg-ink-100/50 dark:bg-ink-800/40 border border-ink-200/50 dark:border-ink-700/50 shrink-0"
+            className="cursor-grow hidden sm:flex w-9 h-9 md:w-10 md:h-10 rounded-xl items-center justify-center hover:bg-brand-500/10 hover:text-brand-500 dark:hover:text-brand-400 transition-all duration-300 text-ink-700 dark:text-ink-200 bg-ink-100/50 dark:bg-ink-800/40 border border-ink-200/50 dark:border-ink-700/50 shrink-0"
           >
             <span className={`absolute transition-all duration-500 ${dark ? 'opacity-0 -rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'}`}>
               <I.Sun size={17}/>
@@ -133,12 +120,12 @@ export function Navbar({
             onClick={onCart} 
             aria-label="Voir le panier"
             title="Voir le panier"
-            className={`cursor-grow relative px-2 py-2 sm:px-3 rounded-xl flex items-center gap-1.5 bg-brand-500/10 text-brand-600 dark:text-brand-400 hover:bg-brand-500 hover:text-white transition-all duration-300 font-extrabold text-xs sm:text-sm shadow-sm min-h-[36px] sm:min-h-[40px] shrink-0 ${cartShake ? 'cart-shake' : ''}`}
+            className={`cursor-grow relative w-8 h-8 sm:w-9 sm:h-9 md:w-auto md:h-auto md:px-3 py-2 rounded-xl flex items-center justify-center md:gap-1.5 bg-brand-500/10 text-brand-600 dark:text-brand-400 hover:bg-brand-500 hover:text-white transition-all duration-300 font-extrabold text-xs sm:text-sm shadow-sm shrink-0 ${cartShake ? 'cart-shake' : ''}`}
           >
             <I.Cart size={17}/>
-            <span className="hidden sm:inline">Panier</span>
+            <span className="hidden md:inline">Panier</span>
             {cartCount > 0 && (
-              <span key={cartCount} className="min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black bg-brand-500 text-white grid place-items-center animate-pop shadow-glow">
+              <span key={cartCount} className="absolute -top-1 -right-1 min-w-[16px] h-4 px-0.5 rounded-full text-[9px] font-black bg-brand-500 text-white grid place-items-center animate-pop shadow-glow">
                 {cartCount}
               </span>
             )}
@@ -165,9 +152,9 @@ export function Navbar({
                 onClick={() => logout()}
                 aria-label="Déconnexion"
                 title="Déconnexion"
-                className="cursor-grow lg:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/15 dark:hover:text-red-400 transition-colors duration-300 text-ink-700 dark:text-ink-200 shrink-0"
+                className="cursor-grow lg:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/15 dark:hover:text-red-400 transition-colors duration-300 text-ink-700 dark:text-ink-200 shrink-0"
               >
-                <I.LogOut size={18}/>
+                <I.LogOut size={16}/>
               </button>
             </>
           ) : (
@@ -175,7 +162,7 @@ export function Navbar({
               <button
                 type="button"
                 onClick={() => goto('auth')}
-                className="cursor-grow inline-flex items-center gap-1.5 p-2 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold bg-ink-900 text-white dark:bg-white dark:text-ink-900 hover:opacity-90 transition-opacity shadow-md shrink-0"
+                className="cursor-grow inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold bg-ink-900 text-white dark:bg-white dark:text-ink-900 hover:opacity-90 transition-opacity shadow-md shrink-0"
               >
                 <I.User size={15}/>
                 <span className="hidden sm:inline">Connexion</span>

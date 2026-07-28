@@ -1012,11 +1012,8 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
             )}
           </div>
 
-          {/* Promo Tag Pills (Deliveroo style) */}
+          {/* Tag Pills */}
           <div className="mt-1 flex items-center gap-1.5 flex-wrap">
-            <span className="px-2 py-0.5 rounded-lg bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/40 text-[11px] font-extrabold">
-              1 plat acheté = 1 plat offert
-            </span>
             <span className="px-2 py-0.5 rounded-lg bg-ink-100 dark:bg-ink-800 text-ink-500 dark:text-ink-400 text-[10px] font-bold">
               Sponsorisé
             </span>
