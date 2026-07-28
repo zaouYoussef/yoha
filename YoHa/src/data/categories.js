@@ -8,8 +8,8 @@ export const CATEGORY_GROUPS = [
       { label: 'Burger',   image: '/categories/cat_burger.jpg', emoji: '🍔', id: 'burger' },
       { label: 'Tacos',    image: '/categories/cat_tacos.jpg', emoji: '🌮', id: 'tacos' },
       { label: 'Kebab',    image: '/categories/cat_kebab.jpg', emoji: '🥙', id: 'kebab' },
-      { label: 'Sandwich', image: '/categories/cat_tacos.jpg', emoji: '🥪', id: 'sandwich' },
-      { label: 'Wraps',    image: '/categories/cat_tacos.jpg', emoji: '🌯', id: 'wraps' },
+      { label: 'Sandwich', image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=800&auto=format&fit=crop&q=85', emoji: '🥪', id: 'sandwich' },
+      { label: 'Wraps',    image: 'https://images.unsplash.com/photo-1561651823-34feb02250e4?w=800&auto=format&fit=crop&q=85', emoji: '🌯', id: 'wraps' },
     ]
   },
   {
@@ -28,8 +28,8 @@ export const CATEGORY_GROUPS = [
     id: "world",
     items: [
       { label: 'Sushi',     image: '/categories/cat_sushi.jpg', emoji: '🍣', id: 'sushi' },
-      { label: 'Asiatique', image: '/categories/cat_sushi.jpg', emoji: '🍜', id: 'asian' },
-      { label: 'Italien',   image: '/categories/cat_pizza.jpg', emoji: '🍝', id: 'italien' },
+      { label: 'Asiatique', image: '/categories/cat_asian.jpg', emoji: '🍜', id: 'asian' },
+      { label: 'Italien',   image: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=800&auto=format&fit=crop&q=85', emoji: '🍝', id: 'italien' },
       { label: 'Mexicain',  image: '/categories/cat_tacos.jpg', emoji: '🌶️', id: 'mexicain' },
     ]
   },
@@ -47,7 +47,7 @@ export const CATEGORY_GROUPS = [
     emoji: "☕",
     id: "breakfast",
     items: [
-      { label: 'Petit-déjeuner', image: '/categories/cat_patisserie.jpg', emoji: '☕', id: 'breakfast' },
+      { label: 'Petit-déjeuner', image: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=800&auto=format&fit=crop&q=85', emoji: '☕', id: 'breakfast' },
       { label: 'Crêpes & Gaufres', image: '/categories/cat_patisserie.jpg', emoji: '🥞', id: 'crepes' },
     ]
   },
@@ -58,7 +58,7 @@ export const CATEGORY_GROUPS = [
     items: [
       { label: 'Pâtisserie', image: '/categories/cat_patisserie.jpg', emoji: '🍰', id: 'dessert' },
       { label: 'Glaces',      image: '/categories/cat_patisserie.jpg', emoji: '🍦', id: 'glaces' },
-      { label: 'Donuts',      image: '/categories/cat_patisserie.jpg', emoji: '🍩', id: 'donuts' },
+      { label: 'Donuts',      image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&auto=format&fit=crop&q=85', emoji: '🍩', id: 'donuts' },
     ]
   },
   {
