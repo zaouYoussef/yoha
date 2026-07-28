@@ -382,7 +382,13 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
 export function DeliveryAvailable({ courier }) {
   const { orders, assignCourier } = useOrders();
   const available = orders.filter(
-    (o) => !o.courierId && (o.status === 'placed' || o.status === 'preparing'),
+    (o) =>
+      (!o.courierId || o.courierId === '0' || o.courierId === 'null' || o.courierId === null) &&
+      o.status !== 'delivered' &&
+      o.status !== 'cancelled' &&
+      o.status !== 'COMPLETED' &&
+      o.status !== 'LIVRÉ' &&
+      o.status !== 'delivered_client',
   );
 
   return (
