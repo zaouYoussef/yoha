@@ -1859,7 +1859,7 @@ const PROMO_BANNERS = [
     title: '-50 MAD FIDÉLITÉ',
     subtitle: 'Après 6 commandes livrées confirmées !',
     code: 'FIDÉLITÉ ⭐',
-    cta: 'Avantages →',
+    cta: 'Voir mon solde →',
     image: '/promos/promo_recompense_fidelite.jpg',
     filterId: 'top_rated',
     textColor: 'text-white',
@@ -1921,9 +1921,13 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
                   </span>
                   <span
                     onClick={(e) => {
-                      if (b.id === 'promo-6') { e.stopPropagation(); setShowFidelite(true); }
+                      if (b.id === 'promo-6') {
+                        e.stopPropagation();
+                        if (!user) return;
+                        setShowFidelite(true);
+                      }
                     }}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white text-slate-950 font-black text-xs shadow-md group-hover:scale-105 transition-all ${b.id === 'promo-6' ? 'cursor-pointer hover:bg-amber-50' : ''}`}>
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white text-slate-950 font-black text-xs shadow-md group-hover:scale-105 transition-all ${b.id === 'promo-6' ? (user ? 'cursor-pointer hover:bg-amber-50' : 'opacity-50') : ''}`}>
                     <span>{b.cta}</span>
                   </span>
                 </div>
