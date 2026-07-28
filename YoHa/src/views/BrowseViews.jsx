@@ -372,166 +372,152 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             </div>
           )}
 
-          {/* ═══ 🔥 OFFRES & PROMOS — SECTION PRINCIPALE (Eye-Catching) ═══ */}
+          {/* ═══ 🔥 OFFRES & PROMOS — PREMIUM REDESIGN ═══ */}
           {!search && (
-            <section className="space-y-5">
-              {/* Section Title */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-lg shadow-md">
-                    🎁
-                  </div>
-                  <div>
-                    <h2 className="font-display font-black text-lg sm:text-xl text-ink-900 dark:text-white tracking-tight">
-                      Offres & Bons Plans
-                    </h2>
-                    <p className="text-[11px] text-ink-500 dark:text-ink-400 font-bold">Des économies exclusives pour vous ⚡</p>
-                  </div>
+            <section className="space-y-4">
+
+              {/* ── HERO PROMO BANNER: Code YOHA50 (Full-width, immersive) ── */}
+              <div className="relative rounded-[28px] overflow-hidden shadow-2xl group cursor-pointer" style={{background:'linear-gradient(135deg,#FF416C 0%,#FF4B2B 50%,#FF6B35 100%)'}}>
+                {/* Animated sparkle dots */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <div className="absolute w-3 h-3 rounded-full bg-white/30 top-4 left-[15%] animate-ping" style={{animationDuration:'2.5s'}} />
+                  <div className="absolute w-2 h-2 rounded-full bg-yellow-200/40 top-8 right-[25%] animate-ping" style={{animationDuration:'3s',animationDelay:'0.5s'}} />
+                  <div className="absolute w-2.5 h-2.5 rounded-full bg-white/20 bottom-6 left-[40%] animate-ping" style={{animationDuration:'2s',animationDelay:'1s'}} />
+                  <div className="absolute w-48 h-48 rounded-full bg-white/[0.07] -top-10 -right-10 blur-xl" />
+                  <div className="absolute w-32 h-32 rounded-full bg-yellow-300/10 bottom-0 left-0 blur-2xl" />
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] font-black border border-rose-500/20 animate-pulse">
-                  🔥 LIMITÉ
-                </span>
-              </div>
-
-              {/* Horizontal Promo Cards Carousel */}
-              <div className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
-
-                {/* Card 1: Welcome Offer YOHA50 */}
-                <div className="shrink-0 w-[280px] sm:w-[300px] rounded-3xl overflow-hidden shadow-xl border border-rose-200/40 dark:border-rose-800/40 bg-gradient-to-br from-rose-600 via-pink-600 to-rose-700 text-white relative group hover:scale-[1.02] transition-transform">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-                  <div className="p-5 relative z-10">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-[10px] font-black uppercase tracking-wider">
-                        🎉 Bienvenue
-                      </span>
-                      <span className="text-2xl">🎁</span>
+                <div className="relative z-10 p-5 sm:p-7 flex flex-col sm:flex-row items-center gap-4">
+                  {/* Left: Big discount */}
+                  <div className="flex-1 text-center sm:text-left">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm mb-3">
+                      <span className="w-2 h-2 rounded-full bg-green-300 animate-pulse" />
+                      <span className="text-white text-[11px] font-black uppercase tracking-wider">Offre de Bienvenue</span>
                     </div>
-                    <div className="font-display font-black text-3xl mb-1">-50 MAD</div>
-                    <p className="text-xs text-rose-100 font-bold leading-relaxed mb-4">
-                      Sur votre 1ère commande avec le code promo ci-dessous
+                    <div className="flex items-baseline gap-2 justify-center sm:justify-start">
+                      <span className="font-display font-black text-5xl sm:text-6xl text-white leading-none" style={{textShadow:'0 4px 24px rgba(0,0,0,0.25)'}}>-50</span>
+                      <span className="font-display font-black text-2xl text-yellow-200">MAD</span>
+                    </div>
+                    <p className="text-sm text-white/90 font-bold mt-2 max-w-xs mx-auto sm:mx-0">
+                      Sur votre <span className="underline decoration-yellow-300 decoration-2 underline-offset-2">première commande</span> YoHa 🎉
                     </p>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 px-3 py-2.5 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 text-center">
-                        <span className="font-black text-base tracking-[0.2em]">YOHA50</span>
+                  </div>
+                  {/* Right: Promo code ticket */}
+                  <div className="shrink-0">
+                    <div className="bg-white rounded-2xl p-4 shadow-xl relative" style={{minWidth:180}}>
+                      {/* Ticket notch left */}
+                      <div className="absolute -left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full" style={{background:'linear-gradient(135deg,#FF416C,#FF4B2B)'}} />
+                      {/* Ticket notch right */}
+                      <div className="absolute -right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full" style={{background:'linear-gradient(135deg,#FF4B2B,#FF6B35)'}} />
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center mb-1">Code promo</p>
+                      <div className="border-2 border-dashed border-rose-300 rounded-xl px-4 py-2.5 text-center mb-3">
+                        <span className="font-display font-black text-2xl tracking-[0.15em] text-rose-600">YOHA50</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => { if(typeof navigator !== 'undefined') navigator.clipboard?.writeText('YOHA50'); }}
-                        className="px-3 py-2.5 rounded-xl bg-white text-rose-600 font-black text-xs hover:scale-105 active:scale-95 transition-all shadow-md cursor-pointer"
+                        className="w-full py-2.5 rounded-xl font-black text-sm text-white cursor-pointer hover:scale-[1.03] active:scale-95 transition-all shadow-lg"
+                        style={{background:'linear-gradient(135deg,#FF416C,#FF4B2B)'}}
                       >
-                        Copier
+                        📋 Copier le code
                       </button>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Card 2: Group Order */}
-                <div className="shrink-0 w-[280px] sm:w-[300px] rounded-3xl overflow-hidden shadow-xl border border-emerald-200/40 dark:border-emerald-800/40 bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 text-white relative group hover:scale-[1.02] transition-transform">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-                  <div className="p-5 relative z-10">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-[10px] font-black uppercase tracking-wider">
-                        👥 Groupe
-                      </span>
-                      <span className="text-2xl">🎉</span>
-                    </div>
-                    <div className="font-display font-black text-2xl mb-1">0 MAD DE FRAIS</div>
-                    <p className="text-xs text-emerald-100 font-bold leading-relaxed mb-4">
-                      Livraison + Service <strong>100% OFFERTS</strong> dès 200 MAD de commande !
-                    </p>
-                    <div className="px-3 py-2.5 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 text-center">
-                      <span className="font-black text-sm">Commandez à plusieurs & économisez !</span>
-                    </div>
+              {/* ── DEAL TILES: 2-column grid for smaller offers ── */}
+              <div className="grid grid-cols-2 gap-3">
+
+                {/* Tile 1: Commande de Groupe */}
+                <div className="relative rounded-[22px] overflow-hidden p-4 sm:p-5 cursor-pointer group hover:scale-[1.02] transition-transform shadow-lg" style={{background:'linear-gradient(135deg,#11998e 0%,#38ef7d 100%)'}}>
+                  <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-white/10 blur-xl" />
+                  <span className="text-3xl block mb-2">👥</span>
+                  <div className="font-display font-black text-xl sm:text-2xl text-white leading-tight" style={{textShadow:'0 2px 12px rgba(0,0,0,0.2)'}}>
+                    0 MAD
+                  </div>
+                  <p className="text-[11px] text-white/90 font-bold mt-1 leading-snug">
+                    Frais offerts dès <span className="text-yellow-200 font-black">200 MAD</span>
+                  </p>
+                  <div className="mt-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/25 backdrop-blur-sm text-[10px] font-black text-white uppercase tracking-wider">
+                    En profiter →
                   </div>
                 </div>
 
-                {/* Card 3: Loyalty */}
-                <div className="shrink-0 w-[280px] sm:w-[300px] rounded-3xl overflow-hidden shadow-xl border border-amber-200/40 dark:border-amber-800/40 bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white relative group hover:scale-[1.02] transition-transform">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-                  <div className="p-5 relative z-10">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-[10px] font-black uppercase tracking-wider">
-                        ⭐ Fidélité
-                      </span>
-                      <span className="text-2xl">🏆</span>
-                    </div>
-                    <div className="font-display font-black text-2xl mb-1">-50 MAD / 6 CMD</div>
-                    <p className="text-xs text-amber-100 font-bold leading-relaxed mb-4">
-                      Après 6 commandes livrées, recevez automatiquement <strong>50 MAD offerts</strong> !
-                    </p>
-                    <div className="px-3 py-2.5 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 text-center">
-                      <span className="font-black text-sm">Connectez-vous pour en profiter</span>
-                    </div>
+                {/* Tile 2: Fidélité */}
+                <div className="relative rounded-[22px] overflow-hidden p-4 sm:p-5 cursor-pointer group hover:scale-[1.02] transition-transform shadow-lg" style={{background:'linear-gradient(135deg,#F2994A 0%,#F2C94C 100%)'}}>
+                  <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-white/10 blur-xl" />
+                  <span className="text-3xl block mb-2">🏆</span>
+                  <div className="font-display font-black text-xl sm:text-2xl text-white leading-tight" style={{textShadow:'0 2px 12px rgba(0,0,0,0.2)'}}>
+                    -50 MAD
+                  </div>
+                  <p className="text-[11px] text-white/90 font-bold mt-1 leading-snug">
+                    Après <span className="text-white font-black">6 commandes</span> livrées
+                  </p>
+                  <div className="mt-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/25 backdrop-blur-sm text-[10px] font-black text-white uppercase tracking-wider">
+                    Fidélité ⭐
                   </div>
                 </div>
 
-                {/* Card 4: Free Delivery */}
-                <div className="shrink-0 w-[280px] sm:w-[300px] rounded-3xl overflow-hidden shadow-xl border border-sky-200/40 dark:border-sky-800/40 bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-600 text-white relative group hover:scale-[1.02] transition-transform">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-                  <div className="p-5 relative z-10">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-[10px] font-black uppercase tracking-wider">
-                        🏍️ Livraison
-                      </span>
-                      <span className="text-2xl">🚀</span>
-                    </div>
-                    <div className="font-display font-black text-2xl mb-1">LIVRAISON 4,99 MAD</div>
-                    <p className="text-xs text-sky-100 font-bold leading-relaxed mb-4">
-                      Livraison à seulement <strong>4,99 MAD</strong> dès 120 MAD de commande au lieu de 7,99 MAD !
-                    </p>
-                    <div className="px-3 py-2.5 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 text-center">
-                      <span className="font-black text-sm">30-45 min · Alliance & CHU</span>
-                    </div>
+                {/* Tile 3: Livraison Mini Prix */}
+                <div className="relative rounded-[22px] overflow-hidden p-4 sm:p-5 cursor-pointer group hover:scale-[1.02] transition-transform shadow-lg" style={{background:'linear-gradient(135deg,#667eea 0%,#764ba2 100%)'}}>
+                  <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-white/10 blur-xl" />
+                  <span className="text-3xl block mb-2">🚀</span>
+                  <div className="font-display font-black text-xl sm:text-2xl text-white leading-tight" style={{textShadow:'0 2px 12px rgba(0,0,0,0.2)'}}>
+                    4,99 MAD
+                  </div>
+                  <p className="text-[11px] text-white/90 font-bold mt-1 leading-snug">
+                    Livraison dès <span className="text-yellow-200 font-black">120 MAD</span>
+                  </p>
+                  <div className="mt-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/25 backdrop-blur-sm text-[10px] font-black text-white uppercase tracking-wider">
+                    Express 🏍️
                   </div>
                 </div>
 
-                {/* Card 5: Surprise */}
-                <div className="shrink-0 w-[280px] sm:w-[300px] rounded-3xl overflow-hidden shadow-xl border border-violet-200/40 dark:border-violet-800/40 bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 text-white relative group hover:scale-[1.02] transition-transform">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-                  <div className="p-5 relative z-10">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-[10px] font-black uppercase tracking-wider">
-                        🎲 Surprise
-                      </span>
-                      <span className="text-2xl">🎰</span>
-                    </div>
-                    <div className="font-display font-black text-2xl mb-1">CODE MYSTÈRE</div>
-                    <p className="text-xs text-violet-100 font-bold leading-relaxed mb-4">
-                      Parrainez un ami, et recevez chacun un <strong>code promo surprise</strong> pouvant aller jusqu'à -30 MAD !
-                    </p>
-                    <div className="px-3 py-2.5 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 text-center">
-                      <span className="font-black text-sm">Bientôt disponible 🔜</span>
-                    </div>
+                {/* Tile 4: Parrainage */}
+                <div className="relative rounded-[22px] overflow-hidden p-4 sm:p-5 cursor-pointer group hover:scale-[1.02] transition-transform shadow-lg" style={{background:'linear-gradient(135deg,#a18cd1 0%,#fbc2eb 100%)'}}>
+                  <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-white/10 blur-xl" />
+                  <span className="text-3xl block mb-2">🎁</span>
+                  <div className="font-display font-black text-xl sm:text-2xl text-white leading-tight" style={{textShadow:'0 2px 12px rgba(0,0,0,0.2)'}}>
+                    Surprise
+                  </div>
+                  <p className="text-[11px] text-white/90 font-bold mt-1 leading-snug">
+                    Parrainez un ami = <span className="text-white font-black">code mystère</span>
+                  </p>
+                  <div className="mt-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/25 backdrop-blur-sm text-[10px] font-black text-white uppercase tracking-wider">
+                    Bientôt 🔜
                   </div>
                 </div>
 
               </div>
 
-              {/* Quick Promo Codes Bar */}
-              <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-xs font-black text-ink-500 dark:text-ink-400 uppercase tracking-wider shrink-0">Codes promos :</span>
-                {[
-                  { code: 'YOHA50',  label: '-50 MAD 1ère commande', color: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' },
-                  { code: 'YOHA10',  label: '-10% sur les pizzas', color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' },
-                  { code: 'GROUPE0', label: '0 MAD frais (dès 200 MAD)', color: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' },
-                ].map(p => (
-                  <button
-                    key={p.code}
-                    type="button"
-                    onClick={() => { if(typeof navigator !== 'undefined') navigator.clipboard?.writeText(p.code); }}
-                    className={`cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black border ${p.color} hover:scale-105 active:scale-95 transition-all shadow-xs`}
-                  >
-                    <span className="font-mono tracking-wider">{p.code}</span>
-                    <span className="text-[10px] opacity-70 hidden sm:inline">· {p.label}</span>
-                    <span className="text-[10px]">📋</span>
-                  </button>
-                ))}
+              {/* ── PROMO CODES QUICK-COPY BAR ── */}
+              <div className="rounded-2xl bg-ink-100/60 dark:bg-ink-800/40 backdrop-blur-sm border border-ink-200/50 dark:border-ink-700/50 p-3.5 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center text-sm shadow">🎟️</div>
+                  <span className="text-xs font-black text-ink-600 dark:text-ink-300 uppercase tracking-wider">Codes promos</span>
+                </div>
+                <div className="flex flex-wrap gap-2 flex-1">
+                  {[
+                    { code:'YOHA50', desc:'-50 MAD', bg:'from-rose-500 to-pink-500' },
+                    { code:'YOHA10', desc:'-10% Pizzas', bg:'from-amber-500 to-orange-500' },
+                    { code:'GROUPE0', desc:'0 MAD frais', bg:'from-emerald-500 to-teal-500' },
+                  ].map(p => (
+                    <button
+                      key={p.code}
+                      type="button"
+                      onClick={() => { if(typeof navigator !== 'undefined') navigator.clipboard?.writeText(p.code); }}
+                      className={`cursor-pointer inline-flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-xl bg-gradient-to-r ${p.bg} text-white text-xs font-black shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all`}
+                    >
+                      <span className="font-mono tracking-wider">{p.code}</span>
+                      <span className="text-[10px] text-white/70 hidden sm:inline">· {p.desc}</span>
+                      <span className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-[10px]">📋</span>
+                    </button>
+                  ))}
+                </div>
               </div>
+
             </section>
           )}
-
-          {/* ═══ LOYALTY REWARD BANNER (-50 MAD FOR 6 DELIVERED ORDERS) ═══ */}
-          {!search && <LoyaltyRewardBanner />}
 
           {/* ═══ CUISINE CATEGORIES CAROUSEL (High Quality AI Food Imagery) ═══ */}
           {isDefault && (
