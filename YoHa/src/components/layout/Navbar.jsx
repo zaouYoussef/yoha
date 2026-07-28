@@ -53,6 +53,11 @@ export function Navbar({
           <button onClick={onLogo} className="group flex min-w-0 shrink cursor-grow items-center gap-2">
             <Logo />
           </button>
+          
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs font-black border border-emerald-500/20 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>📍 Alliance & CHU Tanger</span>
+          </div>
 
           {!isBrowsePage && (
             <div className="hidden md:flex items-center gap-1 ml-4">
