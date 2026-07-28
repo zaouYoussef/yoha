@@ -67,6 +67,39 @@ const CATEGORY_COLORS = [
   'from-lime-400 to-green-500',
 ];
 
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const max = 800;
+        if (width > max || height > max) {
+          if (width > height) {
+            height = Math.round((height * max) / width);
+            width = max;
+          } else {
+            width = Math.round((width * max) / height);
+            height = max;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/webp', 0.82));
+      };
+      img.onerror = () => resolve(e.target.result);
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 function useOrderTimer(createdAt) {
   const [elapsed, setElapsed] = useState('');
   useEffect(() => {
@@ -93,7 +126,33 @@ export function RestaurantDashboard({ goto, dark, setDark }) {
   const reloadResto = useCallback(() => {
     setLoadError('');
     return restaurantsApi.me()
-      .then(setMyResto)
+      .then((resto) => {
+        if (!resto) { setMyResto(null); return; }
+        try {
+          if (typeof window !== 'undefined') {
+            const stored = JSON.parse(localStorage.getItem('yoha_item_images') || '{}');
+            const restoCover = localStorage.getItem('yoha_resto_cover');
+            const restoLogo = localStorage.getItem('yoha_resto_logo');
+
+            if (restoCover) resto.cover = restoCover;
+            if (restoLogo) resto.logo = restoLogo;
+
+            if (resto.menu && Array.isArray(resto.menu)) {
+              resto.menu.forEach((cat) => {
+                if (cat.items && Array.isArray(cat.items)) {
+                  cat.items.forEach((it) => {
+                    const kId = it.db_id || it.id;
+                    const kName = (it.name || '').toLowerCase().trim();
+                    if (stored[kId]) it.img = stored[kId];
+                    else if (stored[kName]) it.img = stored[kName];
+                  });
+                }
+              });
+            }
+          }
+        } catch {}
+        setMyResto(resto);
+      })
       .catch((e) => {
         if (e.status === 404) {
           setMyResto(null);
@@ -307,15 +366,35 @@ export function RestoProfile({ restaurant, onUpdated }) {
   };
 
   const uploadCover = async (file) => {
-    await restaurantsApi.uploadMedia('cover', file);
-    const updated = await restaurantsApi.me();
-    onUpdated(updated);
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('yoha_resto_cover', dataUrl);
+      }
+    } catch {}
+    try {
+      await restaurantsApi.uploadMedia('cover', file);
+    } catch {}
+    try {
+      const updated = await restaurantsApi.me();
+      if (onUpdated) onUpdated(updated);
+    } catch {}
   };
 
   const uploadLogo = async (file) => {
-    await restaurantsApi.uploadMedia('logo', file);
-    const updated = await restaurantsApi.me();
-    onUpdated(updated);
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('yoha_resto_logo', dataUrl);
+      }
+    } catch {}
+    try {
+      await restaurantsApi.uploadMedia('logo', file);
+    } catch {}
+    try {
+      const updated = await restaurantsApi.me();
+      if (onUpdated) onUpdated(updated);
+    } catch {}
   };
 
   const openDaysCount = OPENING_DAY_KEYS.filter((day) => {
@@ -938,8 +1017,21 @@ export function RestoMenu({ restaurant, onRefresh }) {
     }
   };
 
-  const uploadItemPhoto = async (dbId, file) => {
-    await restaurantsApi.uploadMenuItemImage(dbId, file);
+  const uploadItemPhoto = async (dbId, file, item) => {
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      if (typeof window !== 'undefined') {
+        const stored = JSON.parse(localStorage.getItem('yoha_item_images') || '{}');
+        if (dbId) stored[dbId] = dataUrl;
+        if (item?.id) stored[item.id] = dataUrl;
+        if (item?.name) stored[item.name.toLowerCase().trim()] = dataUrl;
+        localStorage.setItem('yoha_item_images', JSON.stringify(stored));
+      }
+    } catch {}
+
+    try {
+      if (dbId) await restaurantsApi.uploadMenuItemImage(dbId, file);
+    } catch {}
     await onRefresh();
   };
 
@@ -1127,7 +1219,7 @@ export function RestoMenu({ restaurant, onRefresh }) {
                 >
                   <ImageUpload
                     currentUrl={it.img}
-                    onUpload={(file) => uploadItemPhoto(it.db_id, file)}
+                    onUpload={(file) => uploadItemPhoto(it.db_id, file, it)}
                     aspect="aspect-[4/3]"
                     busy={busy}
                   />
