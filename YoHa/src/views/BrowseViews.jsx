@@ -417,35 +417,6 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             </section>
           )}
 
-          {/* ═══ CATEGORY CIRCLES (Deliveroo style) ═══ */}
-          {isDefault && (
-            <section className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
-              {CATEGORIES_BANNERS.filter(c => !['pharmacy','parapharmacy','supermarket','shop'].includes(c.id)).map((c) => {
-                const active = filter === c.id;
-                return (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => setFilter(active ? 'all' : c.id)}
-                    className="cursor-pointer shrink-0 flex flex-col items-center gap-2 w-[4.5rem] group"
-                  >
-                    <div
-                      className={`relative w-[4.2rem] h-[4.2rem] rounded-full overflow-hidden transition-all duration-300 ${
-                        active ? 'ring-3 ring-teal-600 dark:ring-teal-400 scale-105 shadow-md' : 'border border-ink-100 dark:border-ink-800'
-                      }`}
-                    >
-                      <img src={c.image} alt={c.label} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                      <div className={`absolute inset-0 transition-colors duration-300 ${active ? 'bg-black/10' : 'bg-black/10 group-hover:bg-black/5'}`} />
-                    </div>
-                    <span className={`text-[11px] font-bold text-center leading-tight ${active ? 'text-teal-600 dark:text-teal-400 font-extrabold' : 'text-ink-700 dark:text-ink-300'}`}>
-                      {c.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </section>
-          )}
-
           {/* ═══ SUB-CAROUSEL per filter ═══ */}
           {!isDefault && !search.trim() && (() => {
             const subItems = {
@@ -885,8 +856,10 @@ export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
 
   const handleReorderCheckout = () => {
     if (items.length > 0) {
-      setCart(items);
-      // Dispatch custom event or open checkout
+      if (setCart) setCart(items);
+      try {
+        localStorage.setItem('yoha_cart', JSON.stringify(items));
+      } catch {}
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('open_checkout'));
       }
@@ -903,44 +876,41 @@ export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
   };
 
   return (
-    <div className="px-4 sm:px-0 mb-3">
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-ink-950 via-slate-900 to-ink-950 text-white p-4 sm:p-5 shadow-2xl border border-brand-500/40">
+    <div className="w-full mb-3">
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-ink-950 via-slate-900 to-ink-950 text-white p-3.5 sm:p-5 shadow-xl border border-brand-500/40">
         <div className="absolute -right-10 -bottom-10 w-44 h-44 bg-brand-500/10 rounded-full blur-2xl pointer-events-none" />
         
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-start sm:items-center gap-3.5 min-w-0">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-pink-500 flex items-center justify-center text-2xl shrink-0 shadow-lg shadow-brand-500/20">
+        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-500 to-pink-500 flex items-center justify-center text-xl sm:text-2xl shrink-0 shadow-lg shadow-brand-500/20">
               ⚡
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest bg-brand-500 text-white px-2 py-0.5 rounded-full">
-                  INTELLIGENCE YOHA
-                </span>
-                <span className="text-xs text-ink-300 font-medium">Commande précédente</span>
-              </div>
-              <h3 className="font-display font-black text-base sm:text-lg text-white mt-0.5 truncate">
-                Recommander chez <span className="text-brand-400 font-extrabold">{storeName}</span> ?
+              <span className="text-[10px] sm:text-xs text-brand-300 font-extrabold uppercase tracking-wider block">
+                Votre dernière commande
+              </span>
+              <h3 className="font-display font-black text-sm sm:text-lg text-white truncate leading-tight">
+                Recommander chez <span className="text-amber-300 font-extrabold">{storeName}</span> ?
               </h3>
-              <p className="text-xs text-ink-300 mt-0.5 truncate max-w-md font-medium">
+              <p className="text-[11px] sm:text-xs text-ink-300 truncate max-w-md font-medium mt-0.5">
                 {itemsSummary}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap w-full md:w-auto shrink-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-center gap-2 w-full lg:w-auto shrink-0 pt-1 lg:pt-0 border-t border-white/10 lg:border-t-0">
             <button
               type="button"
               onClick={handleReorderCheckout}
-              className="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 text-white font-extrabold text-xs shadow-glow hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 text-white font-extrabold text-xs shadow-glow hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
             >
-              <span>⚡ Recommander d'hier {totalAmount > 0 ? `(${totalAmount} MAD)` : ''}</span>
+              <span>⚡ Recommander {totalAmount > 0 ? `(${totalAmount} MAD)` : ''}</span>
             </button>
 
             <button
               type="button"
               onClick={handleNewOrder}
-              className="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-xs hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-xs hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center truncate"
             >
               <span>🍽️ Nouvelle commande chez {storeName}</span>
             </button>
