@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { I } from '../icons/Icons.jsx';
 import { CUISINES, CATEGORIES_BANNERS, CATEGORY_GROUPS, CUISINE_CATEGORIES, STATIC_STORES } from '../data/index.js';
-import { useOrders } from '../contexts/AppContexts.jsx';
+import { useOrders, useCart } from '../contexts/AppContexts.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { Reveal } from '../components/ui/Reveal.jsx';
 import { Tilt } from '../components/ui/Tilt.jsx';
@@ -858,7 +858,8 @@ function saveFavorites(list) {
 }
 
 export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
-  const { setCart } = useCart();
+  const cartContext = useCart();
+  const setCart = cartContext?.setCart;
   const { orders = [] } = useOrders() || {};
   const [lastOrder, setLastOrder] = useState(null);
 
