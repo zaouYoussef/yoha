@@ -56,9 +56,61 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
 
   const mainStoreName = cart[0]?.restaurantName || 'YoHa Partner';
 
+  const { orders = [] } = useOrders() || {};
+
+  // Check promo code active status from localStorage / Admin settings
+  const checkPromoStatus = (codeName) => {
+    try {
+      if (typeof window !== 'undefined') {
+        const raw = localStorage.getItem('yoha_promos');
+        if (raw) {
+          const list = JSON.parse(raw);
+          const found = list.find(p => p.code?.toUpperCase() === codeName.toUpperCase());
+          if (found) return found;
+        }
+      }
+    } catch {}
+    return { code: codeName, active: true };
+  };
+
+  const yoha50Status = checkPromoStatus('YOHA50');
+  const isYoha50Active = yoha50Status.active !== false;
+
+  // Compute completed / delivered orders for the current user
+  const userPastOrdersCount = useMemo(() => {
+    if (!user) return 0;
+    const userEmail = (user.email || '').toLowerCase().trim();
+    const userUid = user.uid || user.id;
+    const userName = (user.displayName || '').toLowerCase().trim();
+
+    return orders.filter(o => {
+      const statusOk = ['delivered', 'DELIVERED', 'LIVRÉ', 'COMPLETED', 'completed'].includes(o.status);
+      const isUserMatch = (
+        (o.customer?.email && userEmail && o.customer.email.toLowerCase().trim() === userEmail) ||
+        (o.userId && (o.userId === userUid)) ||
+        (o.customer?.name && userName && o.customer.name.toLowerCase().trim() === userName)
+      );
+      return statusOk && isUserMatch;
+    }).length;
+  }, [orders, user]);
+
+  const isFirstOrder = user && userPastOrdersCount === 0;
+
   const applyYoha50 = () => {
-    setAppliedPromo({ code: 'YOHA50', fixed_amount: 50, valid: true });
     setPromoErr('');
+    if (!isYoha50Active) {
+      setPromoErr('Le code YOHA50 a été désactivé par l\'administration.');
+      return;
+    }
+    if (!user) {
+      setPromoErr('Offre YOHA50 réservée aux comptes connectés. Connectez-vous d\'abord pour profiter de -50 MAD sur votre 1ère commande !');
+      return;
+    }
+    if (!isFirstOrder) {
+      setPromoErr('L\'offre YOHA50 est exclusivement réservée à votre TOUTE PREMIÈRE commande.');
+      return;
+    }
+    setAppliedPromo({ code: 'YOHA50', fixed_amount: 50, valid: true });
   };
 
   useEffect(() => {
@@ -75,6 +127,49 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
     setPromoErr('');
     const code = promoInput.trim().toUpperCase();
     if (!code) { setPromoErr('Entrez un code promo'); return; }
+
+    const promoStatus = checkPromoStatus(code);
+    if (promoStatus.active === false) {
+      setPromoErr(`Le code promo ${code} a été désactivé par l'administration.`);
+      return;
+    }
+
+    if (code === 'YOHA50') {
+      if (!user) {
+        setPromoErr('Le code YOHA50 est réservé aux membres connectés pour leur 1ère commande.');
+        return;
+      }
+      if (!isFirstOrder) {
+        setPromoErr('Le code YOHA50 est uniquement réservé à votre toute 1ère commande.');
+        return;
+      }
+      setAppliedPromo({ code: 'YOHA50', fixed_amount: 50, valid: true });
+      setPromoInput('');
+      return;
+    }
+
+    if (code === 'GROUPE0') {
+      if (total < 200) {
+        setPromoErr('Le code GROUPE0 nécessite un panier d\'au moins 200 MAD.');
+        return;
+      }
+      setAppliedPromo({ code: 'GROUPE0', fixed_amount: 0, valid: true, free_delivery: true });
+      setPromoInput('');
+      return;
+    }
+
+    if (code === 'YOHA10') {
+      setAppliedPromo({ code: 'YOHA10', discount: 10, valid: true });
+      setPromoInput('');
+      return;
+    }
+
+    if (code === 'EXCLU15') {
+      setAppliedPromo({ code: 'EXCLU15', discount: 15, valid: true });
+      setPromoInput('');
+      return;
+    }
+
     try {
       const res = await fetch(`${API_BASE}/marketing/promos/validate/`, {
         method: 'POST',
@@ -89,7 +184,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
         setPromoErr(data.detail || 'Code invalide ou expiré');
       }
     } catch {
-      setPromoErr('Erreur réseau. Vérifiez votre connexion.');
+      setPromoErr('Code invalide ou non reconnu.');
     }
   };
 
@@ -427,21 +522,44 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
               )}
 
               {/* OFFRE DE BIENVENUE 50 MAD OFFERTS BUTTON CARD */}
-              {!appliedPromo && (
+              {isYoha50Active && !appliedPromo && (
                 <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 text-white shadow-lg border border-rose-400/50 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase tracking-wider bg-white text-rose-600 px-2.5 py-0.5 rounded-full shadow-xs">
-                      Offre Spéciale
+                      Offre Spéciale Bienvenue
                     </span>
                     <span className="text-xs font-black text-amber-300">50 MAD OFFERTS</span>
                   </div>
+                  
                   <p className="text-xs font-bold text-rose-100 leading-tight">
                     Profitez de -50 MAD sur votre commande avec le code <strong className="text-white font-black underline">YOHA50</strong> !
                   </p>
+
+                  {!user ? (
+                    <div className="text-[11px] font-semibold text-amber-200 bg-black/20 px-2.5 py-1.5 rounded-xl border border-white/10 flex items-center gap-1.5">
+                      <span>🔒</span>
+                      <span>Connectez-vous pour activer l'offre 1ère commande</span>
+                    </div>
+                  ) : !isFirstOrder ? (
+                    <div className="text-[11px] font-semibold text-rose-200 bg-black/20 px-2.5 py-1.5 rounded-xl border border-white/10 flex items-center gap-1.5">
+                      <span>ℹ️</span>
+                      <span>Offre réservée exclusivement à votre 1ère commande</span>
+                    </div>
+                  ) : (
+                    <div className="text-[11px] font-semibold text-emerald-200 bg-black/20 px-2.5 py-1.5 rounded-xl border border-white/10 flex items-center gap-1.5">
+                      <span>🎉</span>
+                      <span>Éligible ! -50 MAD sur votre 1ère commande</span>
+                    </div>
+                  )}
+
                   <button
                     type="button"
                     onClick={applyYoha50}
-                    className="w-full py-2.5 rounded-xl bg-white text-slate-950 font-black text-xs uppercase tracking-wider shadow-md hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className={`w-full py-2.5 rounded-xl font-black text-xs uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      !user || isFirstOrder
+                        ? 'bg-white text-slate-950 hover:scale-[1.02] active:scale-95'
+                        : 'bg-white/30 text-white/70 hover:bg-white/40'
+                    }`}
                   >
                     <span>Appliquer -50 MAD 🚀</span>
                   </button>

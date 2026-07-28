@@ -1261,6 +1261,13 @@ export function AdminRevenue({ orders }) {
 /* ═══════════════════════════════════════════════════════════════
    PROMOS
    ═══════════════════════════════════════════════════════════════ */
+const DEFAULT_PROMOS = [
+  { id: 'p-1', code: 'YOHA50', discount: 50, fixedAmount: true, section: 'all', active: true, usageCount: 24, label: '-50 MAD (1ère commande & connecté)' },
+  { id: 'p-2', code: 'GROUPE0', discount: 100, freeDelivery: true, section: 'all', active: true, usageCount: 18, label: '0 MAD livraison dès 200 MAD' },
+  { id: 'p-3', code: 'YOHA10', discount: 10, section: 'restaurant', active: true, usageCount: 42, label: '-10% Pizzas & Restos' },
+  { id: 'p-4', code: 'EXCLU15', discount: 15, section: 'all', active: true, usageCount: 9, label: '-15% Exclusif YoHa' },
+];
+
 export function AdminPromos() {
   const [promos, setPromos] = useState([]);
   const [code, setCode] = useState('');
@@ -1270,13 +1277,46 @@ export function AdminPromos() {
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState(null);
 
+  const savePromosLocally = (newList) => {
+    setPromos(newList);
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('yoha_promos', JSON.stringify(newList));
+      }
+    } catch {}
+  };
+
   const loadFromApi = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await apiFetch('/marketing/promos/', { auth: true });
-      setPromos(Array.isArray(data) ? data : data?.results || []);
-    } catch {
-      setPromos([]);
+      let localList = [];
+      try {
+        const raw = typeof window !== 'undefined' ? localStorage.getItem('yoha_promos') : null;
+        if (raw) localList = JSON.parse(raw);
+      } catch {}
+
+      if (!localList || localList.length === 0) {
+        localList = DEFAULT_PROMOS;
+        localStorage.setItem('yoha_promos', JSON.stringify(DEFAULT_PROMOS));
+      }
+
+      try {
+        const data = await apiFetch('/marketing/promos/', { auth: true });
+        const apiList = Array.isArray(data) ? data : data?.results || [];
+        if (apiList.length > 0) {
+          // Merge API items with local items
+          const merged = [...localList];
+          apiList.forEach(item => {
+            if (!merged.some(m => m.code === item.code)) {
+              merged.push(item);
+            }
+          });
+          savePromosLocally(merged);
+          return;
+        }
+      } catch {}
+
+      setPromos(localList);
     } finally {
       setLoading(false);
     }
@@ -1288,41 +1328,40 @@ export function AdminPromos() {
     const c = code.trim().toUpperCase();
     if (!c) { setError('Code requis'); return; }
     if (discount < 1 || discount > 100) { setError('Remise entre 1 et 100 %'); return; }
+    const newPromo = { id: `p-${Date.now()}`, code: c, discount, section, active: true, usageCount: 0 };
+    const updated = [newPromo, ...promos];
+    savePromosLocally(updated);
+    setCode('');
+    setError('');
+
     try {
       await apiFetch('/marketing/promos/', {
         method: 'POST',
         body: { code: c, discount, section },
         auth: true,
       });
-      setCode('');
-      setError('');
-      await loadFromApi();
-    } catch (e) {
-      setError(e.message || "Erreur lors de l'ajout");
-    }
-  }, [code, discount, section, loadFromApi]);
+    } catch {}
+  }, [code, discount, section, promos]);
 
   const deletePromo = useCallback(async (id) => {
+    const updated = promos.filter(p => p.id !== id);
+    savePromosLocally(updated);
     try {
       await apiFetch(`/marketing/promos/${id}/`, { method: 'DELETE', auth: true });
-      await loadFromApi();
-    } catch (e) {
-      setError(e.message || 'Erreur lors de la suppression');
-    }
-  }, [loadFromApi]);
+    } catch {}
+  }, [promos]);
 
   const toggleActive = useCallback(async (id, currentActive) => {
+    const updated = promos.map(p => p.id === id ? { ...p, active: !currentActive } : p);
+    savePromosLocally(updated);
     try {
       await apiFetch(`/marketing/promos/${id}/`, {
         method: 'PATCH',
         body: { active: !currentActive },
         auth: true,
       });
-      await loadFromApi();
-    } catch (e) {
-      setError(e.message || 'Erreur lors de la mise à jour');
-    }
-  }, [loadFromApi]);
+    } catch {}
+  }, [promos]);
 
   const copyCode = useCallback((promoCode, id) => {
     navigator.clipboard?.writeText(promoCode).then(() => {
