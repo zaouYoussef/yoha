@@ -38,25 +38,50 @@ export function restaurantLogo(url) {
   return RESTAURANT_LOGO_FALLBACK;
 }
 
-/**
- * Component pour afficher les images en HD 1000px sans aucune erreur "photo introuvable".
- * Si l'URL principale casse ou est 404, elle bascule immédiatement sur une image HD Unsplash valide.
- */
 export function MenuItemImage({ src, alt = '', className = '', loading = 'lazy' }) {
   const primary = typeof src === 'string' ? src.trim() : '';
-  const [currentSrc, setCurrentSrc] = useState(primary || FOOD_IMAGE_FALLBACK);
 
-  useEffect(() => {
-    let source = primary || FOOD_IMAGE_FALLBACK;
+  const getSmartFallback = () => {
+    const text = `${alt} ${primary}`.toLowerCase();
+    if (text.includes('asian') || text.includes('sushi') || text.includes('ramen') || text.includes('wok')) {
+      return 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1000&auto=format&fit=crop&q=85';
+    }
+    if (text.includes('burger')) {
+      return 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1000&auto=format&fit=crop&q=85';
+    }
+    if (text.includes('tacos') || text.includes('wrap')) {
+      return 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=1000&auto=format&fit=crop&q=85';
+    }
+    if (text.includes('kebab') || text.includes('shawarma')) {
+      return 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=1000&auto=format&fit=crop&q=85';
+    }
+    if (text.includes('healthy') || text.includes('salad') || text.includes('bowl')) {
+      return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1000&auto=format&fit=crop&q=85';
+    }
+    if (text.includes('patisserie') || text.includes('dessert') || text.includes('sweets') || text.includes('bakery')) {
+      return 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85';
+    }
+    return FOOD_IMAGE_FALLBACK;
+  };
+
+  const initialSource = () => {
+    let source = primary || getSmartFallback();
     if (source.includes('unsplash.com')) {
       source = source.replace(/w=\d+/g, 'w=1000').replace(/q=\d+/g, 'q=85');
     }
-    setCurrentSrc(source);
-  }, [primary]);
+    return source;
+  };
+
+  const [currentSrc, setCurrentSrc] = useState(initialSource);
+
+  useEffect(() => {
+    setCurrentSrc(initialSource());
+  }, [primary, alt]);
 
   const handleError = () => {
-    if (currentSrc !== FOOD_IMAGE_FALLBACK) {
-      setCurrentSrc(FOOD_IMAGE_FALLBACK);
+    const fallback = getSmartFallback();
+    if (currentSrc !== fallback) {
+      setCurrentSrc(fallback);
     }
   };
 
