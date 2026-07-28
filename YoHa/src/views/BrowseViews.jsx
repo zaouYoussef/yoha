@@ -372,73 +372,9 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             </div>
           )}
 
-          {/* ═══ 🔥 OFFRES — RESPONSIVE CAROUSEL ═══ */}
+          {/* ═══ 🔥 OFFRES — IMAGE PROMO BANNERS CAROUSEL ═══ */}
           {!search && (
-            <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 snap-x snap-mandatory">
-              {[
-                {
-                  title: '-50 MAD',
-                  desc: '1ère commande',
-                  code: 'YOHA50',
-                  bg: 'linear-gradient(135deg,#FF416C 0%,#FF4B2B 100%)',
-                  icon: '🎉',
-                },
-                {
-                  title: '0 MAD frais',
-                  desc: 'Dès 200 MAD de commande',
-                  code: 'GROUPE0',
-                  bg: 'linear-gradient(135deg,#11998e 0%,#38ef7d 100%)',
-                  icon: '👥',
-                },
-                {
-                  title: '-50 MAD fidélité',
-                  desc: 'Après 6 commandes livrées',
-                  code: null,
-                  bg: 'linear-gradient(135deg,#F2994A 0%,#F2C94C 100%)',
-                  icon: '⭐',
-                },
-                {
-                  title: '-10% Pizzas',
-                  desc: 'Sur toutes les pizzas',
-                  code: 'YOHA10',
-                  bg: 'linear-gradient(135deg,#667eea 0%,#764ba2 100%)',
-                  icon: '🍕',
-                },
-                {
-                  title: 'Livraison 4,99',
-                  desc: 'Dès 120 MAD de commande',
-                  code: null,
-                  bg: 'linear-gradient(135deg,#0F2027 0%,#203A43 50%,#2C5364 100%)',
-                  icon: '🚀',
-                },
-              ].map((o, i) => (
-                <div
-                  key={i}
-                  className="snap-start shrink-0 w-[72vw] sm:w-[240px] rounded-2xl p-4 relative overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
-                  style={{ background: o.bg }}
-                >
-                  <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-white/[0.08] blur-xl pointer-events-none" />
-                  <div className="relative z-10 flex flex-col h-full min-h-[100px] justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-2xl">{o.icon}</span>
-                        {o.code && (
-                          <button
-                            type="button"
-                            onClick={() => { if (typeof navigator !== 'undefined') navigator.clipboard?.writeText(o.code); }}
-                            className="cursor-pointer px-2 py-0.5 rounded-lg bg-white/20 backdrop-blur-sm text-[10px] text-white font-black tracking-wider hover:bg-white/30 active:scale-95 transition-all"
-                          >
-                            {o.code} 📋
-                          </button>
-                        )}
-                      </div>
-                      <p className="text-white font-black text-base leading-tight">{o.title}</p>
-                      <p className="text-white/75 text-xs font-semibold mt-1">{o.desc}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <DeliverooPromoBannersCarousel onSelectFilter={setFilter} />
           )}
 
           {/* ═══ CUISINE CATEGORIES CAROUSEL (High Quality AI Food Imagery) ═══ */}
@@ -621,9 +557,6 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   ))}
                 </div>
               </section>
-
-              {/* 3. Promo Banners Carousel */}
-              <DeliverooPromoBannersCarousel onSelectFilter={setFilter} />
 
               {/* 4. Marques populaires */}
               <DeliverooPopularBrandsSection restaurants={foodRestaurants} onPick={onPickRestaurant} />
@@ -1878,17 +1811,17 @@ const PROMO_BANNERS = [
   },
   {
     id: 'promo-2',
-    bg: 'from-purple-600 via-pink-600 to-rose-500 text-white border-pink-400/50 shadow-lg shadow-pink-500/20',
-    tag: 'DOUCEURS & DESSERTS',
-    tagBg: 'bg-amber-400 text-slate-950 font-black',
-    title: 'UNE ENVIE GLACÉE ?',
-    subtitle: 'Glaces artisanales, gaufres & crêpes livrées chaudes',
-    code: 'C\'EST PAR ICI ➔',
-    cta: 'Voir les pâtisseries 🍰',
-    image: '/promos/promo_envie_glacee.jpg',
-    filterId: 'dessert',
+    bg: 'from-emerald-600 via-teal-600 to-emerald-700 text-white border-emerald-400/50 shadow-lg shadow-emerald-500/20',
+    tag: 'FRAIS DE LIVRAISON',
+    tagBg: 'bg-white text-emerald-700 font-black',
+    title: '0 MAD DE FRAIS',
+    subtitle: 'Dès 200 MAD de commande globale',
+    code: 'CODE : GROUPE0',
+    cta: 'Commander 👥',
+    image: '/promos/promo_frais_offerts.jpg',
+    filterId: 'free_delivery',
     textColor: 'text-white',
-    subColor: 'text-pink-100 font-medium',
+    subColor: 'text-emerald-100 font-medium',
   },
   {
     id: 'promo-3',
@@ -1898,7 +1831,7 @@ const PROMO_BANNERS = [
     title: '1 ACHETÉ = 1 OFFERT',
     subtitle: 'Sur une sélection de sushis, burgers & tacos du moment',
     code: 'JE DOUBLE ➔',
-    cta: 'Découvrir l\'offre ⚡',
+    cta: 'Découvrir ⚡',
     image: '/promos/promo_1achete_1offert.jpg',
     filterId: 'popular',
     textColor: 'text-white',
@@ -1906,13 +1839,41 @@ const PROMO_BANNERS = [
   },
   {
     id: 'promo-4',
+    bg: 'from-purple-600 via-pink-600 to-rose-500 text-white border-pink-400/50 shadow-lg shadow-pink-500/20',
+    tag: 'DOUCEURS & DESSERTS',
+    tagBg: 'bg-amber-400 text-slate-950 font-black',
+    title: 'UNE ENVIE GLACÉE ?',
+    subtitle: 'Glaces artisanales, gaufres & crêpes livrées chaudes',
+    code: 'C\'EST PAR ICI ➔',
+    cta: 'Pâtisseries 🍰',
+    image: '/promos/promo_envie_glacee.jpg',
+    filterId: 'dessert',
+    textColor: 'text-white',
+    subColor: 'text-pink-100 font-medium',
+  },
+  {
+    id: 'promo-5',
+    bg: 'from-indigo-600 via-purple-600 to-blue-700 text-white border-indigo-400/50 shadow-lg shadow-indigo-500/20',
+    tag: 'LIVRAISON EXPRESS',
+    tagBg: 'bg-amber-400 text-slate-950 font-black',
+    title: 'LIVRAISON 4,99 MAD',
+    subtitle: 'Dès 120 MAD de commande en livraison rapide',
+    code: 'EXPRESS 🚀',
+    cta: 'Profiter ⚡',
+    image: '/promos/promo_livraison_express.jpg',
+    filterId: 'fast',
+    textColor: 'text-white',
+    subColor: 'text-indigo-100 font-medium',
+  },
+  {
+    id: 'promo-6',
     bg: 'from-amber-500 via-orange-500 to-amber-600 text-white border-amber-400/50 shadow-lg shadow-amber-500/20',
     tag: 'FIDÉLITÉ RÉCOMPENSÉE',
     tagBg: 'bg-white text-slate-950 font-black',
-    title: 'RÉCOMPENSE FIDÉLITÉ',
-    subtitle: '6 commandes livrées confirmées = 50 MAD offerts !',
-    code: 'RÉCOMPENSE 🎁',
-    cta: 'Voir mon solde →',
+    title: '-50 MAD FIDÉLITÉ',
+    subtitle: 'Après 6 commandes livrées confirmées !',
+    code: 'FIDÉLITÉ ⭐',
+    cta: 'Avantages →',
     image: '/promos/promo_recompense_fidelite.jpg',
     filterId: 'top_rated',
     textColor: 'text-white',
