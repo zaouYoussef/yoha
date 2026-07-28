@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { I } from '../icons/Icons.jsx';
-import { CUISINES, CATEGORIES_BANNERS, CATEGORY_GROUPS, STATIC_STORES } from '../data/index.js';
+import { CUISINES, CATEGORIES_BANNERS, CATEGORY_GROUPS, CUISINE_CATEGORIES, STATIC_STORES } from '../data/index.js';
 import { useOrders } from '../contexts/AppContexts.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { Reveal } from '../components/ui/Reveal.jsx';
@@ -175,7 +175,8 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
     return list.filter((r) => {
       const tags = Array.isArray(r.tags) ? r.tags : [];
-      const matchCuisine = filter === 'all' || r.cuisine === filter || r.isCustomRequest;
+      const matchCuisine = filter === 'all' || r.cuisine === filter || r.isCustomRequest ||
+        tags.some(t => t.toLowerCase() === filter.toLowerCase());
       const matchSearch =
         !search ||
         r.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -335,6 +336,9 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       <div className="bg-white dark:bg-ink-950">
         <div className="max-w-7xl mx-auto px-0 sm:px-6 py-4 space-y-7">
 
+          {/* ═══ SMART INTELLIGENT RE-ORDER BANNER ═══ */}
+          {!search && <SmartReorderBanner catalog={catalog} onPickRestaurant={onPickRestaurant} />}
+
           {/* ═══ TOP TABS BAR (6 Main Services) ═══ */}
           {!search && (
             <div className="border-b border-ink-100 dark:border-ink-800 -mx-4 px-4 sm:mx-0 sm:px-0 mb-1 overflow-x-auto no-scrollbar">
@@ -370,6 +374,48 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
           {/* ═══ LOYALTY REWARD BANNER (-50 MAD FOR 6 DELIVERED ORDERS) ═══ */}
           {!search && <LoyaltyRewardBanner />}
+
+          {/* ═══ CUISINE CATEGORIES CAROUSEL (with images) ═══ */}
+          {isDefault && (
+            <section>
+              <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
+                {CUISINE_CATEGORIES.map((c) => {
+                  const active = filter === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setFilter(active ? 'all' : c.id)}
+                      className="cursor-pointer shrink-0 flex flex-col items-center gap-1.5 w-[4.2rem] group"
+                    >
+                      <div
+                        className={`relative w-[3.8rem] h-[3.8rem] rounded-2xl overflow-hidden transition-all duration-300 shadow-sm ${
+                          active
+                            ? 'ring-2 ring-teal-500 dark:ring-teal-400 scale-110 shadow-md'
+                            : 'border border-ink-100 dark:border-ink-800 group-hover:border-brand-300 group-hover:shadow-md'
+                        }`}
+                      >
+                        <img
+                          src={c.image}
+                          alt={c.label}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <div className={`absolute inset-0 transition-colors duration-300 ${
+                          active ? 'bg-teal-500/20' : 'bg-gradient-to-t from-black/30 to-transparent group-hover:from-black/10'
+                        }`} />
+                      </div>
+                      <span className={`text-[10px] font-bold text-center leading-tight truncate w-full ${
+                        active ? 'text-teal-600 dark:text-teal-400' : 'text-ink-600 dark:text-ink-400'
+                      }`}>
+                        {c.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          )}
 
           {/* ═══ CATEGORY CIRCLES (Deliveroo style) ═══ */}
           {isDefault && (
@@ -795,10 +841,129 @@ const CUISINE_GLOW_MAP = {
   shop: 'from-violet-500 to-purple-500',
 };
 
+function getFavorites() {
+  if (typeof window === 'undefined') return [];
+  try {
+    return JSON.parse(localStorage.getItem('yoha_favorites') || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveFavorites(list) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem('yoha_favorites', JSON.stringify(list));
+  } catch {}
+}
+
+export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
+  const { setCart } = useCart();
+  const { orders = [] } = useOrders() || {};
+  const [lastOrder, setLastOrder] = useState(null);
+
+  useEffect(() => {
+    let order = null;
+    if (orders && orders.length > 0) {
+      order = orders[0];
+    } else {
+      try {
+        const stored = localStorage.getItem('yoha_last_order');
+        if (stored) order = JSON.parse(stored);
+      } catch {}
+    }
+    setLastOrder(order);
+  }, [orders]);
+
+  if (!lastOrder) return null;
+
+  const storeName = lastOrder.restaurantName || lastOrder.restaurant_name || lastOrder.storeName || 'votre restaurant favori';
+  const items = lastOrder.items || [];
+  const itemsSummary = items.map(i => `${i.name || i.title} (x${i.qty || 1})`).join(', ') || 'Menu sélectionné';
+  const totalAmount = lastOrder.total || lastOrder.total_amount || 0;
+
+  const handleReorderCheckout = () => {
+    if (items.length > 0) {
+      setCart(items);
+      // Dispatch custom event or open checkout
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('open_checkout'));
+      }
+    }
+  };
+
+  const handleNewOrder = () => {
+    const found = catalog.find(c => c.name?.toLowerCase() === storeName.toLowerCase() || c.id === lastOrder.restaurantId);
+    if (found && onPickRestaurant) {
+      onPickRestaurant(found);
+    } else if (catalog.length > 0 && onPickRestaurant) {
+      onPickRestaurant(catalog[0]);
+    }
+  };
+
+  return (
+    <div className="px-4 sm:px-0 mb-3">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-ink-950 via-slate-900 to-ink-950 text-white p-4 sm:p-5 shadow-2xl border border-brand-500/40">
+        <div className="absolute -right-10 -bottom-10 w-44 h-44 bg-brand-500/10 rounded-full blur-2xl pointer-events-none" />
+        
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-pink-500 flex items-center justify-center text-2xl shrink-0 shadow-lg shadow-brand-500/20">
+              ⚡
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-widest bg-brand-500 text-white px-2 py-0.5 rounded-full">
+                  INTELLIGENCE YOHA
+                </span>
+                <span className="text-xs text-ink-300 font-medium">Commande précédente</span>
+              </div>
+              <h3 className="font-display font-black text-base sm:text-lg text-white mt-0.5 truncate">
+                Recommander chez <span className="text-brand-400 font-extrabold">{storeName}</span> ?
+              </h3>
+              <p className="text-xs text-ink-300 mt-0.5 truncate max-w-md font-medium">
+                {itemsSummary}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap w-full md:w-auto shrink-0">
+            <button
+              type="button"
+              onClick={handleReorderCheckout}
+              className="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 text-white font-extrabold text-xs shadow-glow hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <span>⚡ Recommander d'hier {totalAmount > 0 ? `(${totalAmount} MAD)` : ''}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleNewOrder}
+              className="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-xs hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <span>🍽️ Nouvelle commande chez {storeName}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
   const open = isRestaurantOpen(restaurant);
   const isCustom = restaurant.isCustomRequest;
-  const [isFav, setIsFav] = useState(false);
+  const [favs, setFavs] = useState(() => getFavorites());
+  const isFav = favs.includes(restaurant.id);
+
+  const handleHeartClick = (e) => {
+    e.stopPropagation();
+    const updated = isFav
+      ? favs.filter((id) => id !== restaurant.id)
+      : [...favs, restaurant.id];
+    setFavs(updated);
+    saveFavorites(updated);
+  };
 
   return (
     <div
@@ -823,11 +988,11 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
           {/* Heart Icon Top-Right (Deliveroo style) */}
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); setIsFav(!isFav); }}
+            onClick={handleHeartClick}
             aria-label="Ajouter aux favoris"
-            className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/95 dark:bg-ink-900/95 text-ink-700 dark:text-white shadow-md flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-10 border border-black/5"
+            className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/95 dark:bg-ink-900/95 text-ink-700 dark:text-white shadow-md flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-10 border border-black/5 cursor-pointer"
           >
-            <span className={`text-sm ${isFav ? 'text-rose-500' : 'text-ink-600 dark:text-ink-300'}`}>
+            <span className={`text-sm ${isFav ? 'text-rose-500 font-black' : 'text-ink-600 dark:text-ink-300'}`}>
               {isFav ? '❤️' : '♡'}
             </span>
           </button>

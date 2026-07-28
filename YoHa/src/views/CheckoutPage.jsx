@@ -107,6 +107,16 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
     const customer = { name, address, phone, email: trimmedEmail, restaurantNotes: restaurantNotes.trim(), scheduledTime: scheduledTime || undefined };
     try {
       const orderId = await addOrder(cart, grand, customer);
+      try {
+        const storeName = cart[0]?.restaurantName || 'YoHa Store';
+        localStorage.setItem('yoha_last_order', JSON.stringify({
+          restaurantName: storeName,
+          restaurantId: cart[0]?.restaurantId,
+          items: cart,
+          total: grand,
+          date: new Date().toISOString(),
+        }));
+      } catch {}
       onSuccess(orderId);
     } catch (e) {
       setErr(e.message || 'Impossible de valider la commande.');
