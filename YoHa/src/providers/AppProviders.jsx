@@ -119,6 +119,39 @@ function AppStateProvider({ children, dark, setDark }) {
     }
   }, [pushToast]);
 
+function playCourierBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.4, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.6);
+  } catch {}
+}
+
+function triggerCourierNotification(title, body) {
+  playCourierBeep();
+  if (typeof window !== 'undefined' && 'Notification' in window) {
+    if (Notification.permission === 'granted') {
+      try {
+        new Notification(title, {
+          body,
+          icon: '/icon.png',
+          vibrate: [300, 100, 300, 100, 300],
+          tag: 'yoha-order-notif',
+        });
+      } catch {}
+    }
+  }
+}
+
   const refreshOrders = useCallback(async ({ silent = false } = {}) => {
     const guestIds = getGuestOrderIds();
     const hasAuth = !!getTokens()?.access;
@@ -158,17 +191,21 @@ function AppStateProvider({ children, dark, setDark }) {
       } catch {}
 
       setOrders((prev) => {
-        if (silent && user?.role === 'courier') {
-          for (const o of merged) {
-            const existed = prev.some((p) => p.id === o.id);
-            if (!existed && (!o.courierId || o.courierId === '0') && o.status !== 'delivered' && o.status !== 'cancelled') {
-              pushToast({
-                title: 'Nouvelle course disponible 🛵',
-                desc: `#${o.id} · ${o.restaurantName || 'YoHa'} — confirmez en premier !`,
-                type: 'success',
-                duration: 6000,
-              });
-            }
+        for (const o of merged) {
+          const existed = prev.some((p) => p.id === o.id);
+          const isUnassigned = !o.courierId || o.courierId === '0' || o.courierId === 'null';
+          const isNotDone = o.status !== 'delivered' && o.status !== 'cancelled' && o.status !== 'COMPLETED';
+          if (!existed && isUnassigned && isNotDone) {
+            pushToast({
+              title: 'Nouvelle course disponible 🛵',
+              desc: `#${o.id} · ${o.restaurantName || 'YoHa'} — confirmez en premier !`,
+              type: 'success',
+              duration: 8000,
+            });
+            triggerCourierNotification(
+              '🛵 Nouvelle course YoHa disponible !',
+              `Commande #${o.id} chez ${o.restaurantName || 'YoHa'} — Confirmez la course !`
+            );
           }
         }
         return merged;
@@ -180,7 +217,7 @@ function AppStateProvider({ children, dark, setDark }) {
     } finally {
       if (!silent) setLoadingOrders(false);
     }
-  }, [pushToast, user?.role]);
+  }, [pushToast]);
 
   const refreshCouriers = useCallback(async () => {
     if (!getTokens()) return;
@@ -206,6 +243,23 @@ function AppStateProvider({ children, dark, setDark }) {
     refreshCouriers();
   }, [user, refreshOrders, refreshCouriers]);
 
+  /** Real-time cross-tab storage sync */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleStorage = (e) => {
+      if (e.key === 'yoha_local_orders' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) {
+            setOrders(parsed);
+          }
+        } catch {}
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   /** Rattache les commandes invité au compte client après connexion. */
   useEffect(() => {
     if (user?.role !== 'client') return undefined;
@@ -229,26 +283,22 @@ function AppStateProvider({ children, dark, setDark }) {
     };
   }, [user, refreshOrders]);
 
+  /** Silent auto-polling every 3 seconds for real-time delivery notifications without page refresh */
   useEffect(() => {
-    const guestIds = getGuestOrderIds();
-    if (!user && guestIds.length === 0) return undefined;
-    const intervalMs =
-      user?.role === 'courier' ? 3000 : user?.role === 'restaurant' ? 5000 : 30000;
     const id = setInterval(() => {
       refreshOrders({ silent: true });
-    }, intervalMs);
+    }, 3000);
     return () => clearInterval(id);
-  }, [user, refreshOrders]);
+  }, [refreshOrders]);
 
-  /** Rafraîchit dès que l'onglet redevient visible (dashboard pro). */
+  /** Rafraîchit dès que l'onglet redevient visible. */
   useEffect(() => {
-    if (user?.role !== 'courier' && user?.role !== 'restaurant') return undefined;
     const onVisible = () => {
       if (document.visibilityState === 'visible') refreshOrders({ silent: true });
     };
     document.addEventListener('visibilitychange', onVisible);
     return () => document.removeEventListener('visibilitychange', onVisible);
-  }, [user?.role, refreshOrders]);
+  }, [refreshOrders]);
 
   const addOrder = useCallback(
     async (cartItems, _orderTotalMad, customer) => {

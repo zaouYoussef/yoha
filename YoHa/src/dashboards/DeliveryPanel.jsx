@@ -391,8 +391,61 @@ export function DeliveryAvailable({ courier }) {
       o.status !== 'delivered_client',
   );
 
+  const [notifGranted, setNotifGranted] = useState(
+    typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted'
+  );
+
+  const requestNotif = async () => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      const res = await Notification.requestPermission();
+      if (res === 'granted') {
+        setNotifGranted(true);
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+          osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.4, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.6);
+
+          new Notification('🔔 Notifications YoHa activées !', {
+            body: 'Vous recevrez les alertes sonores et vibrations en temps réel dès qu\'une nouvelle course arrive !',
+            icon: '/icon.png',
+            vibrate: [300, 100, 300],
+          });
+        } catch {}
+      }
+    }
+  };
+
   return (
     <div className="space-y-5">
+      {/* Notification Banner */}
+      {!notifGranted && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white shadow-lg border border-violet-400/40">
+          <div className="flex items-center gap-3 text-center sm:text-left">
+            <span className="text-2xl animate-bounce">🔔</span>
+            <div>
+              <p className="font-extrabold text-sm text-white">Activer les alertes sonores & notifications Chrome</p>
+              <p className="text-xs text-violet-100 font-medium">Recevez des vibrations et bips en direct sur votre téléphone sans rafraîchir la page !</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={requestNotif}
+            className="shrink-0 px-4 py-2.5 rounded-xl bg-white text-slate-950 font-black text-xs uppercase tracking-wider shadow-md hover:scale-105 transition-all cursor-pointer"
+          >
+            Activer 🚀
+          </button>
+        </div>
+      )}
+
       <GradientHeader
         title={`${available.length} commande${available.length > 1 ? 's' : ''} en attente`}
         subtitle="Confirmez en premier — la course est à vous. Les autres livreurs la verront disparaître."
