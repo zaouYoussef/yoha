@@ -1263,7 +1263,7 @@ export function AdminRevenue({ orders }) {
    ═══════════════════════════════════════════════════════════════ */
 const DEFAULT_PROMOS = [
   { id: 'p-1', code: 'YOHA50', discount: 50, fixedAmount: true, section: 'all', active: true, usageCount: 24, label: '-50 MAD (1ère commande & connecté)' },
-  { id: 'p-2', code: 'GROUPE0', discount: 100, freeDelivery: true, section: 'all', active: true, usageCount: 18, label: '0 MAD livraison dès 200 MAD' },
+  { id: 'p-2', code: 'GROUPE0', discount: 0, freeDelivery: true, section: 'all', active: true, usageCount: 18, label: '0 MAD livraison dès 200 MAD' },
   { id: 'p-3', code: 'YOHA10', discount: 10, section: 'restaurant', active: true, usageCount: 42, label: '-10% Pizzas & Restos' },
   { id: 'p-4', code: 'EXCLU15', discount: 15, section: 'all', active: true, usageCount: 9, label: '-15% Exclusif YoHa' },
 ];
@@ -1281,9 +1281,17 @@ export function AdminPromos() {
     const unique = [];
     const seen = new Set();
     newList.forEach(item => {
-      const c = (item.code || '').toUpperCase();
-      if (!seen.has(c)) {
+      const c = (item.code || '').toUpperCase().trim();
+      if (c && !seen.has(c)) {
         seen.add(c);
+        // Ensure proper flags
+        if (c === 'YOHA50') {
+          item.fixedAmount = true;
+          item.discount = 50;
+        } else if (c === 'GROUPE0') {
+          item.freeDelivery = true;
+          item.discount = 0;
+        }
         unique.push(item);
       }
     });
@@ -1308,18 +1316,19 @@ export function AdminPromos() {
         localList = DEFAULT_PROMOS;
       }
 
-      // Deduplicate
-      const unique = [];
-      const seen = new Set();
+      // Merge and sanitize with DEFAULT_PROMOS
+      const merged = [...DEFAULT_PROMOS];
       localList.forEach(item => {
-        const c = (item.code || '').toUpperCase();
-        if (!seen.has(c)) {
-          seen.add(c);
-          unique.push(item);
+        const c = (item.code || '').toUpperCase().trim();
+        const existingIdx = merged.findIndex(m => m.code === c);
+        if (existingIdx >= 0) {
+          merged[existingIdx] = { ...merged[existingIdx], ...item };
+        } else if (c) {
+          merged.push(item);
         }
       });
 
-      savePromosLocally(unique);
+      savePromosLocally(merged);
     } finally {
       setLoading(false);
     }
@@ -1431,8 +1440,17 @@ export function AdminPromos() {
         {promos.length > 0 ? (
           <div className="divide-y divide-ink-100/50 dark:divide-ink-800/50">
             {promos.map((p) => {
+              const codeUpper = (p.code || '').toUpperCase().trim();
               const sectionLabel = PROMO_SECTIONS.find((s) => s.id === p.section)?.label || p.section;
               const isExpired = p.expiresAt && daysSince(p.expiresAt) > 0;
+              
+              let discountBadge = `-${p.discount}%`;
+              if (codeUpper === 'YOHA50' || p.fixedAmount) {
+                discountBadge = '-50 MAD';
+              } else if (codeUpper === 'GROUPE0' || p.freeDelivery) {
+                discountBadge = 'Livraison 0 MAD';
+              }
+
               return (
                 <div key={p.id} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-5 py-4 hover:bg-ink-50/50 dark:hover:bg-ink-950/30 transition">
                   <div className="min-w-0 flex-1 flex flex-wrap items-center gap-2 sm:gap-3">
@@ -1442,7 +1460,7 @@ export function AdminPromos() {
                       className={`group relative inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-black tracking-wider text-sm transition-all ${
                         p.active !== false
                           ? 'bg-brand-100 text-brand-700 hover:bg-brand-200 dark:bg-brand-900/40 dark:text-brand-300 dark:hover:bg-brand-900/60'
-                          : 'bg-ink-100 text-ink-500 dark:bg-ink-800 dark:text-ink-400'
+                          : 'bg-ink-100 text-ink-500 dark:bg-ink-800 dark:text-ink-400 opacity-60'
                       }`}
                       title="Cliquer pour copier"
                     >
@@ -1452,18 +1470,21 @@ export function AdminPromos() {
                       </span>
                     </button>
 
-                    <span className="font-extrabold text-base text-emerald-600 dark:text-emerald-400">
-                      {p.code === 'YOHA50' || p.fixedAmount
-                        ? '-50 MAD'
-                        : (p.code === 'GROUPE0' || p.freeDelivery
-                            ? 'Livraison 0 MAD'
-                            : `-${p.discount}%`)}
+                    <span className="font-black text-base text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-500/20">
+                      {discountBadge}
                     </span>
 
                     {/* Section pill */}
                     <span className="text-[11px] font-bold text-ink-500 bg-ink-100/80 dark:bg-ink-800/80 px-2.5 py-1 rounded-lg">
                       {sectionLabel}
                     </span>
+
+                    {/* Description tag */}
+                    {p.label && (
+                      <span className="text-[11px] font-medium text-ink-400 hidden md:inline">
+                        • {p.label}
+                      </span>
+                    )}
 
                     {/* Usage count */}
                     {p.usageCount != null && (
