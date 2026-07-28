@@ -45,4 +45,5 @@ export const I = {
   Receipt: p => <Svg {...p}><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 7h8M8 11h6M8 15h4"/></Svg>,
   Copy:    p => <Svg {...p}><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></Svg>,
   LogOut:  p => <Svg {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></Svg>,
+  Loader:  p => <Svg {...p} className={`animate-spin ${p.className || ''}`}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></Svg>,
 };
