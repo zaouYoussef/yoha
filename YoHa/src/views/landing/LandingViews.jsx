@@ -61,7 +61,6 @@ export function Landing({ onStart }) {
   return (
     <div className="page-enter">
       <Hero onStart={onStart} onHowItWorks={scrollToHowItWorks} />
-      <LandingPromosSection onStart={onStart} />
       <PartnersMarquee onStart={onStart} />
       <PizzaAssemblySection onStart={onStart} />
       <ShowcaseSection onStart={onStart} />
@@ -72,104 +71,6 @@ export function Landing({ onStart }) {
       <TestimonialsSection onStart={onStart} />
       <FinalCTA onStart={onStart} />
     </div>
-  );
-}
-
-function LandingPromosSection({ onStart }) {
-  const promos = [
-    {
-      tag: 'OFFRE DE BIENVENUE',
-      title: '50 MAD OFFERTS',
-      subtitle: 'sur votre première commande à l\'Alliance & CHU',
-      code: 'CODE : YOHA50',
-      cta: 'J\'en profite 🚀',
-      bg: 'from-rose-500 via-pink-600 to-rose-600',
-      image: '/promos/promo_bienvenue_50mad.jpg',
-    },
-    {
-      tag: 'EXCLUSIVITÉ ALLIANCE',
-      title: '1 ACHETÉ = 1 OFFERT',
-      subtitle: 'Sur une sélection de sushis, burgers & tacos du moment',
-      code: 'JE DOUBLE ➔',
-      cta: 'Découvrir l\'offre ⚡',
-      bg: 'from-teal-600 via-emerald-600 to-teal-700',
-      image: '/promos/promo_1achete_1offert.jpg',
-    },
-    {
-      tag: 'DOUCEURS & DESSERTS',
-      title: 'UNE ENVIE GLACÉE ?',
-      subtitle: 'Glaces artisanales, gaufres & crêpes livrées chaudes',
-      code: 'C\'EST PAR ICI ➔',
-      cta: 'Voir les pâtisseries 🍰',
-      bg: 'from-purple-600 via-pink-600 to-rose-500',
-      image: '/promos/promo_envie_glacee.jpg',
-    },
-    {
-      tag: 'RÉCOMPENSE FIDÉLITÉ',
-      title: '-50 MAD TOUTES LES 6 COMMANDES',
-      subtitle: 'Commandes livrées confirmées = 50 MAD offerts automatiquement !',
-      code: 'FIDÉLITÉ 🎁',
-      cta: 'En savoir plus →',
-      bg: 'from-amber-500 via-orange-500 to-amber-600',
-      image: '/promos/promo_recompense_fidelite.jpg',
-    },
-  ];
-
-  return (
-    <section className="py-10 bg-slate-50 dark:bg-ink-950/60 border-y border-ink-100 dark:border-ink-800/60">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <span className="text-xs font-black uppercase tracking-widest text-brand-600 dark:text-brand-400">
-              OFFRES EXCLUSIVES ALLIANCE & CHU
-            </span>
-            <h2 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white mt-1">
-              Profitez de nos réductions & bons plans ⚡
-            </h2>
-          </div>
-          <button
-            onClick={onStart}
-            className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline cursor-pointer"
-          >
-            <span>Voir tout</span>
-            <span>→</span>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {promos.map((p, i) => (
-            <div
-              key={i}
-              onClick={onStart}
-              className={`cursor-pointer rounded-3xl p-5 text-white bg-gradient-to-br ${p.bg} shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden flex flex-col justify-between group border border-white/20`}
-            >
-              <div className="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-white/20 blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
-              
-              <div>
-                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/95 text-slate-950 shadow-sm mb-3">
-                  {p.tag}
-                </span>
-                <h3 className="font-display font-black text-xl leading-tight">
-                  {p.title}
-                </h3>
-                <p className="text-xs text-white/90 mt-1.5 font-medium leading-snug line-clamp-2">
-                  {p.subtitle}
-                </p>
-              </div>
-
-              <div className="mt-5 flex items-center justify-between gap-2 pt-2 border-t border-white/20">
-                <span className="px-2.5 py-1 rounded-xl bg-amber-300 text-slate-950 font-black text-[11px] uppercase tracking-wide shadow-sm">
-                  {p.code}
-                </span>
-                <span className="px-3 py-1.5 rounded-xl bg-white text-slate-950 font-black text-xs shadow hover:scale-105 transition-all">
-                  {p.cta}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
   );
 }
 
