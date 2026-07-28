@@ -9,7 +9,7 @@ import { Card, CardHeader, Input, Loader } from '../components/checkout/Checkout
 import { TimeSlotPicker } from '../components/checkout/TimeSlotPicker.jsx';
 import { MenuItemImage } from '../components/ui/MenuItemImage.jsx';
 import { getServiceFeeMad, formatMad } from '../data/index.js';
-import { useCart } from '../contexts/AppContexts.jsx';
+import { useCart, useOrders } from '../contexts/AppContexts.jsx';
 
 export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) {
   const { user } = useAuth();
