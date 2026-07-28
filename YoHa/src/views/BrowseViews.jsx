@@ -375,10 +375,10 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
           {/* ═══ LOYALTY REWARD BANNER (-50 MAD FOR 6 DELIVERED ORDERS) ═══ */}
           {!search && <LoyaltyRewardBanner />}
 
-          {/* ═══ CUISINE CATEGORIES CAROUSEL (with images) ═══ */}
+          {/* ═══ CUISINE CATEGORIES CAROUSEL (High Quality AI Food Imagery) ═══ */}
           {isDefault && (
-            <section>
-              <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
+            <section className="relative">
+              <div className="flex gap-3.5 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
                 {CUISINE_CATEGORIES.map((c) => {
                   const active = filter === c.id;
                   return (
@@ -386,27 +386,26 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                       key={c.id}
                       type="button"
                       onClick={() => setFilter(active ? 'all' : c.id)}
-                      className="cursor-pointer shrink-0 flex flex-col items-center gap-1.5 w-[4.2rem] group"
+                      className="cursor-pointer shrink-0 flex flex-col items-center gap-2 w-[4.8rem] sm:w-[5.2rem] group"
                     >
                       <div
-                        className={`relative w-[3.8rem] h-[3.8rem] rounded-2xl overflow-hidden transition-all duration-300 shadow-sm ${
+                        className={`relative w-[4.4rem] h-[4.4rem] sm:w-[4.8rem] sm:h-[4.8rem] rounded-2xl overflow-hidden transition-all duration-300 shadow-md ${
                           active
-                            ? 'ring-2 ring-teal-500 dark:ring-teal-400 scale-110 shadow-md'
-                            : 'border border-ink-100 dark:border-ink-800 group-hover:border-brand-300 group-hover:shadow-md'
+                            ? 'ring-3 ring-brand-500 scale-105 shadow-xl border-2 border-white'
+                            : 'border-2 border-slate-100 dark:border-ink-800 group-hover:border-brand-400 group-hover:shadow-lg group-hover:scale-105'
                         }`}
                       >
-                        <img
+                        <MenuItemImage
                           src={c.image}
                           alt={c.label}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          loading="lazy"
                         />
                         <div className={`absolute inset-0 transition-colors duration-300 ${
-                          active ? 'bg-teal-500/20' : 'bg-gradient-to-t from-black/30 to-transparent group-hover:from-black/10'
+                          active ? 'bg-brand-500/10' : 'bg-gradient-to-t from-black/40 via-transparent to-transparent group-hover:from-black/10'
                         }`} />
                       </div>
-                      <span className={`text-[10px] font-bold text-center leading-tight truncate w-full ${
-                        active ? 'text-teal-600 dark:text-teal-400' : 'text-ink-600 dark:text-ink-400'
+                      <span className={`text-xs font-black text-center leading-tight truncate w-full tracking-tight ${
+                        active ? 'text-brand-600 dark:text-brand-400 font-extrabold' : 'text-slate-900 dark:text-white font-extrabold'
                       }`}>
                         {c.label}
                       </span>
