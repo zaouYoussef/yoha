@@ -923,17 +923,6 @@ export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
 function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
   const open = isRestaurantOpen(restaurant);
   const isCustom = restaurant.isCustomRequest;
-  const [favs, setFavs] = useState(() => getFavorites());
-  const isFav = favs.includes(restaurant.id);
-
-  const handleHeartClick = (e) => {
-    e.stopPropagation();
-    const updated = isFav
-      ? favs.filter((id) => id !== restaurant.id)
-      : [...favs, restaurant.id];
-    setFavs(updated);
-    saveFavorites(updated);
-  };
 
   return (
     <div
@@ -954,18 +943,6 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
               !open ? 'filter blur-[2px] grayscale opacity-50' : ''
             }`}
           />
-
-          {/* Heart Icon Top-Right (Deliveroo style) */}
-          <button
-            type="button"
-            onClick={handleHeartClick}
-            aria-label="Ajouter aux favoris"
-            className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/95 dark:bg-ink-900/95 text-ink-700 dark:text-white shadow-md flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-10 border border-black/5 cursor-pointer"
-          >
-            <span className={`text-sm ${isFav ? 'text-rose-500 font-black' : 'text-ink-600 dark:text-ink-300'}`}>
-              {isFav ? '❤️' : '♡'}
-            </span>
-          </button>
 
           {/* Time Badge Pill Bottom-Right (Deliveroo style) */}
           <div className="absolute bottom-2.5 right-2.5 z-10">
