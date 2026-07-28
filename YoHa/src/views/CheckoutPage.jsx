@@ -223,7 +223,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
           {/* Delivery Address Card */}
           <Card className="rounded-3xl shadow-sm border border-ink-100 dark:border-ink-800 overflow-hidden">
             <CardHeader icon={<I.MapPin size={20} className="text-brand-500" />} title="Coordonnées de livraison" />
-            <div className="px-5 pb-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4">
               <Input label="Nom complet" value={name} onChange={setName} placeholder="Prénom Nom"/>
               {!user ? (
                 <div>
@@ -248,17 +248,17 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                 />
               )}
               
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                 <Input label="Lieu de livraison" value={address} onChange={setAddress} placeholder="Campus, CHU, Bâtiment, Chambre..."/>
                 <Input label="Numéro de téléphone" value={phone} onChange={setPhone} placeholder="+212 6 12 34 56 78" />
               </div>
 
               <label className="block space-y-1.5">
-                <span className="text-xs font-bold text-ink-700 dark:text-ink-200 uppercase tracking-wider">Instructions pour le livreur / restaurant</span>
+                <span className="text-[11px] sm:text-xs font-bold text-ink-700 dark:text-ink-200 uppercase tracking-wider">Instructions pour le livreur / restaurant</span>
                 <textarea
                   value={restaurantNotes}
                   onChange={(e) => setRestaurantNotes(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 dark:focus:border-brand-400 text-xs sm:text-sm font-medium transition resize-none"
+                  className="w-full px-3.5 sm:px-4 py-3 rounded-2xl bg-slate-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 dark:focus:border-brand-400 text-base sm:text-sm font-medium transition resize-none text-ink-900 dark:text-white"
                   rows={2}
                   placeholder="Ex: Sans oignons, appeler en arrivant devant le portail CHU..."
                 />
@@ -272,14 +272,14 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
           {/* Payment Method Card */}
           <Card className="rounded-3xl shadow-sm border border-ink-100 dark:border-ink-800 overflow-hidden">
             <CardHeader icon={<I.Bag size={20} className="text-emerald-500" />} title="Mode de paiement" />
-            <div className="px-5 pb-6">
-              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3.5">
+            <div className="p-4 sm:p-6">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl shrink-0 font-bold shadow-md">
                   💵
                 </div>
-                <div>
-                  <h4 className="font-extrabold text-sm text-ink-900 dark:text-white">Paiement en espèces à la livraison</h4>
-                  <p className="text-xs text-ink-600 dark:text-ink-400 mt-0.5 font-medium">
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-extrabold text-xs sm:text-sm text-ink-900 dark:text-white truncate">Paiement en espèces à la livraison</h4>
+                  <p className="text-[11px] sm:text-xs text-ink-600 dark:text-ink-400 mt-0.5 font-medium leading-normal">
                     Payez directement le livreur de la flotte YoHa dès réception de vos plats.
                   </p>
                 </div>
@@ -293,14 +293,14 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
               icon={<I.Bag size={20} className="text-brand-500" />}
               title={`Articles sélectionnés (${cart.reduce((s,i)=>s+i.qty,0)}) chez ${mainStoreName}`}
             />
-            <div className="px-5 pb-6 space-y-3.5 divide-y divide-ink-100 dark:divide-ink-800">
+            <div className="p-4 sm:p-6 space-y-3.5 divide-y divide-ink-100 dark:divide-ink-800">
               {cart.map(it => (
-                <div key={it.id} className="pt-3 first:pt-0 flex items-center gap-3.5">
-                  <MenuItemImage src={it.img} alt="" className="w-14 h-14 rounded-2xl object-cover shrink-0 border border-black/5 shadow-xs"/>
+                <div key={it.id} className="pt-3 first:pt-0 flex items-center gap-3">
+                  <MenuItemImage src={it.img} alt="" className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl object-cover shrink-0 border border-black/5 shadow-xs"/>
                   <div className="flex-1 min-w-0">
                     {it.isCustom ? (
                       <div className="space-y-1">
-                        <div className="text-xs font-black text-brand-600 dark:text-brand-400 uppercase tracking-wider">Demande sur-mesure</div>
+                        <div className="text-[10px] sm:text-xs font-black text-brand-600 dark:text-brand-400 uppercase tracking-wider">Demande sur-mesure</div>
                         {it.customDetails?.storeAddress && (
                           <div className="text-xs text-ink-500 font-semibold">{it.customDetails.storeName}</div>
                         )}
@@ -308,14 +308,14 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                       </div>
                     ) : (
                       <>
-                        <h4 className="font-extrabold text-sm text-ink-900 dark:text-white truncate">{it.name}</h4>
-                        <div className="text-xs text-ink-500 dark:text-ink-400 font-medium mt-0.5">
+                        <h4 className="font-extrabold text-xs sm:text-sm text-ink-900 dark:text-white truncate">{it.name}</h4>
+                        <div className="text-[11px] sm:text-xs text-ink-500 dark:text-ink-400 font-medium mt-0.5">
                           Quantité : <strong className="text-ink-900 dark:text-white">{it.qty}</strong> · {it.restaurantName || mainStoreName}
                         </div>
                       </>
                     )}
                   </div>
-                  <div className="font-black text-sm text-ink-900 dark:text-white shrink-0">
+                  <div className="font-black text-xs sm:text-sm text-ink-900 dark:text-white shrink-0">
                     {it.price > 0 ? formatMad(it.price * it.qty) : <span className="text-brand-600 dark:text-brand-400">Sur ticket</span>}
                   </div>
                 </div>
@@ -325,9 +325,9 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
         </div>
 
         {/* Right Column: Order Summary & Checkout Button */}
-        <div className="lg:sticky lg:top-20 self-start order-first lg:order-last">
+        <div className="lg:sticky lg:top-20 self-start">
           <Card className="rounded-3xl shadow-xl border border-brand-500/30 overflow-hidden bg-white dark:bg-ink-900">
-            <div className="p-5 sm:p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4">
               <h3 className="font-display font-black text-xl text-ink-900 dark:text-white border-b border-ink-100 dark:border-ink-800 pb-3 flex items-center justify-between">
                 <span>Récapitulatif</span>
                 {isGroupOrder ? (
