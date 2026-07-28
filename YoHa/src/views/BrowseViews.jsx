@@ -1883,6 +1883,19 @@ const PROMO_BANNERS = [
 
 export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
   const trackRef = useRef(null);
+  const [showFidelite, setShowFidelite] = useState(false);
+  const { user } = useAuth() || {};
+  const { orders = [] } = useOrders() || {};
+
+  const deliveredOrders = useMemo(() => {
+    if (!user) return [];
+    return orders.filter(o => o.status === 'delivered' || o.status === 'DELIVERED' || o.status === 'LIVRÉ' || o.status === 'COMPLETED');
+  }, [orders, user]);
+
+  const deliveredCount = deliveredOrders.length;
+  const progressInCycle = deliveredCount % 6;
+  const isRewardReady = progressInCycle === 0 && deliveredCount > 0;
+  const nextRewardAt = isRewardReady ? deliveredCount + 6 : deliveredCount + (6 - progressInCycle);
 
   const scrollNext = () => {
     trackRef.current?.scrollBy({ left: 340, behavior: 'smooth' });
@@ -1920,7 +1933,11 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
                   <span className="inline-block px-2.5 py-1 rounded-xl bg-amber-300 dark:bg-amber-400 text-slate-950 font-black text-[10px] sm:text-[11px] uppercase tracking-wide shadow-sm border border-amber-400">
                     {b.code}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white text-slate-950 font-black text-xs shadow-md group-hover:scale-105 transition-all">
+                  <span
+                    onClick={(e) => {
+                      if (b.id === 'promo-6') { e.stopPropagation(); setShowFidelite(true); }
+                    }}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white text-slate-950 font-black text-xs shadow-md group-hover:scale-105 transition-all ${b.id === 'promo-6' ? 'cursor-pointer hover:bg-amber-50' : ''}`}>
                     <span>{b.cta}</span>
                   </span>
                 </div>
@@ -1943,6 +1960,49 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
       >
         <span className="text-lg font-black text-brand-600 dark:text-brand-400">→</span>
       </button>
+
+      {/* Modal Fidélité */}
+      {showFidelite && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowFidelite(false)}>
+          <div className="relative w-full max-w-sm rounded-3xl bg-white dark:bg-ink-900 p-6 shadow-2xl border border-ink-200 dark:border-ink-700" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setShowFidelite(false)} className="absolute top-3 right-3 h-8 w-8 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center hover:bg-ink-200 dark:hover:bg-ink-700 transition-colors text-ink-500">
+              ✕
+            </button>
+
+            <div className="text-center space-y-4">
+              <div className="text-5xl">🎁</div>
+              <h3 className="font-display font-black text-xl text-ink-900 dark:text-white">Solde Fidélité</h3>
+
+              {!user ? (
+                <p className="text-sm text-ink-500">Connecte-toi pour voir tes récompenses fidélité.</p>
+              ) : (
+                <>
+                  <div className="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-ink-800 dark:to-ink-800 p-5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-ink-500">Commandes livrées</span>
+                      <span className="font-display font-black text-2xl text-amber-600">{deliveredCount}</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-ink-200 dark:bg-ink-700 overflow-hidden">
+                      <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500" style={{ width: `${Math.min((progressInCycle || 6) / 6 * 100, 100)}%` }} />
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-ink-500">
+                      <span>Prochaine récompense : <strong className="text-amber-600">{nextRewardAt} commandes</strong></span>
+                      <span>6</span>
+                    </div>
+                  </div>
+
+                  {isRewardReady && (
+                    <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4">
+                      <p className="text-sm font-bold text-emerald-700 dark:text-emerald-300">🎉 Tu as gagné 50 MAD !</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">Contacte le support pour réclamer ta récompense.</p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
