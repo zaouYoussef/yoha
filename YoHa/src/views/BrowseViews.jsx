@@ -333,8 +333,8 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
       <CustomOrderModal isOpen={isCustomModalOpen} onClose={() => setIsCustomModalOpen(false)} />
 
-      <div className="bg-white dark:bg-ink-950">
-        <div className="max-w-7xl mx-auto px-0 sm:px-6 py-4 space-y-7">
+      <div className="bg-white dark:bg-ink-950 overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-6 sm:space-y-7">
 
           {/* ═══ SMART INTELLIGENT RE-ORDER BANNER ═══ */}
           {!search && <SmartReorderBanner catalog={catalog} onPickRestaurant={onPickRestaurant} />}
@@ -1825,7 +1825,7 @@ export function LoyaltyRewardBanner() {
           </div>
 
           {/* Connected Circles Deliveroo-style Stamp Indicator */}
-          <div className="shrink-0 bg-white/95 dark:bg-ink-900/95 text-ink-900 dark:text-white px-3.5 py-2.5 rounded-2xl shadow-md border border-white/50 flex items-center gap-1 sm:gap-1.5 self-start sm:self-center">
+          <div className="shrink-0 max-w-full overflow-x-auto no-scrollbar bg-white/95 dark:bg-ink-900/95 text-ink-900 dark:text-white px-2.5 py-2 sm:px-3.5 sm:py-2.5 rounded-2xl shadow-md border border-white/50 flex items-center gap-1 sm:gap-1.5 self-start sm:self-center">
             {[1, 2, 3, 4, 5, 6].map((step, idx) => {
               const isDone = activeStepCount >= step;
               const isCurrent = !isGoalReached && currentStep + 1 === step;
@@ -1833,7 +1833,7 @@ export function LoyaltyRewardBanner() {
                 <React.Fragment key={step}>
                   {/* Circle Node */}
                   <div
-                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-extrabold text-xs transition-all duration-300 ${
+                    className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-extrabold text-[11px] sm:text-xs transition-all duration-300 ${
                       isDone
                         ? 'bg-amber-400 text-slate-950 border-2 border-amber-300 shadow-sm scale-105'
                         : isCurrent
@@ -1851,7 +1851,7 @@ export function LoyaltyRewardBanner() {
                   {/* Connecting Line (except after last circle) */}
                   {idx < 5 && (
                     <div
-                      className={`h-1 w-2.5 sm:w-3.5 rounded-full transition-colors duration-300 ${
+                      className={`h-1 w-1.5 sm:w-3.5 rounded-full transition-colors duration-300 ${
                         activeStepCount > step ? 'bg-amber-400' : 'bg-slate-200 dark:bg-ink-700'
                       }`}
                     />
