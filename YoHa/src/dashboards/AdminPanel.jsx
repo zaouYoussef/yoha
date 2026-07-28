@@ -1278,10 +1278,19 @@ export function AdminPromos() {
   const [copiedId, setCopiedId] = useState(null);
 
   const savePromosLocally = (newList) => {
-    setPromos(newList);
+    const unique = [];
+    const seen = new Set();
+    newList.forEach(item => {
+      const c = (item.code || '').toUpperCase();
+      if (!seen.has(c)) {
+        seen.add(c);
+        unique.push(item);
+      }
+    });
+    setPromos(unique);
     try {
       if (typeof window !== 'undefined') {
-        localStorage.setItem('yoha_promos', JSON.stringify(newList));
+        localStorage.setItem('yoha_promos', JSON.stringify(unique));
       }
     } catch {}
   };
@@ -1297,26 +1306,20 @@ export function AdminPromos() {
 
       if (!localList || localList.length === 0) {
         localList = DEFAULT_PROMOS;
-        localStorage.setItem('yoha_promos', JSON.stringify(DEFAULT_PROMOS));
       }
 
-      try {
-        const data = await apiFetch('/marketing/promos/', { auth: true });
-        const apiList = Array.isArray(data) ? data : data?.results || [];
-        if (apiList.length > 0) {
-          // Merge API items with local items
-          const merged = [...localList];
-          apiList.forEach(item => {
-            if (!merged.some(m => m.code === item.code)) {
-              merged.push(item);
-            }
-          });
-          savePromosLocally(merged);
-          return;
+      // Deduplicate
+      const unique = [];
+      const seen = new Set();
+      localList.forEach(item => {
+        const c = (item.code || '').toUpperCase();
+        if (!seen.has(c)) {
+          seen.add(c);
+          unique.push(item);
         }
-      } catch {}
+      });
 
-      setPromos(localList);
+      savePromosLocally(unique);
     } finally {
       setLoading(false);
     }
@@ -1449,7 +1452,13 @@ export function AdminPromos() {
                       </span>
                     </button>
 
-                    <span className="font-bold text-lg text-emerald-600">-{p.discount}%</span>
+                    <span className="font-extrabold text-base text-emerald-600 dark:text-emerald-400">
+                      {p.code === 'YOHA50' || p.fixedAmount
+                        ? '-50 MAD'
+                        : (p.code === 'GROUPE0' || p.freeDelivery
+                            ? 'Livraison 0 MAD'
+                            : `-${p.discount}%`)}
+                    </span>
 
                     {/* Section pill */}
                     <span className="text-[11px] font-bold text-ink-500 bg-ink-100/80 dark:bg-ink-800/80 px-2.5 py-1 rounded-lg">
