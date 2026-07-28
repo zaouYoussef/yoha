@@ -503,6 +503,13 @@ export function DeliveryAvailable({ courier }) {
                   >
                     Confirmer la course
                   </ActionButton>
+                  <CancelOrderButton
+                    phase="before_pickup"
+                    onCancel={(reason) => cancelOrder(o.id, reason || 'Client injoignable après plusieurs appels du livreur')}
+                    label="Annuler la commande (Client injoignable)"
+                    variant="ghost"
+                    className="mt-2 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 font-bold"
+                  />
                 </>
               }
             />

@@ -157,8 +157,26 @@ function OrderCard({ order, onOpenOrder, onReorder, featured = false }) {
             </div>
 
             <p className="mt-2 text-sm text-ink-500 dark:text-ink-400 line-clamp-1">
-              {active ? st.clientMsg : `${count} article${count > 1 ? 's' : ''} · ${formatDate(order.createdAt)}`}
+              {order.status === 'cancelled'
+                ? 'Cette commande a été annulée.'
+                : active
+                ? st.clientMsg
+                : `${count} article${count > 1 ? 's' : ''} · ${formatDate(order.createdAt)}`}
             </p>
+
+            {order.status === 'cancelled' && (
+              <div className="mt-3 p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs space-y-1">
+                <div className="font-extrabold flex items-center gap-1.5">
+                  <span>❌</span>
+                  <span>Commande Annulée</span>
+                </div>
+                <p className="text-[11px] font-medium text-rose-600/90 dark:text-rose-300/90">
+                  {order.cancellationReason
+                    ? `Motif : ${order.cancellationReason}`
+                    : "Cette commande a été annulée (ex. client injoignable par le livreur)."}
+                </p>
+              </div>
+            )}
 
             {active && <MiniProgress status={order.status} />}
 
