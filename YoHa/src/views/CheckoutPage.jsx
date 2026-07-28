@@ -45,6 +45,8 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   const discountAmount = fixedDiscount > 0 ? Math.min(total, fixedDiscount) : (discountPct > 0 ? Math.round(total * discountPct) / 100 : 0);
   const grand = Math.max(0, total + deliveryFee - discountAmount);
 
+  const mainStoreName = cart[0]?.restaurantName || 'YoHa Partner';
+
   const applyYoha50 = () => {
     setAppliedPromo({ code: 'YOHA50', fixed_amount: 50, valid: true });
     setPromoErr('');
@@ -58,7 +60,6 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   }, [user]);
 
   const [err, setErr] = useState('');
-
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
   const applyPromo = async () => {
@@ -127,147 +128,186 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   if (cart.length === 0) {
     return (
       <div className="page-enter max-w-2xl mx-auto px-4 sm:px-6 py-20 text-center">
-        <div className="text-7xl mb-4">🛒</div>
-        <h2 className="font-display font-bold text-2xl">Aucun article à commander</h2>
-        <p className="mt-2 text-ink-500">Ajoutez d'abord quelque chose de délicieux.</p>
+        <div className="w-20 h-20 mx-auto rounded-3xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-4xl mb-4 shadow-inner">
+          🛒
+        </div>
+        <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-ink-900 dark:text-white">Panier vide</h2>
+        <p className="mt-2 text-ink-500 dark:text-ink-400 font-medium">Ajoutez quelques délices et revenez finaliser votre commande.</p>
+        <button
+          onClick={onBack}
+          className="mt-6 px-6 py-3 rounded-2xl bg-brand-500 text-white font-extrabold text-sm shadow-glow hover:scale-105 active:scale-95 transition-all"
+        >
+          Découvrir les cartes ➔
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="page-enter max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-10">
-      <button onClick={onBack} className="cursor-grow inline-flex items-center gap-2 mb-6 px-3 py-2 rounded-xl hover:bg-ink-100 dark:hover:bg-ink-800 transition">
-        <I.Left size={18}/> Retour au panier
-      </button>
+    <div className="page-enter max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+      {/* Back Button & Checkout Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <button
+          onClick={onBack}
+          className="cursor-pointer inline-flex items-center gap-2 self-start px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-ink-900 dark:hover:bg-ink-800 text-ink-700 dark:text-white font-bold text-xs transition-colors shadow-xs"
+        >
+          <I.Left size={16}/> <span>Retour à la carte</span>
+        </button>
 
-      <h1 className="font-display font-extrabold text-2xl sm:text-3xl lg:text-4xl tracking-tight">Validation de commande</h1>
-      <p className="mt-1 text-ink-500 dark:text-ink-400">Presque fini — vérifiez vos infos et passons à table.</p>
-
-      {!user && (
-        <div className="mt-5 rounded-2xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 px-4 py-3 text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <span>
-            <span className="font-semibold">Commande invité</span> — pas besoin de compte pour commander.
+        {/* Deliveroo-Style Step Indicator */}
+        <div className="flex items-center gap-2 self-start sm:self-auto text-xs font-bold bg-slate-100 dark:bg-ink-900 px-3.5 py-1.5 rounded-full border border-ink-100 dark:border-ink-800">
+          <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+            <span>✓</span> Panier
           </span>
+          <span className="text-ink-400">➔</span>
+          <span className="text-brand-600 dark:text-brand-400 font-extrabold flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
+            Validation
+          </span>
+          <span className="text-ink-400">➔</span>
+          <span className="text-ink-400">Confirmation</span>
+        </div>
+      </div>
+
+      {/* Main Title & Subtitle */}
+      <div className="mb-6">
+        <h1 className="font-display font-black text-2xl sm:text-4xl tracking-tight text-ink-900 dark:text-white">
+          Finalisation de commande
+        </h1>
+        <p className="mt-1 text-xs sm:text-sm text-ink-500 dark:text-ink-400 font-medium">
+          Livraison rapide en <span className="font-bold text-brand-600 dark:text-brand-400">30-45 min</span> à l'Alliance & CHU Tanger 🏍️
+        </p>
+      </div>
+
+      {/* Guest vs Logged-In Notice Pill */}
+      {!user ? (
+        <div className="mb-6 rounded-2xl bg-gradient-to-r from-amber-500/10 via-brand-500/10 to-amber-500/10 border border-brand-500/30 px-4 py-3.5 text-xs sm:text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xl">⚡</span>
+            <span className="text-ink-800 dark:text-ink-100 font-medium">
+              <strong className="font-extrabold text-ink-950 dark:text-white">Commande Express en Invité</strong> — aucun mot de passe requis !
+            </span>
+          </div>
           {onLogin && (
-            <button type="button" onClick={onLogin} className="font-semibold text-brand-600 hover:underline shrink-0">
-              Se connecter pour sauver l’historique
+            <button
+              type="button"
+              onClick={onLogin}
+              className="font-extrabold text-brand-600 dark:text-brand-400 hover:underline shrink-0 text-xs bg-white dark:bg-ink-900 px-3 py-1.5 rounded-xl border border-brand-500/20 shadow-xs cursor-pointer"
+            >
+              Se connecter pour cumuler des points ➔
             </button>
           )}
         </div>
-      )}
-
-      {user?.role === 'client' && (
-        <div className="mt-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 px-4 py-3 text-sm text-ink-700 dark:text-ink-200">
-          Connecté en tant que <strong>{user.displayName}</strong> — cette commande sera dans votre historique.
+      ) : (
+        <div className="mb-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 px-4 py-3 text-xs sm:text-sm text-emerald-900 dark:text-emerald-200 flex items-center gap-2.5 font-medium shadow-xs">
+          <span className="text-lg">✅</span>
+          <span>
+            Connecté en tant que <strong className="font-extrabold">{user.displayName}</strong> — cette commande comptera pour votre cagnotte de -50 MAD !
+          </span>
         </div>
       )}
 
-      <div className="mt-8 grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-5">
-          <Card>
-            <CardHeader icon={<I.MapPin size={18}/>} title="Adresse de livraison" />
-            <div className="px-5 pb-5 space-y-3">
+      {/* Main Form Grid */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Left Column: Form & Options */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Delivery Address Card */}
+          <Card className="rounded-3xl shadow-sm border border-ink-100 dark:border-ink-800 overflow-hidden">
+            <CardHeader icon={<I.MapPin size={20} className="text-brand-500" />} title="Coordonnées de livraison" />
+            <div className="px-5 pb-6 space-y-4">
               <Input label="Nom complet" value={name} onChange={setName} placeholder="Prénom Nom"/>
               {!user ? (
-                <Input
-                  label="E-mail *"
-                  value={email}
-                  onChange={setEmail}
-                  placeholder="vous@exemple.com"
-                  type="email"
-                />
+                <div>
+                  <Input
+                    label="E-mail *"
+                    value={email}
+                    onChange={setEmail}
+                    placeholder="vous@exemple.com"
+                    type="email"
+                  />
+                  <p className="text-[11px] text-ink-500 mt-1 font-medium">
+                    📧 Vous recevrez la confirmation et le lien de suivi en direct par e-mail.
+                  </p>
+                </div>
               ) : (
                 <Input
-                  label="E-mail"
+                  label="E-mail de confirmation"
                   value={email || user.email || ''}
                   onChange={setEmail}
                   placeholder="vous@exemple.com"
                   type="email"
                 />
               )}
-              {!user && (
-                <p className="text-xs text-ink-500 -mt-1">
-                  Obligatoire — vous recevrez le suivi de commande par e-mail.
-                </p>
-              )}
-              <Input label="Adresse" value={address} onChange={setAddress} placeholder="Bâtiment, chambre, étage"/>
-              <Input label="Téléphone" value={phone} onChange={setPhone} placeholder="+212 6 …" />
-              <label className="block space-y-1">
-                <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">Remarques pour le restaurant</span>
+              
+              <div className="grid sm:grid-cols-2 gap-4">
+                <Input label="Lieu de livraison" value={address} onChange={setAddress} placeholder="Campus, CHU, Bâtiment, Chambre..."/>
+                <Input label="Numéro de téléphone" value={phone} onChange={setPhone} placeholder="+212 6 12 34 56 78" />
+              </div>
+
+              <label className="block space-y-1.5">
+                <span className="text-xs font-bold text-ink-700 dark:text-ink-200 uppercase tracking-wider">Instructions pour le livreur / restaurant</span>
                 <textarea
                   value={restaurantNotes}
                   onChange={(e) => setRestaurantNotes(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition resize-none"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 dark:focus:border-brand-400 text-xs sm:text-sm font-medium transition resize-none"
                   rows={2}
-                  placeholder="Sans tomate, sauce à part, bien cuit…"
+                  placeholder="Ex: Sans oignons, appeler en arrivant devant le portail CHU..."
                 />
-                <p className="text-xs text-ink-500">
-                  Optionnel — le restaurant et le livreur verront ces instructions lors de la préparation.
-                </p>
               </label>
             </div>
           </Card>
 
+          {/* Time Slot Picker */}
           <TimeSlotPicker selected={scheduledTime} onSelect={setScheduledTime} />
 
-          <Card>
-            <CardHeader icon={<I.Bag size={18}/>} title="Paiement" />
-            <div className="px-5 pb-5">
-              <p className="text-sm text-ink-600 dark:text-ink-400 leading-relaxed">
-                Règlement <span className="font-semibold text-ink-900 dark:text-white">en espèces</span> au moment de la livraison.
-              </p>
+          {/* Payment Method Card */}
+          <Card className="rounded-3xl shadow-sm border border-ink-100 dark:border-ink-800 overflow-hidden">
+            <CardHeader icon={<I.Bag size={20} className="text-emerald-500" />} title="Mode de paiement" />
+            <div className="px-5 pb-6">
+              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl shrink-0 font-bold shadow-md">
+                  💵
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-sm text-ink-900 dark:text-white">Paiement en espèces à la livraison</h4>
+                  <p className="text-xs text-ink-600 dark:text-ink-400 mt-0.5 font-medium">
+                    Payez directement le livreur de la flotte YoHa dès réception de vos plats.
+                  </p>
+                </div>
+              </div>
             </div>
           </Card>
 
-          <Card>
-            <CardHeader icon={<I.Bag size={18}/>} title={`Récapitulatif (${cart.reduce((s,i)=>s+i.qty,0)} articles)`} />
-            <div className="px-5 pb-5 space-y-3">
+          {/* Detailed Items Card */}
+          <Card className="rounded-3xl shadow-sm border border-ink-100 dark:border-ink-800 overflow-hidden">
+            <CardHeader
+              icon={<I.Bag size={20} className="text-brand-500" />}
+              title={`Articles sélectionnés (${cart.reduce((s,i)=>s+i.qty,0)}) chez ${mainStoreName}`}
+            />
+            <div className="px-5 pb-6 space-y-3.5 divide-y divide-ink-100 dark:divide-ink-800">
               {cart.map(it => (
-                <div key={it.id} className="flex items-start gap-3 py-1">
-                  <MenuItemImage src={it.img} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0 mt-1"/>
+                <div key={it.id} className="pt-3 first:pt-0 flex items-center gap-3.5">
+                  <MenuItemImage src={it.img} alt="" className="w-14 h-14 rounded-2xl object-cover shrink-0 border border-black/5 shadow-xs"/>
                   <div className="flex-1 min-w-0">
                     {it.isCustom ? (
                       <div className="space-y-1">
-                        <div className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Demande sur-mesure</div>
+                        <div className="text-xs font-black text-brand-600 dark:text-brand-400 uppercase tracking-wider">Demande sur-mesure</div>
                         {it.customDetails?.storeAddress && (
-                          <div className="text-xs text-ink-500 font-semibold">Établissement : {it.customDetails.storeName} ({it.customDetails.storeAddress})</div>
+                          <div className="text-xs text-ink-500 font-semibold">{it.customDetails.storeName}</div>
                         )}
-                        <textarea
-                          value={it.customDetails?.details || ''}
-                          onChange={(e) => {
-                            const newDetails = e.target.value;
-                            setCart(prev => prev.map(p => {
-                              if (p.id === it.id) {
-                                const storeName = p.customDetails?.storeName || p.restaurantName;
-                                const name = p.customDetails?.storeAddress 
-                                  ? `[${storeName}] ${newDetails}`
-                                  : `${p.restaurantName} - ${newDetails}`;
-                                return {
-                                  ...p,
-                                  name,
-                                  customDetails: {
-                                    ...p.customDetails,
-                                    details: newDetails
-                                  }
-                                };
-                              }
-                              return p;
-                            }));
-                          }}
-                          className="w-full text-sm bg-ink-50 dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-500 font-medium"
-                          placeholder="Modifiez les détails de votre demande..."
-                          rows={2}
-                        />
+                        <p className="text-xs text-ink-700 dark:text-ink-300 font-medium truncate">{it.customDetails?.details}</p>
                       </div>
                     ) : (
                       <>
-                        <div className="text-sm font-semibold truncate">{it.name}</div>
-                        <div className="text-xs text-ink-500">x{it.qty} · {it.restaurantName}</div>
+                        <h4 className="font-extrabold text-sm text-ink-900 dark:text-white truncate">{it.name}</h4>
+                        <div className="text-xs text-ink-500 dark:text-ink-400 font-medium mt-0.5">
+                          Quantité : <strong className="text-ink-900 dark:text-white">{it.qty}</strong> · {it.restaurantName || mainStoreName}
+                        </div>
                       </>
                     )}
                   </div>
-                  <div className="font-semibold text-sm pt-1">
-                    {it.price > 0 ? formatMad(it.price * it.qty) : <span className="text-brand-600 dark:text-brand-400 font-semibold">Sur ticket</span>}
+                  <div className="font-black text-sm text-ink-900 dark:text-white shrink-0">
+                    {it.price > 0 ? formatMad(it.price * it.qty) : <span className="text-brand-600 dark:text-brand-400">Sur ticket</span>}
                   </div>
                 </div>
               ))}
@@ -275,108 +315,132 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
           </Card>
         </div>
 
+        {/* Right Column: Order Summary & Checkout Button */}
         <div className="lg:sticky lg:top-20 self-start order-first lg:order-last">
-          <Card>
-            <div className="p-5 space-y-3">
-              <h3 className="font-display font-bold text-lg">Total</h3>
+          <Card className="rounded-3xl shadow-xl border border-brand-500/30 overflow-hidden bg-white dark:bg-ink-900">
+            <div className="p-5 sm:p-6 space-y-4">
+              <h3 className="font-display font-black text-xl text-ink-900 dark:text-white border-b border-ink-100 dark:border-ink-800 pb-3 flex items-center justify-between">
+                <span>Récapitulatif</span>
+                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                  ⚡ 0 MAD livraison
+                </span>
+              </h3>
+
               <Row 
-                label="Sous-total" 
+                label="Sous-total plats" 
                 value={isCustom 
-                  ? (total > 0 ? `${formatMad(total)} + achats` : <span className="text-brand-600 dark:text-brand-400 font-semibold">Sur ticket</span>)
+                  ? (total > 0 ? `${formatMad(total)} + achats` : <span className="text-brand-600 dark:text-brand-400 font-bold">Sur ticket</span>)
                   : formatMad(total)
                 } 
               />
-              <Row label="Frais de livraison" value={formatMad(deliveryFee)} />
+              <Row label="Frais de livraison" value={<span className="text-emerald-600 dark:text-emerald-400 font-bold">{formatMad(deliveryFee)}</span>} />
+              
               {discountAmount > 0 && (
                 <Row 
-                  label={<span className="text-emerald-600 font-semibold">Réduction ({appliedPromo?.code || 'YOHA50'})</span>}
-                  value={<span className="text-emerald-600 font-bold">-{formatMad(discountAmount)}</span>}
+                  label={<span className="text-emerald-600 dark:text-emerald-400 font-bold">Code Promo ({appliedPromo?.code || 'YOHA50'})</span>}
+                  value={<span className="text-emerald-600 dark:text-emerald-400 font-black">-{formatMad(discountAmount)}</span>}
                 />
               )}
-              <div className="border-t border-dashed border-ink-200 dark:border-ink-800"></div>
-              <Row 
-                label={<b className="text-base">À payer</b>} 
-                value={
-                  <b className={`text-2xl ${discountAmount > 0 ? 'text-emerald-600' : 'text-gradient'}`}>
-                    {isCustom 
-                      ? (total > 0 ? `${formatMad(grand)} + achats` : "20,00 MAD + achats")
-                      : formatMad(grand)
-                    }
-                  </b>
-                } 
-              />
 
-              {/* OFFRE DE BIENVENUE 50 MAD OFFERTS BANNER */}
+              <div className="border-t border-dashed border-ink-200 dark:border-ink-800 pt-3">
+                <Row 
+                  label={<b className="text-base sm:text-lg font-black text-ink-900 dark:text-white">Total à payer</b>} 
+                  value={
+                    <b className={`text-2xl sm:text-3xl font-black ${discountAmount > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-brand-600 dark:text-brand-400'}`}>
+                      {isCustom 
+                        ? (total > 0 ? `${formatMad(grand)} + achats` : "20,00 MAD + achats")
+                        : formatMad(grand)
+                      }
+                    </b>
+                  } 
+                />
+              </div>
+
+              {/* OFFRE DE BIENVENUE 50 MAD OFFERTS BUTTON CARD */}
               {!appliedPromo && (
-                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 text-white shadow-md border border-rose-400/40 space-y-2">
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 text-white shadow-lg border border-rose-400/50 space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-wider bg-white text-rose-600 px-2 py-0.5 rounded-full">
-                      Offre de bienvenue
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-white text-rose-600 px-2.5 py-0.5 rounded-full shadow-xs">
+                      Offre Spéciale
                     </span>
                     <span className="text-xs font-black text-amber-300">50 MAD OFFERTS</span>
                   </div>
-                  <p className="text-xs font-medium text-rose-100 leading-tight">
-                    Sur votre première commande à l'Alliance & CHU !
+                  <p className="text-xs font-bold text-rose-100 leading-tight">
+                    Profitez de -50 MAD sur votre commande avec le code <strong className="text-white font-black underline">YOHA50</strong> !
                   </p>
                   <button
                     type="button"
                     onClick={applyYoha50}
-                    className="w-full py-2 rounded-xl bg-white text-slate-950 font-black text-xs uppercase tracking-wider shadow hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2.5 rounded-xl bg-white text-slate-950 font-black text-xs uppercase tracking-wider shadow-md hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <span>J'en profite 🚀</span>
-                    <span className="text-[10px] opacity-75 font-mono">(CODE : YOHA50)</span>
+                    <span>Appliquer -50 MAD 🚀</span>
                   </button>
                 </div>
               )}
 
-              {/* Code promo Manuel */}
+              {/* Code Promo Input */}
               <div className="pt-1">
                 {appliedPromo ? (
-                  <div className="flex items-center justify-between bg-emerald-50 dark:bg-emerald-900/20 rounded-xl px-3 py-2 border border-emerald-200 dark:border-emerald-800">
-                    <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300">
-                      {appliedPromo.code} · -{formatMad(discountAmount)}
+                  <div className="flex items-center justify-between bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl px-3.5 py-2.5 border border-emerald-300 dark:border-emerald-700">
+                    <span className="text-xs sm:text-sm font-extrabold text-emerald-700 dark:text-emerald-300">
+                      Code {appliedPromo.code} appliqué (-{formatMad(discountAmount)})
                     </span>
-                    <button onClick={removePromo} className="text-xs font-semibold text-red-500 hover:underline cursor-pointer">Retirer</button>
+                    <button onClick={removePromo} className="text-xs font-bold text-rose-600 hover:underline cursor-pointer">
+                      Retirer
+                    </button>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <input value={promoInput} onChange={e => setPromoInput(e.target.value.toUpperCase())} placeholder="Code promo"
-                      className="flex-1 rounded-xl border border-ink-200 bg-ink-50 px-3 py-2 text-sm font-bold tracking-wider outline-none focus:border-brand-500 dark:border-ink-700 dark:bg-ink-950 dark:text-white"/>
-                    <button onClick={applyPromo}
-                      className="cursor-grow shrink-0 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 px-4 py-2.5 text-sm font-bold text-white shadow-md hover:shadow-lg active:scale-95 transition-transform min-h-[40px]">
-                      OK
+                    <input
+                      value={promoInput}
+                      onChange={e => setPromoInput(e.target.value.toUpperCase())}
+                      placeholder="Code promo"
+                      className="flex-1 rounded-xl border border-ink-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold tracking-wider outline-none focus:border-brand-500 dark:border-ink-700 dark:bg-ink-950 dark:text-white"
+                    />
+                    <button
+                      onClick={applyPromo}
+                      className="cursor-pointer shrink-0 rounded-xl bg-ink-900 dark:bg-white text-white dark:text-ink-950 px-4 py-2.5 text-xs font-black hover:scale-105 active:scale-95 transition-all"
+                    >
+                      Valider
                     </button>
                   </div>
                 )}
-                {promoErr && <p className="mt-1 text-xs font-semibold text-red-500">{promoErr}</p>}
+                {promoErr && <p className="mt-1.5 text-xs font-bold text-rose-600">{promoErr}</p>}
               </div>
 
-              {err && <p className="text-sm text-red-600 dark:text-red-400">{err}</p>}
+              {err && <p className="text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-200">{err}</p>}
+              
               {!isCustom && total < 70 && (
-                <p className="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-1">
-                  ⚠️ Le restaurant n&apos;accepte pas les commandes de moins de 70 DH.
+                <p className="text-xs text-amber-600 dark:text-amber-400 font-extrabold bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-xl border border-amber-200">
+                  ⚠️ Minimum de commande : 70 DH pour cet établissement.
                 </p>
               )}
-              <div className="pt-3">
+
+              {/* Main CTA Confirmation Button */}
+              <div className="pt-2">
                 <Button
                   onClick={handleConfirm}
                   disabled={submitting || (!isCustom && total < 70)}
                   variant="primary"
                   size="lg"
-                  className="w-full justify-center"
+                  className="w-full justify-center py-4 rounded-2xl text-base shadow-glow hover:scale-[1.02] active:scale-95 transition-all font-black"
                 >
                   {submitting ? (
-                    <span className="inline-flex items-center gap-2">Traitement<Loader/></span>
+                    <span className="inline-flex items-center gap-2">Traitement en cours... <Loader/></span>
                   ) : (
                     <span className="inline-flex items-center gap-2 whitespace-nowrap">
-                      Confirmer · {isCustom 
+                      Confirmer la commande · {isCustom 
                         ? (total > 0 ? `${formatMad(grand)} + achats` : "20 DH + achats") 
                         : formatMad(grand)
-                      }{discountPct > 0 && <span className="text-emerald-300 text-xs line-through ml-1 hidden sm:inline">{formatMad(total + deliveryFee)}</span>} <I.Check size={18} stroke={3}/>
+                      } <I.Check size={20} stroke={3}/>
                     </span>
                   )}
                 </Button>
-                <div className="mt-3 flex items-center justify-center gap-2 text-xs text-ink-500"><I.Bag size={14}/> Espèces à la livraison</div>
+                
+                <div className="mt-3.5 flex items-center justify-center gap-2 text-xs text-ink-500 font-medium">
+                  <I.Bag size={14} className="text-emerald-500" />
+                  <span>Paiement 100% sécurisé à la livraison</span>
+                </div>
               </div>
             </div>
           </Card>
