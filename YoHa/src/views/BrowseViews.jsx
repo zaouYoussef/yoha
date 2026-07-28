@@ -372,66 +372,73 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             </div>
           )}
 
-          {/* ═══ 🔥 OFFRES — COMPACT PREMIUM ═══ */}
+          {/* ═══ 🔥 OFFRES — RESPONSIVE CAROUSEL ═══ */}
           {!search && (
-            <section className="space-y-3">
-
-              {/* ── Slim Promo Code Banner ── */}
-              <div className="flex items-center gap-3 p-3 rounded-2xl overflow-hidden relative" style={{background:'linear-gradient(135deg,#FF416C,#FF4B2B)'}}>
-                <div className="absolute inset-0 pointer-events-none"><div className="absolute w-24 h-24 rounded-full bg-white/[0.06] -top-8 -right-4 blur-lg"/></div>
-                <div className="relative z-10 flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-lg shrink-0">🎁</div>
-                  <div className="min-w-0">
-                    <p className="text-white font-black text-sm truncate">-50 MAD · 1ère commande</p>
-                    <p className="text-white/70 text-[10px] font-bold">Code : <span className="text-yellow-200 font-black tracking-wider">YOHA50</span></p>
+            <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 snap-x snap-mandatory">
+              {[
+                {
+                  title: '-50 MAD',
+                  desc: '1ère commande',
+                  code: 'YOHA50',
+                  bg: 'linear-gradient(135deg,#FF416C 0%,#FF4B2B 100%)',
+                  icon: '🎉',
+                },
+                {
+                  title: '0 MAD frais',
+                  desc: 'Dès 200 MAD de commande',
+                  code: 'GROUPE0',
+                  bg: 'linear-gradient(135deg,#11998e 0%,#38ef7d 100%)',
+                  icon: '👥',
+                },
+                {
+                  title: '-50 MAD fidélité',
+                  desc: 'Après 6 commandes livrées',
+                  code: null,
+                  bg: 'linear-gradient(135deg,#F2994A 0%,#F2C94C 100%)',
+                  icon: '⭐',
+                },
+                {
+                  title: '-10% Pizzas',
+                  desc: 'Sur toutes les pizzas',
+                  code: 'YOHA10',
+                  bg: 'linear-gradient(135deg,#667eea 0%,#764ba2 100%)',
+                  icon: '🍕',
+                },
+                {
+                  title: 'Livraison 4,99',
+                  desc: 'Dès 120 MAD de commande',
+                  code: null,
+                  bg: 'linear-gradient(135deg,#0F2027 0%,#203A43 50%,#2C5364 100%)',
+                  icon: '🚀',
+                },
+              ].map((o, i) => (
+                <div
+                  key={i}
+                  className="snap-start shrink-0 w-[72vw] sm:w-[240px] rounded-2xl p-4 relative overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
+                  style={{ background: o.bg }}
+                >
+                  <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-white/[0.08] blur-xl pointer-events-none" />
+                  <div className="relative z-10 flex flex-col h-full min-h-[100px] justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-2xl">{o.icon}</span>
+                        {o.code && (
+                          <button
+                            type="button"
+                            onClick={() => { if (typeof navigator !== 'undefined') navigator.clipboard?.writeText(o.code); }}
+                            className="cursor-pointer px-2 py-0.5 rounded-lg bg-white/20 backdrop-blur-sm text-[10px] text-white font-black tracking-wider hover:bg-white/30 active:scale-95 transition-all"
+                          >
+                            {o.code} 📋
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-white font-black text-base leading-tight">{o.title}</p>
+                      <p className="text-white/75 text-xs font-semibold mt-1">{o.desc}</p>
+                    </div>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => { if(typeof navigator !== 'undefined') navigator.clipboard?.writeText('YOHA50'); }}
-                  className="shrink-0 px-3.5 py-2 rounded-xl bg-white text-rose-600 font-black text-xs hover:scale-105 active:scale-95 transition-all shadow-md cursor-pointer"
-                >
-                  Copier 📋
-                </button>
-              </div>
-
-              {/* ── Horizontal Scroll Mini Deal Cards ── */}
-              <div className="flex gap-2.5 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
-                {[
-                  { emoji:'👥', title:'0 MAD de frais', sub:'Dès 200 MAD', bg:'linear-gradient(135deg,#11998e,#38ef7d)' },
-                  { emoji:'⭐', title:'-50 MAD offerts', sub:'6 commandes', bg:'linear-gradient(135deg,#F2994A,#F2C94C)' },
-                  { emoji:'🚀', title:'Livraison 4,99', sub:'Dès 120 MAD', bg:'linear-gradient(135deg,#667eea,#764ba2)' },
-                  { emoji:'🎁', title:'Code Mystère', sub:'Parrainage', bg:'linear-gradient(135deg,#a18cd1,#fbc2eb)' },
-                  { emoji:'🍕', title:'-10% Pizzas', sub:'Code YOHA10', bg:'linear-gradient(135deg,#fc4a1a,#f7b733)' },
-                ].map((d,i) => (
-                  <div key={i} className="shrink-0 w-[130px] rounded-2xl p-3 cursor-pointer hover:scale-[1.03] active:scale-95 transition-all shadow-md" style={{background:d.bg}}>
-                    <span className="text-xl block mb-1.5">{d.emoji}</span>
-                    <p className="text-white font-black text-xs leading-tight">{d.title}</p>
-                    <p className="text-white/70 text-[10px] font-bold mt-0.5">{d.sub}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* ── Quick Copy Codes ── */}
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-                <span className="text-[10px] font-black text-ink-400 dark:text-ink-500 uppercase tracking-wider shrink-0">Codes :</span>
-                {[
-                  { code:'YOHA50', bg:'bg-rose-500' },
-                  { code:'YOHA10', bg:'bg-amber-500' },
-                  { code:'GROUPE0', bg:'bg-emerald-500' },
-                ].map(p => (
-                  <button
-                    key={p.code}
-                    type="button"
-                    onClick={() => { if(typeof navigator !== 'undefined') navigator.clipboard?.writeText(p.code); }}
-                    className={`shrink-0 cursor-pointer ${p.bg} text-white text-[10px] font-black px-2.5 py-1 rounded-lg hover:scale-105 active:scale-95 transition-all shadow-sm`}
-                  >
-                    {p.code} 📋
-                  </button>
-                ))}
-              </div>
-
-            </section>
+              ))}
+            </div>
           )}
 
           {/* ═══ CUISINE CATEGORIES CAROUSEL (High Quality AI Food Imagery) ═══ */}

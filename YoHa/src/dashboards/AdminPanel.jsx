@@ -606,6 +606,25 @@ export function AdminRestaurants() {
   const [ownerDisplayName, setOwnerDisplayName] = useState('');
   const [error, setError] = useState('');
   const [adding, setAdding] = useState(false);
+  const [editDist, setEditDist] = useState({});
+  const [editRating, setEditRating] = useState({});
+  const [saving, setSaving] = useState(null);
+
+  const saveRestoField = async (r, field, value) => {
+    setSaving(r.pk);
+    try {
+      await apiFetch(`/restaurants/youssef/${r.pk}/update/`, {
+        method: 'PATCH',
+        body: { [field]: value },
+        auth: true,
+      });
+      refreshRestaurants();
+    } catch (e) {
+      setError(e.message || 'Erreur');
+    } finally {
+      setSaving(null);
+    }
+  };
 
   const restaurantStats = useMemo(() => {
     const map = {};
@@ -773,12 +792,23 @@ export function AdminRestaurants() {
                   </div>
                 </div>
 
-                {/* Owner info */}
-                <div className="rounded-xl bg-ink-50/50 dark:bg-ink-950/30 p-3 space-y-1.5">
+                {/* Distance + Rating éditable */}
+                <div className="rounded-xl bg-ink-50/50 dark:bg-ink-950/30 p-3 space-y-2">
                   <div className="flex items-center gap-2 text-xs">
                     <I.Bike size={12} className="text-ink-400 shrink-0" />
                     <span className="text-ink-400 shrink-0">Distance</span>
-                    <span className="ml-auto font-bold">{r.distance}</span>
+                    <input value={editDist[r.pk] ?? r.distance ?? ''}
+                      onChange={(e) => setEditDist((d) => ({ ...d, [r.pk]: e.target.value }))}
+                      onBlur={() => { const v = editDist[r.pk]; if (v !== undefined && v !== r.distance) saveRestoField(r, 'distance', v); }}
+                      className="ml-auto w-20 text-right text-xs font-bold bg-transparent border-b border-dotted border-ink-300 dark:border-ink-600 focus:border-brand-400 focus:outline-none" placeholder="km" />
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-amber-500 shrink-0 text-xs">⭐</span>
+                    <span className="text-ink-400 shrink-0">Note</span>
+                    <input value={editRating[r.pk] ?? r.rating ?? ''}
+                      onChange={(e) => setEditRating((d) => ({ ...d, [r.pk]: e.target.value }))}
+                      onBlur={() => { const v = editRating[r.pk]; if (v !== undefined && v !== r.rating) saveRestoField(r, 'rating', v); }}
+                      className="ml-auto w-16 text-right text-xs font-bold bg-transparent border-b border-dotted border-ink-300 dark:border-ink-600 focus:border-brand-400 focus:outline-none" placeholder="4.8" />
                   </div>
                   {r.ownerEmail && (
                     <div className="flex items-center gap-2 text-xs">

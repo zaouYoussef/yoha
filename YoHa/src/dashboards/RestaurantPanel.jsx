@@ -257,8 +257,6 @@ export function RestoProfile({ restaurant, onUpdated }) {
     description: restaurant.description || '',
     promo_label: restaurant.promo || '',
     phone: restaurant.phone || '',
-    distance_label: restaurant.distance || '',
-    rating: restaurant.rating || '4.8',
     opening_hours: normalizeOpeningHours(restaurant.openingHours),
   });
   const [busy, setBusy] = useState(false);
@@ -271,8 +269,6 @@ export function RestoProfile({ restaurant, onUpdated }) {
       description: restaurant.description || '',
       promo_label: restaurant.promo || '',
       phone: restaurant.phone || '',
-      distance_label: restaurant.distance || '',
-      rating: restaurant.rating || '4.8',
       opening_hours: normalizeOpeningHours(restaurant.openingHours),
     });
     setIsTempOpen(restaurant.isActive !== false);
@@ -298,8 +294,6 @@ export function RestoProfile({ restaurant, onUpdated }) {
         description: form.description.trim(),
         promo_label: form.promo_label.trim(),
         phone: form.phone.trim(),
-        distance_label: form.distance_label.trim(),
-        rating: form.rating.trim(),
         opening_hours: normalizeOpeningHours(form.opening_hours),
         is_active: isTempOpen,
       });
@@ -441,23 +435,6 @@ export function RestoProfile({ restaurant, onUpdated }) {
               Visible par le livreur pour vous contacter lors d&apos;une course (bouton WhatsApp).
             </p>
           </label>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="block space-y-1.5">
-              <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Distance</span>
-              <input value={form.distance_label} onChange={(e) => setForm((f) => ({ ...f, distance_label: e.target.value }))}
-                placeholder="Ex: 4,4 km"
-                className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
-              <p className="text-xs text-ink-500">Distance affichée sur votre fiche (ex: 2,5 km).</p>
-            </label>
-            <label className="block space-y-1.5">
-              <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Note ⭐</span>
-              <input value={form.rating} onChange={(e) => setForm((f) => ({ ...f, rating: e.target.value }))}
-                placeholder="Ex: 4.8"
-                className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
-              <p className="text-xs text-ink-500">Note sur 5 affichée sur votre fiche.</p>
-            </label>
-          </div>
         </div>
       </GlassCard>
 
