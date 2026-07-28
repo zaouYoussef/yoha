@@ -75,6 +75,7 @@ class RestaurantListSerializer(serializers.ModelSerializer):
     fee = serializers.CharField(source="fee_label")
     distance = serializers.CharField(source="distance_label")
     promo = serializers.CharField(source="promo_label")
+    delivery = serializers.CharField(source="delivery_time")
     cover = serializers.SerializerMethodField()
     logo = serializers.SerializerMethodField()
     openingHours = OpeningHoursSerializer(source="opening_hours")
@@ -93,6 +94,7 @@ class RestaurantListSerializer(serializers.ModelSerializer):
             "fee",
             "distance",
             "promo",
+            "delivery",
             "cover",
             "logo",
             "description",
@@ -161,6 +163,7 @@ class RestaurantWriteSerializer(serializers.ModelSerializer):
             "tags",
             "description",
             "distance_label",
+            "delivery_time",
             "promo_label",
             "fee_label",
             "phone",

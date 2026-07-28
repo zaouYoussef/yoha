@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .admin_views import AdminRestaurantCreateView, AdminRestaurantDeleteView, AdminRestaurantListView
+from .admin_views import AdminRestaurantCreateView, AdminRestaurantDeleteView, AdminRestaurantListView, AdminRestaurantUpdateView
 from .owner_views import (
     MenuCategoryDetailView,
     MenuCategoryListCreateView,
@@ -21,6 +21,7 @@ urlpatterns = [
     path("youssef/", AdminRestaurantListView.as_view(), name="admin-restaurant-list"),
     path("youssef/create/", AdminRestaurantCreateView.as_view(), name="admin-restaurant-create"),
     path("youssef/<int:pk>/", AdminRestaurantDeleteView.as_view(), name="admin-restaurant-delete"),
+    path("youssef/<int:pk>/update/", AdminRestaurantUpdateView.as_view(), name="admin-restaurant-update"),
     path("me/", MyRestaurantView.as_view(), name="restaurant-me"),
     path("me/create/", MyRestaurantCreateView.as_view(), name="restaurant-me-create"),
     path("me/media/", RestaurantMediaUploadView.as_view(), name="restaurant-me-media"),

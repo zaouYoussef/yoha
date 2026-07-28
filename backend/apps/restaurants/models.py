@@ -28,6 +28,7 @@ class Restaurant(models.Model):
     cuisine = models.CharField(max_length=20, choices=Cuisine.choices, db_index=True)
     tags = models.JSONField(default=list, blank=True)
     distance_label = models.CharField(max_length=40, blank=True)
+    delivery_time = models.CharField(max_length=40, blank=True, default="30-45 min")
     promo_label = models.CharField(max_length=120, blank=True)
     fee_label = models.CharField(max_length=80, default="Livraison offerte")
     cover_url = models.URLField(max_length=500, blank=True)

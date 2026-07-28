@@ -8,7 +8,7 @@ from apps.audit.services import log_audit
 from apps.orders.models import CourierProfile
 
 from .models import Restaurant
-from .serializers import RestaurantDetailSerializer, RestaurantListSerializer
+from .serializers import RestaurantDetailSerializer, RestaurantListSerializer, RestaurantWriteSerializer
 
 
 class AdminRestaurantListView(APIView):
@@ -108,3 +108,27 @@ class AdminRestaurantDeleteView(APIView):
         resto.is_active = False
         resto.save(update_fields=["is_active"])
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AdminRestaurantUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        if request.user.role != "admin":
+            return Response({"detail": "Accès refusé."}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            resto = Restaurant.objects.get(pk=pk)
+        except Restaurant.DoesNotExist:
+            return Response({"detail": "Restaurant introuvable."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = RestaurantWriteSerializer(resto, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        log_audit(
+            actor=request.user,
+            action="admin.restaurant.update",
+            target_type="restaurant",
+            target_id=str(resto.pk),
+            metadata={"fields": list(request.data.keys())},
+        )
+        return Response(RestaurantListSerializer(resto).data)

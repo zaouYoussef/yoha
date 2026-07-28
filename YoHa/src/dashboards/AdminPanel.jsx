@@ -608,14 +608,19 @@ export function AdminRestaurants() {
   const [adding, setAdding] = useState(false);
   const [editDist, setEditDist] = useState({});
   const [editRating, setEditRating] = useState({});
+  const [editDelivery, setEditDelivery] = useState({});
   const [saving, setSaving] = useState(null);
 
   const saveRestoField = async (r, field, value) => {
     setSaving(r.pk);
+    const body = {};
+    if (field === 'distance') body.distance_label = value;
+    else if (field === 'delivery') body.delivery_time = value;
+    else body[field] = value;
     try {
       await apiFetch(`/restaurants/youssef/${r.pk}/update/`, {
         method: 'PATCH',
-        body: { [field]: value },
+        body,
         auth: true,
       });
       refreshRestaurants();
@@ -801,6 +806,14 @@ export function AdminRestaurants() {
                       onChange={(e) => setEditDist((d) => ({ ...d, [r.pk]: e.target.value }))}
                       onBlur={() => { const v = editDist[r.pk]; if (v !== undefined && v !== r.distance) saveRestoField(r, 'distance', v); }}
                       className="ml-auto w-20 text-right text-xs font-bold bg-transparent border-b border-dotted border-ink-300 dark:border-ink-600 focus:border-brand-400 focus:outline-none" placeholder="km" />
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-ink-400 shrink-0 text-xs">🕐</span>
+                    <span className="text-ink-400 shrink-0">Livraison</span>
+                    <input value={editDelivery[r.pk] ?? r.delivery ?? ''}
+                      onChange={(e) => setEditDelivery((d) => ({ ...d, [r.pk]: e.target.value }))}
+                      onBlur={() => { const v = editDelivery[r.pk]; if (v !== undefined && v !== r.delivery) saveRestoField(r, 'delivery', v); }}
+                      className="ml-auto w-24 text-right text-xs font-bold bg-transparent border-b border-dotted border-ink-300 dark:border-ink-600 focus:border-brand-400 focus:outline-none" placeholder="30-45 min" />
                   </div>
                   <div className="flex items-center gap-2 text-xs">
                     <span className="text-amber-500 shrink-0 text-xs">⭐</span>
