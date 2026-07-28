@@ -1159,9 +1159,9 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                   <I.MapPin size={12} className="text-ink-400" /> {r.distance || 'Tanger'}
                 </span>
                 <span>·</span>
-                <span>{isOpen ? 'Ouvert 24h/7d' : (openLabel || 'Fermé')}</span>
+                <span>{isOpen ? (openLabel || 'Ouvert') : (openLabel || 'Fermé')}</span>
                 <span>·</span>
-                <span>Min. {formatMad(10, { decimals: 0 })}</span>
+                <span>Min. {formatMad(40, { decimals: 0 })}</span>
               </div>
               <div className="mt-2 flex items-center gap-3">
                 <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
@@ -1170,7 +1170,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                     {(r.rating ?? 4.5).toString().replace('.', ',')}
                   </span>
                 </div>
-                <span className="text-xs text-ink-500">Livraison {r.cuisine === 'pharmacy' || r.cuisine === 'shop' || r.cuisine === 'supermarket' ? '20' : '0,00'} MAD</span>
+                <span className="text-xs text-ink-500">Livraison {r.fee || '0,00'} MAD</span>
               </div>
             </div>
           </div>
@@ -1994,15 +1994,15 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
 
       {/* Modal Fidélité */}
       {showFidelite && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowFidelite(false)}>
-          <div className="relative w-full max-w-sm rounded-3xl bg-white dark:bg-ink-900 p-6 shadow-2xl border border-ink-200 dark:border-ink-700" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setShowFidelite(false)} className="absolute top-3 right-3 h-8 w-8 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center hover:bg-ink-200 dark:hover:bg-ink-700 transition-colors text-ink-500">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowFidelite(false)}>
+          <div className="relative w-full max-w-xs sm:max-w-sm mx-auto rounded-2xl sm:rounded-3xl bg-white dark:bg-ink-900 p-5 sm:p-6 shadow-2xl border border-ink-200 dark:border-ink-700 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setShowFidelite(false)} className="absolute top-2.5 right-2.5 h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center hover:bg-ink-200 dark:hover:bg-ink-700 transition-colors text-ink-500 text-sm">
               ✕
             </button>
 
-            <div className="text-center space-y-4">
-              <div className="text-5xl">🎁</div>
-              <h3 className="font-display font-black text-xl text-ink-900 dark:text-white">Solde Fidélité</h3>
+            <div className="text-center space-y-3 sm:space-y-4">
+              <div className="text-4xl sm:text-5xl">🎁</div>
+              <h3 className="font-display font-black text-lg sm:text-xl text-ink-900 dark:text-white">Solde Fidélité</h3>
 
               {!user ? (
                 <div className="space-y-4">

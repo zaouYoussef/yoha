@@ -100,8 +100,8 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
 
   const handleConfirm = async () => {
     setErr('');
-    if (!isCustom && total < 70) {
-      setErr("Le restaurant n'accepte pas les commandes de moins de 70 DH.");
+    if (!isCustom && total < MIN_ORDER_TOTAL) {
+      setErr(`Le restaurant n'accepte pas les commandes de moins de ${MIN_ORDER_TOTAL} DH. Ajoutez encore ${formatMad(MIN_ORDER_TOTAL - total)}.`);
       return;
     }
     const trimmedEmail = email.trim();

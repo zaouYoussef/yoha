@@ -101,7 +101,7 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                 const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
                 const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
                 const grandTotal = total + deliveryFee;
-                const isLimitBlocked = !isCustom && total < 70;
+                const isLimitBlocked = !isCustom && total < 40;
 
                 return (
                   <>
@@ -132,7 +132,7 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                     {isLimitBlocked && (
                       <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2 animate-fade-up">
                         <span className="text-sm">⚠️</span>
-                        <span>Le restaurant n&apos;accepte pas les commandes de moins de 70 DH. Ajoutez encore {formatMad(70 - total)}.</span>
+                        <span>Le restaurant n&apos;accepte pas les commandes de moins de 40 DH. Ajoutez encore {formatMad(40 - total)}.</span>
                       </div>
                     )}
                     {isCustom && (
