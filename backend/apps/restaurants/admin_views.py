@@ -30,9 +30,9 @@ class AdminRestaurantCreateView(APIView):
             return Response({"detail": "Accès refusé."}, status=status.HTTP_403_FORBIDDEN)
         data = request.data
         name = data.get("name", "").strip()
-        cuisine = data.get("cuisine", "").strip()
-        if not name or not cuisine:
-            return Response({"detail": "name et cuisine requis."}, status=status.HTTP_400_BAD_REQUEST)
+        if not name:
+            return Response({"detail": "name requis."}, status=status.HTTP_400_BAD_REQUEST)
+        cuisine = data.get("cuisine", "").strip() or "general"
         slug = data.get("slug", "") or slugify(name)
         base_slug = slug
         n = 1
