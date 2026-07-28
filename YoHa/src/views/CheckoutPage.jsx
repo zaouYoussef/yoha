@@ -40,9 +40,15 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
     return 'restaurant';
   }, [cart]);
 
-  const discountPct = appliedPromo ? appliedPromo.discount : 0;
-  const discountAmount = discountPct > 0 ? Math.round(total * discountPct) / 100 : 0;
-  const grand = total + deliveryFee - discountAmount;
+  const discountPct = appliedPromo ? (appliedPromo.discount || 0) : 0;
+  const fixedDiscount = appliedPromo && appliedPromo.fixed_amount ? appliedPromo.fixed_amount : (appliedPromo?.code === 'YOHA50' ? 50 : 0);
+  const discountAmount = fixedDiscount > 0 ? Math.min(total, fixedDiscount) : (discountPct > 0 ? Math.round(total * discountPct) / 100 : 0);
+  const grand = Math.max(0, total + deliveryFee - discountAmount);
+
+  const applyYoha50 = () => {
+    setAppliedPromo({ code: 'YOHA50', fixed_amount: 50, valid: true });
+    setPromoErr('');
+  };
 
   useEffect(() => {
     if (user?.role === 'client') {
@@ -271,17 +277,17 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                 } 
               />
               <Row label="Frais de livraison" value={formatMad(deliveryFee)} />
-              {discountPct > 0 && (
+              {discountAmount > 0 && (
                 <Row 
-                  label={<span className="text-emerald-600 font-semibold">Code promo ({appliedPromo?.code})</span>}
-                  value={<span className="text-emerald-600 font-bold">-{discountPct}%</span>}
+                  label={<span className="text-emerald-600 font-semibold">Réduction ({appliedPromo?.code || 'YOHA50'})</span>}
+                  value={<span className="text-emerald-600 font-bold">-{formatMad(discountAmount)}</span>}
                 />
               )}
               <div className="border-t border-dashed border-ink-200 dark:border-ink-800"></div>
               <Row 
                 label={<b className="text-base">À payer</b>} 
                 value={
-                  <b className={`text-2xl ${discountPct > 0 ? 'text-emerald-600' : 'text-gradient'}`}>
+                  <b className={`text-2xl ${discountAmount > 0 ? 'text-emerald-600' : 'text-gradient'}`}>
                     {isCustom 
                       ? (total > 0 ? `${formatMad(grand)} + achats` : "20,00 MAD + achats")
                       : formatMad(grand)
@@ -290,12 +296,37 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                 } 
               />
 
-              {/* Code promo */}
+              {/* OFFRE DE BIENVENUE 50 MAD OFFERTS BANNER */}
+              {!appliedPromo && (
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 text-white shadow-md border border-rose-400/40 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-white text-rose-600 px-2 py-0.5 rounded-full">
+                      Offre de bienvenue
+                    </span>
+                    <span className="text-xs font-black text-amber-300">50 MAD OFFERTS</span>
+                  </div>
+                  <p className="text-xs font-medium text-rose-100 leading-tight">
+                    Sur votre première commande à l'Alliance & CHU !
+                  </p>
+                  <button
+                    type="button"
+                    onClick={applyYoha50}
+                    className="w-full py-2 rounded-xl bg-white text-slate-950 font-black text-xs uppercase tracking-wider shadow hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <span>J'en profite 🚀</span>
+                    <span className="text-[10px] opacity-75 font-mono">(CODE : YOHA50)</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Code promo Manuel */}
               <div className="pt-1">
                 {appliedPromo ? (
                   <div className="flex items-center justify-between bg-emerald-50 dark:bg-emerald-900/20 rounded-xl px-3 py-2 border border-emerald-200 dark:border-emerald-800">
-                    <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300">{appliedPromo.code} · -{discountPct}%</span>
-                    <button onClick={removePromo} className="text-xs font-semibold text-red-500 hover:underline">Retirer</button>
+                    <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                      {appliedPromo.code} · -{formatMad(discountAmount)}
+                    </span>
+                    <button onClick={removePromo} className="text-xs font-semibold text-red-500 hover:underline cursor-pointer">Retirer</button>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">

@@ -61,6 +61,7 @@ export function Landing({ onStart }) {
   return (
     <div className="page-enter">
       <Hero onStart={onStart} onHowItWorks={scrollToHowItWorks} />
+      <LandingPromosSection onStart={onStart} />
       <PartnersMarquee onStart={onStart} />
       <PizzaAssemblySection onStart={onStart} />
       <ShowcaseSection onStart={onStart} />
@@ -71,6 +72,104 @@ export function Landing({ onStart }) {
       <TestimonialsSection onStart={onStart} />
       <FinalCTA onStart={onStart} />
     </div>
+  );
+}
+
+function LandingPromosSection({ onStart }) {
+  const promos = [
+    {
+      tag: 'OFFRE DE BIENVENUE',
+      title: '50 MAD OFFERTS',
+      subtitle: 'sur votre première commande à l\'Alliance & CHU',
+      code: 'CODE : YOHA50',
+      cta: 'J\'en profite 🚀',
+      bg: 'from-rose-500 via-pink-600 to-rose-600',
+      image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&auto=format&fit=crop&q=80',
+    },
+    {
+      tag: 'EXCLUSIVITÉ ALLIANCE',
+      title: '1 ACHETÉ = 1 OFFERT',
+      subtitle: 'Sur une sélection de sushis, burgers & tacos du moment',
+      code: 'JE DOUBLE ➔',
+      cta: 'Découvrir l\'offre ⚡',
+      bg: 'from-teal-600 via-emerald-600 to-teal-700',
+      image: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=800&auto=format&fit=crop&q=80',
+    },
+    {
+      tag: 'DOUCEURS & DESSERTS',
+      title: 'UNE ENVIE GLACÉE ?',
+      subtitle: 'Glaces artisanales, gaufres & crêpes livrées chaudes',
+      code: 'C\'EST PAR ICI ➔',
+      cta: 'Voir les pâtisseries 🍰',
+      bg: 'from-purple-600 via-pink-600 to-rose-500',
+      image: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=800&auto=format&fit=crop&q=80',
+    },
+    {
+      tag: 'RÉCOMPENSE FIDÉLITÉ',
+      title: '-50 MAD TOUTES LES 6 COMMANDES',
+      subtitle: 'Commandes livrées confirmées = 50 MAD offerts automatiquement !',
+      code: 'FIDÉLITÉ 🎁',
+      cta: 'En savoir plus →',
+      bg: 'from-amber-500 via-orange-500 to-amber-600',
+      image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&auto=format&fit=crop&q=80',
+    },
+  ];
+
+  return (
+    <section className="py-10 bg-slate-50 dark:bg-ink-950/60 border-y border-ink-100 dark:border-ink-800/60">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <span className="text-xs font-black uppercase tracking-widest text-brand-600 dark:text-brand-400">
+              OFFRES EXCLUSIVES ALLIANCE & CHU
+            </span>
+            <h2 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white mt-1">
+              Profitez de nos réductions & bons plans ⚡
+            </h2>
+          </div>
+          <button
+            onClick={onStart}
+            className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline cursor-pointer"
+          >
+            <span>Voir tout</span>
+            <span>→</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {promos.map((p, i) => (
+            <div
+              key={i}
+              onClick={onStart}
+              className={`cursor-pointer rounded-3xl p-5 text-white bg-gradient-to-br ${p.bg} shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden flex flex-col justify-between group border border-white/20`}
+            >
+              <div className="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-white/20 blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
+              
+              <div>
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/95 text-slate-950 shadow-sm mb-3">
+                  {p.tag}
+                </span>
+                <h3 className="font-display font-black text-xl leading-tight">
+                  {p.title}
+                </h3>
+                <p className="text-xs text-white/90 mt-1.5 font-medium leading-snug line-clamp-2">
+                  {p.subtitle}
+                </p>
+              </div>
+
+              <div className="mt-5 flex items-center justify-between gap-2 pt-2 border-t border-white/20">
+                <span className="px-2.5 py-1 rounded-xl bg-amber-300 text-slate-950 font-black text-[11px] uppercase tracking-wide shadow-sm">
+                  {p.code}
+                </span>
+                <span className="px-3 py-1.5 rounded-xl bg-white text-slate-950 font-black text-xs shadow hover:scale-105 transition-all">
+                  {p.cta}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -197,9 +296,14 @@ export function Hero({ onStart, onHowItWorks }) {
 
           <div className="mt-6 sm:mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 animate-fade-up" style={{ animationDelay:'900ms' }}>
             <div className="flex -space-x-2 shrink-0">
-              {[1,2,3,4].map(i => (
-                <img key={i} src="/logo.webp" alt="Avatar utilisateur" width="36" height="36" loading="lazy" decoding="async"
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-white dark:border-ink-900 object-cover" />
+              {[
+                'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
+                'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80',
+                'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80',
+                'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80',
+              ].map((url, i) => (
+                <img key={i} src={url} alt="Avatar étudant ou soignant" width="36" height="36" loading="lazy" decoding="async"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-white dark:border-ink-900 object-cover shadow-sm" />
               ))}
             </div>
             <div className="text-xs sm:text-sm min-w-0">
@@ -1117,7 +1221,7 @@ export function TestimonialsSection({ onStart }) {
           <div className="max-w-2xl">
             <span className="text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">Ils en parlent</span>
             <h2 className="mt-3 font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight">
-              Adoré à l&apos;<span className="text-gradient">Alliance & dans les couloirs.</span>
+              Adoré à l&apos;<span className="text-gradient">Alliance & au CHU.</span>
             </h2>
           </div>
         </div>
@@ -1283,7 +1387,7 @@ export function CampusHospitalsSection({ onStart }) {
                   </span>
                 </h3>
                 <p className="mt-3 text-sm sm:text-base text-white/70 leading-relaxed">
-                  Hôpitaux universitaires, instituts de santé et résidences étudiantes — livraison prioritaire sur toute l&apos;Alliance.
+                  Repas, soins, courses du quotidien — livraison prioritaire sur toute l&apos;Alliance et les zones hospitalières.
                 </p>
                 <div className="mt-5">
                   <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/25">

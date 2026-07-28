@@ -1501,18 +1501,51 @@ export function ApiErrorState({ message, onRetry }) {
 }
 
 export function LoyaltyRewardBanner() {
+  const { user, login } = useAuth() || {};
   const { orders = [] } = useOrders() || {};
 
   // Count ONLY orders confirmed delivered by courier (DELIVERED or LIVRÉ or COMPLETED)
   const deliveredOrders = useMemo(() => {
+    if (!user) return [];
     return orders.filter(o => o.status === 'DELIVERED' || o.status === 'LIVRÉ' || o.status === 'COMPLETED');
-  }, [orders]);
+  }, [orders, user]);
 
   const deliveredCount = deliveredOrders.length;
   const currentStep = deliveredCount % 6;
   const isGoalReached = currentStep === 0 && deliveredCount > 0;
   const activeStepCount = isGoalReached ? 6 : currentStep;
   const remaining = isGoalReached ? 0 : 6 - currentStep;
+
+  if (!user) {
+    return (
+      <div className="px-4 sm:px-0">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white p-4 sm:p-5 shadow-lg border border-emerald-400/30">
+          <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                🎁
+              </div>
+              <div className="min-w-0">
+                <span className="font-extrabold text-xs sm:text-sm tracking-wide uppercase text-emerald-200 block">
+                  Offre Récompense Fidélité
+                </span>
+                <h3 className="font-display font-black text-base sm:text-lg text-white mt-0.5">
+                  Connectez-vous pour accumuler vos commandes et recevoir <span className="text-amber-300">-50 MAD</span> !
+                </h3>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => login?.()}
+              className="shrink-0 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md hover:scale-105 transition-all cursor-pointer"
+            >
+              Se connecter ➔
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 sm:px-0">
@@ -1591,56 +1624,59 @@ export function LoyaltyRewardBanner() {
 const PROMO_BANNERS = [
   {
     id: 'promo-1',
-    bg: 'from-rose-100 via-pink-50 to-pink-100 dark:from-pink-950 dark:via-ink-900 dark:to-rose-950 border-pink-200 dark:border-pink-800/40',
+    bg: 'from-rose-500 via-pink-600 to-rose-600 text-white border-rose-400/50 shadow-lg shadow-rose-500/20',
     tag: 'OFFRE DE BIENVENUE',
-    tagBg: 'bg-rose-500 text-white',
+    tagBg: 'bg-white text-rose-600 font-black',
     title: '50 MAD OFFERTS',
     subtitle: 'sur votre première commande à l\'Alliance & CHU',
     code: 'CODE : YOHA50',
     cta: 'J\'en profite 🚀',
-    image: '/pizza-img/section_2_06.webp',
+    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&auto=format&fit=crop&q=80',
     filterId: 'offers',
-    textColor: 'text-rose-950 dark:text-white',
+    textColor: 'text-white',
+    subColor: 'text-rose-100 font-medium',
   },
   {
     id: 'promo-2',
-    bg: 'from-pink-200 via-pink-100 to-rose-200 dark:from-pink-900 dark:via-purple-950 dark:to-pink-900 border-pink-300 dark:border-pink-700/50',
+    bg: 'from-purple-600 via-pink-600 to-rose-500 text-white border-pink-400/50 shadow-lg shadow-pink-500/20',
     tag: 'DOUCEURS & DESSERTS',
-    tagBg: 'bg-pink-600 text-white',
+    tagBg: 'bg-amber-400 text-slate-950 font-black',
     title: 'UNE ENVIE GLACÉE ?',
     subtitle: 'Glaces artisanales, gaufres & crêpes livrées chaudes',
     code: 'C\'EST PAR ICI ➔',
     cta: 'Voir les pâtisseries 🍰',
-    image: '/pizza-img/section_2_05.webp',
+    image: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=800&auto=format&fit=crop&q=80',
     filterId: 'dessert',
-    textColor: 'text-pink-950 dark:text-white',
+    textColor: 'text-white',
+    subColor: 'text-pink-100 font-medium',
   },
   {
     id: 'promo-3',
-    bg: 'from-teal-500 via-emerald-500 to-teal-600 text-white border-teal-400/60 shadow-lg shadow-teal-500/20',
+    bg: 'from-teal-600 via-emerald-600 to-teal-700 text-white border-teal-400/50 shadow-lg shadow-teal-500/20',
     tag: 'EXCLUSIVITÉ ALLIANCE',
     tagBg: 'bg-slate-950 text-amber-300 font-black',
     title: '1 ACHETÉ = 1 OFFERT',
     subtitle: 'Sur une sélection de sushis, burgers & tacos du moment',
     code: 'JE DOUBLE ➔',
     cta: 'Découvrir l\'offre ⚡',
-    image: '/burger-img/df23088ac8117ca6618f0f5a4e8097679a10d00d.webp',
+    image: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=800&auto=format&fit=crop&q=80',
     filterId: 'popular',
     textColor: 'text-white',
-    subColor: 'text-emerald-50 font-medium',
+    subColor: 'text-emerald-100 font-medium',
   },
   {
     id: 'promo-4',
-    bg: 'from-amber-50 via-orange-50 to-amber-100 dark:from-amber-950 dark:via-ink-900 dark:to-orange-950 border-amber-200 dark:border-amber-800/40',
-    tag: 'SÉLECTION YOHA',
-    tagBg: 'bg-brand-500 text-white',
-    title: 'SÉLECTION DU CHEF',
-    subtitle: 'Un excellent service, les meilleures notes et les prix resto garantis',
-    code: 'QUALITÉ 100% ⭐️',
-    cta: 'Voir les mieux notés →',
-    image: '/pizza-img/section_4_04.webp',
+    bg: 'from-amber-500 via-orange-500 to-amber-600 text-white border-amber-400/50 shadow-lg shadow-amber-500/20',
+    tag: 'FIDÉLITÉ RÉCOMPENSÉE',
+    tagBg: 'bg-white text-slate-950 font-black',
+    title: 'RÉCOMPENSE FIDÉLITÉ',
+    subtitle: '6 commandes livrées confirmées = 50 MAD offerts !',
+    code: 'RÉCOMPENSE 🎁',
+    cta: 'Voir mon solde →',
+    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&auto=format&fit=crop&q=80',
     filterId: 'top_rated',
-    textColor: 'text-amber-950 dark:text-white',
+    textColor: 'text-white',
+    subColor: 'text-amber-100 font-medium',
   },
 ];
 
@@ -1661,7 +1697,7 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
           <div
             key={b.id}
             onClick={() => onSelectFilter(b.filterId)}
-            className={`cursor-pointer shrink-0 w-[300px] sm:w-[380px] md:w-[420px] rounded-3xl p-4 sm:p-5 border shadow-card hover:shadow-cardhover transition-all duration-300 relative overflow-hidden group snap-start bg-gradient-to-br ${b.bg}`}
+            className={`cursor-pointer shrink-0 w-[300px] sm:w-[380px] md:w-[420px] rounded-3xl p-4 sm:p-5 border shadow-card hover:shadow-cardhover hover:scale-[1.02] transition-all duration-300 relative overflow-hidden group snap-start bg-gradient-to-br ${b.bg}`}
           >
             <div className="absolute -right-8 -bottom-8 w-36 h-36 rounded-full bg-white/20 dark:bg-white/5 blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
             
@@ -1683,7 +1719,7 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
                   <span className="inline-block px-2.5 py-1 rounded-xl bg-amber-300 dark:bg-amber-400 text-slate-950 font-black text-[10px] sm:text-[11px] uppercase tracking-wide shadow-sm border border-amber-400">
                     {b.code}
                   </span>
-                  <span className="text-xs font-bold text-ink-900 dark:text-white group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white text-slate-950 font-black text-xs shadow-md group-hover:scale-105 transition-all">
                     <span>{b.cta}</span>
                   </span>
                 </div>
