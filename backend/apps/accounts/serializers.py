@@ -66,12 +66,19 @@ class AdminUserCreateSerializer(serializers.Serializer):
         return email
 
     def create(self, validated_data):
-        return User.objects.create_user(
+        user = User.objects.create_user(
             email=validated_data["email"],
             password=validated_data["password"],
             display_name=validated_data["display_name"],
             role=validated_data["role"],
         )
+        if validated_data["role"] == "courier":
+            from apps.orders.models import CourierProfile
+            CourierProfile.objects.create(
+                user=user,
+                display_name=validated_data["display_name"],
+            )
+        return user
 
 
 class AdminUserListSerializer(serializers.ModelSerializer):

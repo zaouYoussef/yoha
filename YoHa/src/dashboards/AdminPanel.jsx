@@ -750,7 +750,7 @@ export function AdminRestaurants() {
                   <h3 className="font-display font-bold text-white text-base truncate drop-shadow-lg">{r.name}</h3>
                   <div className="text-[11px] text-white/80">{r.tags?.join(' · ') || r.cuisine}</div>
                 </div>
-                <button onClick={() => handleDelete(r.id)}
+                <button onClick={() => handleDelete(r.pk)}
                   className="absolute top-2 right-2 h-8 w-8 rounded-xl bg-red-500/90 text-white hover:bg-red-600 transition-colors flex items-center justify-center backdrop-blur-sm">
                   <I.Trash size={14} />
                 </button>

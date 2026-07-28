@@ -71,6 +71,7 @@ class OpeningHoursSerializer(serializers.Field):
 
 class RestaurantListSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source="slug")
+    pk = serializers.IntegerField(read_only=True)
     fee = serializers.CharField(source="fee_label")
     distance = serializers.CharField(source="distance_label")
     promo = serializers.CharField(source="promo_label")
@@ -85,6 +86,7 @@ class RestaurantListSerializer(serializers.ModelSerializer):
         model = Restaurant
         fields = (
             "id",
+            "pk",
             "name",
             "cuisine",
             "tags",
@@ -162,6 +164,7 @@ class RestaurantWriteSerializer(serializers.ModelSerializer):
             "fee_label",
             "phone",
             "opening_hours",
+            "is_active",
         )
 
 

@@ -84,7 +84,7 @@ function LandingPromosSection({ onStart }) {
       code: 'CODE : YOHA50',
       cta: 'J\'en profite 🚀',
       bg: 'from-rose-500 via-pink-600 to-rose-600',
-      image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&auto=format&fit=crop&q=80',
+      image: '/promos/promo_bienvenue_50mad.jpg',
     },
     {
       tag: 'EXCLUSIVITÉ ALLIANCE',
@@ -93,7 +93,7 @@ function LandingPromosSection({ onStart }) {
       code: 'JE DOUBLE ➔',
       cta: 'Découvrir l\'offre ⚡',
       bg: 'from-teal-600 via-emerald-600 to-teal-700',
-      image: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=800&auto=format&fit=crop&q=80',
+      image: '/promos/promo_1achete_1offert.jpg',
     },
     {
       tag: 'DOUCEURS & DESSERTS',
@@ -102,7 +102,7 @@ function LandingPromosSection({ onStart }) {
       code: 'C\'EST PAR ICI ➔',
       cta: 'Voir les pâtisseries 🍰',
       bg: 'from-purple-600 via-pink-600 to-rose-500',
-      image: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=800&auto=format&fit=crop&q=80',
+      image: '/promos/promo_envie_glacee.jpg',
     },
     {
       tag: 'RÉCOMPENSE FIDÉLITÉ',
@@ -111,7 +111,7 @@ function LandingPromosSection({ onStart }) {
       code: 'FIDÉLITÉ 🎁',
       cta: 'En savoir plus →',
       bg: 'from-amber-500 via-orange-500 to-amber-600',
-      image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&auto=format&fit=crop&q=80',
+      image: '/promos/promo_recompense_fidelite.jpg',
     },
   ];
 

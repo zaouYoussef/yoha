@@ -19,6 +19,7 @@ from .serializers import (
     RestaurantCreateSerializer,
     RestaurantDetailSerializer,
     RestaurantListSerializer,
+    RestaurantOfferSerializer,
     RestaurantWriteSerializer,
 )
 from .services import menu_item_image_keys
