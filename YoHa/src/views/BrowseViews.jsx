@@ -755,7 +755,7 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
           {/* Time Badge Pill Bottom-Right (Deliveroo style) */}
           <div className="absolute bottom-2.5 right-2.5 z-10">
             <span className="px-2.5 py-1 rounded-full bg-white text-ink-950 font-extrabold text-xs shadow-md border border-black/5">
-              {restaurant.eta || '20 min'}
+              {restaurant.eta || '34 min'}
             </span>
           </div>
 
@@ -1768,7 +1768,7 @@ function DeliverooPopularBrandsSection({ restaurants, onPick }) {
                     <span className="text-amber-500">★</span>
                     <span>{r.rating ?? 4.8}</span>
                     <span>·</span>
-                    <span>{r.eta || '20-35 min'}</span>
+                    <span>{r.eta || '34 min'}</span>
                   </div>
                   <div className="text-[11px] font-bold text-rose-600 dark:text-rose-400 truncate mt-0.5 flex items-center gap-1">
                     <span className="text-xs">%</span>

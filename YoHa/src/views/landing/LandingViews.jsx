@@ -527,13 +527,46 @@ export function PartnerCategoriesSection() {
     {
       emoji: '💊',
       title: 'Pharmacies',
-      line: 'Produits de parapharmacie, hygiène et soins de première urgence livrés discrètement.',
+      line: 'Médicaments, ordonnances et conseils pharmaceutiques livrés directement chez vous.',
       color: 'from-emerald-500 to-teal-500',
       hoverBorder: 'hover:border-emerald-500/30',
       hoverShadow: 'hover:shadow-[0_20px_50px_rgba(16,185,129,0.15)] dark:hover:shadow-[0_20px_50px_rgba(16,185,129,0.25)]',
       textHover: 'group-hover:text-emerald-500',
-      tag: 'Soin & Santé',
+      tag: 'Santé & Urgence',
       browseFilter: 'pharmacy',
+    },
+    {
+      emoji: '🌿',
+      title: 'Parapharmacies',
+      line: 'Soins de la peau, hygiène, beauté et bien-être livrés en un clic.',
+      color: 'from-teal-500 to-cyan-500',
+      hoverBorder: 'hover:border-teal-500/30',
+      hoverShadow: 'hover:shadow-[0_20px_50px_rgba(20,184,166,0.15)] dark:hover:shadow-[0_20px_50px_rgba(20,184,166,0.25)]',
+      textHover: 'group-hover:text-teal-500',
+      tag: 'Beauté & Soins',
+      browseFilter: 'parapharmacie',
+    },
+    {
+      emoji: '🛒',
+      title: 'Supermarchés',
+      line: 'Courses du quotidien, produits frais et boissons livrés à votre porte sans effort.',
+      color: 'from-blue-500 to-indigo-500',
+      hoverBorder: 'hover:border-blue-500/30',
+      hoverShadow: 'hover:shadow-[0_20px_50px_rgba(59,130,246,0.15)] dark:hover:shadow-[0_20px_50px_rgba(59,130,246,0.25)]',
+      textHover: 'group-hover:text-blue-500',
+      tag: 'Courses du quotidien',
+      browseFilter: 'supermarket',
+    },
+    {
+      emoji: '🛍️',
+      title: 'Magasins',
+      line: 'Articles de confort, fournitures et tout ce dont vous avez besoin au quotidien.',
+      color: 'from-violet-500 to-purple-500',
+      hoverBorder: 'hover:border-violet-500/30',
+      hoverShadow: 'hover:shadow-[0_20px_50px_rgba(139,92,246,0.15)] dark:hover:shadow-[0_20px_50px_rgba(139,92,246,0.25)]',
+      textHover: 'group-hover:text-violet-500',
+      tag: 'Confort & Accessoires',
+      browseFilter: 'shop',
     },
   ];
 
@@ -542,27 +575,27 @@ export function PartnerCategoriesSection() {
 
 
       <Reveal>
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-14">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
-            🛍️ Services & Commerces
+            🛍️ Tous les services essentiels
           </span>
-          <h2 className="mt-4 font-display font-extrabold text-4xl sm:text-5xl tracking-tight leading-tight">
-            Tout ce dont vous avez besoin, <span className="text-gradient text-glow">au même endroit.</span>
+          <h2 className="mt-4 font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight leading-tight">
+            <span className="text-gradient text-glow">Tout</span> pour l&apos;Alliance <span className="hidden sm:inline">&amp; le CHU</span>
           </h2>
           <p className="mt-4 text-base sm:text-lg text-ink-600 dark:text-ink-400 leading-relaxed">
-            En plus des restaurants, YoHa regroupe tous les commerces et services de Tanger essentiels pour votre quotidien à l&apos;Alliance ou au CHU.
+            Repas, santé, courses du quotidien — un seul endroit pour tout commander.
           </p>
         </div>
       </Reveal>
 
-      <div className="grid md:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 items-stretch">
         {rows.map((r, i) => (
-          <Reveal key={r.title} delay={i * 100}>
-            <Tilt max={6} className="h-full rounded-2xl sm:rounded-[2rem]">
+          <Reveal key={r.title} delay={i * 80}>
+            <Tilt max={6} className="h-full rounded-2xl sm:rounded-[1.5rem]">
               <button
                 type="button"
                 onClick={() => goto('home', { browseFilter: r.browseFilter })}
-                className={`relative overflow-hidden group h-full w-full text-left p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${r.hoverBorder} transition-all duration-500 shadow-card ${r.hoverShadow} flex flex-col justify-between min-h-[240px] sm:min-h-[280px] lg:min-h-[300px] cursor-pointer`}
+                className={`relative overflow-hidden group h-full w-full text-left p-5 sm:p-7 rounded-2xl sm:rounded-[1.5rem] glass-card-premium border border-white/20 dark:border-white/5 ${r.hoverBorder} transition-all duration-500 shadow-card ${r.hoverShadow} flex flex-col justify-between min-h-[200px] sm:min-h-[220px] cursor-pointer`}
               >
                 {/* Glowing background orb */}
                 <div className={`absolute -right-10 -bottom-10 w-28 h-28 rounded-full bg-gradient-to-br ${r.color} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 blur-xl transition-all duration-500 scale-50`}></div>
@@ -570,7 +603,7 @@ export function PartnerCategoriesSection() {
                 <div>
                   <div className="flex flex-wrap justify-between items-start gap-2">
                     {/* Glowing Emoji Container */}
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${r.color} text-white flex items-center justify-center text-3xl shadow-glow relative transition-all duration-500`}>
+                    <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br ${r.color} text-white flex items-center justify-center text-2xl sm:text-3xl shadow-glow relative transition-all duration-500`}>
                       {r.emoji}
                       <span className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-white to-white/0 opacity-25 border border-white/30"></span>
                     </div>
@@ -580,11 +613,11 @@ export function PartnerCategoriesSection() {
                     </span>
                   </div>
 
-                  <div className="mt-8">
-                    <h3 className={`font-display font-extrabold text-2xl text-ink-900 dark:text-white transition-colors duration-300 ${r.textHover}`}>
+                  <div className="mt-6 sm:mt-8">
+                    <h3 className={`font-display font-extrabold text-xl sm:text-2xl text-ink-900 dark:text-white transition-colors duration-300 ${r.textHover}`}>
                       {r.title}
                     </h3>
-                    <p className="mt-3 text-ink-600 dark:text-ink-400 text-sm sm:text-base leading-relaxed">
+                    <p className="mt-2 sm:mt-3 text-ink-600 dark:text-ink-400 text-sm leading-relaxed">
                       {r.line}
                     </p>
                   </div>
@@ -1191,9 +1224,9 @@ export function FinalCTA({ onStart }) {
           
           <div className="relative max-w-xl z-10 text-left">
             <h3 className="font-display font-extrabold text-3xl sm:text-5xl tracking-tight text-slate-900 leading-tight">
-              Faim ? Votre chambre est à <span className="bg-gradient-to-r from-brand-600 to-rose-600 bg-clip-text text-transparent font-black">14 minutes</span> de quelque chose de génial.
+              Besoin de <span className="bg-gradient-to-r from-brand-600 to-rose-600 bg-clip-text text-transparent font-black">quelque chose</span> ? Tout est à portée de main.
             </h3>
-            <p className="mt-4 text-slate-600 text-lg">Aucune app à télécharger. Ouvrez YoHa et commandez.</p>
+            <p className="mt-4 text-slate-600 text-lg">Repas, médicaments, courses — commandez en 3 clics sans appli à télécharger.</p>
             
             <div className="mt-6 flex flex-wrap gap-3">
               <div 
