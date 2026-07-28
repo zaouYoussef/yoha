@@ -1802,10 +1802,11 @@ const PROMO_BANNERS = [
     tagBg: 'bg-white text-rose-600 font-black',
     title: '50 MAD OFFERTS',
     subtitle: 'sur votre première commande à l\'Alliance & CHU',
-    code: 'CODE : YOHA50',
+    code: 'CODE : YOHA50 📋',
     cta: 'J\'en profite 🚀',
     image: '/promos/promo_bienvenue_50mad.jpg',
-    filterId: 'offers',
+    filterId: null,
+    promoCode: 'YOHA50',
     textColor: 'text-white',
     subColor: 'text-rose-100 font-medium',
   },
@@ -1816,10 +1817,11 @@ const PROMO_BANNERS = [
     tagBg: 'bg-white text-emerald-700 font-black',
     title: '0 MAD DE FRAIS',
     subtitle: 'Dès 200 MAD de commande globale',
-    code: 'CODE : GROUPE0',
+    code: 'CODE : GROUPE0 📋',
     cta: 'Commander 👥',
     image: '/promos/promo_frais_offerts.jpg',
-    filterId: 'free_delivery',
+    filterId: null,
+    promoCode: 'GROUPE0',
     textColor: 'text-white',
     subColor: 'text-emerald-100 font-medium',
   },
@@ -1834,6 +1836,7 @@ const PROMO_BANNERS = [
     cta: 'Pâtisseries 🍰',
     image: '/promos/promo_envie_glacee.jpg',
     filterId: 'dessert',
+    promoCode: null,
     textColor: 'text-white',
     subColor: 'text-pink-100 font-medium',
   },
@@ -1848,6 +1851,7 @@ const PROMO_BANNERS = [
     cta: 'Profiter ⚡',
     image: '/promos/promo_livraison_express.jpg',
     filterId: 'fast',
+    promoCode: null,
     textColor: 'text-white',
     subColor: 'text-indigo-100 font-medium',
   },
@@ -1861,7 +1865,8 @@ const PROMO_BANNERS = [
     code: 'FIDÉLITÉ ⭐',
     cta: 'Voir mon solde →',
     image: '/promos/promo_recompense_fidelite.jpg',
-    filterId: 'top_rated',
+    filterId: null,
+    promoCode: null,
     textColor: 'text-white',
     subColor: 'text-amber-100 font-medium',
   },
@@ -1870,6 +1875,7 @@ const PROMO_BANNERS = [
 export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
   const trackRef = useRef(null);
   const [showFidelite, setShowFidelite] = useState(false);
+  const [copiedToast, setCopiedToast] = useState(null);
   const { user } = useAuth() || {};
   const { orders = [] } = useOrders() || {};
 
@@ -1887,8 +1893,28 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
     trackRef.current?.scrollBy({ left: 340, behavior: 'smooth' });
   };
 
+  const handleCardClick = (b) => {
+    if (b.promoCode) {
+      if (typeof navigator !== 'undefined') {
+        navigator.clipboard?.writeText(b.promoCode);
+      }
+      setCopiedToast(`Code ${b.promoCode} copié ! 📋`);
+      setTimeout(() => setCopiedToast(null), 2500);
+    }
+    if (b.filterId) {
+      onSelectFilter(b.filterId);
+    }
+  };
+
   return (
     <section className="relative px-4 sm:px-0">
+      {copiedToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-slate-900 text-white font-black text-xs shadow-2xl border border-emerald-400/30 flex items-center gap-2 animate-bounce">
+          <span>🎉</span>
+          <span>{copiedToast}</span>
+        </div>
+      )}
+
       <div
         ref={trackRef}
         className="flex gap-4 overflow-x-auto no-scrollbar pb-2 snap-x snap-mandatory scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0"
@@ -1896,7 +1922,7 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
         {PROMO_BANNERS.map((b) => (
           <div
             key={b.id}
-            onClick={() => onSelectFilter(b.filterId)}
+            onClick={() => handleCardClick(b)}
             className={`cursor-pointer shrink-0 w-[300px] sm:w-[380px] md:w-[420px] rounded-3xl p-4 sm:p-5 border shadow-card hover:shadow-cardhover hover:scale-[1.02] transition-all duration-300 relative overflow-hidden group snap-start bg-gradient-to-br ${b.bg}`}
           >
             <div className="absolute -right-8 -bottom-8 w-36 h-36 rounded-full bg-white/20 dark:bg-white/5 blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
