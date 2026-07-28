@@ -73,9 +73,11 @@ class AdminRestaurantCreateView(APIView):
             tags=data.get("tags") or [cuisine.capitalize()],
             description=data.get("description", ""),
             distance_label=data.get("distance_label", ""),
+            delivery_time=data.get("delivery_time", "30-45 min"),
             promo_label=data.get("promo_label", ""),
             fee_label=data.get("fee_label", "Livraison offerte"),
             phone=data.get("phone", ""),
+            rating=data.get("rating", "4.8"),
             owner=owner,
         )
         log_audit(

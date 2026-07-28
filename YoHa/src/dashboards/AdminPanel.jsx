@@ -605,6 +605,10 @@ export function AdminRestaurants() {
   const [ownerEmail, setOwnerEmail] = useState('');
   const [ownerPassword, setOwnerPassword] = useState('');
   const [ownerDisplayName, setOwnerDisplayName] = useState('');
+  const [distanceLabel, setDistanceLabel] = useState('');
+  const [deliveryTime, setDeliveryTime] = useState('30-45 min');
+  const [restoRating, setRestoRating] = useState('4.8');
+  const [selectedTags, setSelectedTags] = useState([]);
   const [error, setError] = useState('');
   const [adding, setAdding] = useState(false);
   const [editDist, setEditDist] = useState({});
@@ -661,7 +665,7 @@ export function AdminRestaurants() {
     if (!name.trim()) { setError('Nom requis'); return; }
     setAdding(true);
     try {
-      const body = { name: name.trim(), cuisine, description, phone };
+      const body = { name: name.trim(), cuisine, description, phone, distance_label: distanceLabel, delivery_time: deliveryTime, rating: restoRating, tags: selectedTags.length ? selectedTags : [cuisine.charAt(0).toUpperCase() + cuisine.slice(1)] };
       if (ownerEmail.trim()) {
         body.email = ownerEmail.trim();
         if (ownerPassword) body.password = ownerPassword;
@@ -675,6 +679,10 @@ export function AdminRestaurants() {
       setName('');
       setDescription('');
       setPhone('');
+      setDistanceLabel('');
+      setDeliveryTime('30-45 min');
+      setRestoRating('4.8');
+      setSelectedTags([]);
       setOwnerEmail('');
       setOwnerPassword('');
       setOwnerDisplayName('');
@@ -685,7 +693,7 @@ export function AdminRestaurants() {
     } finally {
       setAdding(false);
     }
-  }, [name, cuisine, description, phone, ownerEmail, ownerPassword, ownerDisplayName, refreshRestaurants]);
+  }, [name, cuisine, description, phone, distanceLabel, deliveryTime, restoRating, selectedTags, ownerEmail, ownerPassword, ownerDisplayName, refreshRestaurants]);
 
   const COMMISSION_RATE = 15;
 
@@ -729,6 +737,38 @@ export function AdminRestaurants() {
             <label className="block text-xs font-bold text-ink-500 mb-1.5">Téléphone</label>
             <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+212 5 39 12 34 56"
               className="w-full rounded-xl border border-ink-200/60 bg-white/80 px-3 py-2.5 text-sm outline-none backdrop-blur-sm transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 dark:border-ink-700/50 dark:bg-ink-900/80 dark:text-white" />
+          </div>
+          <div className="grid sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-ink-500 mb-1.5">Distance (km)</label>
+              <input value={distanceLabel} onChange={(e) => setDistanceLabel(e.target.value)} placeholder="3.2 km"
+                className="w-full rounded-xl border border-ink-200/60 bg-white/80 px-3 py-2.5 text-sm outline-none backdrop-blur-sm transition focus:border-brand-400 dark:border-ink-700/50 dark:bg-ink-900/80 dark:text-white" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-ink-500 mb-1.5">Délai livraison</label>
+              <input value={deliveryTime} onChange={(e) => setDeliveryTime(e.target.value)} placeholder="30-45 min"
+                className="w-full rounded-xl border border-ink-200/60 bg-white/80 px-3 py-2.5 text-sm outline-none backdrop-blur-sm transition focus:border-brand-400 dark:border-ink-700/50 dark:bg-ink-900/80 dark:text-white" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-ink-500 mb-1.5">Avis (⭐)</label>
+              <input value={restoRating} onChange={(e) => setRestoRating(e.target.value)} placeholder="4.8"
+                className="w-full rounded-xl border border-ink-200/60 bg-white/80 px-3 py-2.5 text-sm outline-none backdrop-blur-sm transition focus:border-brand-400 dark:border-ink-700/50 dark:bg-ink-900/80 dark:text-white" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <label className="block text-xs font-bold text-ink-500 mb-1.5">Catégories</label>
+            <div className="flex flex-wrap gap-1.5">
+              {CUISINE_CATEGORIES.map((cat) => {
+                const sel = selectedTags.includes(cat.id);
+                return (
+                  <button key={cat.id} type="button" onClick={() => setSelectedTags((prev) => sel ? prev.filter((t) => t !== cat.id) : [...prev, cat.id])}
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all ${sel ? 'bg-brand-500 text-white shadow-sm' : 'bg-ink-100/70 text-ink-600 hover:bg-ink-200/70 dark:bg-ink-800/40 dark:text-ink-300 dark:hover:bg-ink-700/50'}`}>
+                    <span className="text-xs leading-none">{cat.icon}</span>
+                    <span>{cat.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
           <div className="border-t border-ink-200/40 dark:border-ink-800/40 pt-4 mt-4">
             <SectionHeader title="Compte propriétaire" subtitle="Optionnel" icon="👤" />
@@ -1081,11 +1121,6 @@ export function AdminRevenue({ orders }) {
         subtitle={`Détail financier · ${filtered.length} commandes`}
         icon="💰"
         gradient="from-emerald-500 via-teal-500 to-cyan-500"
-        actions={
-          <ActionButton variant="secondary" icon={<I.Search size={14} />}>
-            Exporter CSV
-          </ActionButton>
-        }
       />
 
       <div className="flex justify-end">
