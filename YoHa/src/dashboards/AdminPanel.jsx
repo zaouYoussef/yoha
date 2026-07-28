@@ -314,55 +314,29 @@ export function AdminOverview({ orders, restaurantCount = 0 }) {
           <RecentOrdersTable orders={orders.slice(0, 6)} title="Dernières commandes" />
         </GlassCard>
 
-        <GlassCard className="p-5 overflow-hidden relative border-emerald-500/20" hover={false}>
-          <div className="absolute -bottom-10 -right-10 w-40 h-40 rounded-full bg-emerald-500/20 blur-3xl pointer-events-none" />
-          <div className="flex items-center justify-between">
-            <SectionHeader title="Objectif 10 000 MAD / Mois" icon="🎯" />
-            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-extrabold text-[10px] border border-emerald-500/20">
-              Marge Nette ~33 MAD/cmd
-            </span>
-          </div>
-
-          {/* Progress Bar Toward 10,000 MAD */}
-          <div className="mt-4">
-            <div className="flex justify-between items-baseline mb-1">
-              <span className="text-xs text-ink-500 font-medium">Bénéfice estimé (mois en cours)</span>
-              <span className="font-extrabold text-sm text-emerald-600 dark:text-emerald-400">
-                {Math.min(10000, Math.round(orders.length * 33.08 || 8930))} / 10 000 MAD
-              </span>
-            </div>
-            <div className="w-full bg-ink-100 dark:bg-ink-800 h-2.5 rounded-full overflow-hidden">
-              <div
-                className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-1000"
-                style={{ width: `${Math.min(100, Math.round(((orders.length * 33.08 || 8930) / 10000) * 100))}%` }}
-              />
-            </div>
-            <div className="mt-1 flex justify-between text-[10px] text-ink-400">
-              <span>{Math.round(((orders.length * 33.08 || 8930) / 10000) * 100)}% accompli</span>
-              <span>Livreur: 16 MAD/course</span>
-            </div>
-          </div>
-
-          <div className="relative mt-4 p-3 rounded-2xl bg-slate-50 dark:bg-ink-900/80 border border-ink-100 dark:border-ink-800">
-            <div className="text-[11px] font-bold text-ink-500 uppercase tracking-wider mb-2">Simulateur Rentabilité</div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="p-2 rounded-xl bg-white dark:bg-ink-900 shadow-sm border border-ink-100 dark:border-ink-800 text-center">
-                <div className="text-[10px] text-ink-400">7 cmd/jour</div>
-                <div className="font-black text-ink-900 dark:text-white mt-0.5">6 946 MAD/mois</div>
+        <GlassCard className="p-5 overflow-hidden relative" hover={false}>
+          <div className="absolute -bottom-10 -right-10 w-40 h-40 rounded-full bg-brand-500/40 blur-3xl pointer-events-none" />
+          <SectionHeader title="Bénéfice net cumulé" icon="💰" />
+          <div className="relative mt-3">
+            <div className="font-display font-black text-4xl text-gradient">{totalProf.toFixed(0)} MAD</div>
+            <div className="mt-4 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-ink-500">Bénéfice brut</span>
+                <b>{grossProf.toFixed(0)} MAD</b>
               </div>
-              <div className="p-2 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 shadow-sm border border-emerald-500/30 text-center">
-                <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">10 cmd/jour</div>
-                <div className="font-black text-emerald-600 dark:text-emerald-400 mt-0.5">10 000 MAD/mois 🎯</div>
+              <div className="border-t border-ink-200/40 dark:border-ink-700/40 pt-2 flex justify-between">
+                <span className="font-semibold">Net</span>
+                <b className="text-emerald-500">{totalProf.toFixed(0)} MAD</b>
               </div>
             </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-ink-200/40 dark:border-ink-700/40">
-            <div className="text-xs font-bold uppercase tracking-wider text-ink-500 dark:text-ink-400 mb-2.5">Top Établissements</div>
+          <div className="mt-5 pt-4 border-t border-ink-200/40 dark:border-ink-700/40">
+            <div className="text-xs font-bold uppercase tracking-wider text-ink-500 dark:text-ink-400 mb-3">Top restaurants</div>
             <div className="space-y-2">
-              {topRestaurants.slice(0, 3).map((r, i) => (
+              {topRestaurants.map((r, i) => (
                 <div key={r.name} className="flex items-center gap-2.5">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-pink-500 text-[10px] font-black text-white">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-pink-500 text-[10px] font-black text-white">
                     {i + 1}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -372,7 +346,7 @@ export function AdminOverview({ orders, restaurantCount = 0 }) {
                 </div>
               ))}
               {topRestaurants.length === 0 && (
-                <div className="text-xs text-ink-400 text-center py-2">Aucune donnée</div>
+                <div className="text-xs text-ink-400 text-center py-3">Aucune donnée</div>
               )}
             </div>
           </div>
