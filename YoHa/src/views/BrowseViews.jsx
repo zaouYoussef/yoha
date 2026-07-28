@@ -319,10 +319,25 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     if (filter === 'parapharmacy') return paraItems;
     if (filter === 'supermarket') return marketItems;
     if (filter === 'shop') return shopItems;
-    if (['pizza', 'tacos', 'kebab', 'healthy', 'burger', 'sushi', 'asian'].includes(filter)) {
-      return foodRestaurants.filter(r => r.cuisine === filter);
+    if (['pizza', 'tacos', 'kebab', 'healthy', 'burger', 'sushi', 'asian', 'sandwich', 'grillades', 'breakfast', 'snacks', 'moroccan', 'shawarma', 'bakery', 'chicken', 'italian', 'sweets'].includes(filter)) {
+      return foodRestaurants.filter(r =>
+        r.cuisine === filter ||
+        (Array.isArray(r.tags) && r.tags.some(t => {
+          const clean = t.toLowerCase().replace(/[^a-z0-9]/g, '');
+          return clean === filter || clean === filter.toLowerCase().replace(/[^a-z0-9]/g, '');
+        }))
+      );
     }
-    return foodRestaurants;
+    if (filter === 'dessert' || filter === 'patisserie') return dessertItems;
+    if (filter === 'pharmacy') return pharmacyItems;
+    if (filter === 'parapharmacy') return paraItems;
+    if (filter === 'supermarket') return marketItems;
+    if (filter === 'shop') return shopItems;
+    return foodRestaurants.filter(r =>
+      filter === 'all' ||
+      r.cuisine === filter ||
+      (Array.isArray(r.tags) && r.tags.some(t => t.toLowerCase() === filter.toLowerCase()))
+    );
   }, [filter, promoRestaurants, popularRestaurants, fastDelivery, topRatedList, favoritesList, burgerList, pizzaList, asianList, dessertItems, pharmacyItems, paraItems, marketItems, shopItems, foodRestaurants]);
 
   const isDefault = filter === 'all' && !search.trim();
@@ -1949,11 +1964,11 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
                     onClick={(e) => {
                       if (b.id === 'promo-6') {
                         e.stopPropagation();
-                        if (!user) return;
+                        if (!user) { setShowFidelite(true); return; }
                         setShowFidelite(true);
                       }
                     }}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white text-slate-950 font-black text-xs shadow-md group-hover:scale-105 transition-all ${b.id === 'promo-6' ? (user ? 'cursor-pointer hover:bg-amber-50' : 'opacity-50') : ''}`}>
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white text-slate-950 font-black text-xs shadow-md group-hover:scale-105 transition-all ${b.id === 'promo-6' ? 'cursor-pointer hover:bg-amber-50' : ''}`}>
                     <span>{b.cta}</span>
                   </span>
                 </div>
@@ -1990,7 +2005,13 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
               <h3 className="font-display font-black text-xl text-ink-900 dark:text-white">Solde Fidélité</h3>
 
               {!user ? (
-                <p className="text-sm text-ink-500">Connecte-toi pour voir tes récompenses fidélité.</p>
+                <div className="space-y-4">
+                  <p className="text-sm text-ink-500">Connecte-toi pour gagner des points fidélité et obtenir 50 MAD offerts après 6 commandes livrées !</p>
+                  <button onClick={() => { setShowFidelite(false); window.location.href = '/auth?type=login'; }}
+                    className="w-full py-3 rounded-xl bg-brand-500 text-white font-black text-sm hover:bg-brand-600 transition-colors">
+                    Se connecter
+                  </button>
+                </div>
               ) : (
                 <>
                   <div className="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-ink-800 dark:to-ink-800 p-5 space-y-3">
