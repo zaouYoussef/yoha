@@ -286,6 +286,11 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   const burgerList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'burger' || r.tags?.includes('Burgers') || r.name.toLowerCase().includes('burger')), [foodRestaurants]);
   const pizzaList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'pizza' || r.tags?.includes('Pizza') || r.name.toLowerCase().includes('pizza')), [foodRestaurants]);
   const asianList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'sushi' || r.cuisine === 'asian' || r.tags?.includes('Sushi') || r.name.toLowerCase().includes('sushi') || r.name.toLowerCase().includes('wok')), [foodRestaurants]);
+  const tacosList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'tacos' || r.tags?.includes('Tacos') || r.name.toLowerCase().includes('tacos') || r.name.toLowerCase().includes('wrap')), [foodRestaurants]);
+  const kebabList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'kebab' || r.tags?.includes('Kebab') || r.name.toLowerCase().includes('kebab') || r.name.toLowerCase().includes('shawarma') || r.name.toLowerCase().includes('mevlana') || r.name.toLowerCase().includes('bomo')), [foodRestaurants]);
+  const sandwichList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'sandwich' || r.tags?.includes('Sandwich') || r.name.toLowerCase().includes('snack') || r.name.toLowerCase().includes('roma') || r.name.toLowerCase().includes('subway')), [foodRestaurants]);
+  const healthyList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'healthy' || r.cuisine === 'medical' || r.tags?.includes('Healthy') || r.name.toLowerCase().includes('healthy') || r.name.toLowerCase().includes('bowl') || r.name.toLowerCase().includes('medeat')), [foodRestaurants]);
+  const chickenList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'chicken' || r.tags?.includes('Chicken') || r.name.toLowerCase().includes('chicken') || r.name.toLowerCase().includes('poulet')), [foodRestaurants]);
 
   const dessertItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'dessert' || s.cuisine === 'patisserie'), []);
   const pharmacyItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'pharmacy'), []);
@@ -303,6 +308,11 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     if (filter === 'burgers_sec') return burgerList.length ? burgerList : foodRestaurants.filter(r => r.cuisine === 'burger');
     if (filter === 'pizzas_sec') return pizzaList.length ? pizzaList : foodRestaurants.filter(r => r.cuisine === 'pizza');
     if (filter === 'asian_sec') return asianList.length ? asianList : foodRestaurants.filter(r => r.cuisine === 'sushi' || r.cuisine === 'asian');
+    if (filter === 'tacos_sec') return tacosList.length ? tacosList : foodRestaurants;
+    if (filter === 'kebab_sec') return kebabList.length ? kebabList : foodRestaurants;
+    if (filter === 'sandwich_sec') return sandwichList.length ? sandwichList : foodRestaurants;
+    if (filter === 'healthy_sec') return healthyList.length ? healthyList : foodRestaurants;
+    if (filter === 'chicken_sec') return chickenList.length ? chickenList : foodRestaurants;
     if (filter === 'dessert' || filter === 'patisserie') return dessertItems;
     if (filter === 'pharmacy') return pharmacyItems;
     if (filter === 'parapharmacy') return paraItems;
@@ -636,6 +646,76 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 >
                   {asianList.map((r) => (
                     <RestaurantCardHorizontal key={`asian-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                  ))}
+                </HorizontalRow>
+              )}
+
+              {/* 12. Shawarma & Kebab */}
+              {kebabList.length > 0 && (
+                <HorizontalRow
+                  title="🥙 Shawarma & Kebab"
+                  subtitle="Kebab grillé au feu de bois, shawarma libanais & sauces maison"
+                  count={kebabList.length}
+                  onSeeAll={() => setFilter('kebab_sec')}
+                >
+                  {kebabList.map((r) => (
+                    <RestaurantCardHorizontal key={`kebab-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                  ))}
+                </HorizontalRow>
+              )}
+
+              {/* 13. Tacos & Wraps */}
+              {tacosList.length > 0 && (
+                <HorizontalRow
+                  title="🌮 Tacos & Wraps"
+                  subtitle="French tacos généreux, gratinés au fromage & wraps gourmands"
+                  count={tacosList.length}
+                  onSeeAll={() => setFilter('tacos_sec')}
+                >
+                  {tacosList.map((r) => (
+                    <RestaurantCardHorizontal key={`tacos-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                  ))}
+                </HorizontalRow>
+              )}
+
+              {/* 14. Sandwichs & Snacks */}
+              {sandwichList.length > 0 && (
+                <HorizontalRow
+                  title="🥪 Sandwichs & Snacks"
+                  subtitle="Sandwichs chauds, paninis croustillants & snacks de quartier"
+                  count={sandwichList.length}
+                  onSeeAll={() => setFilter('sandwich_sec')}
+                >
+                  {sandwichList.map((r) => (
+                    <RestaurantCardHorizontal key={`snack-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                  ))}
+                </HorizontalRow>
+              )}
+
+              {/* 15. Bowls & Salades Healthy */}
+              {healthyList.length > 0 && (
+                <HorizontalRow
+                  title="🥗 Bowls & Salades Healthy"
+                  subtitle="Poke bowls frais, salades composées & menus hôpital MedEat"
+                  count={healthyList.length}
+                  onSeeAll={() => setFilter('healthy_sec')}
+                >
+                  {healthyList.map((r) => (
+                    <RestaurantCardHorizontal key={`healthy-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                  ))}
+                </HorizontalRow>
+              )}
+
+              {/* 16. Poulet Rôti & Crispy Chicken */}
+              {chickenList.length > 0 && (
+                <HorizontalRow
+                  title="🍗 Poulet Rôti & Crispy Chicken"
+                  subtitle="Poulet braisé, tenders croustillants & wings épicés"
+                  count={chickenList.length}
+                  onSeeAll={() => setFilter('chicken_sec')}
+                >
+                  {chickenList.map((r) => (
+                    <RestaurantCardHorizontal key={`chicken-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
                   ))}
                 </HorizontalRow>
               )}
