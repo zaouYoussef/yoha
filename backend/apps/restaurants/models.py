@@ -56,6 +56,7 @@ class Restaurant(models.Model):
         related_name="owned_restaurant",
     )
     is_active = models.BooleanField(default=True, db_index=True)
+    rating = models.CharField(max_length=10, blank=True, default="4.8")
     commission_rate = models.DecimalField(
         max_digits=5,
         decimal_places=4,

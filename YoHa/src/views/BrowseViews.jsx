@@ -1025,7 +1025,7 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
               <span className="text-amber-600 dark:text-amber-400 text-[11px]">20 MAD de livraison</span>
             ) : (
               <>
-                <span className="line-through text-rose-600 font-bold">% 2,99 MAD</span>
+                <span className="line-through text-rose-600 font-bold">% 19,99 MAD</span>
                 <span className="text-rose-600 dark:text-rose-400 font-bold">0,00 MAD de livraison</span>
               </>
             )}
@@ -1644,7 +1644,7 @@ export function RestaurantCard({ restaurant, onClick }) {
               <I.MapPin size={12} className="text-ink-400 sm:w-3.5 sm:h-3.5" /> {restaurant.distance}
             </div>
             <div className="flex items-center gap-1.5 text-xs font-semibold mt-1">
-              <span className="line-through text-ink-400 font-normal">2,99 MAD</span>
+              <span className="line-through text-ink-400 font-normal">19,99 MAD</span>
               <span className="font-bold text-emerald-600 dark:text-emerald-400">0,00 MAD de livraison</span>
             </div>
           </div>

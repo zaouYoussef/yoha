@@ -101,6 +101,7 @@ class RestaurantListSerializer(serializers.ModelSerializer):
             "isOpen",
             "openLabel",
             "ownerEmail",
+            "rating",
         )
 
     def get_isOpen(self, obj):
@@ -165,6 +166,7 @@ class RestaurantWriteSerializer(serializers.ModelSerializer):
             "phone",
             "opening_hours",
             "is_active",
+            "rating",
         )
 
 
