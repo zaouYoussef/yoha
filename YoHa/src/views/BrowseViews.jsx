@@ -1017,11 +1017,9 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
             <span className="px-2 py-0.5 rounded-lg bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/40 text-[11px] font-extrabold">
               1 plat acheté = 1 plat offert
             </span>
-            {promo && (
-              <span className="px-2 py-0.5 rounded-lg bg-ink-100 dark:bg-ink-800 text-ink-500 text-[10px] font-bold">
-                Sponsorisé
-              </span>
-            )}
+            <span className="px-2 py-0.5 rounded-lg bg-ink-100 dark:bg-ink-800 text-ink-500 dark:text-ink-400 text-[10px] font-bold">
+              Sponsorisé
+            </span>
           </div>
         </div>
       </div>
@@ -1611,8 +1609,11 @@ export function RestaurantCard({ restaurant, onClick }) {
             <h3 className="font-display font-extrabold text-sm sm:text-base md:text-lg truncate text-ink-900 dark:text-white group-hover:text-brand-500 transition-colors">
               {restaurant.name}
             </h3>
-            <div className="text-[10px] sm:text-xs text-ink-500 dark:text-ink-400 truncate mt-0.5">
-              {Array.isArray(restaurant.tags) ? restaurant.tags.join(' • ') : ''}
+            <div className="text-[10px] sm:text-xs text-ink-500 dark:text-ink-400 truncate mt-0.5 flex items-center gap-1.5">
+              <span>{Array.isArray(restaurant.tags) ? restaurant.tags.join(' • ') : ''}</span>
+              <span className="px-1.5 py-0.5 rounded bg-ink-100 dark:bg-ink-800 text-ink-500 text-[10px] font-bold shrink-0">
+                Sponsorisé
+              </span>
             </div>
           </div>
           <span className="shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs font-bold border border-emerald-500/10">
