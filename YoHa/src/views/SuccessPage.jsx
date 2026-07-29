@@ -473,19 +473,10 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 via-pink-500 to-emerald-500" />
           <OrderHeader orderId={orderId} order={order} status={status} />
           {status !== 'delivered' && (
-            <>
-              <ProgressBarSection
-                status={status} stepNum={stepNum} displayedProgressPct={displayedProgressPct}
-                gpsCalculated={gpsCalculated} destInfo={destInfo} courierName={order?.courierName}
-              />
-              <div className="px-3 sm:px-5">
-                <LiveMapTracker
-                  orderId={orderId}
-                  courierName={order?.courierName}
-                  address={order?.customerAddress || order?.address || order?.delivery_instructions}
-                />
-              </div>
-            </>
+            <ProgressBarSection
+              status={status} stepNum={stepNum} displayedProgressPct={displayedProgressPct}
+              gpsCalculated={gpsCalculated} destInfo={destInfo} courierName={order?.courierName}
+            />
           )}
           <div className="px-2 sm:px-5 py-3">
             <OrderTrackingTimeline status={status} />
