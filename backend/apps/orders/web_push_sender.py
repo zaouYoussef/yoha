@@ -48,6 +48,7 @@ def _send_web_push(sub, payload: str, vapid_private: str, vapid_claims_email: st
             data=payload,
             vapid_private_key=vapid_private,
             vapid_claims={"sub": f"mailto:{vapid_claims_email}"},
+            headers={"Urgency": "high"},
             ttl=86400,
         )
         return True

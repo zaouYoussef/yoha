@@ -140,7 +140,8 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
                   <button
                     type="button"
                     onClick={() => setQty(item.id, quantity - 1)}
-                    className="cursor-grow w-9 h-9 rounded-lg bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 text-ink-600 dark:text-ink-400 font-black text-base grid place-items-center active:scale-95 shadow-sm transition-transform"
+                    className="cursor-grow w-10 h-10 rounded-lg bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 text-ink-600 dark:text-ink-400 font-black text-base grid place-items-center active:scale-95 shadow-sm transition-transform"
+                    aria-label="Moins"
                   >
                     -
                   </button>
@@ -150,7 +151,8 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
                   <button
                     type="button"
                     onClick={() => setQty(item.id, quantity + 1)}
-                    className="cursor-grow w-9 h-9 rounded-lg bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 text-ink-600 dark:text-ink-400 font-black text-base grid place-items-center active:scale-95 shadow-sm transition-transform"
+                    className="cursor-grow w-10 h-10 rounded-lg bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 text-ink-600 dark:text-ink-400 font-black text-base grid place-items-center active:scale-95 shadow-sm transition-transform"
+                    aria-label="Plus"
                   >
                     +
                   </button>

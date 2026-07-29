@@ -286,17 +286,17 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
         </button>
 
         {/* Deliveroo-Style Step Indicator */}
-        <div className="flex items-center gap-2 self-start sm:self-auto text-xs font-bold bg-slate-100 dark:bg-ink-900 px-3.5 py-1.5 rounded-full border border-ink-100 dark:border-ink-800">
-          <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 self-start sm:self-auto text-[11px] sm:text-xs font-bold bg-slate-100 dark:bg-ink-900 px-3 sm:px-3.5 py-1.5 rounded-full border border-ink-100 dark:border-ink-800 max-w-full overflow-x-auto no-scrollbar">
+          <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1 shrink-0">
             <span>✓</span> Panier
           </span>
-          <span className="text-ink-400">➔</span>
-          <span className="text-brand-600 dark:text-brand-400 font-extrabold flex items-center gap-1">
+          <span className="text-ink-400 shrink-0">➔</span>
+          <span className="text-brand-600 dark:text-brand-400 font-extrabold flex items-center gap-1 shrink-0">
             <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
             Validation
           </span>
-          <span className="text-ink-400">➔</span>
-          <span className="text-ink-400">Confirmation</span>
+          <span className="text-ink-400 shrink-0">➔</span>
+          <span className="text-ink-400 shrink-0">Confirmation</span>
         </div>
       </div>
 
