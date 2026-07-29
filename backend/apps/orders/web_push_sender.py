@@ -72,9 +72,7 @@ def send_courier_web_push(*, title: str, body: str, data: dict | None = None) ->
 
     Retourne le nombre de pushes envoyes avec succes.
     """
-    from pywebpush import WebPusher, WebPushException
-
-    vapid_private = getattr(settings, "VAPID_PRIVATE_KEY", "")
+    vapid_private = _get_vapid_private_key()
     vapid_claims_email = getattr(settings, "VAPID_CLAIMS_EMAIL", "no-reply@yoha.ma")
 
     if not vapid_private:
@@ -100,32 +98,8 @@ def send_courier_web_push(*, title: str, body: str, data: dict | None = None) ->
 
     success = 0
     for sub in subs:
-        try:
-            WebPusher({
-                "endpoint": sub.endpoint,
-                "keys": {
-                    "p256dh": sub.p256dh_key,
-                    "auth": sub.auth_key,
-                },
-            }).send(
-                data=payload,
-                vapid_private_key=vapid_private,
-                vapid_claims={"sub": f"mailto:{vapid_claims_email}"},
-                ttl=86400,
-            )
+        if _send_web_push(sub, payload, vapid_private, vapid_claims_email):
             success += 1
-        except WebPushException as exc:
-            if exc.response and exc.response.status_code in (410, 404):
-                logger.info("web_push_expired user=%s endpoint=%.48s", sub.user_id, sub.endpoint)
-                sub.delete()
-            else:
-                logger.warning(
-                    "web_push_fail user=%s status=%s",
-                    sub.user_id,
-                    exc.response.status_code if exc.response else "?",
-                )
-        except Exception:
-            logger.exception("web_push_error user=%s", sub.user_id)
 
     logger.info("web_push_sent success=%s total=%s", success, len(subs))
     return success
@@ -154,7 +128,7 @@ def send_restaurant_new_order_web_push(order) -> int:
         "url": "/restaurant-dash",
     }
 
-    vapid_private = getattr(settings, "VAPID_PRIVATE_KEY", "")
+    vapid_private = _get_vapid_private_key()
     vapid_claims_email = getattr(settings, "VAPID_CLAIMS_EMAIL", "no-reply@yoha.ma")
     if not vapid_private:
         return 0
@@ -176,33 +150,10 @@ def send_restaurant_new_order_web_push(order) -> int:
     if not subs:
         return 0
 
-    from pywebpush import WebPusher, WebPushException
-
     success = 0
     for sub in subs:
-        try:
-            WebPusher({
-                "endpoint": sub.endpoint,
-                "keys": {
-                    "p256dh": sub.p256dh_key,
-                    "auth": sub.auth_key,
-                },
-            }).send(
-                data=payload,
-                vapid_private_key=vapid_private,
-                vapid_claims={"sub": f"mailto:{vapid_claims_email}"},
-                ttl=86400,
-            )
+        if _send_web_push(sub, payload, vapid_private, vapid_claims_email):
             success += 1
-        except WebPushException as exc:
-            if exc.response and exc.response.status_code in (410, 404):
-                logger.info("web_push_restaurant_expired user=%s", sub.user_id)
-                sub.delete()
-            else:
-                logger.warning("web_push_restaurant_fail user=%s status=%s", sub.user_id,
-                               exc.response.status_code if exc.response else "?")
-        except Exception:
-            logger.exception("web_push_restaurant_error user=%s", sub.user_id)
 
     logger.info("web_push_restaurant_sent order=%s success=%s", order.public_id, success)
     return success
