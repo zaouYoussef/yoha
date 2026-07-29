@@ -416,6 +416,7 @@ export function DeliveryAvailable({ courier }) {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'triangle';
@@ -432,13 +433,15 @@ export function DeliveryAvailable({ courier }) {
 
   const requestNotif = async () => {
     if (typeof window === 'undefined') return;
+    // AudioContext doit être créé SYNC dans le clic (user gesture) sur iOS
+    playProBeep();
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent || '');
     const isStandalone = window.navigator?.standalone === true;
     if (!('Notification' in window) || typeof Notification.requestPermission !== 'function') {
       if (isIOS && !isStandalone) {
-        alert('Sur iPhone, utilisez Safari et ajoutez YoHa à l\'écran d\'accueil (Partager → Sur l\'écran d\'accueil). Ouvrez-le depuis l\'écran d\'accueil pour activer les notifications. Les alertes sonores restent actives.');
+        alert('Sur iPhone, utilisez Safari et ajoutez YoHa à l\'écran d\'accueil (Partager → Sur l\'écran d\'accueil). Ouvrez-le depuis l\'écran d\'accueil pour activer les notifications.');
       } else if (isIOS) {
-        alert('Les notifications push nécessitent iOS 16.4+ et l\'ouverture depuis l\'écran d\'accueil avec Safari. Les alertes sonores fonctionnent déjà.');
+        alert('Les notifications push nécessitent iOS 16.4+ et l\'ouverture depuis l\'écran d\'accueil avec Safari.');
       } else {
         alert('Les notifications ne sont pas supportées sur ce navigateur.');
       }
@@ -448,20 +451,18 @@ export function DeliveryAvailable({ courier }) {
       const res = await Notification.requestPermission();
       if (res === 'granted') {
         setNotifGranted(true);
-        playProBeep();
         try {
-          new Notification('🔔 Notifications YoHa activées !', {
-            body: 'Les alertes sonores et notifications sont actives.',
+          new Notification('YoHa', {
+            body: 'Notifications activées !',
             icon: '/icon.png',
           });
         } catch {}
       } else if (res === 'denied') {
-        alert('Notifications bloquées. Activez-les dans les paramètres de votre navigateur (Réglages → Safari → Notifications).');
+        alert('Notifications bloquées. Activez-les dans les réglages de votre iPhone.');
       }
     } catch (e) {
-      playProBeep();
       if (isIOS) {
-        alert('Les alertes sonores sont activées. Pour les notifications push, utilisez Safari depuis l\'écran d\'accueil (iOS 16.4+).');
+        alert('Bip activé. Pour les notifications, utilisez Safari depuis l\'écran d\'accueil (iOS 16.4+).');
       } else {
         alert('Impossible d\'activer les notifications : ' + (e.message || ''));
       }

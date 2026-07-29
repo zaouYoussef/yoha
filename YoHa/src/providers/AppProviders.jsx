@@ -136,7 +136,8 @@ function getAudioContext() {
 function playProBeep() {
   try {
     const ctx = getAudioContext();
-    if (!ctx || ctx.state !== 'running') return;
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'triangle';
