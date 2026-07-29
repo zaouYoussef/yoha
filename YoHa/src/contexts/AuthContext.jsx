@@ -45,6 +45,10 @@ export function AuthProvider({ children }) {
     let cancelled = false;
     (async () => {
       if (!getTokens()) {
+        try {
+          const demoRaw = typeof window !== 'undefined' ? localStorage.getItem('yoha_demo_user') : null;
+          if (demoRaw && !cancelled) setUser(JSON.parse(demoRaw));
+        } catch {}
         if (!cancelled) setBooting(false);
         return;
       }
@@ -53,6 +57,10 @@ export function AuthProvider({ children }) {
         if (!cancelled) setUser(me);
       } catch {
         clearTokens();
+        try {
+          const demoRaw = typeof window !== 'undefined' ? localStorage.getItem('yoha_demo_user') : null;
+          if (demoRaw && !cancelled) setUser(JSON.parse(demoRaw));
+        } catch {}
       } finally {
         if (!cancelled) setBooting(false);
       }
