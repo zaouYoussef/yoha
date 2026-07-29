@@ -468,9 +468,9 @@ export function AdminOrderGpsCell({ order }) {
     };
   }, [order?.id, order?.courierId]);
 
-  // Fetch GPS from backend API (cross-device)
+  // Fetch GPS from backend API (cross-device) — only when a courier is assigned
   useEffect(() => {
-    if (!order?.id) return;
+    if (!order?.id || !order?.courierName) return;
     const fetchRemote = () => {
       ordersApi.getLocation(order.id).then((data) => {
         if (data?.latitude != null) setRemoteGps(data);
@@ -479,7 +479,7 @@ export function AdminOrderGpsCell({ order }) {
     fetchRemote();
     const interval = setInterval(fetchRemote, 4000);
     return () => clearInterval(interval);
-  }, [order?.id]);
+  }, [order?.id, order?.courierName]);
 
   if (!order || order.status === 'delivered' || order.status === 'cancelled') {
     return <span className="text-ink-400 text-xs">—</span>;
