@@ -1121,42 +1121,87 @@ export function AdminCourierLiveGpsBadge({ courier, orders: propOrders }) {
   const { orders: contextOrders = [] } = useOrders();
   const orders = propOrders || contextOrders || [];
   const [gpsData, setGpsData] = useState(null);
+  const [remoteGps, setRemoteGps] = useState(null);
+
+  const courierName = (courier?.name || courier?.username || '').toLowerCase();
+  const courierId = String(courier?.id || '');
+
+  const activeOrder = useMemo(() => {
+    return (orders || []).find((o) => {
+      if (o.status === 'delivered' || o.status === 'cancelled') return false;
+      const cId = String(o.courierId || '');
+      const cName = (o.courierName || '').toLowerCase();
+      return (
+        (cId && cId === courierId) ||
+        (cName && courierName && (cName === courierName || courierName.includes(cName) || cName.includes(courierName)))
+      );
+    });
+  }, [orders, courierId, courierName]);
 
   useEffect(() => {
-    const courierOrders = (orders || []).filter((o) => String(o.courierId) === String(courier?.id) && o.status !== 'delivered');
-    const activeOrderId = courierOrders[0]?.id || 'active_courier';
-
     const checkGps = () => {
+      const activeOrderId = activeOrder?.id || 'active_courier';
       let data = getCourierGps(activeOrderId);
-      if (!data && courier?.id) data = getCourierGps(courier.id);
+      if (!data && courierId) data = getCourierGps(courierId);
+      if (!data && courierName) data = getCourierGps(courierName);
       if (!data) data = getCourierGps('active_courier');
       setGpsData(data);
     };
 
     checkGps();
-    const interval = setInterval(checkGps, 4000);
+    const interval = setInterval(checkGps, 3000);
     window.addEventListener('yoha_courier_gps_updated', checkGps);
     return () => {
       clearInterval(interval);
       window.removeEventListener('yoha_courier_gps_updated', checkGps);
     };
-  }, [courier?.id, orders]);
+  }, [activeOrder?.id, courierId, courierName]);
 
-  if (gpsData && gpsData.active) {
-    const mapsUrl = `https://www.google.com/maps?q=${gpsData.lat},${gpsData.lng}`;
+  // Cross-device backend GPS polling for active order
+  useEffect(() => {
+    if (!activeOrder?.id) return;
+    const fetchRemote = () => {
+      ordersApi.getLocation(activeOrder.id).then((data) => {
+        if (data?.latitude != null) setRemoteGps(data);
+      }).catch(() => {});
+    };
+    fetchRemote();
+    const interval = setInterval(fetchRemote, 4000);
+    return () => clearInterval(interval);
+  }, [activeOrder?.id]);
+
+  const activeLat = remoteGps?.latitude || gpsData?.lat || (activeOrder ? 35.68500 : null);
+  const activeLng = remoteGps?.longitude || gpsData?.lng || (activeOrder ? -5.92300 : null);
+  const isLive = Boolean((remoteGps && remoteGps.latitude != null) || (gpsData && gpsData.active));
+
+  if (activeLat != null && activeLng != null) {
+    const mapsUrl = `https://www.google.com/maps?q=${activeLat},${activeLng}`;
     return (
-      <div className="mt-3 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs">
+      <div className={`mt-3 p-2.5 rounded-xl border flex items-center justify-between text-xs ${
+        isLive
+          ? 'bg-emerald-500/10 border-emerald-500/20'
+          : 'bg-amber-500/15 border-amber-500/30'
+      }`}>
         <div className="flex items-center gap-2 min-w-0">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
-          <span className="font-bold text-emerald-700 dark:text-emerald-300 truncate">
-            GPS Live: {gpsData.lat.toFixed(4)}, {gpsData.lng.toFixed(4)}
-          </span>
+          <span className={`w-2 h-2 rounded-full shrink-0 ${isLive ? 'bg-emerald-500 animate-ping' : 'bg-amber-500'}`} />
+          <div className="min-w-0 text-left">
+            <span className={`font-extrabold block truncate ${isLive ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-800 dark:text-amber-300'}`}>
+              {isLive ? '📡 GPS Live' : '📍 Pos. estimée'} : {activeLat.toFixed(4)}, {activeLng.toFixed(4)}
+            </span>
+            {activeOrder && (
+              <span className="text-[10px] text-ink-500 dark:text-ink-400 block truncate font-medium">
+                Cmd #{activeOrder.id} ({activeOrder.restaurantName || 'En cours'})
+              </span>
+            )}
+          </div>
         </div>
         <a
           href={mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-extrabold text-[10px] hover:bg-emerald-700 transition shrink-0 ml-1"
+          className={`px-2.5 py-1 rounded-lg text-white font-extrabold text-[10px] transition shrink-0 ml-1.5 ${
+            isLive ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-amber-600 hover:bg-amber-700'
+          }`}
         >
           Carte 📍
         </a>
