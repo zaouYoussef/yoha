@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useEffect, useRef } from 'react';
+import React, { useMemo, useEffect, useRef, useState, useCallback } from 'react';
 import { I } from '../icons/Icons.jsx';
 import { ORDER_STATES, ORDER_STATUS_TOASTS } from '../data/orderConstants.js';
 import { useOrders } from '../contexts/AppContexts.jsx';
@@ -8,6 +8,25 @@ import { useToast } from '../contexts/AppContexts.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { OrderTrackingTimeline, OrderStatusBadge } from '../components/ui/OrderStep.jsx';
 import { formatMad } from '../data/index.js';
+
+import { OrderRatingCard } from '../components/ui/OrderRatingCard.jsx';
+
+function useNotificationPermission() {
+  const [permitted, setPermitted] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+    if (Notification.permission === 'granted') setPermitted(true);
+  }, []);
+  const request = useCallback(async () => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return false;
+    if (Notification.permission === 'granted') { setPermitted(true); return true; }
+    if (Notification.permission === 'denied') return false;
+    const res = await Notification.requestPermission();
+    if (res === 'granted') setPermitted(true);
+    return res === 'granted';
+  }, []);
+  return { permitted, request };
+}
 
 const HERO = {
   placed:           { title: 'Commande confirmée !', emoji: '🎉', gradient: 'from-amber-400 to-orange-500' },
@@ -26,6 +45,39 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   const st = ORDER_STATES[status] || ORDER_STATES.placed;
   const stepNum = st.step;
   const prevStatusRef = useRef(undefined);
+  const [nowMs, setNowMs] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNowMs(Date.now()), 10000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const liveEtaWindow = useMemo(() => {
+    if (status === 'delivered') return null;
+    const baseTime = order?.createdAt ? new Date(order.createdAt).getTime() : Date.now();
+
+    // Plage initiale : +20 min à +35 min
+    let startMs = baseTime + 20 * 60 * 1000;
+    let endMs = baseTime + 35 * 60 * 1000;
+
+    // Si la commande n'est pas encore livrée et qu'on s'approche de la fin de plage, décalage automatique +10 min
+    while (nowMs > endMs - 3 * 60 * 1000 && status !== 'delivered') {
+      startMs += 10 * 60 * 1000;
+      endMs += 10 * 60 * 1000;
+    }
+
+    const fmt = (ms) => {
+      const d = new Date(ms);
+      const h = String(d.getHours()).padStart(2, '0');
+      const m = String(d.getMinutes()).padStart(2, '0');
+      return `${h}:${m}`;
+    };
+
+    return {
+      start: fmt(startMs),
+      end: fmt(endMs),
+    };
+  }, [order?.createdAt, status, nowMs]);
 
   const restoInfo = useMemo(() => {
     if (!order) return null;
@@ -60,9 +112,27 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
 
   const itemCount = order?.items?.reduce((s, i) => s + i.qty, 0) ?? 0;
 
+  const { permitted: notifPermitted, request: requestNotif } = useNotificationPermission();
+
   return (
     <div className="page-enter relative max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-12">
       <Confetti active={status !== 'delivered'} />
+
+      {/* Notification opt-in */}
+      {!notifPermitted && (
+        <div className="mb-4 flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/50">
+          <span className="text-lg">🔔</span>
+          <p className="text-xs font-semibold text-sky-800 dark:text-sky-200 flex-1">
+            Activez les notifications pour suivre votre commande en temps réel.
+          </p>
+          <button
+            onClick={requestNotif}
+            className="shrink-0 text-[11px] font-black uppercase tracking-wider px-3 py-1.5 rounded-xl bg-sky-600 text-white hover:bg-sky-700 transition-colors"
+          >
+            Activer
+          </button>
+        </div>
+      )}
 
       {/* Hero Header */}
       <div className="text-center space-y-4">
@@ -91,6 +161,26 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
             {st.clientMsg}
           </p>
         </div>
+
+        {/* Dynamic Delivery Window Banner */}
+        {liveEtaWindow && status !== 'delivered' && (
+          <div className="mx-auto max-w-md mt-3 p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-brand-500/10 to-pink-500/10 border border-brand-500/30 flex items-center justify-between gap-3 text-left shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-brand-500 text-white grid place-items-center font-extrabold text-lg shrink-0 shadow-md animate-pulse">
+              ⏰
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-black uppercase tracking-wider text-brand-600 dark:text-brand-400">
+                Créneau de livraison estimé
+              </div>
+              <div className="font-display font-black text-base sm:text-lg text-ink-900 dark:text-white truncate">
+                Entre {liveEtaWindow.start} et {liveEtaWindow.end}
+              </div>
+            </div>
+            <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shrink-0">
+              En direct 🟢
+            </span>
+          </div>
+        )}
 
         {etaText && (
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-brand-500/10 via-amber-500/10 to-brand-500/10 border border-brand-500/30 text-brand-700 dark:text-brand-300 text-xs sm:text-sm font-extrabold shadow-xs">
@@ -185,6 +275,9 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
           </div>
         )}
       </div>
+
+      {/* Rating & Review Section */}
+      {order && <OrderRatingCard order={order} />}
 
       {/* Buttons */}
       <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">

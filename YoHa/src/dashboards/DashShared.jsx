@@ -16,6 +16,7 @@ const DASH_LINKS = {
     { id: 'couriers', label: 'Livreurs', icon: <I.Bike size={18} /> },
     { id: 'revenue', label: 'Revenus', icon: <I.Star size={18} /> },
     { id: 'promos', label: 'Promos', icon: <I.Zap size={18} /> },
+    { id: 'reviews', label: 'Avis & Notes', icon: <I.Star size={18} /> },
   ],
   delivery: [
     { id: 'available', label: 'Disponibles', icon: <I.Bell size={18} />, badge: true },

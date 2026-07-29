@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { I } from '../icons/Icons.jsx';
+import { getStoredReviews, deleteReview } from '../utils/reviews.js';
 import {
   ORDER_STATES,
   bucketRevenueLast7Days,
@@ -121,6 +122,7 @@ export function AdminDashboard({ goto, dark, setDark }) {
     couriers: 'Livreurs',
     revenue: 'Revenus & Bénéfices',
     promos: 'Codes promo',
+    reviews: 'Avis & Notes clients',
   };
 
   return (
@@ -132,6 +134,7 @@ export function AdminDashboard({ goto, dark, setDark }) {
       {current === 'couriers' && <AdminCouriers />}
       {current === 'revenue' && <AdminRevenue orders={orders} />}
       {current === 'promos' && <AdminPromos />}
+      {current === 'reviews' && <AdminReviews />}
     </DashLayout>
   );
 }
@@ -1642,6 +1645,227 @@ export function AdminPromos() {
               description="Créez votre premier code promo pour attirer des clients"
             />
           )
+        )}
+      </GlassCard>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REVIEWS & RATINGS (AVIS CLIENTS)
+   ═══════════════════════════════════════════════════════════════ */
+export function AdminReviews() {
+  const [reviews, setReviews] = useState([]);
+  const [search, setSearch] = useState('');
+  const [filterRating, setFilterRating] = useState('all');
+  const { push: pushToast } = useToast();
+
+  const loadReviews = useCallback(() => {
+    setReviews(getStoredReviews());
+  }, []);
+
+  useEffect(() => {
+    loadReviews();
+    window.addEventListener('yoha_reviews_updated', loadReviews);
+    return () => window.removeEventListener('yoha_reviews_updated', loadReviews);
+  }, [loadReviews]);
+
+  const handleDelete = (id) => {
+    if (confirm('Voulez-vous supprimer cet avis ?')) {
+      const updated = deleteReview(id);
+      if (updated) setReviews(updated);
+      pushToast({ title: 'Avis supprimé', type: 'info' });
+    }
+  };
+
+  const filtered = useMemo(() => {
+    return reviews.filter((r) => {
+      const matchSearch =
+        !search.trim() ||
+        (r.customerName || '').toLowerCase().includes(search.toLowerCase()) ||
+        (r.restaurantName || '').toLowerCase().includes(search.toLowerCase()) ||
+        (r.courierName || '').toLowerCase().includes(search.toLowerCase()) ||
+        (r.orderId || '').toLowerCase().includes(search.toLowerCase()) ||
+        (r.comment || '').toLowerCase().includes(search.toLowerCase());
+
+      const matchRating = filterRating === 'all' || String(r.rating) === String(filterRating);
+
+      return matchSearch && matchRating;
+    });
+  }, [reviews, search, filterRating]);
+
+  const avgRating = useMemo(() => {
+    if (!reviews.length) return '0.0';
+    const sum = reviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0);
+    return (sum / reviews.length).toFixed(1);
+  }, [reviews]);
+
+  const ratingCounts = useMemo(() => {
+    const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    reviews.forEach((r) => {
+      if (counts[r.rating] !== undefined) counts[r.rating]++;
+    });
+    return counts;
+  }, [reviews]);
+
+  return (
+    <div className="space-y-6 animate-fade-up">
+      {/* Header Banner */}
+      <GradientHeader
+        icon={<I.Star size={24} />}
+        title="Avis & Évaluations Clients"
+        subtitle="Retrouvez toutes les notes et remarques des clients avec le détail des livreurs et des restaurants."
+      />
+
+      {/* Overview Rating Stats */}
+      <div className="grid sm:grid-cols-3 gap-4">
+        <GlassCard className="p-5 flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center font-display font-black text-2xl shrink-0 shadow-sm">
+            ★
+          </div>
+          <div>
+            <div className="text-xs font-bold text-ink-500 uppercase tracking-wider">Note moyenne globale</div>
+            <div className="font-display font-black text-3xl text-ink-900 dark:text-white mt-0.5">
+              {avgRating} <span className="text-sm font-bold text-ink-400">/ 5.0</span>
+            </div>
+            <div className="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-0.5">
+              Basé sur {reviews.length} avis client{reviews.length > 1 ? 's' : ''}
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* Rating Breakdown Bar */}
+        <GlassCard className="p-5 sm:col-span-2 space-y-1.5 justify-center flex flex-col">
+          {[5, 4, 3, 2, 1].map((num) => {
+            const cnt = ratingCounts[num] || 0;
+            const pct = reviews.length ? Math.round((cnt / reviews.length) * 100) : 0;
+            return (
+              <div key={num} className="flex items-center gap-3 text-xs font-semibold">
+                <span className="w-8 shrink-0 flex items-center gap-0.5 text-amber-500 font-bold">
+                  {num} ★
+                </span>
+                <div className="flex-1 h-2 rounded-full bg-slate-100 dark:bg-ink-800 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-500"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                <span className="w-14 text-right text-ink-400 shrink-0">{cnt} ({pct}%)</span>
+              </div>
+            );
+          })}
+        </GlassCard>
+      </div>
+
+      {/* Filter & Search Bar */}
+      <GlassCard className="p-4 sm:p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="flex-1 max-w-md">
+            <SearchBar
+              value={search}
+              onChange={setSearch}
+              placeholder="Rechercher un livreur, un restau, un client ou une remarque..."
+            />
+          </div>
+
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+            <span className="text-xs font-bold text-ink-400 mr-1 shrink-0">Filtrer par note :</span>
+            {['all', '5', '4', '3', '2', '1'].map((val) => (
+              <button
+                key={val}
+                onClick={() => setFilterRating(val)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+                  filterRating === val
+                    ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20'
+                    : 'bg-slate-100 dark:bg-ink-800 text-ink-600 dark:text-ink-300 hover:bg-slate-200 dark:hover:bg-ink-700'
+                }`}
+              >
+                {val === 'all' ? 'Tous' : `${val} ★`}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Reviews Cards List */}
+        {filtered.length > 0 ? (
+          <div className="grid md:grid-cols-2 gap-4 pt-2">
+            {filtered.map((rev) => (
+              <div
+                key={rev.id}
+                className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/70 dark:border-ink-800 shadow-sm hover:shadow-md transition-shadow relative space-y-3"
+              >
+                {/* Header: Stars + Order ID + Date */}
+                <div className="flex items-start justify-between gap-2 border-b border-ink-100 dark:border-ink-800 pb-3">
+                  <div>
+                    <div className="flex items-center gap-1 text-amber-400 text-base">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <span key={s}>{s <= rev.rating ? '★' : '☆'}</span>
+                      ))}
+                      <span className="ml-1 text-xs font-black text-ink-900 dark:text-white">
+                        {rev.rating}/5
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-ink-400 font-semibold mt-0.5 block">
+                      {new Date(rev.createdAt).toLocaleDateString('fr-FR', {
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 font-mono text-xs font-bold border border-brand-500/20">
+                      #{rev.orderId}
+                    </span>
+                    <button
+                      onClick={() => handleDelete(rev.id)}
+                      className="cursor-grow h-8 w-8 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 dark:bg-red-950/40 transition-colors flex items-center justify-center"
+                      title="Supprimer l'avis"
+                    >
+                      <I.Trash size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Customer Remark Comment */}
+                <p className="text-sm text-ink-800 dark:text-ink-100 font-medium leading-relaxed italic bg-slate-50 dark:bg-ink-950 p-3 rounded-xl border border-ink-100 dark:border-ink-800/60">
+                  &ldquo;{rev.comment}&rdquo;
+                </p>
+
+                {/* Detailed Breakdown: Customer, Restaurant, Courier */}
+                <div className="grid grid-cols-3 gap-2 pt-1 text-xs">
+                  <div className="p-2 rounded-xl bg-slate-100/70 dark:bg-ink-800/40">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400 block">👤 Client</span>
+                    <span className="font-bold text-ink-900 dark:text-white truncate block mt-0.5">
+                      {rev.customerName || 'Client'}
+                    </span>
+                  </div>
+
+                  <div className="p-2 rounded-xl bg-amber-500/10 dark:bg-amber-500/5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 block">🍽️ Restau</span>
+                    <span className="font-bold text-ink-900 dark:text-white truncate block mt-0.5">
+                      {rev.restaurantName || 'Restaurant'}
+                    </span>
+                  </div>
+
+                  <div className="p-2 rounded-xl bg-sky-500/10 dark:bg-sky-500/5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-sky-700 dark:text-sky-400 block">🛵 Livreur</span>
+                    <span className="font-bold text-ink-900 dark:text-white truncate block mt-0.5">
+                      {rev.courierName || 'Livreur'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon="⭐"
+            title="Aucun avis trouvé"
+            description="Aucun avis client ne correspond à votre filtre actuel"
+          />
         )}
       </GlassCard>
     </div>
