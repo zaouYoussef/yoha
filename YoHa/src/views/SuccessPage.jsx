@@ -47,6 +47,19 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   const prevStatusRef = useRef(undefined);
   const [nowMs, setNowMs] = useState(Date.now());
   const [courierGps, setCourierGps] = useState(null);
+  const [smoothOffset, setSmoothOffset] = useState(0);
+
+  useEffect(() => {
+    if (status === 'delivered') {
+      setSmoothOffset(0);
+      return;
+    }
+    // Avancement fluide continu (+0.15% toutes les 2 secondes) pour rassurer le client
+    const timer = setInterval(() => {
+      setSmoothOffset((prev) => (prev < 4.5 ? prev + 0.15 : prev));
+    }, 2000);
+    return () => clearInterval(timer);
+  }, [status, stepNum]);
 
   const syncGps = useCallback(() => {
     if (!orderId) return;
@@ -88,10 +101,14 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   const smartProgressPct = useMemo(() => {
     if (status === 'delivered') return 100;
     if (gpsCalculated) return gpsCalculated.pct;
-    // Mode Estimation automatique sans GPS
     const basePct = (stepNum / 4) * 100;
     return Math.min(95, Math.max(15, basePct));
   }, [status, gpsCalculated, stepNum]);
+
+  const displayedProgressPct = useMemo(() => {
+    if (status === 'delivered') return 100;
+    return Math.min(98, Math.round(smartProgressPct + smoothOffset));
+  }, [status, smartProgressPct, smoothOffset]);
 
   const liveEtaWindow = useMemo(() => {
     if (status === 'delivered') return null;
@@ -231,13 +248,6 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
             </span>
           </div>
         )}
-
-        {etaText && (
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-brand-500/10 via-amber-500/10 to-brand-500/10 border border-brand-500/30 text-brand-700 dark:text-brand-300 text-xs sm:text-sm font-extrabold shadow-xs">
-            <span>⚡</span>
-            <span>{etaText}</span>
-          </div>
-        )}
       </div>
 
       {/* Main Order Card */}
@@ -267,27 +277,27 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
           </div>
         </div>
 
-        {/* Smart Progress Bar */}
+        {/* Dynamic Continuous Progress Bar */}
         <div className="px-4 sm:px-6 pt-5">
           <div className="flex justify-between items-center text-xs font-bold text-ink-500 mb-2">
             <span className="flex items-center gap-1.5 font-extrabold text-ink-800 dark:text-white">
-              <span>🚀</span> Progression Smart
+              <span className="text-brand-500">🛵</span> Suivi en temps réel
             </span>
             <span className="text-brand-600 dark:text-brand-400 font-extrabold text-sm">
-              {smartProgressPct}%
+              {displayedProgressPct}%
             </span>
           </div>
 
-          <div className="h-3 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden p-0.5 relative shadow-inner">
+          <div className="h-3.5 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden p-0.5 relative shadow-inner">
             <div
-              className="h-full bg-gradient-to-r from-brand-500 via-pink-500 to-emerald-500 transition-all duration-700 ease-out rounded-full shadow-md relative overflow-hidden"
-              style={{ width: `${smartProgressPct}%` }}
+              className="h-full bg-gradient-to-r from-brand-500 via-pink-500 to-emerald-500 transition-all duration-1000 ease-out rounded-full shadow-md relative overflow-hidden"
+              style={{ width: `${displayedProgressPct}%` }}
             >
-              <div className="absolute inset-0 bg-white/25 animate-pulse" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
             </div>
           </div>
 
-          {/* Mode Indicator Badge (GPS vs Estimation) */}
+          {/* Mode Indicator Badge (GPS vs Destination) */}
           <div className="mt-2.5 flex items-center justify-between text-[11px] font-semibold gap-2">
             {gpsCalculated ? (
               <span className="text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1.5 font-bold truncate">
@@ -296,7 +306,7 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
               </span>
             ) : (
               <span className="text-sky-700 dark:text-sky-300 bg-sky-500/10 px-2.5 py-1 rounded-full border border-sky-500/20 flex items-center gap-1.5 font-bold truncate">
-                <span className="truncate">⏱️ {destInfo.icon} {destInfo.name} (Estimation temps réel)</span>
+                <span className="truncate">{destInfo.icon} Destination : {destInfo.name}</span>
               </span>
             )}
             <span className="text-ink-400 shrink-0">Étape {stepNum}/4</span>
