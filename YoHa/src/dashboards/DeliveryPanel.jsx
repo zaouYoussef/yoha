@@ -439,6 +439,7 @@ export function DeliveryAvailable({ courier }) {
     playProBeep();
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent || '');
     const isStandalone = window.navigator?.standalone === true;
+    console.log('[Notif] requestNotif isIOS=%s standalone=%s', isIOS, isStandalone);
     if (!('Notification' in window) || typeof Notification.requestPermission !== 'function') {
       if (isIOS && !isStandalone) {
         alert('Sur iPhone, utilisez Safari et ajoutez YoHa à l\'écran d\'accueil (Partager → Sur l\'écran d\'accueil). Ouvrez-le depuis l\'écran d\'accueil pour activer les notifications.');
@@ -451,6 +452,7 @@ export function DeliveryAvailable({ courier }) {
     }
     try {
       const res = await Notification.requestPermission();
+      console.log('[Notif] Permission result:', res);
       if (res === 'granted') {
         setNotifGranted(true);
         try {
@@ -464,13 +466,20 @@ export function DeliveryAvailable({ courier }) {
           const { subscribeWebPush } = await import('@/lib/webPush');
           const ok = await subscribeWebPush();
           if (!ok) throw new Error('Échec abonnement push (jeton ou SW)');
+          console.log('[Notif] Web push subscribed successfully');
         } catch (e) {
-          alert('Notifications activées, mais l\'abonnement push navigateur a échoué : ' + (e.message || 'erreur') + '. Les notifications ne marcheront pas en arrière-plan.');
+          console.error('[Notif] Subscribe error:', e);
+          var msg = 'Notifications activées, mais l\'abonnement push navigateur a échoué : ' + (e.message || 'erreur') + '.';
+          if (isIOS && isStandalone) {
+            msg += ' Sur iPhone, vérifiez iOS 16.4+ et ouvrez depuis l\'écran d\'accueil.';
+          }
+          alert(msg + ' Les notifications ne marcheront pas en arrière-plan.');
         }
       } else if (res === 'denied') {
         alert('Notifications bloquées. Activez-les dans les réglages de votre iPhone.');
       }
     } catch (e) {
+      console.error('[Notif] requestNotif error:', e);
       if (isIOS) {
         alert('Bip activé. Pour les notifications, utilisez Safari depuis l\'écran d\'accueil (iOS 16.4+).');
       } else {

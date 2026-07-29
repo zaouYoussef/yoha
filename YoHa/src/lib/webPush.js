@@ -17,37 +17,66 @@ export async function getVapidPublicKey() {
 }
 
 export async function registerServiceWorker() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+  if (!('serviceWorker' in navigator)) {
+    console.warn('[Push] serviceWorker not available');
     return null;
   }
-  var reg = await navigator.serviceWorker.register('/sw.js');
-  await navigator.serviceWorker.ready;
-  return reg;
+  if (!('PushManager' in window)) {
+    console.warn('[Push] PushManager not available');
+    return null;
+  }
+  try {
+    var reg = await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+    console.log('[Push] SW registered', reg);
+    return reg;
+  } catch (e) {
+    console.error('[Push] SW register error', e);
+    return null;
+  }
 }
 
 export async function subscribeWebPush() {
   var tokens = getTokens();
-  if (!tokens || !tokens.access) return null;
+  if (!tokens || !tokens.access) {
+    console.warn('[Push] No tokens');
+    return null;
+  }
 
   var reg = await registerServiceWorker();
   if (!reg) return null;
 
   var publicKey = await getVapidPublicKey();
-  if (!publicKey) return null;
+  if (!publicKey) {
+    console.warn('[Push] No VAPID public key');
+    return null;
+  }
 
-  var sub = await reg.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(publicKey),
-  });
+  try {
+    var sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(publicKey),
+    });
+    console.log('[Push] Subscribed', sub);
+  } catch (e) {
+    console.error('[Push] subscribe error', e);
+    throw e;
+  }
 
   var subscriptionJson = sub.toJSON();
-  await apiFetch('/auth/push/web/subscribe/', {
-    method: 'POST',
-    body: {
-      endpoint: subscriptionJson.endpoint,
-      keys: subscriptionJson.keys,
-    },
-  });
+  try {
+    await apiFetch('/auth/push/web/subscribe/', {
+      method: 'POST',
+      body: {
+        endpoint: subscriptionJson.endpoint,
+        keys: subscriptionJson.keys,
+      },
+    });
+    console.log('[Push] Subscription saved on server');
+  } catch (e) {
+    console.error('[Push] Failed to save subscription on server', e);
+    throw e;
+  }
 
   return true;
 }
