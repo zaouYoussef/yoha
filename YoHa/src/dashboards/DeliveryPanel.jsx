@@ -433,9 +433,12 @@ export function DeliveryAvailable({ courier }) {
   const requestNotif = async () => {
     if (typeof window === 'undefined') return;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent || '');
+    const isStandalone = window.navigator?.standalone === true;
     if (!('Notification' in window) || typeof Notification.requestPermission !== 'function') {
-      if (isIOS) {
-        alert('Sur iPhone, les notifications push ne fonctionnent que si vous ajoutez YoHa à l\'écran d\'accueil (Partager → Sur l\'écran d\'accueil). Les alertes sonores restent actives.');
+      if (isIOS && !isStandalone) {
+        alert('Sur iPhone, utilisez Safari et ajoutez YoHa à l\'écran d\'accueil (Partager → Sur l\'écran d\'accueil). Ouvrez-le depuis l\'écran d\'accueil pour activer les notifications. Les alertes sonores restent actives.');
+      } else if (isIOS) {
+        alert('Les notifications push nécessitent iOS 16.4+ et l\'ouverture depuis l\'écran d\'accueil avec Safari. Les alertes sonores fonctionnent déjà.');
       } else {
         alert('Les notifications ne sont pas supportées sur ce navigateur.');
       }
@@ -448,16 +451,17 @@ export function DeliveryAvailable({ courier }) {
         playProBeep();
         try {
           new Notification('🔔 Notifications YoHa activées !', {
-            body: 'Vous recevrez les alertes sonores et vibrations en temps réel dès qu\'une nouvelle course arrive !',
+            body: 'Les alertes sonores et notifications sont actives.',
             icon: '/icon.png',
           });
         } catch {}
       } else if (res === 'denied') {
-        alert('Notifications bloquées. Activez-les dans les paramètres de votre navigateur.');
+        alert('Notifications bloquées. Activez-les dans les paramètres de votre navigateur (Réglages → Safari → Notifications).');
       }
     } catch (e) {
+      playProBeep();
       if (isIOS) {
-        alert('Sur iPhone, ajoutez YoHa à l\'écran d\'accueil pour activer les notifications. Les alertes sonores fonctionnent déjà.');
+        alert('Les alertes sonores sont activées. Pour les notifications push, utilisez Safari depuis l\'écran d\'accueil (iOS 16.4+).');
       } else {
         alert('Impossible d\'activer les notifications : ' + (e.message || ''));
       }
