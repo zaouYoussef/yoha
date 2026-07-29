@@ -605,7 +605,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                   disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
                   variant="primary"
                   size="lg"
-                  className="w-full justify-center py-4 rounded-2xl text-base shadow-glow hover:scale-[1.02] active:scale-95 transition-all font-black"
+                  className="w-full justify-center py-4 rounded-2xl text-base shadow-glow hover:scale-[1.02] active:scale-95 transition-all font-black cursor-pointer"
                 >
                   {submitting ? (
                     <span className="inline-flex items-center gap-2">Traitement en cours... <Loader/></span>
@@ -626,6 +626,27 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
               </div>
             </div>
           </Card>
+        </div>
+      </div>
+
+      {/* Mobile Floating Sticky Checkout Bar */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 p-3 sm:p-4 bg-white/95 dark:bg-ink-950/95 backdrop-blur-md border-t border-ink-200/80 dark:border-ink-800 shadow-2xl pb-safe">
+        <div className="max-w-md mx-auto flex items-center justify-between gap-3">
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-wider text-ink-400">Total à payer</div>
+            <div className="font-display font-black text-lg text-brand-600 dark:text-brand-400">
+              {isCustom ? (total > 0 ? `${formatMad(grand)} + achats` : '20 DH + achats') : formatMad(grand)}
+            </div>
+          </div>
+          <Button
+            onClick={handleConfirm}
+            disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
+            variant="primary"
+            size="md"
+            className="flex-1 justify-center py-3 rounded-2xl font-black text-sm shadow-glow cursor-pointer"
+          >
+            {submitting ? 'Envoi...' : 'Confirmer la commande 🚀'}
+          </Button>
         </div>
       </div>
     </div>
