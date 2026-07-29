@@ -65,15 +65,15 @@ export function ShopShell({ children, showCampus = false }) {
 
   const liveOrder = useMemo(() => {
     if (user?.role === 'client') {
-      const list = filterOrdersForClient(orders, user).filter((o) => o.status !== 'delivered');
+      const list = filterOrdersForClient(orders, user).filter((o) => o.status !== 'delivered' && o.status !== 'cancelled');
       if (list.length) return [...list].sort((a, b) => b.createdAt - a.createdAt)[0];
     }
     if (!user || user.role === 'client') {
-      const guestActive = orders.filter((o) => !o.customerUserId && o.status !== 'delivered');
+      const guestActive = orders.filter((o) => !o.customerUserId && o.status !== 'delivered' && o.status !== 'cancelled');
       if (guestActive.length) return [...guestActive].sort((a, b) => b.createdAt - a.createdAt)[0];
     }
     if (trackOrderId) {
-      const o = orders.find((x) => x.id === trackOrderId && x.status !== 'delivered');
+      const o = orders.find((x) => x.id === trackOrderId && x.status !== 'delivered' && x.status !== 'cancelled');
       if (o) return o;
     }
     return null;

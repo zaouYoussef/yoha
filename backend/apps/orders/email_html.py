@@ -45,37 +45,74 @@ def render_order_email_html(ctx: dict) -> str:
     courier = _esc(ctx.get("courier", ""))
     logo_url = _esc(_abs_url("/logo.png"))
     tracking_url = _esc(_tracking_url(order_id))
+    is_cancelled = ctx.get("status") == "cancelled" or "annul" in headline.lower()
 
     # ── Progress steps ──
-    steps_html = ""
-    for i, (_status, label) in enumerate(ctx["steps"]):
-        active = i <= step_index
-        current = i == step_index
-        if current:
-            dot_bg = f"background:linear-gradient(135deg,{accent},#ec4899);box-shadow:0 0 0 4px {accent}33;"
-            dot_color = "#ffffff"
-            label_color = "#0f172a"
-            label_weight = "800"
-        elif active:
-            dot_bg = "background:linear-gradient(135deg,#10b981,#059669);"
-            dot_color = "#ffffff"
-            label_color = "#475569"
-            label_weight = "600"
-        else:
-            dot_bg = "background:#e2e8f0;"
-            dot_color = "#94a3b8"
-            label_color = "#94a3b8"
-            label_weight = "500"
-        steps_html += f"""
-        <td align="center" style="padding:0 1px;vertical-align:top;width:25%;">
-          <div style="width:32px;height:32px;border-radius:999px;{dot_bg}color:{dot_color};
-            font-size:12px;font-weight:700;line-height:32px;text-align:center;margin:0 auto;
-            transition:all .3s;">{i + 1}</div>
-          <div style="font-size:10px;color:{label_color};margin-top:8px;font-weight:{label_weight};
-            letter-spacing:0.01em;">{_esc(label)}</div>
-        </td>"""
+    if is_cancelled:
+        progress_section_html = """
+        <tr><td style="padding:0 32px 32px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff1f2;
+            border-radius:16px;border:1px solid #fecdd3;">
+            <tr><td style="padding:16px 20px;text-align:center;">
+              <div style="font-size:14px;font-weight:800;color:#e11d48;">
+                ❌ Statut : Commande annulée
+              </div>
+              <div style="font-size:12px;color:#9f1239;margin-top:4px;">
+                Cette commande ne donnera lieu à aucun débit.
+              </div>
+            </td></tr>
+          </table>
+        </td></tr>"""
+    else:
+        steps_html = ""
+        for i, (_status, label) in enumerate(ctx["steps"]):
+            active = i <= step_index
+            current = i == step_index
+            if current:
+                dot_bg = f"background:linear-gradient(135deg,{accent},#ec4899);box-shadow:0 0 0 4px {accent}33;"
+                dot_color = "#ffffff"
+                label_color = "#0f172a"
+                label_weight = "800"
+            elif active:
+                dot_bg = "background:linear-gradient(135deg,#10b981,#059669);"
+                dot_color = "#ffffff"
+                label_color = "#475569"
+                label_weight = "600"
+            else:
+                dot_bg = "background:#e2e8f0;"
+                dot_color = "#94a3b8"
+                label_color = "#94a3b8"
+                label_weight = "500"
+            steps_html += f"""
+            <td align="center" style="padding:0 1px;vertical-align:top;width:25%;">
+              <div style="width:32px;height:32px;border-radius:999px;{dot_bg}color:{dot_color};
+                font-size:12px;font-weight:700;line-height:32px;text-align:center;margin:0 auto;
+                transition:all .3s;">{i + 1}</div>
+              <div style="font-size:10px;color:{label_color};margin-top:8px;font-weight:{label_weight};
+                letter-spacing:0.01em;">{_esc(label)}</div>
+            </td>"""
 
-    progress_pct = int(((step_index + 1) / len(ctx["steps"])) * 100)
+        progress_pct = int(((step_index + 1) / len(ctx["steps"])) * 100)
+        progress_section_html = f"""
+        <tr><td style="padding:0 32px 32px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;
+            border-radius:16px;border:1px solid #f1f5f9;">
+            <tr><td style="padding:20px 20px 8px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+                <span style="font-size:10px;font-weight:700;text-transform:uppercase;
+                  letter-spacing:0.08em;color:#94a3b8;">Progression</span>
+                <span style="font-size:10px;font-weight:800;color:{accent};">{progress_pct}%</span>
+              </div>
+              <div style="background:#e2e8f0;border-radius:999px;height:8px;overflow:hidden;">
+                <div style="width:{progress_pct}%;height:8px;background:linear-gradient(90deg,{accent},#ec4899);
+                  border-radius:999px;box-shadow:0 0 12px {accent}40;"></div>
+              </div>
+            </td></tr>
+            <tr><td style="padding:16px 12px 20px;">
+              <table width="100%" cellpadding="0" cellspacing="0"><tr>{steps_html}</tr></table>
+            </td></tr>
+          </table>
+        </td></tr>"""
 
     # ── Order lines ──
     lines_html = ""
@@ -98,33 +135,18 @@ def render_order_email_html(ctx: dict) -> str:
     offers_html = ""
     for offer in ctx.get("offers", []):
         cover = _abs_url(offer.get("cover", ""))
-        promo = _esc(offer.get("promo", ""))
-        oname = _esc(offer.get("name", ""))
-        eta = _esc(offer.get("eta", ""))
-        link = _browse_url(offer.get("slug", ""))
-        img_cell = (
-            f'<img src="{_esc(cover)}" alt="" width="80" height="80" '
-            f'style="display:block;width:80px;height:80px;border-radius:14px;object-fit:cover;" />'
-            if cover
-            else f'<div style="width:80px;height:80px;border-radius:14px;background:linear-gradient(135deg,#f97316,#ec4899);"></div>'
-        )
         offers_html += f"""
-        <td width="33%" style="padding:6px;vertical-align:top;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(145deg,#ffffff,#fefce8);
-            border:1px solid #fef3c7;border-radius:18px;overflow:hidden;
-            box-shadow:0 4px 16px rgba(249,115,22,0.08);">
-            <tr><td style="padding:8px 8px 0;">{img_cell}</td></tr>
-            <tr><td style="padding:10px 12px 4px;font-size:13px;font-weight:800;color:#0f172a;
-              line-height:1.2;">{oname}</td></tr>
-            <tr><td style="padding:2px 12px 4px;font-size:11px;color:#ea580c;font-weight:700;
-              letter-spacing:0.01em;">🔥 {promo}</td></tr>
-            <tr><td style="padding:2px 12px 10px;font-size:10px;color:#94a3b8;">⚡ {eta}</td></tr>
-            <tr><td style="padding:0 12px 12px;">
-              <a href="{_esc(link)}" style="display:inline-block;background:linear-gradient(135deg,#f97316,#fb923c);
-                color:#ffffff;font-size:11px;font-weight:700;text-decoration:none;padding:7px 16px;
-                border-radius:8px;box-shadow:0 2px 8px rgba(249,115,22,0.25);">Commander →</a>
-            </td></tr>
-          </table>
+        <td style="padding:8px;vertical-align:top;width:33.33%;">
+          <a href="{_esc(_browse_url(offer.get('slug', '')))}" style="text-decoration:none;display:block;">
+            <div style="height:100px;border-radius:14px;overflow:hidden;background:#f8fafc;
+              position:relative;margin-bottom:8px;">
+              {'<img src="' + _esc(cover) + '" style="width:100%;height:100%;object-fit:cover;display:block;"/>' if cover else '<div style="height:100%;background:#e2e8f0;"></div>'}
+            </div>
+            <div style="font-size:12px;font-weight:800;color:#0f172a;margin-bottom:2px;
+              overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{_esc(offer['name'])}</div>
+            <div style="font-size:10px;color:#f97316;font-weight:700;">{_esc(offer.get('promo', ''))}</div>
+            <div style="font-size:10px;color:#94a3b8;margin-top:2px;">⚡ {_esc(offer.get('eta', ''))}</div>
+          </a>
         </td>"""
 
     if not offers_html:
@@ -133,21 +155,27 @@ def render_order_email_html(ctx: dict) -> str:
           Découvrez nos restaurants partenaires sur YoHa.
         </td>"""
 
-    # ── Courier row ──
-    courier_row = ""
-    if courier:
-        courier_row = f"""
-        <tr>
-          <td colspan="2" style="padding:14px 0 0;font-size:13px;">
-            <table cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#eff6ff,#f0f9ff);
-              border:1px solid #bfdbfe;border-radius:12px;padding:0;">
-              <tr><td style="padding:12px 16px;">
-                <span style="color:#64748b;">Livreur :</span>
-                <strong style="color:#1d4ed8;margin-left:4px;">🛵 {courier}</strong>
-              </td></tr>
-            </table>
-          </td>
-        </tr>"""
+    courier_row = f"""
+    <tr>
+      <td style="font-size:12px;color:#94a3b8;padding-top:4px;">Livreur</td>
+      <td align="right" style="font-size:12px;font-weight:700;color:#0f172a;padding-top:4px;">{courier}</td>
+    </tr>""" if courier else ""
+
+    cta_button_html = f"""
+    <a href="{_esc(browse_url)}" style="display:inline-block;
+      background:linear-gradient(135deg,#f97316,#ec4899);color:#ffffff;
+      font-size:15px;font-weight:800;text-decoration:none;padding:16px 40px;
+      border-radius:16px;box-shadow:0 8px 24px rgba(249,115,22,0.3);letter-spacing:0.01em;">
+      <span style="mso-text-raise:14pt;">🛒 Découvrir d'autres restaurants</span>
+    </a>""" if is_cancelled else f"""
+    <a href="{tracking_url}" style="display:inline-block;
+      background:linear-gradient(135deg,{accent},#ec4899);color:#ffffff;
+      font-size:15px;font-weight:800;text-decoration:none;padding:16px 40px;
+      border-radius:16px;box-shadow:0 8px 24px {accent}35;letter-spacing:0.01em;">
+      <span style="mso-text-raise:14pt;">📱 Suivre ma commande en direct</span>
+    </a>"""
+
+    offers_subtitle = "Découvrez d'autres délices sur le campus" if is_cancelled else "Pendant que vous attendez, profitez de ces promos campus"
 
     return f"""<!DOCTYPE html>
 <html lang="fr">
@@ -223,28 +251,8 @@ def render_order_email_html(ctx: dict) -> str:
               {body}</p>
           </td></tr>
 
-          <!-- ═══ PROGRESS BAR ═══ -->
-          <tr><td style="padding:0 32px 32px;">
-            <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;
-              border-radius:16px;border:1px solid #f1f5f9;">
-              <tr><td style="padding:20px 20px 8px;">
-                <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
-                  <span style="font-size:10px;font-weight:700;text-transform:uppercase;
-                    letter-spacing:0.08em;color:#94a3b8;">Progression</span>
-                  <span style="font-size:10px;font-weight:800;color:{accent};">{progress_pct}%</span>
-                </div>
-                <!-- Track -->
-                <div style="background:#e2e8f0;border-radius:999px;height:8px;overflow:hidden;">
-                  <div style="width:{progress_pct}%;height:8px;background:linear-gradient(90deg,{accent},#ec4899);
-                    border-radius:999px;box-shadow:0 0 12px {accent}40;"></div>
-                </div>
-              </td></tr>
-              <!-- Steps -->
-              <tr><td style="padding:16px 12px 20px;">
-                <table width="100%" cellpadding="0" cellspacing="0"><tr>{steps_html}</tr></table>
-              </td></tr>
-            </table>
-          </td></tr>
+          <!-- ═══ PROGRESS / STATUS BAR ═══ -->
+          {progress_section_html}
 
         </table>
       </td></tr>
@@ -300,15 +308,7 @@ def render_order_email_html(ctx: dict) -> str:
 
       <!-- ═══ CTA BUTTON ═══ -->
       <tr><td style="padding:24px 0 8px;text-align:center;">
-        <a href="{tracking_url}" style="display:inline-block;
-          background:linear-gradient(135deg,{accent},#ec4899);color:#ffffff;
-          font-size:15px;font-weight:800;text-decoration:none;padding:16px 40px;
-          border-radius:16px;box-shadow:0 8px 24px {accent}35;letter-spacing:0.01em;
-          mso-padding-alt:0;text-align:center;">
-          <!--[if mso]><i style="letter-spacing:40px;mso-font-width:-100%;mso-text-raise:28pt;">&nbsp;</i><![endif]-->
-          <span style="mso-text-raise:14pt;">📱 Suivre ma commande en direct</span>
-          <!--[if mso]><i style="letter-spacing:40px;mso-font-width:-100%;">&nbsp;</i><![endif]-->
-        </a>
+        {cta_button_html}
       </td></tr>
 
       <!-- ═══ OFFERS ═══ -->
@@ -321,7 +321,7 @@ def render_order_email_html(ctx: dict) -> str:
               <span style="font-size:20px;">🔥</span>
               <div style="font-size:18px;font-weight:900;color:#0f172a;letter-spacing:-0.01em;">Offres du moment</div>
             </div>
-            <div style="font-size:12px;color:#94a3b8;margin-top:4px;">Pendant que vous attendez, profitez de ces promos campus</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:4px;">{offers_subtitle}</div>
           </td></tr>
           <tr><td style="padding:12px 12px 24px;">
             <table width="100%" cellpadding="0" cellspacing="0"><tr>{offers_html}</tr></table>
@@ -360,7 +360,8 @@ def render_order_email_html(ctx: dict) -> str:
 
 
 def render_order_email_text(ctx: dict) -> str:
-    track = _tracking_url(ctx["id"])
+    is_cancelled = ctx.get("status") == "cancelled" or "annul" in ctx.get("headline", "").lower()
+    browse = _browse_url()
     lines = [
         f"{ctx.get('headline', 'YoHa')} {ctx.get('emoji', '')}",
         "",
@@ -371,10 +372,17 @@ def render_order_email_text(ctx: dict) -> str:
         f"Restaurant : {ctx['restaurant']}",
         f"Total : {ctx['total']} MAD",
         "",
-        f"Suivre en direct : {track}",
+    ]
+    if is_cancelled:
+        lines.append(f"Découvrir d'autres restaurants : {browse}")
+    else:
+        track = _tracking_url(ctx["id"])
+        lines.append(f"Suivre en direct : {track}")
+
+    lines.extend([
         "",
         "— Offres du moment —",
-    ]
+    ])
     for offer in ctx.get("offers", []):
         lines.append(f"• {offer['name']} — {offer.get('promo', '')} ({offer.get('eta', '')})")
         lines.append(f"  {_browse_url(offer.get('slug', ''))}")

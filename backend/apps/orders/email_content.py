@@ -92,6 +92,7 @@ def build_context(order: Order, status: str) -> dict | None:
     items_count = sum(l.quantity for l in lines)
     ctx = {
         "id": order.public_id,
+        "status": status,
         "name": order.customer_name or "Client YoHa",
         "restaurant": order.restaurant.name,
         "total": f"{order.total_mad:.2f}".replace(".", ","),
