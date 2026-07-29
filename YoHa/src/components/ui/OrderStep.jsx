@@ -85,7 +85,7 @@ export function OrderTrackingTimeline({ status = 'placed' }) {
 
       {/* Desktop */}
       <div className="hidden sm:block">
-        <div className="relative flex items-start justify-between">
+        <div className="relative grid grid-cols-4 gap-1">
 
           {CLIENT_TRACK_STEPS.map((key, i) => {
             const meta = STEP_META[key];
@@ -96,9 +96,9 @@ export function OrderTrackingTimeline({ status = 'placed' }) {
             const Icon = meta.icon;
 
             return (
-              <div key={key} className={`relative z-10 flex flex-col items-center flex-1 px-0.5 ${pending ? 'opacity-40' : ''}`}>
+              <div key={key} className={`relative z-10 flex flex-col items-center min-w-0 ${pending ? 'opacity-40' : ''}`}>
                 <div
-                  className={`w-12 h-12 rounded-2xl grid place-items-center transition-all duration-500 ${
+                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl grid place-items-center transition-all duration-500 ${
                     current
                       ? 'bg-gradient-to-br from-brand-500 to-pink-500 text-white shadow-glow ring-4 ring-brand-500/25'
                       : done
@@ -106,10 +106,10 @@ export function OrderTrackingTimeline({ status = 'placed' }) {
                         : 'bg-white dark:bg-ink-900 text-ink-400 border-2 border-ink-200 dark:border-ink-700'
                   }`}
                 >
-                  {done && !current ? <I.Check size={20} stroke={2.5} /> : <Icon size={20} stroke={current ? 2.5 : 2} />}
+                  {done && !current ? <I.Check size={18} stroke={2.5} /> : <Icon size={18} stroke={current ? 2.5 : 2} />}
                 </div>
                 <span
-                  className={`mt-2.5 text-[11px] font-bold text-center leading-tight max-w-[4.5rem] ${
+                  className={`mt-2 text-[10px] sm:text-[11px] font-bold text-center leading-tight max-w-[4rem] sm:max-w-[4.5rem] truncate ${
                     current
                       ? 'text-brand-600 dark:text-brand-400'
                       : done
@@ -120,7 +120,7 @@ export function OrderTrackingTimeline({ status = 'placed' }) {
                   {meta.label}
                 </span>
                 {current && (
-                  <span className="mt-1 text-[10px] text-center text-ink-500 dark:text-ink-400 leading-snug max-w-[5.5rem] hidden lg:block">
+                  <span className="mt-0.5 text-[9px] text-center text-ink-500 dark:text-ink-400 leading-snug max-w-[5rem] truncate hidden lg:block">
                     {activeMsg.label}
                   </span>
                 )}
