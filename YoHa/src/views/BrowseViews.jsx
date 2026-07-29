@@ -1994,46 +1994,63 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
 
       {/* Modal Fidélité */}
       {showFidelite && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowFidelite(false)}>
-          <div className="relative w-full max-w-xs sm:max-w-sm mx-auto rounded-2xl sm:rounded-3xl bg-white dark:bg-ink-900 p-5 sm:p-6 shadow-2xl border border-ink-200 dark:border-ink-700 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setShowFidelite(false)} className="absolute top-2.5 right-2.5 h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center hover:bg-ink-200 dark:hover:bg-ink-700 transition-colors text-ink-500 text-sm">
-              ✕
-            </button>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowFidelite(false)}>
+          <div className="relative w-full sm:max-w-sm mx-auto rounded-t-3xl sm:rounded-3xl bg-white dark:bg-ink-900 shadow-2xl border border-ink-200 dark:border-ink-700 sm:mx-4 sm:mb-0 animate-slide-up sm:animate-fade-in" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 pt-4 pb-2 border-b border-ink-100 dark:border-ink-800">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xl">🎁</span>
+                <h3 className="font-display font-black text-base text-ink-900 dark:text-white">Fidélité</h3>
+              </div>
+              <button onClick={() => setShowFidelite(false)}
+                className="h-8 w-8 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center hover:bg-ink-200 dark:hover:bg-ink-700 transition-colors text-ink-400 hover:text-ink-600">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
 
-            <div className="text-center space-y-3 sm:space-y-4">
-              <div className="text-4xl sm:text-5xl">🎁</div>
-              <h3 className="font-display font-black text-lg sm:text-xl text-ink-900 dark:text-white">Solde Fidélité</h3>
-
+            <div className="p-5 space-y-4">
               {!user ? (
-                <div className="space-y-4">
-                  <p className="text-sm text-ink-500">Connecte-toi pour gagner des points fidélité et obtenir 50 MAD offerts après 6 commandes livrées !</p>
+                <div className="space-y-4 text-center">
+                  <p className="text-sm text-ink-500 leading-relaxed">Connecte-toi pour gagner 50 MAD après 6 commandes livrées !</p>
                   <button onClick={() => { setShowFidelite(false); window.location.href = '/auth?type=login'; }}
-                    className="w-full py-3 rounded-xl bg-brand-500 text-white font-black text-sm hover:bg-brand-600 transition-colors">
+                    className="w-full py-2.5 rounded-xl bg-brand-500 text-white font-black text-sm hover:bg-brand-600 transition-colors shadow-md shadow-brand-500/20">
                     Se connecter
                   </button>
                 </div>
               ) : (
                 <>
-                  <div className="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-ink-800 dark:to-ink-800 p-5 space-y-3">
+                  <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-ink-800 dark:to-ink-800 p-4 space-y-3 border border-amber-200/50 dark:border-amber-800/30">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-ink-500">Commandes livrées</span>
-                      <span className="font-display font-black text-2xl text-amber-600">{deliveredCount}</span>
+                      <span className="text-xs font-bold text-ink-400 uppercase tracking-wider">Commandes livrées</span>
+                      <span className="font-display font-black text-xl text-amber-600">{deliveredCount}</span>
                     </div>
-                    <div className="h-2 rounded-full bg-ink-200 dark:bg-ink-700 overflow-hidden">
+                    <div className="relative h-2 rounded-full bg-ink-200 dark:bg-ink-700 overflow-hidden">
                       <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500" style={{ width: `${Math.min((progressInCycle || 6) / 6 * 100, 100)}%` }} />
                     </div>
-                    <div className="flex items-center justify-between text-xs text-ink-500">
+                    <div className="flex items-center justify-between text-[11px] text-ink-500">
                       <span>Prochaine récompense : <strong className="text-amber-600">{nextRewardAt} commandes</strong></span>
-                      <span>6</span>
+                      <span className="font-mono font-bold text-ink-400">/6</span>
                     </div>
                   </div>
 
                   {isRewardReady && (
-                    <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4">
-                      <p className="text-sm font-bold text-emerald-700 dark:text-emerald-300">🎉 Tu as gagné 50 MAD !</p>
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">Contacte le support pour réclamer ta récompense.</p>
+                    <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 p-3.5 flex items-center gap-3">
+                      <span className="text-2xl">🎉</span>
+                      <div>
+                        <p className="text-sm font-bold text-emerald-700 dark:text-emerald-300">50 MAD gagnés !</p>
+                        <p className="text-xs text-emerald-600 dark:text-emerald-400">Contacte le support pour réclamer.</p>
+                      </div>
                     </div>
                   )}
+
+                  <div className="rounded-xl bg-gradient-to-br from-brand-50 to-purple-50 dark:from-ink-800 dark:to-ink-800 border border-brand-200/50 dark:border-brand-800/30 p-3.5 flex items-center gap-3">
+                    <span className="text-2xl">💡</span>
+                    <div>
+                      <p className="text-xs font-bold text-ink-700 dark:text-ink-300">Une commande livrée = 1 point</p>
+                      <p className="text-[11px] text-ink-400">6 points = 50 MAD offerts</p>
+                    </div>
+                  </div>
                 </>
               )}
             </div>
