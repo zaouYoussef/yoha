@@ -18,7 +18,7 @@ const HERO = {
 };
 
 export function SuccessPage({ orderId, onHome, onMyOrders }) {
-  const { orders, trackOrder } = useOrders();
+  const { orders, restaurants = [], trackOrder } = useOrders();
   const { push: pushToast } = useToast();
   const order = orders.find((o) => o.id === orderId);
   const status = order?.status || 'placed';
@@ -26,6 +26,13 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   const st = ORDER_STATES[status] || ORDER_STATES.placed;
   const stepNum = st.step;
   const prevStatusRef = useRef(undefined);
+
+  const restoInfo = useMemo(() => {
+    if (!order) return null;
+    return restaurants.find((r) => String(r.id) === String(order.restaurantId) || r.name === order.restaurantName);
+  }, [order, restaurants]);
+
+  const restoEta = order?.restaurantEta || restoInfo?.eta || restoInfo?.deliveryTime || '30-45 min';
 
   useEffect(() => {
     if (!orderId) return undefined;
@@ -49,7 +56,7 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
       ? null
       : order?.courierName && status !== 'placed'
         ? `${order.courierName} s'occupe de votre commande`
-        : 'Arrivée estimée dans 15 à 22 min';
+        : `Arrivée estimée dans ${restoEta.includes('-') ? restoEta.replace('-', ' à ') : restoEta}`;
 
   const itemCount = order?.items?.reduce((s, i) => s + i.qty, 0) ?? 0;
 
