@@ -622,26 +622,32 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
               
               {/* Main CTA Confirmation Button */}
               <div className="pt-2">
-                <Button
+                <button
+                  type="button"
                   onClick={handleConfirm}
                   disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
-                  variant="primary"
-                  size="lg"
-                  className="w-full justify-center py-4 px-4 rounded-2xl text-sm sm:text-base shadow-glow hover:scale-[1.01] active:scale-95 transition-all font-black cursor-pointer leading-tight min-h-[52px]"
+                  className="w-full relative group overflow-hidden py-4 px-5 sm:px-6 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-600 to-brand-600 text-white font-black shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-between gap-3 border border-white/20"
                 >
                   {submitting ? (
-                    <span className="inline-flex items-center gap-2">Traitement en cours... <Loader/></span>
-                  ) : (
-                    <span className="flex items-center justify-center gap-2 flex-wrap text-center">
-                      <span>Confirmer la commande</span>
-                      <span className="opacity-90">({isCustom 
-                        ? (total > 0 ? `${formatMad(grand)} + achats` : "20 DH + achats") 
-                        : formatMad(grand)
-                      })</span>
-                      <I.Check size={18} stroke={3} className="shrink-0" />
+                    <span className="w-full flex items-center justify-center gap-2 text-sm font-bold">
+                      Traitement en cours... <Loader />
                     </span>
+                  ) : (
+                    <>
+                      <span className="flex items-center gap-2.5 text-sm sm:text-base font-extrabold tracking-wide">
+                        <span className="w-7 h-7 rounded-xl bg-white/20 grid place-items-center text-xs shrink-0 shadow-inner">
+                          ⚡
+                        </span>
+                        <span>Confirmer la commande</span>
+                      </span>
+
+                      <span className="flex items-center gap-1.5 bg-black/20 backdrop-blur-md px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-black tracking-tight shrink-0 border border-white/15">
+                        <span>{isCustom ? (total > 0 ? `${formatMad(grand)}` : "20 DH") : formatMad(grand)}</span>
+                        <I.Right size={16} stroke={3} className="group-hover:translate-x-1 transition-transform" />
+                      </span>
+                    </>
                   )}
-                </Button>
+                </button>
                 
                 <div className="mt-3.5 flex items-center justify-center gap-2 text-xs text-ink-500 font-medium">
                   <I.Bag size={14} className="text-emerald-500" />
@@ -655,22 +661,27 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
 
       {/* Mobile Floating Sticky Checkout Bar */}
       <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 p-3 sm:p-4 bg-white/95 dark:bg-ink-950/95 backdrop-blur-xl border-t border-ink-200/80 dark:border-ink-800 shadow-2xl pb-[calc(12px+env(safe-area-inset-bottom))]">
-        <div className="max-w-lg mx-auto flex items-center justify-between gap-3">
-          <div className="shrink-0">
-            <div className="text-[10px] font-black uppercase tracking-wider text-ink-400">Total à payer</div>
-            <div className="font-display font-black text-base sm:text-lg text-brand-600 dark:text-brand-400">
-              {isCustom ? (total > 0 ? `${formatMad(grand)} + achats` : '20 DH + achats') : formatMad(grand)}
-            </div>
-          </div>
-          <Button
+        <div className="max-w-lg mx-auto">
+          <button
+            type="button"
             onClick={handleConfirm}
             disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
-            variant="primary"
-            size="md"
-            className="flex-1 justify-center py-3.5 px-3 rounded-2xl font-black text-sm shadow-glow cursor-pointer leading-tight min-h-[46px]"
+            className="w-full relative group overflow-hidden py-3.5 px-4 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-600 to-brand-600 text-white font-black shadow-xl shadow-brand-500/30 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-between gap-3 cursor-pointer border border-white/20"
           >
-            {submitting ? 'Envoi...' : 'Confirmer la commande 🚀'}
-          </Button>
+            {submitting ? (
+              <span className="w-full text-center text-xs font-bold">Traitement en cours...</span>
+            ) : (
+              <>
+                <span className="flex items-center gap-2 font-display text-xs sm:text-sm font-extrabold">
+                  <span>⚡ Confirmer la commande</span>
+                </span>
+                <span className="flex items-center gap-1 bg-black/20 backdrop-blur-md px-2.5 py-1 rounded-xl text-xs font-black shrink-0 border border-white/15">
+                  <span>{isCustom ? (total > 0 ? `${formatMad(grand)}` : '20 DH') : formatMad(grand)}</span>
+                  <I.Right size={14} stroke={3} />
+                </span>
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>
