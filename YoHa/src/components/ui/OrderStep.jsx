@@ -45,7 +45,7 @@ export function OrderTrackingTimeline({ status = 'placed' }) {
           const current = i === currentIdx;
           const pending = i > currentIdx;
           const Icon = meta.icon;
-          const label = current && messageKey === 'preparing' ? activeMsg.label : st.label;
+          const label = current && messageKey === 'preparing' ? activeMsg.label : meta.label;
           const clientMsg = current ? activeMsg.clientMsg : null;
 
           return (

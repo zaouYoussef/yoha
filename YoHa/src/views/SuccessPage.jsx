@@ -346,7 +346,7 @@ function HeroSection({ hero, status, st }) {
 
 function ActionButtons({ onMyOrders, onHome }) {
   return (
-    <div className="mt-5 flex flex-col sm:flex-row gap-2 px-3 sm:px-0 animate-card-entrance-3">
+    <div className="mt-5 flex flex-col sm:flex-row gap-2 px-3 sm:px-0 items-center justify-center animate-card-entrance-3">
       {onMyOrders && (
         <Button onClick={onMyOrders} variant="secondary" size="md" className="justify-center rounded-xl text-xs sm:text-sm btn-shimmer">
           Mes commandes
