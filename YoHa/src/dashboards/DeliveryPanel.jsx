@@ -21,7 +21,7 @@ import { Button } from '../components/ui/Button.jsx';
 import { RecentOrdersTable as AdminRecentOrdersTable } from './AdminPanel.jsx';
 import { OrderRestaurantNotes } from '../components/ui/OrderRestaurantNotes.jsx';
 import { CancelOrderButton, CancelPhaseBadge, OrderCancellationNote } from '../components/ui/CancelOrderButton.jsx';
-import { ordersApi } from '../lib/api.js';
+import { ordersApi, getTokens } from '../lib/api.js';
 
 function formatScheduledRange(iso) {
   if (!iso) return '';
@@ -381,7 +381,9 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
    ═══════════════════════════════════════════════════ */
 export function DeliveryAvailable({ courier }) {
   const { orders, assignCourier, refreshOrders } = useOrders();
+  const { user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
+  const isDemo = !!(user && !getTokens()?.access);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -455,6 +457,25 @@ export function DeliveryAvailable({ courier }) {
 
   return (
     <div className="space-y-5">
+      {isDemo && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white shadow-lg border border-orange-400/40">
+          <div className="flex items-center gap-3 text-center sm:text-left">
+            <span className="text-2xl">⚠️</span>
+            <div>
+              <p className="font-extrabold text-sm text-white">Mode démo — données non actualisées</p>
+              <p className="text-xs text-amber-100 font-medium">
+                Connectez-vous avec un compte livreur réel (<strong>livreur@yoha.ma</strong>) pour voir les commandes en direct.
+              </p>
+            </div>
+          </div>
+          <a
+            href="/auth"
+            className="shrink-0 px-4 py-2.5 rounded-xl bg-white text-slate-950 font-black text-xs uppercase tracking-wider shadow-md hover:scale-105 transition-all cursor-pointer text-center"
+          >
+            Connexion →
+          </a>
+        </div>
+      )}
       {/* Notification Banner */}
       {!notifGranted && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white shadow-lg border border-violet-400/40">
