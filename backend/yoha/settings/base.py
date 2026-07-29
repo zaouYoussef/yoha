@@ -246,10 +246,11 @@ APPLE_CLIENT_ID = env("APPLE_CLIENT_ID", default="ma.yoha.app")
 FIREBASE_PROJECT_ID = env("FIREBASE_PROJECT_ID", default="")
 
 # ——— Brute-force (django-axes) ———
-AXES_FAILURE_LIMIT = 5
-AXES_COOLOFF_TIME = timedelta(minutes=30)
+AXES_FAILURE_LIMIT = env.int("AXES_FAILURE_LIMIT", default=15)
+AXES_COOLOFF_TIME = timedelta(minutes=env.int("AXES_COOLOFF_MINUTES", default=5))
 AXES_LOCKOUT_PARAMETERS = ["ip_address", "username"]
 AXES_RESET_ON_SUCCESS = True
+AXES_ENABLED = env.bool("AXES_ENABLED", default=True)
 
 # ——— Chiffrement PII ———
 FIELD_ENCRYPTION_KEY = env("FIELD_ENCRYPTION_KEY", default="")
