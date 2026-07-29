@@ -8,6 +8,7 @@ from .views import (
     ClaimOrderView,
     ClaimOrdersView,
     CourierListView,
+    CourierLocationView,
     GuestOrdersView,
     OrderPushSubscribeView,
     OrderDetailView,
@@ -32,4 +33,5 @@ urlpatterns = [
     path("<str:public_id>/claim/", ClaimOrderView.as_view(), name="order-claim-courier"),
     path("<str:public_id>/assign-courier/", AssignCourierView.as_view(), name="order-assign"),
     path("<str:public_id>/send-to-restaurant/", SendToRestaurantView.as_view(), name="order-send-to-restaurant"),
+    path("<str:public_id>/location/", CourierLocationView.as_view(), name="order-location"),
 ]

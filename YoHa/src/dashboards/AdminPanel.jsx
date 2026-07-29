@@ -448,6 +448,7 @@ export function FilterChip({ active, onClick, children }) {
 
 export function AdminOrderGpsCell({ order }) {
   const [gpsData, setGpsData] = useState(null);
+  const [remoteGps, setRemoteGps] = useState(null);
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
@@ -466,6 +467,19 @@ export function AdminOrderGpsCell({ order }) {
       window.removeEventListener('yoha_courier_gps_updated', fetchGps);
     };
   }, [order?.id, order?.courierId]);
+
+  // Fetch GPS from backend API (cross-device)
+  useEffect(() => {
+    if (!order?.id) return;
+    const fetchRemote = () => {
+      ordersApi.getLocation(order.id).then((data) => {
+        if (data?.latitude != null) setRemoteGps(data);
+      }).catch(() => {});
+    };
+    fetchRemote();
+    const interval = setInterval(fetchRemote, 4000);
+    return () => clearInterval(interval);
+  }, [order?.id]);
 
   if (!order || order.status === 'delivered' || order.status === 'cancelled') {
     return <span className="text-ink-400 text-xs">—</span>;

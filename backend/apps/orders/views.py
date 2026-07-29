@@ -11,11 +11,14 @@ from apps.audit.services import log_audit
 from apps.core.permissions import IsAdmin, IsCourier, IsRestaurant
 from apps.payments.services import record_cod_payment
 
-from .models import CourierProfile, Order
+from django.utils import timezone
+
+from .models import CourierLocation, CourierProfile, Order
 from .push_models import OrderPushSubscription
 from .serializers import (
     AssignCourierSerializer,
     CheckoutSerializer,
+    CourierLocationSerializer,
     CourierSerializer,
     OrderSerializer,
     OrderStatusUpdateSerializer,
@@ -377,3 +380,44 @@ class AdminCourierDeleteView(APIView):
             profile.user.is_active = False
             profile.user.save(update_fields=["is_active"])
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CourierLocationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, public_id):
+        order = get_object_or_404(Order.objects.all(), public_id=public_id)
+        try:
+            loc = CourierLocation.objects.get(order=order)
+            age = (timezone.now() - loc.updated_at).total_seconds()
+            return Response({
+                "latitude": float(loc.latitude),
+                "longitude": float(loc.longitude),
+                "updated_at": loc.updated_at.isoformat(),
+                "active": age < 300,
+            })
+        except CourierLocation.DoesNotExist:
+            return Response({"latitude": None, "longitude": None, "active": False}, status=404)
+
+    def post(self, request, public_id):
+        user = request.user
+        if user.role != "courier" or not user.courier_profile_id:
+            return Response({"detail": "Réservé aux livreurs."}, status=403)
+        order = get_object_or_404(Order.objects.all(), public_id=public_id)
+        if order.courier_id != user.courier_profile_id:
+            return Response({"detail": "Vous n'êtes pas le livreur assigné."}, status=403)
+        ser = CourierLocationSerializer(data=request.data)
+        ser.is_valid(raise_exception=True)
+        loc, _ = CourierLocation.objects.update_or_create(
+            order=order,
+            courier=order.courier,
+            defaults={
+                "latitude": ser.validated_data["latitude"],
+                "longitude": ser.validated_data["longitude"],
+            },
+        )
+        return Response({
+            "latitude": float(loc.latitude),
+            "longitude": float(loc.longitude),
+            "updated_at": loc.updated_at.isoformat(),
+        }, status=200)

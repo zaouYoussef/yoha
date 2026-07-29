@@ -244,6 +244,11 @@ class OrderSerializer(serializers.ModelSerializer):
         return str(obj.client_id) if obj.client_id else None
 
 
+class CourierLocationSerializer(serializers.Serializer):
+    latitude = serializers.DecimalField(max_digits=9, decimal_places=6)
+    longitude = serializers.DecimalField(max_digits=9, decimal_places=6)
+
+
 class OrderStatusUpdateSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=Order.Status.choices)
     note = serializers.CharField(required=False, allow_blank=True, default="")

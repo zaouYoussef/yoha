@@ -119,9 +119,9 @@ export function OrderTrackingTimeline({ status = 'placed' }) {
                 >
                   {meta.label}
                 </span>
-                {current && (
+                {current && activeMsg.clientMsg && (
                   <span className="mt-0.5 text-[9px] text-center text-ink-500 dark:text-ink-400 leading-snug max-w-[5rem] truncate hidden lg:block">
-                    {activeMsg.label}
+                    {activeMsg.clientMsg}
                   </span>
                 )}
               </div>

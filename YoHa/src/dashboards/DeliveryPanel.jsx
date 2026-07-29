@@ -359,6 +359,10 @@ function useCourierAutoGps(courier, orders) {
     coords: null,
   });
 
+  const syncGpsRemote = useCallback((o, lat, lng) => {
+    ordersApi.updateLocation(o.id, lat, lng).catch(() => {});
+  }, []);
+
   const requestGps = useCallback(() => {
     if (typeof window === 'undefined') return;
 
@@ -372,7 +376,10 @@ function useCourierAutoGps(courier, orders) {
             (o) => String(o.courierId) === String(courier.id) && o.status !== 'delivered'
           );
           if (activeOrders.length > 0) {
-            activeOrders.forEach((o) => updateCourierGps(o.id, coords.lat, coords.lng, true));
+            activeOrders.forEach((o) => {
+              updateCourierGps(o.id, coords.lat, coords.lng, true);
+              syncGpsRemote(o, coords.lat, coords.lng);
+            });
           } else {
             updateCourierGps('active_courier', coords.lat, coords.lng, true);
           }
@@ -384,7 +391,10 @@ function useCourierAutoGps(courier, orders) {
           const activeOrders = orders.filter(
             (o) => String(o.courierId) === String(courier.id) && o.status !== 'delivered'
           );
-          activeOrders.forEach((o) => updateCourierGps(o.id, fallbackCoords.lat, fallbackCoords.lng, true));
+          activeOrders.forEach((o) => {
+            updateCourierGps(o.id, fallbackCoords.lat, fallbackCoords.lng, true);
+            syncGpsRemote(o, fallbackCoords.lat, fallbackCoords.lng);
+          });
         },
         { enableHighAccuracy: true }
       );
@@ -394,9 +404,12 @@ function useCourierAutoGps(courier, orders) {
       const activeOrders = orders.filter(
         (o) => String(o.courierId) === String(courier.id) && o.status !== 'delivered'
       );
-      activeOrders.forEach((o) => updateCourierGps(o.id, fallbackCoords.lat, fallbackCoords.lng, true));
+      activeOrders.forEach((o) => {
+        updateCourierGps(o.id, fallbackCoords.lat, fallbackCoords.lng, true);
+        syncGpsRemote(o, fallbackCoords.lat, fallbackCoords.lng);
+      });
     }
-  }, [courier, orders]);
+  }, [courier, orders, syncGpsRemote]);
 
   useEffect(() => {
     requestGps();
@@ -902,7 +915,9 @@ function CourierGpsTrackerToggle({ orderId }) {
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
-            updateCourierGps(orderId, pos.coords.latitude, pos.coords.longitude, true);
+            const lat = pos.coords.latitude, lng = pos.coords.longitude;
+            updateCourierGps(orderId, lat, lng, true);
+            ordersApi.updateLocation(orderId, lat, lng).catch(() => {});
             setActive(true);
           },
           () => {

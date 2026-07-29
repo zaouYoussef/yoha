@@ -9,6 +9,7 @@ import { Button } from '../components/ui/Button.jsx';
 import { OrderTrackingTimeline, OrderStatusBadge } from '../components/ui/OrderStep.jsx';
 import { formatMad } from '../data/index.js';
 import { OrderRatingCard } from '../components/ui/OrderRatingCard.jsx';
+import { LiveMapTracker } from '../components/ui/LiveMapTracker.jsx';
 import { getCourierGps, calculateHaversineDistance, resolveDestinationCoords } from '../utils/courierGps.js';
 
 function useNotificationPermission() {
@@ -291,7 +292,6 @@ function ProgressBarSection({ status, stepNum, displayedProgressPct, gpsCalculat
 }
 
 function OrderHeader({ orderId, order, status }) {
-  const c = STATUS_COLORS[status] || STATUS_COLORS.placed;
   return (
     <div className="px-3 pt-3 pb-0 sm:px-5 sm:pt-5">
       <div className="flex items-center justify-between gap-2">
@@ -307,10 +307,7 @@ function OrderHeader({ orderId, order, status }) {
             </p>
           )}
         </div>
-        <div className={`inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-lg ${c.badge}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
-          <OrderStatusBadge status={status} />
-        </div>
+        <OrderStatusBadge status={status} />
       </div>
     </div>
   );
@@ -475,10 +472,19 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 via-pink-500 to-emerald-500" />
           <OrderHeader orderId={orderId} order={order} status={status} />
           {status !== 'delivered' && (
-            <ProgressBarSection
-              status={status} stepNum={stepNum} displayedProgressPct={displayedProgressPct}
-              gpsCalculated={gpsCalculated} destInfo={destInfo} courierName={order?.courierName}
-            />
+            <>
+              <ProgressBarSection
+                status={status} stepNum={stepNum} displayedProgressPct={displayedProgressPct}
+                gpsCalculated={gpsCalculated} destInfo={destInfo} courierName={order?.courierName}
+              />
+              <div className="px-3 sm:px-5">
+                <LiveMapTracker
+                  orderId={orderId}
+                  courierName={order?.courierName}
+                  address={order?.customerAddress || order?.address || order?.delivery_instructions}
+                />
+              </div>
+            </>
           )}
           <div className="px-2 sm:px-5 py-3">
             <OrderTrackingTimeline status={status} />

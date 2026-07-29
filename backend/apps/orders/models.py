@@ -242,4 +242,19 @@ class OrderStatusHistory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class CourierLocation(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="courier_locations")
+    courier = models.ForeignKey(CourierProfile, on_delete=models.CASCADE, related_name="locations")
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "position livreur"
+        unique_together = ["order", "courier"]
+
+    def __str__(self):
+        return f"{self.courier} @ ({self.latitude}, {self.longitude})"
+
+
 from .push_models import OrderPushSubscription  # noqa: E402, F401

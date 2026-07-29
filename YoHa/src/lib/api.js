@@ -595,4 +595,19 @@ export const ordersApi = {
       body: {},
     });
   },
+
+  async updateLocation(publicId, latitude, longitude) {
+    return apiFetch(`/orders/${publicId}/location/`, {
+      method: 'POST',
+      body: { latitude, longitude },
+    });
+  },
+
+  async getLocation(publicId) {
+    try {
+      return await apiFetch(`/orders/${publicId}/location/`);
+    } catch {
+      return { latitude: null, longitude: null, active: false };
+    }
+  },
 };
