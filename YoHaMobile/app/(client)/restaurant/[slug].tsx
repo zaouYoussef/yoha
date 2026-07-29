@@ -327,6 +327,7 @@ export default function RestaurantScreen() {
                     onItemPress={setSheetItem}
                     onItemAdd={(item) => handleAdd(item)}
                     orderingDisabled={!isOpen}
+                    cuisine={restaurant.cuisine}
                   />
                 </View>
               ))}

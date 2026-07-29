@@ -24,14 +24,18 @@ export function MenuItemCard({
   orderingDisabled?: boolean;
 }) {
   const [burst, setBurst] = useState(0);
+  const [added, setAdded] = useState(false);
   const bump = useSharedValue(1);
   const btnStyle = useAnimatedStyle(() => ({ transform: [{ scale: bump.value }] }));
   const unavailable = item.isAvailable === false || orderingDisabled;
+  const isPopular = Number(item.price) > 14;
 
   const handleAdd = () => {
     if (unavailable) return;
     bump.value = withSequence(withSpring(1.28, { damping: 6 }), withSpring(1));
     setBurst((b) => b + 1);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1200);
     onAdd();
   };
 
@@ -48,6 +52,11 @@ export function MenuItemCard({
             <Text style={{ fontSize: 28 }}>🍽️</Text>
           </LinearGradient>
         )}
+        {isPopular && !unavailable ? (
+          <View style={styles.popBadge}>
+            <Text style={styles.popBadgeText}>Populaire</Text>
+          </View>
+        ) : null}
         {unavailable ? (
           <View style={styles.unavail}>
             <Text style={styles.unavailText}>
@@ -69,8 +78,13 @@ export function MenuItemCard({
               <AddBurst trigger={burst} />
               <Animated.View style={btnStyle}>
                 <Pressable onPress={handleAdd} hitSlop={6}>
-                  <LinearGradient colors={[...gradients.cta]} style={styles.addBtn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                    <Text style={styles.addText}>+</Text>
+                  <LinearGradient
+                    colors={added ? ['#10b981', '#059669'] : [...gradients.cta]}
+                    style={[styles.addBtn, added && styles.addBtnAdded]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                  >
+                    <Text style={styles.addText}>{added ? '✓' : '+'}</Text>
                   </LinearGradient>
                 </Pressable>
               </Animated.View>
@@ -96,6 +110,19 @@ const styles = StyleSheet.create({
   imgWrap: { position: 'relative' },
   img: { width: 118, height: 118 },
   imgPh: { alignItems: 'center', justifyContent: 'center' },
+  popBadge: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.full,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    borderWidth: 1,
+    borderColor: 'rgba(249,115,22,0.3)',
+  },
+  popBadgeText: { fontFamily: fonts.extrabold, fontSize: 9, color: '#c2410c', letterSpacing: 0.3 },
+  addBtnAdded: { shadowColor: '#10b981', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.35, shadowRadius: 6, elevation: 4 },
   unavail: {
     ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(15,23,42,0.55)',

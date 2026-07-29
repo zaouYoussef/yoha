@@ -31,9 +31,21 @@ self.addEventListener("push", function (event) {
 
 self.addEventListener("notificationclick", function (event) {
   event.notification.close();
-  var url = event.notification.data && event.notification.data.url
-    ? event.notification.data.url
-    : "/delivery";
+  var data = event.notification.data || {};
+  var tag = event.notification.tag || "";
+
+  // Client notifications use tag prefix "yoha-client-"
+  var isClient = tag.indexOf("yoha-client-") === 0;
+  var orderId = isClient && data.orderId
+    ? data.orderId
+    : (data.orderId || (tag.replace("yoha-client-", "") || null));
+
+  var url = data.url
+    ? data.url
+    : isClient && orderId
+      ? "/order/" + orderId
+      : "/delivery";
+
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (clientList) {
       for (var i = 0; i < clientList.length; i++) {

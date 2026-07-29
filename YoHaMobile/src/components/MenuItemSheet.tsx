@@ -17,6 +17,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MenuItem } from '../lib/api';
 import { formatMad } from '../lib/constants';
+import { useCart } from '../contexts/CartContext';
 import { hapticLight, hapticSuccess } from '../lib/haptics';
 import { brand, gradients, ink, radius, shadows } from '../theme';
 import { fonts } from '../theme/fonts';
@@ -66,6 +67,7 @@ export function MenuItemSheet({
   orderingDisabled?: boolean;
 }) {
   const insets = useSafeAreaInsets();
+  const { items: cartItems, updateQty } = useCart();
   const [qty, setQty] = React.useState(1);
   const translateY = useSharedValue(600);
 
@@ -93,6 +95,8 @@ export function MenuItemSheet({
   if (!item) return null;
 
   const unavailable = item.isAvailable === false || orderingDisabled;
+  const existing = cartItems.find((c) => c.id === item.id);
+  const cartQty = existing?.qty ?? 0;
   const total = Number(item.price) * qty;
 
   const handleAdd = () => {
@@ -100,6 +104,17 @@ export function MenuItemSheet({
     onAdd(qty);
     onClose();
     hapticSuccess();
+  };
+
+  const handleCartQty = (delta: number) => {
+    if (!existing) return;
+    const next = cartQty + delta;
+    if (next <= 0) {
+      updateQty(item.id, 0);
+    } else {
+      updateQty(item.id, next);
+    }
+    hapticLight();
   };
 
   return (
@@ -130,7 +145,10 @@ export function MenuItemSheet({
 
           <Text style={styles.name}>{item.name}</Text>
           <View style={styles.priceRow}>
-            <Text style={styles.price}>{formatMad(Number(item.price))}</Text>
+            <View>
+              <Text style={styles.priceLabel}>Prix unitaire</Text>
+              <Text style={styles.price}>{formatMad(Number(item.price))}</Text>
+            </View>
             {unavailable ? (
               <View style={styles.offBadge}>
                 <Text style={styles.offText}>Indisponible</Text>
@@ -190,37 +208,61 @@ export function MenuItemSheet({
         </ScrollView>
 
         <View style={styles.footer}>
-          <View style={styles.qtyRow}>
-            <Pressable
-              onPress={() => { hapticLight(); setQty((q) => Math.max(1, q - 1)); }}
-              style={styles.qtyBtn}
-            >
-              <Text style={styles.qtyBtnText}>−</Text>
-            </Pressable>
-            <Text style={styles.qtyVal}>{qty}</Text>
-            <Pressable
-              onPress={() => { hapticLight(); setQty((q) => Math.min(50, q + 1)); }}
-              style={styles.qtyBtn}
-            >
-              <Text style={styles.qtyBtnText}>+</Text>
-            </Pressable>
-          </View>
-          <Pressable onPress={handleAdd} style={{ flex: 1 }} disabled={unavailable}>
-            <LinearGradient
-              colors={unavailable ? [ink[300], ink[400]] : [...gradients.cta]}
-              style={[styles.addBtn, unavailable && { opacity: 0.7 }]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-            >
-              <Text style={styles.addText}>
-                {unavailable
-                  ? orderingDisabled && item.isAvailable !== false
-                    ? 'Restaurant fermé'
-                    : 'Non disponible'
-                  : `Ajouter · ${formatMad(total)}`}
-              </Text>
-            </LinearGradient>
-          </Pressable>
+          {cartQty > 0 ? (
+            <>
+              <View style={styles.cartInfo}>
+                <Text style={styles.cartInfoText}>Dans le panier</Text>
+              </View>
+              <View style={styles.inCartRow}>
+                <Pressable onPress={() => handleCartQty(-1)} style={styles.qtyBtn}>
+                  <Text style={styles.qtyBtnText}>−</Text>
+                </Pressable>
+                <Text style={styles.qtyVal}>{cartQty}</Text>
+                <Pressable onPress={() => handleCartQty(1)} style={styles.qtyBtn}>
+                  <Text style={styles.qtyBtnText}>+</Text>
+                </Pressable>
+              </View>
+              <Pressable onPress={() => { updateQty(item.id, cartQty + qty); onClose(); hapticSuccess(); }} style={{ flex: 1 }}>
+                <LinearGradient colors={[...gradients.cta]} style={styles.addBtn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                  <Text style={styles.addText}>+ Ajouter {qty}</Text>
+                </LinearGradient>
+              </Pressable>
+            </>
+          ) : (
+            <>
+              <View style={styles.qtyRow}>
+                <Pressable
+                  onPress={() => { hapticLight(); setQty((q) => Math.max(1, q - 1)); }}
+                  style={styles.qtyBtn}
+                >
+                  <Text style={styles.qtyBtnText}>−</Text>
+                </Pressable>
+                <Text style={styles.qtyVal}>{qty}</Text>
+                <Pressable
+                  onPress={() => { hapticLight(); setQty((q) => Math.min(50, q + 1)); }}
+                  style={styles.qtyBtn}
+                >
+                  <Text style={styles.qtyBtnText}>+</Text>
+                </Pressable>
+              </View>
+              <Pressable onPress={handleAdd} style={{ flex: 1 }} disabled={unavailable}>
+                <LinearGradient
+                  colors={unavailable ? [ink[300], ink[400]] : [...gradients.cta]}
+                  style={[styles.addBtn, unavailable && { opacity: 0.7 }]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                >
+                  <Text style={styles.addText}>
+                    {unavailable
+                      ? orderingDisabled && item.isAvailable !== false
+                        ? 'Restaurant fermé'
+                        : 'Non disponible'
+                      : `Ajouter · ${formatMad(total)}`}
+                  </Text>
+                </LinearGradient>
+              </Pressable>
+            </>
+          )}
         </View>
       </Animated.View>
     </Modal>
@@ -269,6 +311,7 @@ const styles = StyleSheet.create({
   heroGrad: { ...StyleSheet.absoluteFill },
   name: { fontFamily: fonts.display, fontSize: 26, color: ink[900], letterSpacing: -0.6 },
   priceRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 8 },
+  priceLabel: { fontFamily: fonts.bold, fontSize: 10, color: ink[400], letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 2 },
   price: { fontFamily: fonts.extrabold, fontSize: 22, color: brand[600] },
   availBadge: {
     paddingHorizontal: 10,
@@ -359,6 +402,16 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: ink[100],
   },
+  cartInfo: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radius.full,
+    backgroundColor: '#ecfdf5',
+    borderWidth: 1,
+    borderColor: '#a7f3d0',
+  },
+  cartInfoText: { fontFamily: fonts.bold, fontSize: 12, color: '#059669' },
+  inCartRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   qtyRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   qtyBtn: {
     width: 44,

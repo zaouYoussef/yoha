@@ -34,7 +34,7 @@ def assert_role_may_cancel(*, actor, order: Order) -> None:
                 "Après récupération par le livreur, seul le livreur peut annuler la course."
             )
     elif role == "courier":
-        if order.courier_id != actor.courier_profile_id:
+        if order.courier_id is not None and order.courier_id != actor.courier_profile_id:
             raise ValueError("Accès refusé.")
         allowed = Order.BEFORE_PICKUP_STATUSES | {Order.Status.DELIVERING}
         if order.status not in allowed:

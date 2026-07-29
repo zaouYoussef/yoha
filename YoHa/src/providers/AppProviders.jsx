@@ -159,9 +159,49 @@ function triggerProNotification(title, body) {
       try {
         new Notification(title, {
           body,
-          icon: '/icon.png',
+          icon: '/logo.png',
           vibrate: [300, 100, 300, 100, 300],
           tag: 'yoha-pro-notif',
+        });
+      } catch {}
+    }
+  }
+}
+
+function playClientChime() {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    // pleasant two-tone chime: C5 → E5
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, now);
+    osc.frequency.setValueAtTime(659.25, now + 0.12);
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.6);
+  } catch {}
+}
+
+function triggerClientNotification(title, body, orderId) {
+  playClientChime();
+  if (typeof window !== 'undefined' && 'Notification' in window) {
+    if (Notification.permission === 'granted') {
+      try {
+        new Notification(title, {
+          body,
+          icon: '/logo.png',
+          badge: '/logo.png',
+          vibrate: [200, 100, 200],
+          tag: `yoha-client-${orderId || Date.now()}`,
+          requireInteraction: false,
+          data: { orderId: orderId || null },
         });
       } catch {}
     }
@@ -216,10 +256,12 @@ function triggerProNotification(title, body) {
       setOrders((prev) => {
         const isCourierContext = user?.role === 'courier' || (typeof window !== 'undefined' && window.location.pathname.includes('/delivery'));
         const isRestoContext = user?.role === 'restaurant' || (typeof window !== 'undefined' && window.location.pathname.includes('/restaurant-dash'));
+        const isClientContext = !isCourierContext && !isRestoContext;
 
-        if (silent && (isCourierContext || isRestoContext)) {
+        if (silent) {
           for (const o of merged) {
-            const existed = prev.some((p) => p.id === o.id);
+            const prevOrder = prev.find((p) => p.id === o.id);
+            const existed = !!prevOrder;
             const isUnassigned = !o.courierId || o.courierId === '0' || o.courierId === 'null';
             const isNotDone = o.status !== 'delivered' && o.status !== 'cancelled' && o.status !== 'COMPLETED';
 
@@ -247,6 +289,25 @@ function triggerProNotification(title, body) {
                   `Commande #${o.id} · ${o.customer?.name || 'Client'} — ${formatMad(o.totalDh)}`
                 );
               }
+            }
+
+            // Client order status change detection
+            if (isClientContext && prevOrder && prevOrder.status !== o.status) {
+              const statusLabels = {
+                confirmed: 'Commande confirmée ✅',
+                preparing: 'En préparation 🍳',
+                out_for_delivery: 'Votre livreur est en route 🛵',
+                delivered: 'Livrée avec succès 🎉',
+                cancelled: 'Commande annulée',
+              };
+              const label = statusLabels[o.status] || `Statut: ${o.status}`;
+              pushToast({
+                title: label,
+                desc: `#${o.id} · ${o.restaurantName || 'YoHa'}`,
+                type: o.status === 'cancelled' ? 'default' : 'success',
+                duration: 6000,
+              });
+              triggerClientNotification(label, `${o.restaurantName || 'YoHa'} · #${o.id}`, o.id);
             }
           }
         }

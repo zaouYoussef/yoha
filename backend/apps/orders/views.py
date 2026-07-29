@@ -232,7 +232,7 @@ class OrderStatusView(APIView):
         user = request.user
         if user.role == "restaurant" and order.restaurant_id != user.restaurant_profile_id:
             return Response({"detail": "Accès refusé."}, status=403)
-        if user.role == "courier" and order.courier_id != user.courier_profile_id:
+        if user.role == "courier" and order.courier_id is not None and order.courier_id != user.courier_profile_id:
             return Response({"detail": "Accès refusé."}, status=403)
 
         ser = OrderStatusUpdateSerializer(data=request.data)

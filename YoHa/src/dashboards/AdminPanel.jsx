@@ -427,7 +427,7 @@ export function AdminOrders({ orders }) {
           description="Essayez de modifier vos filtres ou votre recherche"
         />
       ) : (
-        <RecentOrdersTable orders={filtered} title={`${filtered.length} commandes`} full />
+        <RecentOrdersTable orders={filtered} title={`${filtered.length} commandes`} full showCancellation />
       )}
     </div>
   );
