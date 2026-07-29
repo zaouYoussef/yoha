@@ -605,16 +605,18 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                   disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
                   variant="primary"
                   size="lg"
-                  className="w-full justify-center py-4 rounded-2xl text-base shadow-glow hover:scale-[1.02] active:scale-95 transition-all font-black cursor-pointer"
+                  className="w-full justify-center py-4 px-4 rounded-2xl text-sm sm:text-base shadow-glow hover:scale-[1.01] active:scale-95 transition-all font-black cursor-pointer leading-tight min-h-[52px]"
                 >
                   {submitting ? (
                     <span className="inline-flex items-center gap-2">Traitement en cours... <Loader/></span>
                   ) : (
-                    <span className="inline-flex items-center gap-2 whitespace-nowrap">
-                      Confirmer la commande · {isCustom 
+                    <span className="flex items-center justify-center gap-2 flex-wrap text-center">
+                      <span>Confirmer la commande</span>
+                      <span className="opacity-90">({isCustom 
                         ? (total > 0 ? `${formatMad(grand)} + achats` : "20 DH + achats") 
                         : formatMad(grand)
-                      } <I.Check size={20} stroke={3}/>
+                      })</span>
+                      <I.Check size={18} stroke={3} className="shrink-0" />
                     </span>
                   )}
                 </Button>
@@ -630,11 +632,11 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
       </div>
 
       {/* Mobile Floating Sticky Checkout Bar */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 p-3 sm:p-4 bg-white/95 dark:bg-ink-950/95 backdrop-blur-md border-t border-ink-200/80 dark:border-ink-800 shadow-2xl pb-safe">
-        <div className="max-w-md mx-auto flex items-center justify-between gap-3">
-          <div>
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 p-3 sm:p-4 bg-white/95 dark:bg-ink-950/95 backdrop-blur-xl border-t border-ink-200/80 dark:border-ink-800 shadow-2xl pb-[calc(12px+env(safe-area-inset-bottom))]">
+        <div className="max-w-lg mx-auto flex items-center justify-between gap-3">
+          <div className="shrink-0">
             <div className="text-[10px] font-black uppercase tracking-wider text-ink-400">Total à payer</div>
-            <div className="font-display font-black text-lg text-brand-600 dark:text-brand-400">
+            <div className="font-display font-black text-base sm:text-lg text-brand-600 dark:text-brand-400">
               {isCustom ? (total > 0 ? `${formatMad(grand)} + achats` : '20 DH + achats') : formatMad(grand)}
             </div>
           </div>
@@ -643,7 +645,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
             disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
             variant="primary"
             size="md"
-            className="flex-1 justify-center py-3 rounded-2xl font-black text-sm shadow-glow cursor-pointer"
+            className="flex-1 justify-center py-3.5 px-3 rounded-2xl font-black text-sm shadow-glow cursor-pointer leading-tight min-h-[46px]"
           >
             {submitting ? 'Envoi...' : 'Confirmer la commande 🚀'}
           </Button>

@@ -182,13 +182,20 @@ function triggerProNotification(title, body) {
     if (!silent) setLoadingOrders(true);
     try {
       const byId = new Map();
-      localOrders.forEach((o) => { if (o && o.id) byId.set(o.id, o); });
 
       if (hasAuth) {
         try {
           const list = await ordersApi.list();
-          (Array.isArray(list) ? list : []).forEach((o) => byId.set(o.id, o));
-        } catch {}
+          if (Array.isArray(list)) {
+            // API est la source de vérité pour les utilisateurs authentifiés
+            list.forEach((o) => { if (o && o.id) byId.set(o.id, o); });
+          }
+        } catch {
+          // API échouée → fallback localStorage
+          localOrders.forEach((o) => { if (o && o.id) byId.set(o.id, o); });
+        }
+      } else {
+        localOrders.forEach((o) => { if (o && o.id) byId.set(o.id, o); });
       }
       if (guestIds.length) {
         try {
