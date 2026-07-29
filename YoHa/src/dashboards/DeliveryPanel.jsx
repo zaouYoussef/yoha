@@ -381,7 +381,7 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
    AVAILABLE ORDERS
    ═══════════════════════════════════════════════════ */
 export function DeliveryAvailable({ courier }) {
-  const { orders, assignCourier, refreshOrders } = useOrders();
+  const { orders, assignCourier, refreshOrders, cancelOrder } = useOrders();
   const { user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const isDemo = !!(user && !getTokens()?.access);
@@ -823,13 +823,13 @@ function CourierGpsTrackerToggle({ orderId }) {
             setActive(true);
           },
           () => {
-            updateCourierGps(orderId, 35.7595, -5.8340, true);
+            updateCourierGps(orderId, 35.68500, -5.92300, true);
             setActive(true);
           },
           { enableHighAccuracy: true }
         );
       } else {
-        updateCourierGps(orderId, 35.7595, -5.8340, true);
+        updateCourierGps(orderId, 35.68500, -5.92300, true);
         setActive(true);
       }
     }
