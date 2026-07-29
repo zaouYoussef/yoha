@@ -31,15 +31,18 @@ function devMachineIp(): string | null {
  */
 export function resolveApiBase(): string {
   const fromEnv = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '');
+  if (!__DEV__) {
+    // Release build pour Play Store / Production
+    return fromEnv && !fromEnv.includes('127.0.0.1') ? fromEnv : 'https://yoha.ma/api/v1';
+  }
   if (Platform.OS === 'web') {
     return 'http://127.0.0.1:8000/api/v1';
   }
   const lanIp = devMachineIp();
   if (fromEnv) {
-    // 127.0.0.1 dans .env = mode USB (adb reverse) — ne jamais remplacer
     return fromEnv;
   }
-  if (lanIp && lanIp !== '127.0.0.1' && __DEV__) {
+  if (lanIp && lanIp !== '127.0.0.1') {
     return `http://${lanIp}:8000/api/v1`;
   }
   if (Platform.OS === 'android' && !Constants.isDevice) {

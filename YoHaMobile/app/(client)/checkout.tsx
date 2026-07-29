@@ -50,6 +50,8 @@ export default function CheckoutScreen() {
   const [addressPreset, setAddressPreset] = useState('chu-urgences');
   const [payment, setPayment] = useState<PaymentMethod>('cash');
   const [scheduledTime, setScheduledTime] = useState('');
+  const [promoInput, setPromoInput] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountPct: number } | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -96,9 +98,23 @@ export default function CheckoutScreen() {
   const customItems = items.filter(i => (i as any).isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes((i as any).restaurantCuisine));
   const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
   const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
-  const isLimitBlocked = !isCustom && subtotal < 70;
+  const isLimitBlocked = !isCustom && subtotal < 40;
   const serviceFee = getServiceFeeMad(subtotal);
-  const total = subtotal + serviceFee + deliveryFee;
+  const discountAmount = appliedPromo ? Math.round((subtotal * appliedPromo.discountPct) / 100) : 0;
+  const total = Math.max(0, subtotal - discountAmount) + serviceFee + deliveryFee;
+
+  const handleApplyPromo = () => {
+    const code = promoInput.trim().toUpperCase();
+    if (!code) return;
+    if (code === 'YOHA15' || code === 'YOHA10' || code === 'YOHA50') {
+      const pct = code === 'YOHA50' ? 50 : code === 'YOHA15' ? 15 : 10;
+      setAppliedPromo({ code, discountPct: pct });
+      showToast('Code promo appliqué !', `-${pct}% sur votre commande 🎉`, '🏷️');
+      setError('');
+    } else {
+      setError('Code promo invalide (essayez YOHA15).');
+    }
+  };
 
   const handlePreset = (id: string) => {
     setAddressPreset(id);
@@ -112,7 +128,7 @@ export default function CheckoutScreen() {
   const handleConfirm = async () => {
     setError('');
     if (isLimitBlocked) {
-      setError('Commande inférieure à 70 DH non acceptée.');
+      setError('Commande inférieure à 40 DH non acceptée.');
       return;
     }
     if (!name.trim() || !address.trim() || !phone.trim()) {
@@ -142,6 +158,7 @@ export default function CheckoutScreen() {
         delivery_instructions: notes.trim(),
         payment_method: payment,
         scheduled_delivery_at: scheduledTime || undefined,
+        promo_code: appliedPromo?.code || undefined,
       });
       if (!user && order.id) await addGuestOrderId(String(order.id));
       if (order.id) await subscribeOrdersPush([String(order.id)]);
@@ -319,6 +336,12 @@ export default function CheckoutScreen() {
                 label="Livraison"
                 value={deliveryFee > 0 ? formatMad(deliveryFee) : 'Offerte ✨'}
               />
+              {appliedPromo && (
+                <Row
+                  label={`Remise (${appliedPromo.code})`}
+                  value={`-${formatMad(discountAmount)}`}
+                />
+              )}
               <Row
                 label="Total"
                 value={isCustom
@@ -327,6 +350,51 @@ export default function CheckoutScreen() {
                 }
                 bold
               />
+
+              {/* Code Promo UI */}
+              <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: ink[100] }}>
+                <Text style={{ fontFamily: fonts.bold, fontSize: 13, color: ink[700], marginBottom: 6 }}>
+                  🏷️ Code Promo
+                </Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TextInput
+                    value={promoInput}
+                    onChangeText={setPromoInput}
+                    placeholder="Ex: YOHA15"
+                    autoCapitalize="characters"
+                    style={{
+                      flex: 1,
+                      height: 42,
+                      borderWidth: 1,
+                      borderColor: ink[200],
+                      borderRadius: radius.md,
+                      paddingHorizontal: 12,
+                      fontFamily: fonts.bold,
+                      fontSize: 14,
+                      color: ink[900],
+                      backgroundColor: '#f8fafc',
+                    }}
+                  />
+                  <Pressable
+                    onPress={handleApplyPromo}
+                    style={{
+                      height: 42,
+                      paddingHorizontal: 16,
+                      borderRadius: radius.md,
+                      backgroundColor: brand[500],
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Text style={{ color: '#fff', fontFamily: fonts.bold, fontSize: 13 }}>Appliquer</Text>
+                  </Pressable>
+                </View>
+                {appliedPromo && (
+                  <Text style={{ color: '#10b981', fontFamily: fonts.bold, fontSize: 12, marginTop: 4 }}>
+                    ✓ Code {appliedPromo.code} (-{appliedPromo.discountPct}%) activé !
+                  </Text>
+                )}
+              </View>
             </View>
           </FadeInView>
 
@@ -334,7 +402,7 @@ export default function CheckoutScreen() {
             <FadeInView delay={260}>
               <View style={styles.warnBanner}>
                 <Text style={styles.warnText}>
-                  ⚠️ Commande minimale de 70 DH non atteinte. Veuillez retourner au panier pour ajouter des articles.
+                  ⚠️ Commande minimale de 40 DH non atteinte. Veuillez retourner au panier pour ajouter des articles.
                 </Text>
               </View>
             </FadeInView>
