@@ -86,12 +86,6 @@ export function OrderTrackingTimeline({ status = 'placed' }) {
       {/* Desktop */}
       <div className="hidden sm:block">
         <div className="relative flex items-start justify-between">
-          <div className="absolute top-6 left-[10%] right-[10%] h-1 rounded-full bg-ink-100 dark:bg-ink-800" aria-hidden />
-          <div
-            className="absolute top-6 left-[10%] h-1 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-emerald-500 transition-all duration-700 ease-out"
-            style={{ width: `${Math.max(0, (currentIdx / (CLIENT_TRACK_STEPS.length - 1)) * 80)}%` }}
-            aria-hidden
-          />
 
           {CLIENT_TRACK_STEPS.map((key, i) => {
             const meta = STEP_META[key];
