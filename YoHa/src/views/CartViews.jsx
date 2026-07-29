@@ -240,14 +240,17 @@ export function FloatingCart({ count, total, items = [], onClick, hidden }) {
   const displayTotal = total + deliveryFee;
   
   return (
-    <button onClick={onClick}
-      className="cursor-grow fixed bottom-24 md:bottom-6 right-4 sm:right-6 z-30 group flex items-center gap-3 px-4 sm:px-5 py-3 rounded-2xl bg-ink-900 dark:bg-white text-white dark:text-ink-900 shadow-glow-lg active:scale-95 transition-transform animate-bounce-soft">
+    <button
+      type="button"
+      onClick={onClick}
+      className="cursor-pointer fixed bottom-20 md:bottom-6 right-3 sm:right-6 z-50 group flex items-center gap-2.5 sm:gap-3 px-3.5 sm:px-5 py-3 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white shadow-glow-lg active:scale-95 transition-all duration-200 pointer-events-auto border border-white/20 touch-manipulation"
+    >
       <span className="relative">
         <I.Bag size={20}/>
-        <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold bg-brand-500 text-white grid place-items-center">{count}</span>
+        <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-extrabold bg-white text-brand-600 grid place-items-center shadow-xs">{count}</span>
       </span>
-      <span className="font-bold text-sm sm:text-base hidden sm:inline">Voir le panier</span>
-      <span className="font-bold text-sm sm:text-base">
+      <span className="font-extrabold text-xs sm:text-base inline">Voir le panier</span>
+      <span className="font-black text-xs sm:text-base">
         {isCustom 
           ? (total > 0 ? `${formatMad(displayTotal)} + achats` : "20 DH + achats")
           : formatMad(displayTotal)

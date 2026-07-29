@@ -150,6 +150,8 @@ export function ShopShell({ children, showCampus = false }) {
             viewName === 'landing' ||
             viewName === 'success' ||
             viewName === 'auth' ||
+            viewName === 'checkout' ||
+            pathname === '/checkout' ||
             cartOpen
           }
         />
