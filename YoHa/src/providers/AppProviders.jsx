@@ -406,6 +406,17 @@ function triggerProNotification(title, body) {
         return next;
       });
 
+      /* Also save directly to localStorage to make sure the order
+         survives any race between setOrders callback and refreshOrders */
+      try {
+        if (typeof window !== 'undefined' && order?.id) {
+          const raw = localStorage.getItem('yoha_local_orders');
+          const existing = raw ? JSON.parse(raw) : [];
+          const updated = [order, ...existing.filter((o) => o.id !== order.id)].slice(0, 50);
+          localStorage.setItem('yoha_local_orders', JSON.stringify(updated));
+        }
+      } catch {}
+
       if (isLoggedInClient) {
         refreshOrders();
       }
