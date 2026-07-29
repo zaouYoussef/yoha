@@ -9,7 +9,7 @@ import { Button } from '../components/ui/Button.jsx';
 import { OrderTrackingTimeline, OrderStatusBadge } from '../components/ui/OrderStep.jsx';
 import { formatMad } from '../data/index.js';
 import { OrderRatingCard } from '../components/ui/OrderRatingCard.jsx';
-import { getCourierGps, calculateHaversineDistance, TANGER_DESTINATIONS } from '../utils/courierGps.js';
+import { getCourierGps, calculateHaversineDistance, resolveDestinationCoords } from '../utils/courierGps.js';
 
 function useNotificationPermission() {
   const [permitted, setPermitted] = useState(false);
@@ -67,21 +67,23 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
     };
   }, [syncGps]);
 
-  // Destination par défaut (CHU / Alliance)
-  const destCoords = TANGER_DESTINATIONS['chu-urgences'];
+  // Destination officielle parmi les 4 sites (CHU, FMPT, ISPITS, Alliance)
+  const destInfo = useMemo(() => {
+    return resolveDestinationCoords(order?.customerAddress || order?.address || order?.delivery_instructions || '');
+  }, [order]);
 
-  // Calcul intelligent basé sur GPS Livreur ou Estimation Temps
+  // Calcul intelligent basé sur GPS Livreur & destination exacte
   const gpsCalculated = useMemo(() => {
     if (!courierGps || !courierGps.active || status === 'delivered') return null;
-    const dist = calculateHaversineDistance(courierGps.lat, courierGps.lng, destCoords.lat, destCoords.lng);
-    const estMins = Math.max(2, Math.ceil((dist / 22) * 60 + 2)); // ~22 km/h en ville
+    const dist = calculateHaversineDistance(courierGps.lat, courierGps.lng, destInfo.lat, destInfo.lng);
+    const estMins = Math.max(2, Math.ceil((dist / 22) * 60 + 2));
     const progressPct = Math.min(98, Math.max(30, Math.round(100 - (dist / 3.2) * 65)));
     return {
       distanceKm: dist,
       travelMins: estMins,
       pct: progressPct,
     };
-  }, [courierGps, destCoords, status]);
+  }, [courierGps, destInfo, status]);
 
   const smartProgressPct = useMemo(() => {
     if (status === 'delivered') return 100;
@@ -286,18 +288,18 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
           </div>
 
           {/* Mode Indicator Badge (GPS vs Estimation) */}
-          <div className="mt-2.5 flex items-center justify-between text-[11px] font-semibold">
+          <div className="mt-2.5 flex items-center justify-between text-[11px] font-semibold gap-2">
             {gpsCalculated ? (
-              <span className="text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1.5 font-bold">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                📡 GPS Livreur Actif • À {gpsCalculated.distanceKm.toFixed(1)} km (~{gpsCalculated.travelMins} min)
+              <span className="text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1.5 font-bold truncate">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
+                <span className="truncate">📡 GPS {order?.courierName || 'Livreur'} • À {gpsCalculated.distanceKm.toFixed(1)} km de {destInfo.name} (~{gpsCalculated.travelMins} min)</span>
               </span>
             ) : (
-              <span className="text-sky-700 dark:text-sky-300 bg-sky-500/10 px-2.5 py-1 rounded-full border border-sky-500/20 flex items-center gap-1.5 font-bold">
-                ⏱️ Estimation automatique (Position GPS livreur non activée)
+              <span className="text-sky-700 dark:text-sky-300 bg-sky-500/10 px-2.5 py-1 rounded-full border border-sky-500/20 flex items-center gap-1.5 font-bold truncate">
+                <span className="truncate">⏱️ {destInfo.icon} {destInfo.name} (Estimation temps réel)</span>
               </span>
             )}
-            <span className="text-ink-400">Étape {stepNum}/4</span>
+            <span className="text-ink-400 shrink-0">Étape {stepNum}/4</span>
           </div>
         </div>
 
