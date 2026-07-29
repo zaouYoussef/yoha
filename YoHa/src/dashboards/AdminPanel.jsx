@@ -450,15 +450,20 @@ export function AdminOrderGpsCell({ order }) {
 
   useEffect(() => {
     if (!order?.id) return;
-    const fetchGps = () => setGpsData(getCourierGps(order.id));
+    const fetchGps = () => {
+      let data = getCourierGps(order.id);
+      if (!data && order.courierId) data = getCourierGps(order.courierId);
+      if (!data) data = getCourierGps('active_courier');
+      setGpsData(data);
+    };
     fetchGps();
-    const interval = setInterval(fetchGps, 4000);
+    const interval = setInterval(fetchGps, 3000);
     window.addEventListener('yoha_courier_gps_updated', fetchGps);
     return () => {
       clearInterval(interval);
       window.removeEventListener('yoha_courier_gps_updated', fetchGps);
     };
-  }, [order?.id]);
+  }, [order?.id, order?.courierId]);
 
   if (!order || order.status === 'delivered' || order.status === 'cancelled') {
     return <span className="text-ink-400 text-xs">—</span>;
@@ -466,34 +471,31 @@ export function AdminOrderGpsCell({ order }) {
 
   const destInfo = resolveDestinationCoords(order.customerAddress || order.address || order.delivery_instructions || '');
 
-  if (gpsData && gpsData.active) {
-    const dist = calculateHaversineDistance(gpsData.lat, gpsData.lng, destInfo.lat, destInfo.lng);
-    const mapsUrl = `https://www.google.com/maps?q=${gpsData.lat},${gpsData.lng}`;
-
-    return (
-      <div className="flex flex-col gap-1 text-xs">
-        <a
-          href={mapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 font-bold hover:bg-emerald-500/20 transition-all shrink-0 w-max"
-          title="Ouvrir la position exacte du livreur sur Google Maps"
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-          <span>📡 GPS Live ({dist.toFixed(1)} km)</span>
-          <I.ExternalLink size={12} />
-        </a>
-        <span className="text-[10px] text-ink-400 font-semibold truncate max-w-[140px]">
-          {gpsData.lat.toFixed(4)}, {gpsData.lng.toFixed(4)} ➔ {destInfo.name.split(' ')[0]}
-        </span>
-      </div>
-    );
-  }
+  // Coordonnées réelles ou coordonnées par défaut de la zone Tanger (35.68500, -5.92300)
+  const activeLat = gpsData?.active ? gpsData.lat : 35.68500;
+  const activeLng = gpsData?.active ? gpsData.lng : -5.92300;
+  const dist = calculateHaversineDistance(activeLat, activeLng, destInfo.lat, destInfo.lng);
+  const mapsUrl = `https://www.google.com/maps?q=${activeLat},${activeLng}`;
 
   return (
     <div className="flex flex-col gap-1 text-xs">
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300 font-semibold text-[11px] w-max">
-        ⏱️ Attente GPS ({destInfo.name.split(' ')[0]})
+      <a
+        href={mapsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-extrabold text-xs transition-all shrink-0 w-max shadow-xs ${
+          gpsData?.active
+            ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-600'
+            : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/30'
+        }`}
+        title={`Ouvrir la position de ${order.courierName || 'livreur'} sur Google Maps`}
+      >
+        <span className={`w-2 h-2 rounded-full ${gpsData?.active ? 'bg-white animate-ping' : 'bg-amber-500'}`} />
+        <span>{gpsData?.active ? `📡 GPS Live (${dist.toFixed(1)} km)` : `🗺️ Carte ${order.courierName || 'Livreur'}`}</span>
+        <I.ExternalLink size={12} />
+      </a>
+      <span className="text-[10px] text-ink-400 font-semibold truncate max-w-[150px]">
+        {activeLat.toFixed(4)}, {activeLng.toFixed(4)} ➔ {destInfo.name.split(' ')[0]}
       </span>
     </div>
   );
