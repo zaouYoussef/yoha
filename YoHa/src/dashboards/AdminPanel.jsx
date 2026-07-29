@@ -444,6 +444,60 @@ export function FilterChip({ active, onClick, children }) {
   );
 }
 
+export function AdminOrderGpsCell({ order }) {
+  const [gpsData, setGpsData] = useState(null);
+
+  useEffect(() => {
+    if (!order?.id) return;
+    const fetchGps = () => setGpsData(getCourierGps(order.id));
+    fetchGps();
+    const interval = setInterval(fetchGps, 4000);
+    window.addEventListener('yoha_courier_gps_updated', fetchGps);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('yoha_courier_gps_updated', fetchGps);
+    };
+  }, [order?.id]);
+
+  if (!order || order.status === 'delivered' || order.status === 'cancelled') {
+    return <span className="text-ink-400 text-xs">—</span>;
+  }
+
+  const destInfo = resolveDestinationCoords(order.customerAddress || order.address || order.delivery_instructions || '');
+
+  if (gpsData && gpsData.active) {
+    const dist = calculateHaversineDistance(gpsData.lat, gpsData.lng, destInfo.lat, destInfo.lng);
+    const mapsUrl = `https://www.google.com/maps?q=${gpsData.lat},${gpsData.lng}`;
+
+    return (
+      <div className="flex flex-col gap-1 text-xs">
+        <a
+          href={mapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 font-bold hover:bg-emerald-500/20 transition-all shrink-0 w-max"
+          title="Ouvrir la position exacte du livreur sur Google Maps"
+        >
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+          <span>📡 GPS Live ({dist.toFixed(1)} km)</span>
+          <I.ExternalLink size={12} />
+        </a>
+        <span className="text-[10px] text-ink-400 font-semibold truncate max-w-[140px]">
+          {gpsData.lat.toFixed(4)}, {gpsData.lng.toFixed(4)} ➔ {destInfo.name.split(' ')[0]}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1 text-xs">
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300 font-semibold text-[11px] w-max">
+        ⏱️ Attente GPS ({destInfo.name.split(' ')[0]})
+      </span>
+    </div>
+  );
+}
+
 /* ═══════════════════════════════════════════════════════════════
    RECENT ORDERS TABLE (exported, used by DeliveryPanel too)
    ═══════════════════════════════════════════════════════════════ */
@@ -454,7 +508,7 @@ export function RecentOrdersTable({ orders, title, full, gainMad, hideCourier = 
     if (o.status === 'cancelled') return 0;
     return gainMad != null ? gainMad : Number(o.netDh || 0);
   };
-  const colCount = 5 + (hideCourier ? 0 : 1) + (showGain ? 1 : 0);
+  const colCount = 6 + (hideCourier ? 0 : 1) + (showGain ? 1 : 0);
 
   return (
     <GlassCard className="overflow-hidden" hover={false}>
@@ -468,7 +522,7 @@ export function RecentOrdersTable({ orders, title, full, gainMad, hideCourier = 
       </div>
 
       <div className="hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[640px] text-sm">
+        <table className="w-full min-w-[720px] text-sm">
           <thead className="bg-ink-50/50 text-xs uppercase tracking-wider text-ink-500 dark:bg-ink-950/30">
             <tr>
               <th className="px-4 py-3 text-left sm:px-5">Commande</th>
@@ -477,6 +531,7 @@ export function RecentOrdersTable({ orders, title, full, gainMad, hideCourier = 
               {!hideCourier && (
                 <th className="px-4 py-3 text-left sm:px-5">Livreur</th>
               )}
+              <th className="px-4 py-3 text-left sm:px-5">Position GPS</th>
               <th className="px-4 py-3 text-right sm:px-5">Total</th>
               {showGain && (
                 <th className="px-4 py-3 text-right sm:px-5">{gainLabel}</th>
@@ -495,6 +550,9 @@ export function RecentOrdersTable({ orders, title, full, gainMad, hideCourier = 
                     {o.courierName || '—'}
                   </td>
                 )}
+                <td className="px-4 py-3 sm:px-5">
+                  <AdminOrderGpsCell order={o} />
+                </td>
                 <td className="px-4 py-3 text-right font-bold sm:px-5">
                   {formatMAD(o.totalDh)}
                 </td>
@@ -579,6 +637,10 @@ export function RecentOrdersTable({ orders, title, full, gainMad, hideCourier = 
                     </div>
                   </div>
                 )}
+              </div>
+              <div className="mt-2.5 p-2 rounded-lg bg-slate-100/70 dark:bg-ink-950/40 border border-ink-200/50 dark:border-ink-800/40">
+                <div className="text-[10px] font-bold text-ink-500 dark:text-ink-400 uppercase tracking-wider mb-1">Localisation Livreur</div>
+                <AdminOrderGpsCell order={o} />
               </div>
             </div>
           ))
@@ -912,6 +974,57 @@ export function AdminRestaurants() {
   );
 }
 
+export function AdminCourierLiveGpsBadge({ courier, orders }) {
+  const [gpsData, setGpsData] = useState(null);
+
+  useEffect(() => {
+    const courierOrders = orders.filter((o) => String(o.courierId) === String(courier.id) && o.status !== 'delivered');
+    const activeOrderId = courierOrders[0]?.id || 'active_courier';
+
+    const checkGps = () => {
+      let data = getCourierGps(activeOrderId);
+      if (!data) data = getCourierGps('active_courier');
+      setGpsData(data);
+    };
+
+    checkGps();
+    const interval = setInterval(checkGps, 4000);
+    window.addEventListener('yoha_courier_gps_updated', checkGps);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('yoha_courier_gps_updated', checkGps);
+    };
+  }, [courier.id, orders]);
+
+  if (gpsData && gpsData.active) {
+    const mapsUrl = `https://www.google.com/maps?q=${gpsData.lat},${gpsData.lng}`;
+    return (
+      <div className="mt-3 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
+          <span className="font-bold text-emerald-700 dark:text-emerald-300 truncate">
+            GPS Live: {gpsData.lat.toFixed(4)}, {gpsData.lng.toFixed(4)}
+          </span>
+        </div>
+        <a
+          href={mapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-extrabold text-[10px] hover:bg-emerald-700 transition shrink-0 ml-1"
+        >
+          Carte 📍
+        </a>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 p-2 rounded-xl bg-slate-100/80 dark:bg-ink-950/40 text-ink-400 text-[11px] font-semibold text-center">
+      ⚪ GPS non disponible / Hors-ligne
+    </div>
+  );
+}
+
 /* ═══════════════════════════════════════════════════════════════
    COURIERS
    ═══════════════════════════════════════════════════════════════ */
@@ -1157,6 +1270,9 @@ export function AdminCouriers() {
                 {c.isActive !== false ? 'Actif' : 'Inactif'}
               </span>
             </div>
+
+            {/* Live GPS Badge */}
+            <AdminCourierLiveGpsBadge courier={c} orders={orders} />
           </GlassCard>
         ))}
       </div>
