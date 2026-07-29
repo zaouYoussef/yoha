@@ -248,7 +248,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   }
 
   return (
-    <div className="page-enter max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+    <div className="page-enter max-w-5xl mx-auto px-4 sm:px-6 pt-4 pb-28 lg:pb-8">
       {/* Back Button & Checkout Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <button
