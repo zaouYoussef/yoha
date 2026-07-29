@@ -1,5 +1,6 @@
 """Envoi de notifications Web Push (VAPID) aux livreurs connectes."""
 
+import base64
 import json
 import logging
 
@@ -9,9 +10,65 @@ from apps.accounts.push_models import WebPushSubscription
 
 logger = logging.getLogger(__name__)
 
+_PEM_HEADER = "-----BEGIN PRIVATE KEY-----"
+_PEM_FOOTER = "-----END PRIVATE KEY-----"
+
+
+def _get_vapid_private_key() -> str:
+    """Retourne la cle privee VAPID au format PEM."""
+    raw = getattr(settings, "VAPID_PRIVATE_KEY", "")
+    if not raw:
+        return ""
+    if raw.startswith(_PEM_HEADER):
+        return raw
+    # raw is URL-safe base64 DER without markers -> reconstruire PEM
+    try:
+        b64 = raw.replace("-", "+").replace("_", "/")
+        missing = len(b64) % 4
+        if missing:
+            b64 += "=" * (4 - missing)
+        lines = [b64[i:i+64] for i in range(0, len(b64), 64)]
+        return _PEM_HEADER + "\n" + "\n".join(lines) + "\n" + _PEM_FOOTER
+    except Exception as exc:
+        logger.error("vapid_private_key_parse_error %s", exc)
+        return ""
+
+
+def _send_web_push(sub, payload: str, vapid_private: str, vapid_claims_email: str) -> bool:
+    from pywebpush import WebPusher, WebPushException
+
+    try:
+        WebPusher({
+            "endpoint": sub.endpoint,
+            "keys": {
+                "p256dh": sub.p256dh_key,
+                "auth": sub.auth_key,
+            },
+        }).send(
+            data=payload,
+            vapid_private_key=vapid_private,
+            vapid_claims={"sub": f"mailto:{vapid_claims_email}"},
+            ttl=86400,
+        )
+        return True
+    except WebPushException as exc:
+        if exc.response and exc.response.status_code in (410, 404):
+            logger.info("web_push_expired user=%s endpoint=%.48s", sub.user_id, sub.endpoint)
+            sub.delete()
+        else:
+            logger.warning(
+                "web_push_fail user=%s endpoint=%.48s status=%s",
+                sub.user_id,
+                sub.endpoint,
+                exc.response.status_code if exc.response else "?",
+            )
+    except Exception:
+        logger.exception("web_push_error user=%s endpoint=%.48s", sub.user_id, sub.endpoint)
+    return False
+
 
 def send_courier_web_push(*, title: str, body: str, data: dict | None = None) -> int:
-    """Envoie une notification Web Push a tous les livreurs abonnes.
+    """Envoie une notification Web Push a tous les livreurs et admins abonnés.
 
     Retourne le nombre de pushes envoyes avec succes.
     """
@@ -30,15 +87,15 @@ def send_courier_web_push(*, title: str, body: str, data: dict | None = None) ->
         "data": data or {},
     })
 
+    # Notifier tous les livreurs, admins et superadmins inscrits au Web Push
     subs = list(
         WebPushSubscription.objects.select_related("user").filter(
-            user__courier_profile__is_active=True,
-            user__role="courier",
+            user__role__in=["courier", "admin", "superadmin"],
         ).iterator()
     )
 
     if not subs:
-        logger.info("web_push_skip no_subscribers")
+        logger.info("web_push_skip no_courier_subscribers")
         return 0
 
     success = 0
@@ -63,13 +120,12 @@ def send_courier_web_push(*, title: str, body: str, data: dict | None = None) ->
                 sub.delete()
             else:
                 logger.warning(
-                    "web_push_fail user=%s endpoint=%.48s status=%s",
+                    "web_push_fail user=%s status=%s",
                     sub.user_id,
-                    sub.endpoint,
                     exc.response.status_code if exc.response else "?",
                 )
         except Exception:
-            logger.exception("web_push_error user=%s endpoint=%.48s", sub.user_id, sub.endpoint)
+            logger.exception("web_push_error user=%s", sub.user_id)
 
     logger.info("web_push_sent success=%s total=%s", success, len(subs))
     return success
@@ -78,7 +134,7 @@ def send_courier_web_push(*, title: str, body: str, data: dict | None = None) ->
 def send_courier_new_order_web_push(order) -> int:
     """Notifie les livreurs d'une nouvelle commande disponible."""
     title = f"\U0001f6f5 Nouvelle course #{order.public_id}"
-    body = f"{order.restaurant.name} - {order.total_mad:.2f} MAD"
+    body = f"{order.restaurant.name if order.restaurant_id else 'Commande'} - {order.total_mad:.2f} MAD"
     data = {
         "type": "new_order",
         "orderId": order.public_id,
@@ -88,10 +144,10 @@ def send_courier_new_order_web_push(order) -> int:
 
 
 def send_restaurant_new_order_web_push(order) -> int:
-    """Notifie le restaurant qu'un livreur a pris la commande."""
-    restaurant_name = order.restaurant.name if order.restaurant_id else "?"
-    title = f"\U0001f6f5 Course prise #{order.public_id}"
-    body = f"Par {order.courier.display_name if order.courier_id else 'un livreur'} - {restaurant_name}"
+    """Notifie les gerants de restaurant d'une nouvelle commande."""
+    restaurant_name = order.restaurant.name if order.restaurant_id else "Restaurant"
+    title = f"\U0001f354 Nouvelle commande #{order.public_id}"
+    body = f"{restaurant_name} · {order.total_mad:.2f} MAD"
     data = {
         "type": "restaurant_new_order",
         "orderId": order.public_id,
@@ -109,19 +165,18 @@ def send_restaurant_new_order_web_push(order) -> int:
         "data": data,
     })
 
-    # Envoyer au proprietaire du restaurant
-    owner_id = order.restaurant.owner_id if order.restaurant_id else None
-    if not owner_id:
-        return 0
+    from django.db.models import Q
+    query = Q(user__role__in=["restaurant", "admin", "superadmin"])
+    if order.restaurant_id and getattr(order.restaurant, "owner_id", None):
+        query |= Q(user_id=order.restaurant.owner_id)
 
     subs = list(
-        WebPushSubscription.objects.filter(user_id=owner_id).iterator()
+        WebPushSubscription.objects.filter(query).iterator()
     )
     if not subs:
         return 0
 
-    from pywebpush import WebPusher
-    from pywebpush import WebPushException
+    from pywebpush import WebPusher, WebPushException
 
     success = 0
     for sub in subs:

@@ -405,6 +405,9 @@ export function DeliveryAvailable({ courier }) {
 
   useEffect(() => {
     handleRefresh();
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      import('@/lib/webPush').then(({ subscribeWebPush }) => subscribeWebPush().catch(() => {}));
+    }
   }, []);
 
   const [notifGranted, setNotifGranted] = useState(

@@ -7,11 +7,10 @@ self.addEventListener("push", function (event) {
     return;
   }
 
-  var title = data.title || "YoHa";
-  var body = data.body || "";
+  var title = data.title || "YoHa - Nouvelle Commande 🚀";
+  var body = data.body || "Une nouvelle commande nécessite votre attention !";
   var tag = "yoha-order-" + (data.data && data.data.orderId ? data.data.orderId : Date.now());
   var icon = "/logo.png";
-  var url = data.data && data.data.url ? data.data.url : "/delivery";
 
   event.waitUntil(
     self.registration.showNotification(title, {
@@ -20,8 +19,12 @@ self.addEventListener("push", function (event) {
       badge: icon,
       tag: tag,
       renotify: true,
-      vibrate: [200, 100, 200],
+      requireInteraction: true,
+      vibrate: [500, 250, 500, 250, 500, 250, 500],
       data: data.data || {},
+      actions: [
+        { action: "open", title: "📱 Voir la commande" }
+      ]
     })
   );
 });

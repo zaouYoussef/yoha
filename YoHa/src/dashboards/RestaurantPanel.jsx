@@ -645,6 +645,12 @@ export function RestoIncoming({ restoId }) {
     typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted'
   );
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      import('@/lib/webPush').then(({ subscribeWebPush }) => subscribeWebPush().catch(() => {}));
+    }
+  }, []);
+
   const requestNotif = async () => {
     if (typeof window === 'undefined') return;
     if (!('Notification' in window) || typeof Notification.requestPermission !== 'function') {
