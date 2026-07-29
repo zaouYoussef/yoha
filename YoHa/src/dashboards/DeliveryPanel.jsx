@@ -395,32 +395,47 @@ export function DeliveryAvailable({ courier }) {
     typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted'
   );
 
+  const playProBeep = () => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.4, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.6);
+    } catch {}
+  };
+
   const requestNotif = async () => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
+    if (typeof window === 'undefined') return;
+    if (!('Notification' in window) || typeof Notification !== 'function') {
+      alert('Les notifications ne sont pas supportées sur ce navigateur.');
+      return;
+    }
+    try {
       const res = await Notification.requestPermission();
       if (res === 'granted') {
         setNotifGranted(true);
+        playProBeep();
         try {
-          const ctx = new (window.AudioContext || window.webkitAudioContext)();
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(587.33, ctx.currentTime);
-          osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15);
-          gain.gain.setValueAtTime(0.4, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start();
-          osc.stop(ctx.currentTime + 0.6);
-
           new Notification('🔔 Notifications YoHa activées !', {
             body: 'Vous recevrez les alertes sonores et vibrations en temps réel dès qu\'une nouvelle course arrive !',
             icon: '/icon.png',
-            vibrate: [300, 100, 300],
           });
         } catch {}
+      } else if (res === 'denied') {
+        alert('Notifications bloquées. Activez-les dans les paramètres de votre navigateur.');
       }
+    } catch (e) {
+      alert('Impossible d\'activer les notifications : ' + (e.message || ''));
     }
   };
 
