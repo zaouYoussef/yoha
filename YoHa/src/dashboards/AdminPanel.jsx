@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { I } from '../icons/Icons.jsx';
 import { getStoredReviews, deleteReview } from '../utils/reviews.js';
 import { getCourierGps, calculateHaversineDistance, resolveDestinationCoords } from '../utils/courierGps.js';
+import { LiveMapTracker } from '../components/ui/LiveMapTracker.jsx';
 import {
   ORDER_STATES,
   bucketRevenueLast7Days,
@@ -447,6 +448,7 @@ export function FilterChip({ active, onClick, children }) {
 
 export function AdminOrderGpsCell({ order }) {
   const [gpsData, setGpsData] = useState(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     if (!order?.id) return;
@@ -470,33 +472,30 @@ export function AdminOrderGpsCell({ order }) {
   }
 
   const destInfo = resolveDestinationCoords(order.customerAddress || order.address || order.delivery_instructions || '');
-
-  // Coordonnées réelles ou coordonnées par défaut de la zone Tanger (35.68500, -5.92300)
   const activeLat = gpsData?.active ? gpsData.lat : 35.68500;
   const activeLng = gpsData?.active ? gpsData.lng : -5.92300;
   const dist = calculateHaversineDistance(activeLat, activeLng, destInfo.lat, destInfo.lng);
-  const mapsUrl = `https://www.google.com/maps?q=${activeLat},${activeLng}`;
 
   return (
     <div className="flex flex-col gap-1 text-xs">
-      <a
-        href={mapsUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-extrabold text-xs transition-all shrink-0 w-max shadow-xs ${
+      <button onClick={() => setExpanded(!expanded)} type="button"
+        className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-extrabold text-xs transition-all shrink-0 w-max shadow-xs cursor-pointer ${
           gpsData?.active
             ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-600'
             : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/30'
         }`}
-        title={`Ouvrir la position de ${order.courierName || 'livreur'} sur Google Maps`}
+        title={`${expanded ? 'Masquer' : 'Afficher'} la carte de ${order.courierName || 'livreur'}`}
       >
         <span className={`w-2 h-2 rounded-full ${gpsData?.active ? 'bg-white animate-ping' : 'bg-amber-500'}`} />
-        <span>{gpsData?.active ? `📡 GPS Live (${dist.toFixed(1)} km)` : `🗺️ Carte ${order.courierName || 'Livreur'}`}</span>
-        <span className="text-[11px]">↗</span>
-      </a>
-      <span className="text-[10px] text-ink-400 font-semibold truncate max-w-[150px]">
+        <span>{gpsData?.active ? `📡 GPS Live (${dist.toFixed(1)} km)` : `🗺️ ${order.courierName || 'Livreur'}`}</span>
+        <span className={`text-[11px] transition-transform ${expanded ? 'rotate-180' : ''}`}>▾</span>
+      </button>
+      <span className="text-[10px] text-ink-400 font-semibold truncate max-w-[170px]">
         {activeLat.toFixed(4)}, {activeLng.toFixed(4)} ➔ {destInfo.name.split(' ')[0]}
       </span>
+      {expanded && gpsData?.active && order.courierName && (
+        <LiveMapTracker orderId={order.id} courierName={order.courierName} address={order.customerAddress || order.address || ''} height="180px" />
+      )}
     </div>
   );
 }
