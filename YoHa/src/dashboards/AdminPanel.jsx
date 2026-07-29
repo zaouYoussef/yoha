@@ -17,7 +17,7 @@ import {
   isActiveOrderStatus,
   CUISINE_CATEGORIES,
 } from '../data/index.js';
-import { useOrders } from '../contexts/AppContexts.jsx';
+import { useOrders, useToast } from '../contexts/AppContexts.jsx';
 import { apiFetch } from '../lib/api.js';
 import {
   DashLayout,
@@ -977,15 +977,18 @@ export function AdminRestaurants() {
   );
 }
 
-export function AdminCourierLiveGpsBadge({ courier, orders }) {
+export function AdminCourierLiveGpsBadge({ courier, orders: propOrders }) {
+  const { orders: contextOrders = [] } = useOrders();
+  const orders = propOrders || contextOrders || [];
   const [gpsData, setGpsData] = useState(null);
 
   useEffect(() => {
-    const courierOrders = orders.filter((o) => String(o.courierId) === String(courier.id) && o.status !== 'delivered');
+    const courierOrders = (orders || []).filter((o) => String(o.courierId) === String(courier?.id) && o.status !== 'delivered');
     const activeOrderId = courierOrders[0]?.id || 'active_courier';
 
     const checkGps = () => {
       let data = getCourierGps(activeOrderId);
+      if (!data && courier?.id) data = getCourierGps(courier.id);
       if (!data) data = getCourierGps('active_courier');
       setGpsData(data);
     };
@@ -997,7 +1000,7 @@ export function AdminCourierLiveGpsBadge({ courier, orders }) {
       clearInterval(interval);
       window.removeEventListener('yoha_courier_gps_updated', checkGps);
     };
-  }, [courier.id, orders]);
+  }, [courier?.id, orders]);
 
   if (gpsData && gpsData.active) {
     const mapsUrl = `https://www.google.com/maps?q=${gpsData.lat},${gpsData.lng}`;
@@ -1032,7 +1035,7 @@ export function AdminCourierLiveGpsBadge({ courier, orders }) {
    COURIERS
    ═══════════════════════════════════════════════════════════════ */
 export function AdminCouriers() {
-  const { couriers, refreshOrders } = useOrders();
+  const { orders = [], couriers, refreshOrders } = useOrders();
   const [courierList, setCourierList] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [email, setEmail] = useState('');
