@@ -76,25 +76,38 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   const yoha50Status = checkPromoStatus('YOHA50');
   const isYoha50Active = yoha50Status.active !== false;
 
-  // Compute completed / delivered orders for the current user
-  const userPastOrdersCount = useMemo(() => {
-    if (!user) return 0;
-    const userEmail = (user.email || '').toLowerCase().trim();
-    const userUid = user.uid || user.id;
-    const userName = (user.displayName || '').toLowerCase().trim();
+  // Check if current user / phone / email has ALREADY used YOHA50 or has previous orders
+  const hasUsedYoha50 = useMemo(() => {
+    const userEmail = (user?.email || email || '').toLowerCase().trim();
+    const userUid = user?.uid || user?.id;
+    const userPhone = (phone || '').replace(/\s+/g, '');
 
-    return orders.filter(o => {
-      const statusOk = ['delivered', 'DELIVERED', 'LIVRÉ', 'COMPLETED', 'completed'].includes(o.status);
-      const isUserMatch = (
-        (o.customer?.email && userEmail && o.customer.email.toLowerCase().trim() === userEmail) ||
-        (o.userId && (o.userId === userUid)) ||
-        (o.customer?.name && userName && o.customer.name.toLowerCase().trim() === userName)
-      );
-      return statusOk && isUserMatch;
-    }).length;
-  }, [orders, user]);
+    try {
+      if (typeof window !== 'undefined') {
+        const raw = localStorage.getItem('yoha_used_yoha50');
+        if (raw) {
+          const list = JSON.parse(raw);
+          if (Array.isArray(list)) {
+            if (
+              (userEmail && list.includes(userEmail)) ||
+              (userUid && list.includes(String(userUid))) ||
+              (userPhone && list.includes(userPhone))
+            ) {
+              return true;
+            }
+          }
+        }
+      }
+    } catch {}
 
-  const isFirstOrder = user && userPastOrdersCount === 0;
+    return orders.some((o) => {
+      if (o.status === 'cancelled') return false;
+      const matchEmail = userEmail && o.customer?.email && o.customer.email.toLowerCase().trim() === userEmail;
+      const matchUid = userUid && o.userId && String(o.userId) === String(userUid);
+      const matchPhone = userPhone && o.customer?.phone && o.customer.phone.replace(/\s+/g, '') === userPhone;
+      return matchEmail || matchUid || matchPhone;
+    });
+  }, [orders, user, email, phone]);
 
   const applyYoha50 = () => {
     setPromoErr('');
@@ -106,8 +119,8 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
       setPromoErr('Offre YOHA50 réservée aux comptes connectés. Connectez-vous d\'abord pour profiter de -50 MAD sur votre 1ère commande !');
       return;
     }
-    if (!isFirstOrder) {
-      setPromoErr('L\'offre YOHA50 est exclusivement réservée à votre TOUTE PREMIÈRE commande.');
+    if (hasUsedYoha50) {
+      setPromoErr('Le code YOHA50 a déjà été utilisé sur votre compte. Cette offre est réservée uniquement à votre 1ère commande.');
       return;
     }
     setAppliedPromo({ code: 'YOHA50', fixed_amount: 50, valid: true });
@@ -139,8 +152,8 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
         setPromoErr('Le code YOHA50 est réservé aux membres connectés pour leur 1ère commande.');
         return;
       }
-      if (!isFirstOrder) {
-        setPromoErr('Le code YOHA50 est uniquement réservé à votre toute 1ère commande.');
+      if (hasUsedYoha50) {
+        setPromoErr('Le code YOHA50 a déjà été utilisé. Cette offre de 50 MAD est valable 1 seule fois par client.');
         return;
       }
       setAppliedPromo({ code: 'YOHA50', fixed_amount: 50, valid: true });
@@ -221,6 +234,20 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
           total: grand,
           date: new Date().toISOString(),
         }));
+
+        // Permanently record that this user/email/phone has placed an order / used YOHA50
+        const raw = localStorage.getItem('yoha_used_yoha50');
+        let list = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(list)) list = [];
+        const userEmail = (user?.email || trimmedEmail || '').toLowerCase().trim();
+        const userUid = user?.uid || user?.id;
+        const userPhone = (phone || '').replace(/\s+/g, '');
+
+        if (userEmail && !list.includes(userEmail)) list.push(userEmail);
+        if (userUid && !list.includes(String(userUid))) list.push(String(userUid));
+        if (userPhone && !list.includes(userPhone)) list.push(userPhone);
+
+        localStorage.setItem('yoha_used_yoha50', JSON.stringify(list));
       } catch {}
       onSuccess(orderId);
     } catch (e) {
@@ -521,8 +548,8 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                 </p>
               )}
 
-              {/* OFFRE DE BIENVENUE 50 MAD OFFERTS BUTTON CARD */}
-              {isYoha50Active && !appliedPromo && (
+              {/* OFFRE DE BIENVENUE 50 MAD OFFERTS BUTTON CARD (Seulement pour les utilisateurs qui n'ont pas encore fait de commande) */}
+              {isYoha50Active && !appliedPromo && !hasUsedYoha50 && (
                 <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 text-white shadow-lg border border-rose-400/50 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase tracking-wider bg-white text-rose-600 px-2.5 py-0.5 rounded-full shadow-xs">
@@ -540,11 +567,6 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                       <span>🔒</span>
                       <span>Connectez-vous pour activer l'offre 1ère commande</span>
                     </div>
-                  ) : !isFirstOrder ? (
-                    <div className="text-[11px] font-semibold text-rose-200 bg-black/20 px-2.5 py-1.5 rounded-xl border border-white/10 flex items-center gap-1.5">
-                      <span>ℹ️</span>
-                      <span>Offre réservée exclusivement à votre 1ère commande</span>
-                    </div>
                   ) : (
                     <div className="text-[11px] font-semibold text-emerald-200 bg-black/20 px-2.5 py-1.5 rounded-xl border border-white/10 flex items-center gap-1.5">
                       <span>🎉</span>
@@ -556,9 +578,9 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                     type="button"
                     onClick={applyYoha50}
                     className={`w-full py-2.5 rounded-xl font-black text-xs uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                      !user || isFirstOrder
-                        ? 'bg-white text-slate-950 hover:scale-[1.02] active:scale-95'
-                        : 'bg-white/30 text-white/70 hover:bg-white/40'
+                      !user
+                        ? 'bg-white/30 text-white/70 hover:bg-white/40'
+                        : 'bg-white text-slate-950 hover:scale-[1.02] active:scale-95'
                     }`}
                   >
                     <span>Appliquer -50 MAD 🚀</span>
