@@ -24,6 +24,23 @@ import { CancelOrderButton, CancelPhaseBadge, OrderCancellationNote } from '../c
 import { ordersApi, getTokens } from '../lib/api.js';
 import { updateCourierGps } from '../utils/courierGps.js';
 
+function isOrderAssignedToCourier(order, courier) {
+  if (!order || !courier) return false;
+  const cId = String(courier.id || '').toLowerCase();
+  const cName = (courier.name || courier.username || courier.displayName || '').toLowerCase();
+  const cEmail = (courier.email || '').toLowerCase();
+
+  const oCourierId = String(order.courierId || '').toLowerCase();
+  const oCourierName = (order.courierName || '').toLowerCase();
+
+  if (cId && oCourierId && oCourierId === cId) return true;
+  if (cName && oCourierName && (oCourierName === cName || oCourierName.includes(cName) || cName.includes(oCourierName))) return true;
+  if (cId && oCourierName && (oCourierName === cId || oCourierName.includes(cId))) return true;
+  if (cEmail && (oCourierId === cEmail || oCourierName.includes(cEmail.split('@')[0]))) return true;
+
+  return false;
+}
+
 function formatScheduledRange(iso) {
   if (!iso) return '';
   try {
@@ -373,7 +390,7 @@ function useCourierAutoGps(courier, orders) {
           setGpsState({ active: true, denied: false, coords });
 
           const activeOrders = orders.filter(
-            (o) => String(o.courierId) === String(courier.id) && o.status !== 'delivered'
+            (o) => isOrderAssignedToCourier(o, courier) && o.status !== 'delivered' && o.status !== 'cancelled'
           );
           if (activeOrders.length > 0) {
             activeOrders.forEach((o) => {
@@ -382,6 +399,8 @@ function useCourierAutoGps(courier, orders) {
             });
           } else {
             updateCourierGps('active_courier', coords.lat, coords.lng, true);
+            if (courier?.id) updateCourierGps(courier.id, coords.lat, coords.lng, true);
+            if (courier?.name) updateCourierGps(courier.name, coords.lat, coords.lng, true);
           }
         },
         (err) => {
@@ -389,7 +408,7 @@ function useCourierAutoGps(courier, orders) {
           const fallbackCoords = { lat: 35.68500, lng: -5.92300 };
           setGpsState({ active: true, denied: false, coords: fallbackCoords });
           const activeOrders = orders.filter(
-            (o) => String(o.courierId) === String(courier.id) && o.status !== 'delivered'
+            (o) => isOrderAssignedToCourier(o, courier) && o.status !== 'delivered' && o.status !== 'cancelled'
           );
           activeOrders.forEach((o) => {
             updateCourierGps(o.id, fallbackCoords.lat, fallbackCoords.lng, true);
@@ -402,7 +421,7 @@ function useCourierAutoGps(courier, orders) {
       const fallbackCoords = { lat: 35.68500, lng: -5.92300 };
       setGpsState({ active: true, denied: false, coords: fallbackCoords });
       const activeOrders = orders.filter(
-        (o) => String(o.courierId) === String(courier.id) && o.status !== 'delivered'
+        (o) => isOrderAssignedToCourier(o, courier) && o.status !== 'delivered' && o.status !== 'cancelled'
       );
       activeOrders.forEach((o) => {
         updateCourierGps(o.id, fallbackCoords.lat, fallbackCoords.lng, true);
@@ -747,7 +766,7 @@ export function DeliveryMine({ courier }) {
   const { orders, updateOrderStatus, cancelOrder } = useOrders();
   const [sendingId, setSendingId] = useState(null);
   const mine = orders.filter(
-    (o) => String(o.courierId) === String(courier.id) && isActiveOrderStatus(o.status),
+    (o) => isOrderAssignedToCourier(o, courier) && isActiveOrderStatus(o.status),
   );
 
   const handleSendToRestaurant = async (orderId) => {
@@ -1034,11 +1053,11 @@ export function DeliveryHistory({ courier }) {
       orders
         .filter(
           (o) =>
-            String(o.courierId) === String(courier.id) &&
+            isOrderAssignedToCourier(o, courier) &&
             (o.status === 'delivered' || o.status === 'cancelled'),
         )
         .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)),
-    [orders, courier.id],
+    [orders, courier],
   );
 
   const deliveredOnly = useMemo(

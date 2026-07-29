@@ -38,7 +38,22 @@ import {
   SectionHeader,
   AnimatedCounter,
 } from './DashShared.jsx';
-import { CancelPhaseBadge, OrderCancellationNote } from '../components/ui/CancelOrderButton.jsx';
+function isOrderAssignedToCourier(order, courier) {
+  if (!order || !courier) return false;
+  const cId = String(courier.id || '').toLowerCase();
+  const cName = (courier.name || courier.username || courier.displayName || '').toLowerCase();
+  const cEmail = (courier.email || '').toLowerCase();
+
+  const oCourierId = String(order.courierId || '').toLowerCase();
+  const oCourierName = (order.courierName || '').toLowerCase();
+
+  if (cId && oCourierId && oCourierId === cId) return true;
+  if (cName && oCourierName && (oCourierName === cName || oCourierName.includes(cName) || cName.includes(oCourierName))) return true;
+  if (cId && oCourierName && (oCourierName === cId || oCourierName.includes(cId))) return true;
+  if (cEmail && (oCourierId === cEmail || oCourierName.includes(cEmail.split('@')[0]))) return true;
+
+  return false;
+}
 
 function revenueWeekTrendPct(rev7) {
   const a = rev7[5] || 0;
@@ -1129,14 +1144,9 @@ export function AdminCourierLiveGpsBadge({ courier, orders: propOrders }) {
   const activeOrder = useMemo(() => {
     return (orders || []).find((o) => {
       if (o.status === 'delivered' || o.status === 'cancelled') return false;
-      const cId = String(o.courierId || '');
-      const cName = (o.courierName || '').toLowerCase();
-      return (
-        (cId && cId === courierId) ||
-        (cName && courierName && (cName === courierName || courierName.includes(cName) || cName.includes(courierName)))
-      );
+      return isOrderAssignedToCourier(o, courier);
     });
-  }, [orders, courierId, courierName]);
+  }, [orders, courier]);
 
   useEffect(() => {
     const checkGps = () => {
