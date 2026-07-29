@@ -939,20 +939,42 @@ export function AdminCouriers() {
         if (raw) localList = JSON.parse(raw);
       } catch {}
 
+      let users = [];
+      let profiles = [];
+
+      try {
+        const data = await apiFetch('/auth/youssef/users/?role=courier', { auth: true });
+        users = Array.isArray(data) ? data : data?.results || [];
+      } catch {}
+
       try {
         const data = await apiFetch('/orders/couriers/', { auth: true });
-        const apiCouriers = Array.isArray(data) ? data : data?.results || [];
-        if (apiCouriers.length > 0) {
-          const merged = [...apiCouriers];
-          localList.forEach((l) => {
-            if (!merged.some((m) => m.id === l.id || (m.email && l.email && m.email.toLowerCase() === l.email.toLowerCase()))) {
-              merged.push(l);
-            }
-          });
-          saveCouriersLocally(merged);
-          return;
-        }
+        profiles = Array.isArray(data) ? data : data?.results || [];
       } catch {}
+
+      if (users.length > 0) {
+        const merged = users.map((u) => {
+          const p = profiles.find((pr) => pr.userId === u.id || (pr.email && pr.email.toLowerCase() === u.email.toLowerCase()));
+          return {
+            id: u.id,
+            name: u.display_name,
+            displayName: u.display_name,
+            email: u.email,
+            vehicle: p?.vehicle || 'Moto Express',
+            isActive: u.is_active !== undefined ? u.is_active : true,
+            rating: p?.rating || '5.0',
+            totalDeliveries: p?.totalDeliveries || 0,
+            totalRevenue: p?.totalRevenue || 0,
+          };
+        });
+        localList.forEach((l) => {
+          if (!merged.some((m) => m.id === l.id || (m.email && l.email && m.email.toLowerCase() === l.email.toLowerCase()))) {
+            merged.push(l);
+          }
+        });
+        saveCouriersLocally(merged);
+        return;
+      }
 
       if (!localList || localList.length === 0) {
         localList = [
@@ -969,7 +991,10 @@ export function AdminCouriers() {
     }
   }, []);
 
-  useEffect(() => { loadCouriers(); }, [loadCouriers]);
+  useEffect(() => {
+    try { if (typeof window !== 'undefined') localStorage.removeItem('yoha_couriers'); } catch {}
+    loadCouriers();
+  }, [loadCouriers]);
 
   const handleAdd = useCallback(async () => {
     setError('');
@@ -1032,8 +1057,13 @@ export function AdminCouriers() {
     if (!window.confirm('Voulez-vous vraiment supprimer ce livreur ?')) return;
     const updated = courierList.filter(c => c.id !== id);
     saveCouriersLocally(updated);
+    const isUuid = typeof id === 'string' && id.includes('-');
     try {
-      await apiFetch(`/orders/couriers/${id}/`, { method: 'DELETE', auth: true });
+      if (isUuid) {
+        await apiFetch(`/auth/youssef/users/${id}/`, { method: 'DELETE', auth: true });
+      } else {
+        await apiFetch(`/orders/couriers/${id}/`, { method: 'DELETE', auth: true });
+      }
     } catch {}
   }, [courierList]);
 
