@@ -492,7 +492,7 @@ export function AdminOrderGpsCell({ order }) {
       >
         <span className={`w-2 h-2 rounded-full ${gpsData?.active ? 'bg-white animate-ping' : 'bg-amber-500'}`} />
         <span>{gpsData?.active ? `📡 GPS Live (${dist.toFixed(1)} km)` : `🗺️ Carte ${order.courierName || 'Livreur'}`}</span>
-        <I.ExternalLink size={12} />
+        <span className="text-[11px]">↗</span>
       </a>
       <span className="text-[10px] text-ink-400 font-semibold truncate max-w-[150px]">
         {activeLat.toFixed(4)}, {activeLng.toFixed(4)} ➔ {destInfo.name.split(' ')[0]}
