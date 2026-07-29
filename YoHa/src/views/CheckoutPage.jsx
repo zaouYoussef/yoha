@@ -626,23 +626,17 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                   type="button"
                   onClick={handleConfirm}
                   disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
-                  className="w-full relative group overflow-hidden py-4 px-6 rounded-2xl bg-ink-950 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-ink-950 font-bold shadow-lg shadow-ink-950/15 hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-between gap-4 border border-ink-800/20 dark:border-white/40"
+                  className="w-full relative group overflow-hidden py-4 px-6 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-600 to-rose-600 hover:from-brand-600 hover:to-rose-700 text-white font-black text-base sm:text-lg shadow-xl shadow-brand-500/25 hover:shadow-brand-500/40 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-3 border border-white/20"
                 >
                   {submitting ? (
-                    <span className="w-full flex items-center justify-center gap-2 text-sm font-semibold tracking-wide">
+                    <span className="flex items-center justify-center gap-2 font-bold text-sm">
                       Traitement en cours... <Loader />
                     </span>
                   ) : (
-                    <>
-                      <span className="flex items-center gap-2.5 font-display text-sm sm:text-base font-extrabold tracking-wide">
-                        <span>Confirmer la commande</span>
-                      </span>
-
-                      <span className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/12 dark:bg-black/10 backdrop-blur-md text-xs sm:text-sm font-mono font-bold tracking-tight shrink-0 border border-white/10 dark:border-black/10">
-                        <span>{isCustom ? (total > 0 ? `${formatMad(grand)}` : "20 DH") : formatMad(grand)}</span>
-                        <I.Right size={15} stroke={2.5} className="group-hover:translate-x-0.5 transition-transform" />
-                      </span>
-                    </>
+                    <span className="flex items-center justify-center gap-2.5 font-display tracking-wide font-black">
+                      <span>Confirmer la commande</span>
+                      <I.Right size={20} stroke={3} className="group-hover:translate-x-1 transition-transform" />
+                    </span>
                   )}
                 </button>
                 
@@ -657,26 +651,21 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
       </div>
 
       {/* Mobile Floating Sticky Checkout Bar */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 p-3 sm:p-4 bg-white/95 dark:bg-ink-950/95 backdrop-blur-xl border-t border-ink-200/80 dark:border-ink-800 shadow-2xl pb-[calc(12px+env(safe-area-inset-bottom))]">
-        <div className="max-w-lg mx-auto">
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 p-3.5 sm:p-4 bg-white/95 dark:bg-ink-950/95 backdrop-blur-xl border-t border-ink-200/80 dark:border-ink-800 shadow-2xl pb-[calc(12px+env(safe-area-inset-bottom))]">
+        <div className="max-w-md mx-auto">
           <button
             type="button"
             onClick={handleConfirm}
             disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
-            className="w-full py-3.5 px-5 rounded-2xl bg-ink-950 dark:bg-white text-white dark:text-ink-950 font-bold shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-between gap-3 cursor-pointer border border-ink-800/20 dark:border-white/40"
+            className="w-full relative group overflow-hidden py-3.5 px-6 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-600 to-rose-600 text-white font-black text-base shadow-xl shadow-brand-500/30 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2.5 cursor-pointer border border-white/20"
           >
             {submitting ? (
-              <span className="w-full text-center text-xs font-semibold">Traitement en cours...</span>
+              <span className="text-center font-bold text-sm">Traitement en cours...</span>
             ) : (
-              <>
-                <span className="font-display text-xs sm:text-sm font-extrabold tracking-wide">
-                  Confirmer la commande
-                </span>
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white/12 dark:bg-black/10 text-xs font-mono font-bold shrink-0 border border-white/10 dark:border-black/10">
-                  <span>{isCustom ? (total > 0 ? `${formatMad(grand)}` : '20 DH') : formatMad(grand)}</span>
-                  <I.Right size={14} stroke={2.5} />
-                </span>
-              </>
+              <span className="flex items-center justify-center gap-2 font-display text-base font-black">
+                <span>Confirmer la commande</span>
+                <I.Right size={18} stroke={3} />
+              </span>
             )}
           </button>
         </div>
