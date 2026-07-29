@@ -275,72 +275,89 @@ function FidelityBalanceCard() {
   const remaining = isGoalReached ? 0 : 6 - currentStep;
 
   return (
-    <div className="mb-8 overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white p-5 sm:p-6 shadow-xl border border-emerald-400/30 relative">
-      <div className="absolute -right-10 -bottom-10 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-      
-      <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-5">
-        <div className="flex items-center gap-3.5 min-w-0">
-          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl shrink-0 shadow-inner">
-            🎁
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-extrabold text-xs sm:text-sm tracking-wide uppercase text-emerald-200">
-                Solde & Récompense Fidélité
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-extrabold uppercase">
-                {deliveredCount} commande{deliveredCount > 1 ? 's' : ''} livrée{deliveredCount > 1 ? 's' : ''}
-              </span>
+    <div className="mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 text-white p-5 sm:p-7 shadow-xl border border-emerald-400/40 relative group">
+      {/* Decorative Blur Orbs */}
+      <div className="absolute -right-12 -bottom-12 w-48 h-48 bg-amber-400/15 rounded-full blur-3xl pointer-events-none group-hover:scale-125 transition-transform duration-700" />
+      <div className="absolute -left-12 -top-12 w-40 h-40 bg-teal-300/15 rounded-full blur-2xl pointer-events-none" />
+
+      <div className="relative flex flex-col gap-5">
+        {/* Top Header Row */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl shrink-0 shadow-inner border border-white/20">
+              🎁
             </div>
-            
-            {isGoalReached ? (
-              <h3 className="font-display font-black text-base sm:text-lg text-white mt-1">
-                🎉 Félicitations ! Votre réduction de <span className="text-amber-300">-50 MAD</span> est débloquée avec le code <span className="text-amber-300 font-extrabold underline">YOHA50</span> !
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-extrabold text-xs tracking-wider uppercase text-emerald-200">
+                  Solde & Récompense Fidélité
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-black uppercase text-amber-200 border border-white/20">
+                  {deliveredCount} commande{deliveredCount > 1 ? 's' : ''} livrée{deliveredCount > 1 ? 's' : ''}
+                </span>
+              </div>
+              <h3 className="font-display font-black text-base sm:text-lg text-white mt-0.5 leading-snug">
+                {isGoalReached ? (
+                  <span>🎉 Réduction de <span className="text-amber-300 underline">50 MAD</span> débloquée ! (Code : <strong className="text-amber-300 font-black">YOHA50</strong>)</span>
+                ) : (
+                  <span>Accumulez 6 commandes livrées pour recevoir <span className="text-amber-300 font-black">-50 MAD</span> !</span>
+                )}
               </h3>
-            ) : (
-              <h3 className="font-display font-black text-base sm:text-lg text-white mt-1">
-                Encore <span className="underline decoration-amber-400 decoration-2 underline-offset-2 font-black">{remaining} commande{remaining > 1 ? 's' : ''}</span> pour débloquer <span className="text-amber-300 font-black">-50 MAD</span> !
-              </h3>
-            )}
+            </div>
           </div>
+
+          {!isGoalReached && (
+            <div className="shrink-0 self-start sm:self-center px-3.5 py-1.5 rounded-xl bg-slate-950/40 backdrop-blur-md border border-white/10 text-xs font-bold text-emerald-100 shadow-inner">
+              Plus que <strong className="text-amber-300 font-black text-sm">{remaining}</strong> commande{remaining > 1 ? 's' : ''}
+            </div>
+          )}
         </div>
 
-        {/* 6 Cercles Liés Stamp Indicator */}
-        <div className="shrink-0 max-w-full overflow-x-auto no-scrollbar bg-white/95 dark:bg-ink-900/95 text-ink-900 dark:text-white px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl shadow-md border border-white/50 flex items-center gap-1.5 sm:gap-2 self-start md:self-center">
-          {[1, 2, 3, 4, 5, 6].map((step, idx) => {
-            const isDone = activeStepCount >= step;
-            const isCurrent = !isGoalReached && currentStep + 1 === step;
-            return (
-              <React.Fragment key={step}>
-                {/* Circle Node */}
-                <div
-                  className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center font-extrabold text-xs sm:text-sm transition-all duration-300 ${
-                    isDone
-                      ? 'bg-amber-400 text-slate-950 border-2 border-amber-300 shadow-sm scale-105'
-                      : isCurrent
-                      ? 'bg-emerald-500/20 border-2 border-amber-400 text-amber-500 dark:text-amber-300 animate-pulse'
-                      : 'bg-slate-100 dark:bg-ink-800 border-2 border-slate-300 dark:border-ink-600 text-slate-400 dark:text-ink-400'
-                  }`}
-                  title={`Commande ${step}/6 ${isDone ? 'livrée' : ''}`}
-                >
-                  {isDone ? (
-                    step === 6 ? '🎁' : '✓'
-                  ) : (
-                    step
-                  )}
-                </div>
+        {/* 6 Connected Circles Stamp Strip */}
+        <div className="w-full bg-slate-950/40 backdrop-blur-md border border-white/15 p-4 sm:p-5 rounded-2xl flex flex-col items-center justify-center gap-3 shadow-inner">
+          <div className="w-full flex items-center justify-between max-w-lg px-1 sm:px-4">
+            {[1, 2, 3, 4, 5, 6].map((step, idx) => {
+              const isDone = activeStepCount >= step;
+              const isCurrent = !isGoalReached && currentStep + 1 === step;
+              return (
+                <React.Fragment key={step}>
+                  {/* Circle Node */}
+                  <div className="flex flex-col items-center gap-1.5 relative">
+                    <div
+                      className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-black text-xs sm:text-sm transition-all duration-300 ${
+                        isDone
+                          ? 'bg-gradient-to-tr from-amber-400 via-amber-300 to-yellow-200 text-slate-950 shadow-lg shadow-amber-400/30 scale-105 border-2 border-white'
+                          : isCurrent
+                          ? 'bg-white/20 border-2 border-amber-300 text-amber-300 animate-pulse shadow-md ring-4 ring-amber-400/20'
+                          : 'bg-white/10 text-white/50 border border-white/20'
+                      }`}
+                      title={`Commande ${step}/6 ${isDone ? 'livrée' : ''}`}
+                    >
+                      {isDone ? (
+                        step === 6 ? '🎁' : '✓'
+                      ) : (
+                        step
+                      )}
+                    </div>
+                    <span className={`text-[10px] font-bold ${isDone ? 'text-amber-300' : isCurrent ? 'text-white font-extrabold' : 'text-white/40'}`}>
+                      {step === 6 ? '-50 MAD' : `${step}`}
+                    </span>
+                  </div>
 
-                {/* Connecting Line (between circles) */}
-                {idx < 5 && (
-                  <div
-                    className={`h-1 w-2 sm:w-4 rounded-full transition-colors duration-300 ${
-                      activeStepCount > step ? 'bg-amber-400' : 'bg-slate-200 dark:bg-ink-700'
-                    }`}
-                  />
-                )}
-              </React.Fragment>
-            );
-          })}
+                  {/* Connecting Bar */}
+                  {idx < 5 && (
+                    <div
+                      className={`h-1.5 flex-1 rounded-full transition-colors duration-500 mx-1 sm:mx-2 -mt-5 ${
+                        activeStepCount > step
+                          ? 'bg-gradient-to-r from-amber-400 to-yellow-300 shadow-xs'
+                          : 'bg-white/15'
+                      }`}
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
