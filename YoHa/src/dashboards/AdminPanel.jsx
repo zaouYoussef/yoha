@@ -93,23 +93,122 @@ const PROMO_SECTIONS = [
 
 const DATE_RANGES = [
   { id: 'today', label: "Aujourd'hui" },
-  { id: '7d', label: '7 jours' },
-  { id: '30d', label: '30 jours' },
+  { id: 'custom', label: 'Plage de dates' },
   { id: 'all', label: 'Tout' },
 ];
 
-function filterByDateRange(orders, range) {
-  const now = Date.now();
-  switch (range) {
-    case 'today':
-      return orders.filter((o) => o.createdAt >= now - 86400000);
-    case '7d':
-      return orders.filter((o) => o.createdAt >= now - 7 * 86400000);
-    case '30d':
-      return orders.filter((o) => o.createdAt >= now - 30 * 86400000);
-    default:
-      return orders;
+export function formatOrderDateTime(ts) {
+  if (!ts) return '—';
+  try {
+    const d = typeof ts === 'number' ? new Date(ts) : new Date(ts);
+    if (isNaN(d.getTime())) return '—';
+    const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    return `${dateStr} ${timeStr}`;
+  } catch {
+    return '—';
   }
+}
+
+function filterByDateRange(orders, range, startDate = '', endDate = '') {
+  if (!orders || !Array.isArray(orders)) return [];
+  const now = new Date();
+
+  if (range === 'today') {
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    return orders.filter((o) => {
+      const ts = typeof o.createdAt === 'number' ? o.createdAt : new Date(o.createdAt).getTime();
+      return ts >= startOfToday;
+    });
+  }
+
+  if (range === 'custom') {
+    const startMs = startDate ? new Date(`${startDate}T00:00:00`).getTime() : 0;
+    const endMs = endDate ? new Date(`${endDate}T23:59:59`).getTime() : Infinity;
+    return orders.filter((o) => {
+      const ts = typeof o.createdAt === 'number' ? o.createdAt : new Date(o.createdAt).getTime();
+      return (!startMs || ts >= startMs) && (!endMs || ts <= endMs);
+    });
+  }
+
+  return orders;
+}
+
+export function DateRangeSelector({ dateRange, setDateRange, startDate, setStartDate, endDate, setEndDate }) {
+  return (
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 flex-wrap">
+      <div className="inline-flex items-center rounded-2xl bg-ink-100 dark:bg-ink-800 p-1 border border-ink-200/60 dark:border-ink-700/60 shadow-xs">
+        <button
+          type="button"
+          onClick={() => setDateRange('today')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            dateRange === 'today'
+              ? 'bg-white text-ink-900 shadow-sm dark:bg-ink-900 dark:text-white'
+              : 'text-ink-500 hover:text-ink-900 dark:hover:text-white'
+          }`}
+        >
+          Aujourd&apos;hui
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setDateRange('custom')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            dateRange === 'custom'
+              ? 'bg-white text-ink-900 shadow-sm dark:bg-ink-900 dark:text-white'
+              : 'text-ink-500 hover:text-ink-900 dark:hover:text-white'
+          }`}
+        >
+          <span>📅 Plage de dates</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setDateRange('all')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            dateRange === 'all'
+              ? 'bg-white text-ink-900 shadow-sm dark:bg-ink-900 dark:text-white'
+              : 'text-ink-500 hover:text-ink-900 dark:hover:text-white'
+          }`}
+        >
+          Tout
+        </button>
+      </div>
+
+      {dateRange === 'custom' && (
+        <div className="flex items-center gap-2 bg-white dark:bg-ink-900 p-1.5 rounded-2xl border border-ink-200/80 dark:border-ink-800 shadow-xs text-xs animate-fade-in">
+          <div className="flex items-center gap-1.5">
+            <span className="text-ink-400 font-semibold text-[11px] pl-1">Du:</span>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="bg-ink-50 dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl px-2.5 py-1 text-xs text-ink-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+            />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-ink-400 font-semibold text-[11px]">Au:</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="bg-ink-50 dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl px-2.5 py-1 text-xs text-ink-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+            />
+          </div>
+          {(startDate || endDate) && (
+            <button
+              type="button"
+              onClick={() => { setStartDate(''); setEndDate(''); }}
+              className="px-2 py-1 text-[11px] font-bold text-rose-500 hover:text-rose-600 dark:hover:text-rose-400"
+              title="Réinitialiser les dates"
+            >
+              ✕ Effacer
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function AdminDashboard({ goto, dark, setDark }) {
@@ -362,10 +461,12 @@ export function AdminOrders({ orders }) {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [dateRange, setDateRange] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   const filtered = useMemo(() => {
     let list = orders;
-    list = filterByDateRange(list, dateRange);
+    list = filterByDateRange(list, dateRange, startDate, endDate);
     if (filter !== 'all') list = list.filter((o) => o.status === filter);
     if (search.trim()) {
       const q = search.trim().toLowerCase();
@@ -377,16 +478,16 @@ export function AdminOrders({ orders }) {
       );
     }
     return list;
-  }, [orders, filter, search, dateRange]);
+  }, [orders, filter, search, dateRange, startDate, endDate]);
 
   const statusCounts = useMemo(() => {
-    const base = filterByDateRange(orders, dateRange);
+    const base = filterByDateRange(orders, dateRange, startDate, endDate);
     const counts = { all: base.length };
     Object.keys(ORDER_STATES).forEach((k) => {
       counts[k] = base.filter((o) => o.status === k).length;
     });
     return counts;
-  }, [orders, dateRange]);
+  }, [orders, dateRange, startDate, endDate]);
 
   return (
     <div className="space-y-5">
@@ -397,17 +498,20 @@ export function AdminOrders({ orders }) {
         gradient="from-brand-500 via-pink-500 to-rose-500"
       />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <SearchBar
           value={search}
           onChange={setSearch}
           placeholder="Rechercher par ID, client, restaurant..."
-          className="sm:w-80"
+          className="lg:w-80"
         />
-        <PillTabs
-          tabs={DATE_RANGES.map((r) => ({ id: r.id, label: r.label }))}
-          current={dateRange}
-          onChange={setDateRange}
+        <DateRangeSelector
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
         />
       </div>
 
@@ -527,7 +631,7 @@ export function RecentOrdersTable({ orders, title, full, gainMad, hideCourier = 
     if (o.status === 'cancelled') return 0;
     return gainMad != null ? gainMad : Number(o.netDh || 0);
   };
-  const colCount = 6 + (hideCourier ? 0 : 1) + (showGain ? 1 : 0);
+  const colCount = 7 + (hideCourier ? 0 : 1) + (showGain ? 1 : 0);
 
   return (
     <GlassCard className="overflow-hidden" hover={false}>
@@ -545,6 +649,7 @@ export function RecentOrdersTable({ orders, title, full, gainMad, hideCourier = 
           <thead className="bg-ink-50/50 text-xs uppercase tracking-wider text-ink-500 dark:bg-ink-950/30">
             <tr>
               <th className="px-4 py-3 text-left sm:px-5">Commande</th>
+              <th className="px-4 py-3 text-left sm:px-5">Date &amp; Heure</th>
               <th className="px-4 py-3 text-left sm:px-5">Client</th>
               <th className="px-4 py-3 text-left sm:px-5">Restaurant</th>
               {!hideCourier && (
@@ -562,6 +667,9 @@ export function RecentOrdersTable({ orders, title, full, gainMad, hideCourier = 
             {orders.map((o) => (
               <tr key={o.id} className="transition hover:bg-ink-50/50 dark:hover:bg-ink-950/30">
                 <td className="break-anywhere px-4 py-3 font-bold sm:px-5">#{o.id}</td>
+                <td className="whitespace-nowrap px-4 py-3 text-xs font-semibold text-ink-600 dark:text-ink-300 sm:px-5 font-mono">
+                  {formatOrderDateTime(o.createdAt)}
+                </td>
                 <td className="max-w-[8rem] truncate px-4 py-3 sm:px-5">{o.customer?.name || '—'}</td>
                 <td className="max-w-[8rem] truncate px-4 py-3 sm:px-5">{o.restaurantName}</td>
                 {!hideCourier && (
@@ -621,7 +729,12 @@ export function RecentOrdersTable({ orders, title, full, gainMad, hideCourier = 
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <div className="break-anywhere font-bold">#{o.id}</div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="break-anywhere font-bold">#{o.id}</span>
+                    <span className="text-[11px] text-ink-400 font-mono">
+                      {formatOrderDateTime(o.createdAt)}
+                    </span>
+                  </div>
                   <div className="mt-0.5 truncate text-sm text-ink-500">{o.restaurantName}</div>
                 </div>
                 <StatusPill status={o.status} />

@@ -260,6 +260,93 @@ function SectionTitle({ icon, title, count, live }) {
   );
 }
 
+function FidelityBalanceCard() {
+  const { user } = useAuth() || {};
+  const { orders = [] } = useOrders() || {};
+
+  const deliveredOrders = useMemo(() => {
+    return orders.filter(o => o.status === 'delivered' || o.status === 'DELIVERED' || o.status === 'LIVRÉ' || o.status === 'COMPLETED');
+  }, [orders]);
+
+  const deliveredCount = deliveredOrders.length;
+  const currentStep = deliveredCount % 6;
+  const isGoalReached = currentStep === 0 && deliveredCount > 0;
+  const activeStepCount = isGoalReached ? 6 : currentStep;
+  const remaining = isGoalReached ? 0 : 6 - currentStep;
+
+  return (
+    <div className="mb-8 overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white p-5 sm:p-6 shadow-xl border border-emerald-400/30 relative">
+      <div className="absolute -right-10 -bottom-10 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+      
+      <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl shrink-0 shadow-inner">
+            🎁
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-extrabold text-xs sm:text-sm tracking-wide uppercase text-emerald-200">
+                Solde & Récompense Fidélité
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-extrabold uppercase">
+                {deliveredCount} commande{deliveredCount > 1 ? 's' : ''} livrée{deliveredCount > 1 ? 's' : ''}
+              </span>
+            </div>
+            
+            {isGoalReached ? (
+              <h3 className="font-display font-black text-base sm:text-lg text-white mt-1">
+                🎉 Félicitations ! Votre réduction de <span className="text-amber-300">-50 MAD</span> est débloquée avec le code <span className="text-amber-300 font-extrabold underline">YOHA50</span> !
+              </h3>
+            ) : (
+              <h3 className="font-display font-black text-base sm:text-lg text-white mt-1">
+                Encore <span className="underline decoration-amber-400 decoration-2 underline-offset-2 font-black">{remaining} commande{remaining > 1 ? 's' : ''}</span> pour débloquer <span className="text-amber-300 font-black">-50 MAD</span> !
+              </h3>
+            )}
+          </div>
+        </div>
+
+        {/* 6 Cercles Liés Stamp Indicator */}
+        <div className="shrink-0 max-w-full overflow-x-auto no-scrollbar bg-white/95 dark:bg-ink-900/95 text-ink-900 dark:text-white px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl shadow-md border border-white/50 flex items-center gap-1.5 sm:gap-2 self-start md:self-center">
+          {[1, 2, 3, 4, 5, 6].map((step, idx) => {
+            const isDone = activeStepCount >= step;
+            const isCurrent = !isGoalReached && currentStep + 1 === step;
+            return (
+              <React.Fragment key={step}>
+                {/* Circle Node */}
+                <div
+                  className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center font-extrabold text-xs sm:text-sm transition-all duration-300 ${
+                    isDone
+                      ? 'bg-amber-400 text-slate-950 border-2 border-amber-300 shadow-sm scale-105'
+                      : isCurrent
+                      ? 'bg-emerald-500/20 border-2 border-amber-400 text-amber-500 dark:text-amber-300 animate-pulse'
+                      : 'bg-slate-100 dark:bg-ink-800 border-2 border-slate-300 dark:border-ink-600 text-slate-400 dark:text-ink-400'
+                  }`}
+                  title={`Commande ${step}/6 ${isDone ? 'livrée' : ''}`}
+                >
+                  {isDone ? (
+                    step === 6 ? '🎁' : '✓'
+                  ) : (
+                    step
+                  )}
+                </div>
+
+                {/* Connecting Line (between circles) */}
+                {idx < 5 && (
+                  <div
+                    className={`h-1 w-2 sm:w-4 rounded-full transition-colors duration-300 ${
+                      activeStepCount > step ? 'bg-amber-400' : 'bg-slate-200 dark:bg-ink-700'
+                    }`}
+                  />
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function MyOrdersPage({ onBack, onOpenOrder, onReorder, onLogin, onBrowse, onAfterReorder }) {
   const { user } = useAuth();
   const { orders, loadingOrders } = useOrders();
@@ -373,6 +460,9 @@ export function MyOrdersPage({ onBack, onOpenOrder, onReorder, onLogin, onBrowse
           )}
         </div>
       </div>
+
+      {/* Solde & Récompense Fidélité */}
+      <FidelityBalanceCard />
 
       {isGuest && onLogin && (
         <div className="mb-6 rounded-2xl bg-brand-500/10 border border-brand-500/25 px-4 py-3.5 text-sm text-ink-700 dark:text-ink-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
