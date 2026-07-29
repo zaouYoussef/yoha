@@ -620,8 +620,8 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
 
               {err && <p className="text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-200">{err}</p>}
               
-              {/* Main CTA Confirmation Button */}
-              <div className="pt-2">
+              {/* Main CTA Confirmation Button (Desktop only - Mobile uses floating bar below) */}
+              <div className="pt-2 hidden lg:block">
                 <button
                   type="button"
                   onClick={handleConfirm}
