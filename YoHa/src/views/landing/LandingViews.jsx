@@ -329,7 +329,7 @@ export function BentoHero() {
         <div className="grid grid-cols-3 gap-2">
           <div className="rounded-2xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 p-3 text-white text-center border border-white/20 shadow-glow">
             <div className="text-[9px] font-semibold uppercase tracking-wider opacity-90">Délai</div>
-            <div className="font-display font-black text-2xl leading-none mt-0.5">26<span className="text-xs font-bold">min</span></div>
+            <div className="font-display font-black text-2xl leading-none mt-0.5">34<span className="text-[10px] sm:text-xs font-bold">min</span></div>
           </div>
           <div className="rounded-2xl glass-card-premium p-3 text-center border border-white/20 dark:border-white/5">
             <div className="text-[9px] font-semibold uppercase tracking-wider text-ink-500">Communauté</div>
@@ -414,7 +414,7 @@ export function BentoHero() {
           <div className="absolute inset-0 bg-[radial-gradient(at_10%_20%,rgba(255,255,255,0.15)_0,transparent_55%)]"></div>
           <div>
             <div className="text-xs font-semibold uppercase tracking-wider opacity-90">Livraison moyenne</div>
-            <div className="mt-2 font-display font-black text-5xl tracking-tight text-glow animate-pulse-slow">26<span className="text-2xl font-bold">min</span></div>
+            <div className="mt-2 font-display font-black text-5xl tracking-tight text-glow animate-pulse-slow">34<span className="text-2xl font-bold">min</span></div>
           </div>
           <div className="text-sm opacity-95 flex items-center gap-1.5 font-medium">
             <span>⚡</span> Du clic à la fourchette
