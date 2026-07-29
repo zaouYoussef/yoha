@@ -386,24 +386,27 @@ class CourierLocationView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, public_id):
-        clean_id = str(public_id).replace("YH-", "").strip()
-        order = Order.objects.filter(
-            Q(public_id=public_id) | Q(public_id=clean_id) | Q(public_id=f"YH-{clean_id}")
-        ).first()
-        if not order:
-            return Response({"latitude": None, "longitude": None, "active": False}, status=200)
+        try:
+            clean_id = str(public_id).replace("YH-", "").strip()
+            order = Order.objects.filter(
+                Q(public_id=public_id) | Q(public_id=clean_id) | Q(public_id=f"YH-{clean_id}")
+            ).first()
+            if not order:
+                return Response({"latitude": None, "longitude": None, "active": False}, status=200)
 
-        loc = CourierLocation.objects.filter(order=order).order_by("-updated_at").first()
-        if not loc:
-            return Response({"latitude": None, "longitude": None, "active": False}, status=200)
+            loc = CourierLocation.objects.filter(order=order).order_by("-updated_at").first()
+            if not loc:
+                return Response({"latitude": None, "longitude": None, "active": False}, status=200)
 
-        age = (timezone.now() - loc.updated_at).total_seconds()
-        return Response({
-            "latitude": float(loc.latitude),
-            "longitude": float(loc.longitude),
-            "updated_at": loc.updated_at.isoformat(),
-            "active": age < 300,
-        })
+            age = (timezone.now() - loc.updated_at).total_seconds()
+            return Response({
+                "latitude": float(loc.latitude),
+                "longitude": float(loc.longitude),
+                "updated_at": loc.updated_at.isoformat(),
+                "active": age < 300,
+            })
+        except Exception:
+            return Response({"latitude": None, "longitude": None, "active": False}, status=200)
 
     def post(self, request, public_id):
         user = request.user
