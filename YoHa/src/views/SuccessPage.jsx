@@ -114,11 +114,13 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
     if (status === 'delivered') return null;
     const baseTime = order?.createdAt ? new Date(order.createdAt).getTime() : Date.now();
 
-    // If GPS is live and active, calculate exact end window from remaining travel time
+    // Mode 1: GPS Live Activé -> Ajustement dynamique selon la distance restante du livreur
     if (gpsCalculated) {
-      const targetTimeMs = Date.now() + gpsCalculated.travelMins * 60 * 1000;
-      const startMs = targetTimeMs - 5 * 60 * 1000;
-      const endMs = targetTimeMs + 5 * 60 * 1000;
+      const remainingMs = gpsCalculated.travelMins * 60 * 1000;
+      const arrivalTargetMs = nowMs + remainingMs;
+      const startMs = Math.max(nowMs, arrivalTargetMs - 3 * 60 * 1000);
+      const endMs = arrivalTargetMs + 7 * 60 * 1000;
+
       const fmt = (ms) => {
         const d = new Date(ms);
         return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
@@ -126,11 +128,11 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
       return { start: fmt(startMs), end: fmt(endMs) };
     }
 
-    // Otherwise, dynamic auto-increment estimation
+    // Mode 2: Sans GPS -> Décalage automatique dynamique de la plage tant que la commande n'est pas livrée
     let startMs = baseTime + 20 * 60 * 1000;
     let endMs = baseTime + 35 * 60 * 1000;
 
-    while (nowMs > endMs - 3 * 60 * 1000 && status !== 'delivered') {
+    while (nowMs > endMs - 2 * 60 * 1000 && status !== 'delivered') {
       startMs += 10 * 60 * 1000;
       endMs += 10 * 60 * 1000;
     }
