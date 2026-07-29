@@ -691,8 +691,24 @@ export function Carousel3DSection({ onStart }) {
         </p>
       </div>
 
-      {/* Carrousel 3D pour tous les écrans (responsive) */}
-      <div className="carousel-3d relative h-[220px] sm:h-[320px] md:h-[380px] lg:h-[380px] xl:h-[420px]">
+      {/* Carrousel Mobile — 2D Plat, Élégant et Fluide */}
+      <div className="sm:hidden -mx-4 px-4 overflow-x-auto no-scrollbar snap-x snap-mandatory flex gap-3.5 pb-2 pt-1">
+        {items.map((r) => (
+          <div
+            key={r.id}
+            onClick={onStart}
+            className="shrink-0 w-[230px] h-[280px] snap-center cursor-pointer active:scale-95 transition-transform"
+          >
+            <CarouselPartnerCard
+              restaurant={r}
+              className="border border-white/20 dark:border-white/10 shadow-lg hover:border-brand-500/40 transition-all duration-300"
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Carrousel Desktop — 3D Rotatif Original */}
+      <div className="hidden sm:block carousel-3d relative h-[320px] md:h-[380px] lg:h-[380px] xl:h-[420px]">
         <div className="carousel-3d-inner">
           {items.map((r, i) => {
             const angle = i * angleStep;
