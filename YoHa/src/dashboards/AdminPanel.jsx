@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { I } from '../icons/Icons.jsx';
 import { getStoredReviews, deleteReview } from '../utils/reviews.js';
+import { getCourierGps, calculateHaversineDistance, resolveDestinationCoords } from '../utils/courierGps.js';
 import {
   ORDER_STATES,
   bucketRevenueLast7Days,
