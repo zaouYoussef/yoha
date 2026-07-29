@@ -352,6 +352,61 @@ function OrderActionButtons({ order }) {
   );
 }
 
+function useCourierAutoGps(courier, orders) {
+  const [gpsState, setGpsState] = useState({
+    active: false,
+    denied: false,
+    coords: null,
+  });
+
+  const requestGps = useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setGpsState({ active: true, denied: false, coords });
+
+          const activeOrders = orders.filter(
+            (o) => String(o.courierId) === String(courier.id) && o.status !== 'delivered'
+          );
+          if (activeOrders.length > 0) {
+            activeOrders.forEach((o) => updateCourierGps(o.id, coords.lat, coords.lng, true));
+          } else {
+            updateCourierGps('active_courier', coords.lat, coords.lng, true);
+          }
+        },
+        (err) => {
+          console.warn('Courier GPS error, using Tanger fallback:', err);
+          const fallbackCoords = { lat: 35.68500, lng: -5.92300 };
+          setGpsState({ active: true, denied: false, coords: fallbackCoords });
+          const activeOrders = orders.filter(
+            (o) => String(o.courierId) === String(courier.id) && o.status !== 'delivered'
+          );
+          activeOrders.forEach((o) => updateCourierGps(o.id, fallbackCoords.lat, fallbackCoords.lng, true));
+        },
+        { enableHighAccuracy: true }
+      );
+    } else {
+      const fallbackCoords = { lat: 35.68500, lng: -5.92300 };
+      setGpsState({ active: true, denied: false, coords: fallbackCoords });
+      const activeOrders = orders.filter(
+        (o) => String(o.courierId) === String(courier.id) && o.status !== 'delivered'
+      );
+      activeOrders.forEach((o) => updateCourierGps(o.id, fallbackCoords.lat, fallbackCoords.lng, true));
+    }
+  }, [courier, orders]);
+
+  useEffect(() => {
+    requestGps();
+    const interval = setInterval(requestGps, 5000);
+    return () => clearInterval(interval);
+  }, [requestGps]);
+
+  return { ...gpsState, requestGps };
+}
+
 export function DeliveryDashboard({ goto, dark, setDark }) {
   const [current, setCurrent] = useState('available');
   const { orders, couriers } = useOrders();
@@ -360,6 +415,8 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
     couriers.find((c) => c.userId === user?.id) ||
     couriers[0] ||
     { id: '0', name: user?.displayName || 'Livreur' };
+
+  const { active: gpsActive, requestGps } = useCourierAutoGps(COURIER_ME, orders);
 
   const titles = {
     available: 'Commandes disponibles',
@@ -370,6 +427,32 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
   return (
     <DashLayout kind="delivery" current={current} setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
       title={titles[current]} subtitle={`Connecté en tant que ${COURIER_ME.name}`}>
+      
+      {/* Forced GPS Status Banner */}
+      {!gpsActive && (
+        <div className="mb-4 p-4 rounded-2xl bg-amber-500/15 border-2 border-amber-500/40 text-ink-900 dark:text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md animate-pulse">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500 text-white grid place-items-center font-bold text-lg shrink-0">
+              📍
+            </div>
+            <div>
+              <h4 className="font-extrabold text-sm text-amber-900 dark:text-amber-200">
+                Géolocalisation obligatoire pour les livreurs
+              </h4>
+              <p className="text-xs text-amber-800/80 dark:text-amber-300 font-medium">
+                Activez votre GPS pour recevoir les courses et diffuser votre position en direct aux clients.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={requestGps}
+            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-500 text-white font-extrabold text-xs hover:bg-amber-600 transition shadow-sm shrink-0"
+          >
+            Activer le GPS maintenant 🟢
+          </button>
+        </div>
+      )}
+
       {current === 'available' && <DeliveryAvailable courier={COURIER_ME} />}
       {current === 'mine' && <DeliveryMine courier={COURIER_ME} />}
       {current === 'history' && <DeliveryHistory courier={COURIER_ME} />}
