@@ -475,26 +475,29 @@ export function AdminOrderGpsCell({ order }) {
   const activeLat = gpsData?.active ? gpsData.lat : 35.68500;
   const activeLng = gpsData?.active ? gpsData.lng : -5.92300;
   const dist = calculateHaversineDistance(activeLat, activeLng, destInfo.lat, destInfo.lng);
+  const live = gpsData?.active && order.courierName;
 
   return (
     <div className="flex flex-col gap-1 text-xs">
       <button onClick={() => setExpanded(!expanded)} type="button"
         className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-extrabold text-xs transition-all shrink-0 w-max shadow-xs cursor-pointer ${
-          gpsData?.active
+          live
             ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-600'
             : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/30'
         }`}
         title={`${expanded ? 'Masquer' : 'Afficher'} la carte de ${order.courierName || 'livreur'}`}
       >
-        <span className={`w-2 h-2 rounded-full ${gpsData?.active ? 'bg-white animate-ping' : 'bg-amber-500'}`} />
-        <span>{gpsData?.active ? `📡 GPS Live (${dist.toFixed(1)} km)` : `🗺️ ${order.courierName || 'Livreur'}`}</span>
+        <span className={`w-2 h-2 rounded-full ${live ? 'bg-white animate-ping' : 'bg-amber-500'}`} />
+        <span>{live ? `📡 GPS Live (${dist.toFixed(1)} km)` : `🗺️ ${order.courierName || 'Aucun livreur'}`}</span>
         <span className={`text-[11px] transition-transform ${expanded ? 'rotate-180' : ''}`}>▾</span>
       </button>
-      <span className="text-[10px] text-ink-400 font-semibold truncate max-w-[170px]">
-        {activeLat.toFixed(4)}, {activeLng.toFixed(4)} ➔ {destInfo.name.split(' ')[0]}
-      </span>
-      {expanded && gpsData?.active && order.courierName && (
-        <LiveMapTracker orderId={order.id} courierName={order.courierName} address={order.customerAddress || order.address || ''} height="180px" />
+      {order.courierName && (
+        <span className="text-[10px] text-ink-400 font-semibold truncate max-w-[170px]">
+          {activeLat.toFixed(4)}, {activeLng.toFixed(4)} ➔ {destInfo.name.split(' ')[0]}
+        </span>
+      )}
+      {expanded && order.courierName && (
+        <LiveMapTracker orderId={order.id} courierName={order.courierName} address={order.customerAddress || order.address || ''} height="240px" />
       )}
     </div>
   );

@@ -48,10 +48,14 @@ export function LiveMapTracker({ orderId, courierName, address, height = '280px'
       {/* Real-time Map Header Overlay */}
       <div className="absolute top-2.5 left-2.5 right-2.5 z-10 flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-white/10 text-white shadow-md">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping shrink-0" />
+          {courierGps?.active ? (
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping shrink-0" />
+          ) : (
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0" />
+          )}
           <div className="min-w-0">
             <span className="text-[11px] font-extrabold text-emerald-400 block truncate">
-              🛵 Livreur {courierName || 'YoHa'} en direct
+              🛵 {courierName || 'Livreur'} {courierGps?.active ? 'en direct' : '(position estimée)'}
             </span>
             <span className="text-[10px] text-slate-300 font-semibold truncate block">
               À {distanceKm.toFixed(1)} km de {destInfo.name} (~{travelMins} min)
@@ -59,8 +63,12 @@ export function LiveMapTracker({ orderId, courierName, address, height = '280px'
           </div>
         </div>
 
-        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
-          Carte Live 🔴
+        <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-lg shrink-0 ${
+          courierGps?.active
+            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+            : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+        }`}>
+          {courierGps?.active ? 'GPS Live 🔴' : 'Estimée ⚠️'}
         </span>
       </div>
 
