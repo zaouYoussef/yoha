@@ -1006,7 +1006,7 @@ export function AdminRestaurants() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3">
                   <h3 className="font-display font-bold text-white text-base truncate drop-shadow-lg">{r.name}</h3>
-                  <div className="text-[11px] text-white/80">{r.tags?.join(' · ') || r.cuisine}</div>
+                  <div className="text-[11px] text-white/80">{r.tags?.map((t) => typeof t === 'string' ? t.charAt(0).toUpperCase() + t.slice(1) : t).join(' · ') || (r.cuisine ? r.cuisine.charAt(0).toUpperCase() + r.cuisine.slice(1) : '')}</div>
                 </div>
                 <button onClick={() => handleDelete(r.pk)}
                   className="absolute top-2 right-2 h-8 w-8 rounded-xl bg-red-500/90 text-white hover:bg-red-600 transition-colors flex items-center justify-center backdrop-blur-sm">

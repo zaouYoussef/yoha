@@ -35,6 +35,19 @@ function isRestaurantOpen(r) {
   return r.isOpen ?? st.isOpen;
 }
 
+export function formatTag(tag) {
+  if (!tag || typeof tag !== 'string') return '';
+  const trimmed = tag.trim();
+  if (!trimmed) return '';
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
+
+export function formatTags(tags, separator = ' • ') {
+  if (!tags) return '';
+  const list = Array.isArray(tags) ? tags : [tags];
+  return list.map(formatTag).filter(Boolean).join(separator);
+}
+
 const CATEGORY_GLOW = {
   pizza: '#f97316',
   tacos: '#d97706',
@@ -121,7 +134,7 @@ function FeaturedSpotlight({ restaurant, onClick }) {
                 <I.Flame size={12} className="animate-pulse text-yellow-300" /> Coup de cœur
               </span>
               <h3 className="mt-4 font-display font-black text-2xl sm:text-4xl text-white tracking-tight leading-none text-glow-slow">{restaurant.name}</h3>
-              <p className="mt-2 text-sm sm:text-base text-white/75 line-clamp-2">{tags.join(' · ')}</p>
+              <p className="mt-2 text-sm sm:text-base text-white/75 line-clamp-2">{formatTags(tags, ' · ')}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {restaurant.promo && (
                   <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/15 backdrop-blur-md text-white border border-white/20">
@@ -1151,7 +1164,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 {tags.map((t, i) => (
                   <span key={i} className="flex items-center gap-1">
                     {i > 0 && <span className="text-ink-300 dark:text-ink-600">·</span>}
-                    {t}
+                    {formatTag(t)}
                   </span>
                 ))}
               </div>
@@ -1582,7 +1595,7 @@ export function RestaurantCard({ restaurant, onClick }) {
               {restaurant.name}
             </h3>
             <div className="text-[10px] sm:text-xs text-ink-500 dark:text-ink-400 truncate mt-0.5 flex items-center gap-1.5">
-              <span>{Array.isArray(restaurant.tags) ? restaurant.tags.join(' • ') : ''}</span>
+              <span>{formatTags(restaurant.tags, ' • ')}</span>
               <span className="px-1.5 py-0.5 rounded bg-ink-100 dark:bg-ink-800 text-ink-500 text-[10px] font-bold shrink-0">
                 Sponsorisé
               </span>
