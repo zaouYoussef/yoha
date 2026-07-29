@@ -52,16 +52,11 @@ def _send_web_push(sub, payload: str, vapid_private: str, vapid_claims_email: st
         )
         return True
     except WebPushException as exc:
-        if exc.response and exc.response.status_code in (410, 404):
-            logger.info("web_push_expired user=%s endpoint=%.48s", sub.user_id, sub.endpoint)
+        status = exc.response.status_code if exc.response else None
+        body = exc.response.text if exc.response else None
+        logger.warning("web_push_failed user=%s status=%s body=%s", sub.user_id, status, body)
+        if status in (410, 404):
             sub.delete()
-        else:
-            logger.warning(
-                "web_push_fail user=%s endpoint=%.48s status=%s",
-                sub.user_id,
-                sub.endpoint,
-                exc.response.status_code if exc.response else "?",
-            )
     except Exception:
         logger.exception("web_push_error user=%s endpoint=%.48s", sub.user_id, sub.endpoint)
     return False
