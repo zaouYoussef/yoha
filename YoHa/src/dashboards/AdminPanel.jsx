@@ -589,8 +589,11 @@ export function RecentOrdersTable({ orders, title, full, gainMad, hideCourier = 
                 <td className="px-4 py-3 sm:px-5">
                   <div className="flex flex-col gap-1 items-start">
                     <StatusPill status={o.status} />
-                    {showCancellation && o.status === 'cancelled' && o.cancelledPhase && (
-                      <CancelPhaseBadge phase={o.cancelledPhase} />
+                    {showCancellation && o.status === 'cancelled' && (
+                      <>
+                        {o.cancelledPhase && <CancelPhaseBadge phase={o.cancelledPhase} />}
+                        <OrderCancellationNote reason={o.cancellationReason} className="mt-0" />
+                      </>
                     )}
                   </div>
                 </td>
