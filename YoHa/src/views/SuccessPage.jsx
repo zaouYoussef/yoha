@@ -277,23 +277,29 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
           </div>
         </div>
 
-        {/* Dynamic Continuous Progress Bar */}
+        {/* Snake Flow Animated Progress Bar */}
         <div className="px-4 sm:px-6 pt-5">
           <div className="flex justify-between items-center text-xs font-bold text-ink-500 mb-2">
             <span className="flex items-center gap-1.5 font-extrabold text-ink-800 dark:text-white">
-              <span className="text-brand-500">🛵</span> Suivi en temps réel
-            </span>
-            <span className="text-brand-600 dark:text-brand-400 font-extrabold text-sm">
-              {displayedProgressPct}%
+              <span className="text-brand-500 text-sm">🛵</span> Suivi en temps réel
             </span>
           </div>
 
-          <div className="h-3.5 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden p-0.5 relative shadow-inner">
+          <div className="h-4 rounded-full bg-ink-100 dark:bg-ink-800 p-0.5 relative shadow-inner overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-brand-500 via-pink-500 to-emerald-500 transition-all duration-1000 ease-out rounded-full shadow-md relative overflow-hidden"
+              className="h-full bg-[linear-gradient(90deg,#f97316,#ec4899,#eab308,#10b981,#3b82f6,#f97316)] animate-snake-bar transition-all duration-1000 ease-out rounded-full shadow-md relative"
               style={{ width: `${displayedProgressPct}%` }}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
+              {/* Shimmer wave effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-pulse" />
+              
+              {/* Glowing snake head node */}
+              {status !== 'delivered' && (
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 flex items-center justify-center">
+                  <span className="w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white dark:border-ink-900 shadow-[0_0_10px_#10b981] animate-ping" />
+                  <span className="absolute w-3 h-3 rounded-full bg-emerald-500 border border-white dark:border-ink-900 shadow-sm" />
+                </div>
+              )}
             </div>
           </div>
 
