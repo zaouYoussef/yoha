@@ -19,7 +19,7 @@ import {
   CUISINE_CATEGORIES,
 } from '../data/index.js';
 import { useOrders, useToast } from '../contexts/AppContexts.jsx';
-import { apiFetch } from '../lib/api.js';
+import { apiFetch, ordersApi } from '../lib/api.js';
 import {
   DashLayout,
   LineChart,
