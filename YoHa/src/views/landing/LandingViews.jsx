@@ -154,7 +154,7 @@ export function Hero({ onStart, onHowItWorks }) {
         </div>
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-12 lg:pt-20 pb-10 sm:pb-16 lg:pb-28 grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-4 sm:pt-12 lg:pt-20 pb-6 sm:pb-16 lg:pb-28 grid lg:grid-cols-2 gap-6 sm:gap-10 lg:gap-12 items-center">
         {/* LEFT */}
         <div ref={textRef} className="relative z-10 min-w-0 transition-transform duration-300 ease-out lg:[transform:none]" style={{ pointerEvents:'auto' }}>
           <span className="inline-flex max-w-full items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-white/60 dark:bg-ink-900/60 backdrop-blur text-[10px] sm:text-xs font-semibold tracking-wider uppercase animate-fade-up border border-brand-500/25 shadow-[0_0_15px_rgba(249,115,22,0.1)]">
@@ -165,26 +165,26 @@ export function Hero({ onStart, onHowItWorks }) {
             <span className="truncate">En direct · Alliance & CHU</span>
           </span>
 
-          <h1 className="mt-4 sm:mt-6 font-display font-black tracking-tight text-5xl sm:text-6xl lg:text-7xl leading-[1.05] sm:leading-[0.95]">
+          <h1 className="mt-3 sm:mt-6 font-display font-black tracking-tight text-[2.5rem] sm:text-6xl lg:text-7xl leading-[1.08] sm:leading-[0.95]">
             <span className="block animate-fade-up">
               <span className="block text-gradient text-glow">
                 YoHa.
               </span>
             </span>
             <span className="block animate-fade-up" style={{ animationDelay: '150ms' }}>
-              <span className="block mt-2 sm:mt-3 text-ink-900 dark:text-ink-50 min-h-[3.3em] sm:min-h-[1.2em] lg:min-h-[1.15em] text-glow leading-snug">
+              <span className="block mt-1.5 sm:mt-3 text-ink-900 dark:text-ink-50 min-h-[2.2em] sm:min-h-[1.2em] lg:min-h-[1.15em] text-glow leading-snug">
                 {typed}
                 <span className="caret align-baseline" style={{ height:'0.85em' }}></span>
               </span>
             </span>
           </h1>
 
-          <p className="mt-4 sm:mt-6 max-w-xl text-sm sm:text-base lg:text-lg text-ink-600 dark:text-ink-300 leading-relaxed animate-fade-up" style={{ animationDelay:'600ms' }}>
+          <p className="mt-3 sm:mt-6 max-w-xl text-[13px] sm:text-base lg:text-lg text-ink-600 dark:text-ink-300 leading-relaxed animate-fade-up" style={{ animationDelay:'600ms' }}>
             <span className="sm:hidden">Commandez et faites-vous livrer à la chambre, à l&apos;aile ou à la BU — en moins de 30 min.</span>
             <span className="hidden sm:inline">Commandez auprès de vos cuisines préférées et faites-vous livrer directement à votre chambre, à l&apos;aile hospitalière ou à la BU — en moins de 30 minutes. Aucun détour.</span>
           </p>
 
-          <div className="mt-5 sm:mt-8 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 animate-fade-up" style={{ animationDelay:'750ms' }}>
+          <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 animate-fade-up" style={{ animationDelay:'750ms' }}>
             <Magnetic strength={20} className="block w-full sm:inline-block sm:w-auto">
               <Button onClick={onStart} variant="primary" size="lg" className="w-full sm:w-auto shadow-lg shadow-brand-500/25">
                 Commander maintenant ⚡ <I.Right size={18}/>
@@ -195,7 +195,7 @@ export function Hero({ onStart, onHowItWorks }) {
             </Button>
           </div>
 
-          <div className="mt-6 sm:mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 animate-fade-up" style={{ animationDelay:'900ms' }}>
+          <div className="mt-4 sm:mt-10 flex flex-row items-center gap-2.5 sm:gap-6 animate-fade-up" style={{ animationDelay:'900ms' }}>
             <div className="flex -space-x-2 shrink-0">
               {[
                 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
@@ -326,18 +326,18 @@ export function BentoHero() {
           onSelectSpot={selectSpot}
         />
 
-        <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-2xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 p-3 text-white text-center border border-white/20 shadow-glow">
-            <div className="text-[9px] font-semibold uppercase tracking-wider opacity-90">Délai</div>
-            <div className="font-display font-black text-2xl leading-none mt-0.5">34<span className="text-[10px] sm:text-xs font-bold">min</span></div>
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+          <div className="rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 p-2 sm:p-3 text-white text-center border border-white/20 shadow-glow">
+            <div className="text-[8px] sm:text-[9px] font-semibold uppercase tracking-wider opacity-90">Délai</div>
+            <div className="font-display font-black text-xl sm:text-2xl leading-none mt-0.5">34<span className="text-[9px] sm:text-xs font-bold">min</span></div>
           </div>
-          <div className="rounded-2xl glass-card-premium p-3 text-center border border-white/20 dark:border-white/5">
-            <div className="text-[9px] font-semibold uppercase tracking-wider text-ink-500">Communauté</div>
-            <div className="font-display font-black text-xl sm:text-2xl text-gradient mt-0.5">12k+</div>
+          <div className="rounded-xl sm:rounded-2xl glass-card-premium p-2 sm:p-3 text-center border border-white/20 dark:border-white/5">
+            <div className="text-[8px] sm:text-[9px] font-semibold uppercase tracking-wider text-ink-500">Communauté</div>
+            <div className="font-display font-black text-lg sm:text-2xl text-gradient mt-0.5">12k+</div>
           </div>
-          <div className="rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/5 p-3 text-center border border-emerald-500/20">
-            <div className="text-lg leading-none">🎁</div>
-            <div className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300 mt-1 leading-tight">Livraison offerte</div>
+          <div className="rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/5 p-2 sm:p-3 text-center border border-emerald-500/20">
+            <div className="text-base sm:text-lg leading-none">🎁</div>
+            <div className="text-[9px] sm:text-[10px] font-bold text-emerald-800 dark:text-emerald-300 mt-0.5 sm:mt-1 leading-tight">Livraison offerte</div>
           </div>
         </div>
 
@@ -482,8 +482,8 @@ export function PartnersMarquee() {
     '🏠 Résidence universitaire Alliance Tanger',
   ];
   return (
-    <section className="marquee-mask border-y border-ink-200/60 dark:border-ink-800/60 py-6 overflow-hidden bg-white/40 dark:bg-ink-900/40 backdrop-blur-md">
-      <div className="marquee gap-12 text-2xl sm:text-3xl font-display font-bold tracking-tight text-ink-400/70 dark:text-ink-500/75">
+    <section className="marquee-mask border-y border-ink-200/60 dark:border-ink-800/60 py-3 sm:py-6 overflow-hidden bg-white/40 dark:bg-ink-900/40 backdrop-blur-md">
+      <div className="marquee gap-6 sm:gap-12 text-lg sm:text-3xl font-display font-bold tracking-tight text-ink-400/70 dark:text-ink-500/75">
         {[...Array(2)].map((_, k) => (
           <Fragment key={k}>
             {items.map(it => <span key={it+k} className="hover:text-brand-500 transition-colors duration-300">{it}</span>)}
@@ -570,11 +570,11 @@ export function PartnerCategoriesSection() {
   ];
 
   return (
-    <section ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28 overflow-visible">
+    <section ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-28 overflow-visible">
 
 
       <Reveal>
-        <div className="text-center max-w-3xl mx-auto mb-14">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-14">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
             🛍️ Tous les services essentiels
           </span>
@@ -587,14 +587,14 @@ export function PartnerCategoriesSection() {
         </div>
       </Reveal>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 items-stretch">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 items-stretch">
         {rows.map((r, i) => (
           <Reveal key={r.title} delay={i * 80}>
             <Tilt max={6} className="h-full rounded-2xl sm:rounded-[1.5rem]">
               <button
                 type="button"
                 onClick={() => goto('home', { browseFilter: r.browseFilter })}
-                className={`relative overflow-hidden group h-full w-full text-left p-5 sm:p-7 rounded-2xl sm:rounded-[1.5rem] glass-card-premium border border-white/20 dark:border-white/5 ${r.hoverBorder} transition-all duration-500 shadow-card ${r.hoverShadow} flex flex-col justify-between min-h-[200px] sm:min-h-[220px] cursor-pointer`}
+                className={`relative overflow-hidden group h-full w-full text-left p-4 sm:p-7 rounded-2xl sm:rounded-[1.5rem] glass-card-premium border border-white/20 dark:border-white/5 ${r.hoverBorder} transition-all duration-500 shadow-card ${r.hoverShadow} flex flex-col justify-between min-h-[160px] sm:min-h-[220px] cursor-pointer`}
               >
                 {/* Glowing background orb */}
                 <div className={`absolute -right-10 -bottom-10 w-28 h-28 rounded-full bg-gradient-to-br ${r.color} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 blur-xl transition-all duration-500 scale-50`}></div>
@@ -612,7 +612,7 @@ export function PartnerCategoriesSection() {
                     </span>
                   </div>
 
-                  <div className="mt-6 sm:mt-8">
+                  <div className="mt-4 sm:mt-8">
                     <h3 className={`font-display font-extrabold text-xl sm:text-2xl text-ink-900 dark:text-white transition-colors duration-300 ${r.textHover}`}>
                       {r.title}
                     </h3>
@@ -622,7 +622,7 @@ export function PartnerCategoriesSection() {
                   </div>
                 </div>
 
-                <div className={`mt-6 flex items-center gap-1 text-sm font-bold text-ink-500 transition-colors duration-300 ${r.textHover}`}>
+                <div className={`mt-4 sm:mt-6 flex items-center gap-1 text-sm font-bold text-ink-500 transition-colors duration-300 ${r.textHover}`}>
                   <span>Découvrir la sélection</span>
                   <span className="transition-transform duration-300">→</span>
                 </div>
@@ -658,7 +658,8 @@ function useCarouselRadius() {
   useEffect(() => {
     const update = () => {
       const w = window.innerWidth;
-      if (w < 1280) setRadius(Math.min(280, w * 0.38));
+      if (w < 640) setRadius(Math.min(100, w * 0.28));
+      else if (w < 1280) setRadius(Math.min(280, w * 0.38));
       else setRadius(360);
     };
     update();
@@ -676,7 +677,7 @@ export function Carousel3DSection({ onStart }) {
   const radius = useCarouselRadius();
 
   return (
-    <section className="relative overflow-hidden py-12 sm:py-16 lg:py-24">
+    <section className="relative overflow-hidden py-8 sm:py-16 lg:py-24">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(550px,90vw)] h-[320px] rounded-full bg-brand-500/10 blur-[130px] pointer-events-none -z-10" />
       <div className="absolute inset-0 -z-20 mesh-conic opacity-50"></div>
 
@@ -691,7 +692,7 @@ export function Carousel3DSection({ onStart }) {
       </div>
 
       {/* Carrousel 3D pour tous les écrans (responsive) */}
-      <div className="carousel-3d relative h-[250px] sm:h-[320px] md:h-[380px] lg:h-[380px] xl:h-[420px]">
+      <div className="carousel-3d relative h-[220px] sm:h-[320px] md:h-[380px] lg:h-[380px] xl:h-[420px]">
         <div className="carousel-3d-inner">
           {items.map((r, i) => {
             const angle = i * angleStep;
@@ -720,13 +721,13 @@ export function FeaturesSection({ onStart }) {
   const progress = useSectionScrollProgress(sectionRef);
 
   return (
-    <section ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 sm:py-32 overflow-visible">
+    <section ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-32 overflow-visible">
 
-      <div className="max-w-2xl mb-16">
+      <div className="max-w-2xl mb-8 sm:mb-16">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
           ✨ Avantages
         </span>
-        <h2 className="mt-4 font-display font-extrabold text-4xl sm:text-5xl tracking-tight leading-tight">
+        <h2 className="mt-4 font-display font-extrabold text-3xl sm:text-5xl tracking-tight leading-tight">
           Pensé pour le <span className="text-gradient text-glow">rythme de l&apos;Alliance.</span>
         </h2>
         <p className="mt-4 text-base sm:text-lg text-ink-600 dark:text-ink-300 leading-relaxed">
@@ -734,7 +735,7 @@ export function FeaturesSection({ onStart }) {
         </p>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 items-stretch">
         {FEATURES.map((f, i) => {
           const hoverBorderClass = 
             i === 0 ? 'hover:border-orange-500/35' : 
@@ -755,7 +756,7 @@ export function FeaturesSection({ onStart }) {
           return (
             <Reveal key={f.title} delay={i * 80}>
               <Tilt max={8} className="h-full rounded-2xl sm:rounded-[2rem]">
-                <div className={`group relative h-full p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} shadow-card ${hoverShadowClass} transition-all duration-500 overflow-hidden spotlight flex flex-col justify-between min-h-[200px] sm:min-h-[240px]`}
+                <div className={`group relative h-full p-4 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} shadow-card ${hoverShadowClass} transition-all duration-500 overflow-hidden spotlight flex flex-col justify-between min-h-[160px] sm:min-h-[240px]`}
                   onMouseMove={spotlightHandler}>
                   
                   {/* Glowing background corner orb */}
@@ -767,10 +768,10 @@ export function FeaturesSection({ onStart }) {
                       <span className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-white to-white/0 opacity-25 border border-white/30"></span>
                     </div>
 
-                    <h3 className={`mt-6 font-display font-extrabold text-xl text-ink-900 dark:text-white transition-colors duration-300 ${textHoverClass}`}>
+                    <h3 className={`mt-4 sm:mt-6 font-display font-extrabold text-base sm:text-xl text-ink-900 dark:text-white transition-colors duration-300 ${textHoverClass}`}>
                       {f.title}
                     </h3>
-                    <p className="mt-3 text-ink-600 dark:text-ink-400 text-sm leading-relaxed">
+                    <p className="mt-2 sm:mt-3 text-ink-600 dark:text-ink-400 text-xs sm:text-sm leading-relaxed">
                       {f.desc}
                     </p>
                   </div>
@@ -796,13 +797,13 @@ export function HowItWorksSection({ onStart }) {
   const progress = useSectionScrollProgress(sectionRef);
 
   return (
-    <section ref={sectionRef} id="comment-ca-marche" className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 scroll-mt-24 overflow-visible" aria-labelledby="how-it-works-heading">
+    <section ref={sectionRef} id="comment-ca-marche" className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-24 scroll-mt-24 overflow-visible" aria-labelledby="how-it-works-heading">
 
-      <div className="text-center max-w-2xl mx-auto mb-16">
+      <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-16">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold uppercase tracking-widest">
           📌 Fonctionnement
         </span>
-        <h2 id="how-it-works-heading" className="mt-4 font-display font-extrabold text-4xl sm:text-5xl tracking-tight">
+        <h2 id="how-it-works-heading" className="mt-4 font-display font-extrabold text-3xl sm:text-5xl tracking-tight">
           3 étapes. <span className="text-gradient text-glow">Zéro friction.</span>
         </h2>
         <p className="mt-3 text-ink-500 dark:text-ink-400 text-base leading-relaxed">
@@ -829,7 +830,7 @@ export function HowItWorksSection({ onStart }) {
             <React.Fragment key={s.num}>
               <div className="flex-1 w-full">
                 <Reveal delay={i * 150}>
-                  <div className={`relative overflow-hidden group h-full p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} transition-all duration-500 shadow-card ${hoverShadowClass} flex flex-col justify-between min-h-[220px] sm:min-h-[260px]`}>
+                  <div className={`relative overflow-hidden group h-full p-4 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} transition-all duration-500 shadow-card ${hoverShadowClass} flex flex-col justify-between min-h-[160px] sm:min-h-[260px]`}>
                     {/* Giant Backdrop Number */}
                     <span className={`absolute -right-4 sm:-right-3 -bottom-4 sm:-bottom-5 font-display font-black text-7xl sm:text-9xl text-transparent bg-gradient-to-br ${s.color} bg-clip-text opacity-[0.08] dark:opacity-[0.14] select-none pointer-events-none group-hover:opacity-[0.22] transition-all duration-500`}>
                       {s.num}
@@ -884,7 +885,7 @@ export function PizzaAssemblySection({ onStart }) {
   const progress = useSectionScrollProgress(sectionRef);
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-slate-50 dark:bg-ink-950 py-20 border-y border-ink-200/40 dark:border-ink-800/40">
+    <section ref={sectionRef} className="relative overflow-hidden bg-slate-50 dark:bg-ink-950 py-10 sm:py-20 border-y border-ink-200/40 dark:border-ink-800/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
         {/* LEFT: Text */}
         <Reveal>
@@ -908,7 +909,7 @@ export function PizzaAssemblySection({ onStart }) {
         </Reveal>
 
         {/* RIGHT: Top-Down Pizza Assembly Stage */}
-        <div className="relative flex justify-center items-center w-full min-h-[300px] sm:min-h-[420px] md:min-h-[500px] lg:min-h-[520px]">
+        <div className="relative flex justify-center items-center w-full min-h-[240px] sm:min-h-[420px] md:min-h-[500px] lg:min-h-[520px]">
           <div className="w-full flex justify-center">
             <Reveal delay={200}>
               <PizzaCookingStage progress={progress} />
@@ -937,7 +938,7 @@ export function PizzaCookingStage({ progress }) {
   const scale = 1 + (progress - 0.5) * 0.05;
 
   return (
-    <div className="relative mx-auto w-full max-w-[320px] sm:max-w-[420px] md:max-w-[480px] lg:max-w-[540px] xl:max-w-[600px] aspect-square select-none flex items-center justify-center">
+    <div className="relative mx-auto w-full max-w-[260px] sm:max-w-[420px] md:max-w-[480px] lg:max-w-[540px] xl:max-w-[600px] aspect-square select-none flex items-center justify-center">
       <div 
         className="relative w-full h-full flex items-center justify-center transition-transform duration-150 ease-out will-change-transform"
         style={{ transform: `scale(${scale})` }}
@@ -985,7 +986,7 @@ export function ShowcaseSection({ onStart }) {
   return (
     <section 
       ref={sectionRef} 
-      className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-[#fffcf6] to-[#fdf4e3] text-slate-900 py-12 sm:py-16 lg:py-20 my-8 sm:my-12 lg:my-16 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] max-w-7xl mx-4 sm:mx-6 lg:mx-auto px-4 sm:px-8 lg:px-12 border border-amber-100 shadow-xl"
+      className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-[#fffcf6] to-[#fdf4e3] text-slate-900 py-10 sm:py-16 lg:py-20 my-4 sm:my-12 lg:my-16 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] max-w-7xl mx-4 sm:mx-6 lg:mx-auto px-4 sm:px-8 lg:px-12 border border-amber-100 shadow-xl"
     >
       {/* Background Scooter Video (Lazy loaded) */}
       <LazyBackgroundVideo
@@ -1032,7 +1033,7 @@ export function ShowcaseSection({ onStart }) {
           </Reveal>
 
           {/* Premium Highlights Grid */}
-          <div className="mt-6 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <div className="mt-6 sm:mt-10 grid grid-cols-2 gap-2.5 sm:gap-4">
             {[
               { icon: '⚡', title: '14 min de livraison', desc: 'Moyenne record sur le campus' },
               { icon: '🍔', title: 'Gourmet & Ultra-frais', desc: 'Préparé sous vos yeux' },
@@ -1109,7 +1110,7 @@ export function TestimonialsSection({ onStart }) {
   const progress = useSectionScrollProgress(sectionRef);
 
   return (
-    <section ref={sectionRef} className="relative py-20 overflow-visible">
+    <section ref={sectionRef} className="relative py-10 sm:py-20 overflow-visible">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-end justify-between flex-wrap gap-4">
@@ -1126,7 +1127,7 @@ export function TestimonialsSection({ onStart }) {
             {[...Array(2)].map((_, k) => (
               <Fragment key={k}>
                 {TESTIMONIALS.map((t) => (
-                  <div key={t.name + k} className="cursor-grow shrink-0 w-[88%] sm:w-[380px] lg:w-[420px] rounded-2xl sm:rounded-3xl p-5 sm:p-6 glass-card-premium border border-white/20 dark:border-white/5 shadow-card hover:shadow-cardhover hover:shadow-[0_20px_50px_rgba(249,115,22,0.08)] transition-all duration-300 relative overflow-hidden spotlight hover:border-brand-500/20"
+                  <div key={t.name + k} className="cursor-grow shrink-0 w-[82%] sm:w-[380px] lg:w-[420px] rounded-2xl sm:rounded-3xl p-4 sm:p-6 glass-card-premium border border-white/20 dark:border-white/5 shadow-card hover:shadow-cardhover hover:shadow-[0_20px_50px_rgba(249,115,22,0.08)] transition-all duration-300 relative overflow-hidden spotlight hover:border-brand-500/20"
                     onMouseMove={spotlightHandler}>
                     <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br ${t.color} opacity-20 blur-2xl`}></div>
                     
@@ -1214,9 +1215,9 @@ export function FinalCTA({ onStart }) {
   };
 
   return (
-    <section ref={sectionRef} className="max-w-7xl mx-auto px-4 sm:px-6 pb-24">
+    <section ref={sectionRef} className="max-w-7xl mx-auto px-4 sm:px-6 pb-12 sm:pb-24">
       <Reveal>
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-50 via-[#fffcf5] to-orange-50/50 border border-amber-200/60 p-8 sm:p-14 text-slate-900 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-50 via-[#fffcf5] to-orange-50/50 border border-amber-200/60 p-5 sm:p-14 text-slate-900 flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 shadow-xl">
           <div aria-hidden className="absolute -top-24 -right-24 w-[28rem] h-[28rem] rounded-full bg-amber-300/30 blur-3xl animate-pulse-slow"></div>
           <div aria-hidden className="absolute -bottom-24 -left-24 w-[28rem] h-[28rem] rounded-full bg-rose-200/30 blur-3xl animate-pulse-slow" style={{ animationDelay:'1s' }}></div>
           <div className="absolute inset-0 grid-bg opacity-[0.02]"></div>
@@ -1250,7 +1251,7 @@ export function FinalCTA({ onStart }) {
           </div>
 
           {/* Mini Pizza Exploded Animation */}
-          <div className="relative shrink-0 w-full md:w-[240px] h-[280px] flex items-center justify-center z-10 pointer-events-none select-none">
+          <div className="relative shrink-0 w-full md:w-[240px] h-[200px] sm:h-[280px] hidden sm:flex items-center justify-center z-10 pointer-events-none select-none">
             <PizzaExplodedStageMini progress={progress} />
           </div>
         </div>
@@ -1305,7 +1306,7 @@ export function CampusHospitalsSection({ onStart }) {
               </div>
             </div>
 
-            <div className="mt-6 sm:mt-8 grid sm:grid-cols-2 gap-4">
+            <div className="mt-4 sm:mt-8 grid sm:grid-cols-2 gap-3 sm:gap-4">
               {CAMPUS_HOSPITALS.map((place, idx) => (
                 <Reveal key={place.name} delay={idx * 70}>
                   <article className="group relative flex gap-0 sm:block h-full rounded-2xl overflow-hidden border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-300 hover:border-white/20">
@@ -1349,11 +1350,11 @@ export function FlyingBurgerShowcase() {
   return (
     <section 
       ref={containerRef}
-      className="relative overflow-visible py-20 bg-slate-50 dark:bg-ink-950/40 border-y border-ink-200/40 dark:border-ink-800/40"
+      className="relative overflow-visible py-10 sm:py-20 bg-slate-50 dark:bg-ink-950/40 border-y border-ink-200/40 dark:border-ink-800/40"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-16 items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-8 sm:gap-16 items-center">
         {/* LEFT: 3D Stacked Figma screens */}
-        <div className="relative flex justify-center items-center h-[300px] lg:h-[420px]" style={{ perspective: '1200px' }}>
+        <div className="relative hidden lg:flex justify-center items-center h-[300px] lg:h-[420px]" style={{ perspective: '1200px' }}>
           <div className="relative w-full max-w-[420px] h-full flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
             {/* Desktop Mockup Card */}
             <div 

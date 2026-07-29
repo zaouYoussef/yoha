@@ -386,9 +386,9 @@
   }
   @media (max-width: 640px) {
     .carousel-3d-card {
-      width: 140px;
-      height: 190px;
-      margin: -95px 0 0 -70px;
+      width: 120px;
+      height: 165px;
+      margin: -82px 0 0 -60px;
     }
   }
 

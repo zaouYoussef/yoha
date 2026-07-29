@@ -1,6 +1,5 @@
 """Envoi de notifications Web Push (VAPID) aux livreurs connectes."""
 
-import base64
 import json
 import logging
 
@@ -35,16 +34,17 @@ def _get_vapid_private_key() -> str:
 
 
 def _send_web_push(sub, payload: str, vapid_private: str, vapid_claims_email: str) -> bool:
-    from pywebpush import WebPusher, WebPushException
+    from pywebpush import webpush, WebPushException
 
     try:
-        WebPusher({
-            "endpoint": sub.endpoint,
-            "keys": {
-                "p256dh": sub.p256dh_key,
-                "auth": sub.auth_key,
+        webpush(
+            subscription_info={
+                "endpoint": sub.endpoint,
+                "keys": {
+                    "p256dh": sub.p256dh_key,
+                    "auth": sub.auth_key,
+                },
             },
-        }).send(
             data=payload,
             vapid_private_key=vapid_private,
             vapid_claims={"sub": f"mailto:{vapid_claims_email}"},
