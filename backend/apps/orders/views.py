@@ -383,27 +383,38 @@ class AdminCourierDeleteView(APIView):
 
 
 class CourierLocationView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, public_id):
-        order = get_object_or_404(Order.objects.all(), public_id=public_id)
-        try:
-            loc = CourierLocation.objects.get(order=order)
-            age = (timezone.now() - loc.updated_at).total_seconds()
-            return Response({
-                "latitude": float(loc.latitude),
-                "longitude": float(loc.longitude),
-                "updated_at": loc.updated_at.isoformat(),
-                "active": age < 300,
-            })
-        except CourierLocation.DoesNotExist:
-            return Response({"latitude": None, "longitude": None, "active": False}, status=404)
+        clean_id = str(public_id).replace("YH-", "").strip()
+        order = Order.objects.filter(
+            Q(public_id=public_id) | Q(public_id=clean_id) | Q(public_id=f"YH-{clean_id}")
+        ).first()
+        if not order:
+            return Response({"latitude": None, "longitude": None, "active": False}, status=200)
+
+        loc = CourierLocation.objects.filter(order=order).order_by("-updated_at").first()
+        if not loc:
+            return Response({"latitude": None, "longitude": None, "active": False}, status=200)
+
+        age = (timezone.now() - loc.updated_at).total_seconds()
+        return Response({
+            "latitude": float(loc.latitude),
+            "longitude": float(loc.longitude),
+            "updated_at": loc.updated_at.isoformat(),
+            "active": age < 300,
+        })
 
     def post(self, request, public_id):
         user = request.user
-        if user.role != "courier" or not user.courier_profile_id:
+        if not user.is_authenticated or getattr(user, 'role', '') != "courier" or not getattr(user, 'courier_profile_id', None):
             return Response({"detail": "Réservé aux livreurs."}, status=403)
-        order = get_object_or_404(Order.objects.all(), public_id=public_id)
+        clean_id = str(public_id).replace("YH-", "").strip()
+        order = Order.objects.filter(
+            Q(public_id=public_id) | Q(public_id=clean_id) | Q(public_id=f"YH-{clean_id}")
+        ).first()
+        if not order:
+            return Response({"detail": "Commande introuvable."}, status=404)
         if order.courier_id != user.courier_profile_id:
             return Response({"detail": "Vous n'êtes pas le livreur assigné."}, status=403)
         ser = CourierLocationSerializer(data=request.data)
