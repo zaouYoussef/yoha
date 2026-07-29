@@ -399,12 +399,6 @@ export function BentoHero() {
             </div>
             <div className="mt-1 text-sm text-ink-600 dark:text-ink-300 leading-snug">étudiants & soignants nous font confiance</div>
           </div>
-          <div className="mt-3 flex -space-x-2.5">
-            {[5,16,18,22,33].map(i => (
-              <img key={i} src="/logo.webp" alt=""
-                className="w-8 h-8 rounded-full border-2 border-white dark:border-ink-950 object-cover cursor-pointer"/>
-            ))}
-          </div>
         </div>
       </Tilt>
 
