@@ -62,12 +62,17 @@ def _send_web_push(sub, payload: str, vapid_private: str, vapid_claims_email: st
     return False
 
 
+def _vapid_private_raw() -> str:
+    """Retourne la cle privee VAPID brute (URL-safe base64, sans PEM)."""
+    return getattr(settings, "VAPID_PRIVATE_KEY", "")
+
+
 def send_courier_web_push(*, title: str, body: str, data: dict | None = None) -> int:
     """Envoie une notification Web Push a tous les livreurs et admins abonnés.
 
     Retourne le nombre de pushes envoyes avec succes.
     """
-    vapid_private = _get_vapid_private_key()
+    vapid_private = _vapid_private_raw()
     vapid_claims_email = getattr(settings, "VAPID_CLAIMS_EMAIL", "no-reply@yoha.ma")
 
     if not vapid_private:
@@ -123,7 +128,7 @@ def send_restaurant_new_order_web_push(order) -> int:
         "url": "/restaurant-dash",
     }
 
-    vapid_private = _get_vapid_private_key()
+    vapid_private = _vapid_private_raw()
     vapid_claims_email = getattr(settings, "VAPID_CLAIMS_EMAIL", "no-reply@yoha.ma")
     if not vapid_private:
         return 0

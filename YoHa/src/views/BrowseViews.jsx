@@ -1192,7 +1192,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 <button
                   key={c.category}
                   onClick={() => scrollToCat(c.category)}
-                  className={`cursor-grow relative shrink-0 px-3 sm:px-4 h-9 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
+                  className={`cursor-grow relative shrink-0 px-3 sm:px-4 h-10 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
                     active
                       ? 'text-ink-900 dark:text-white bg-ink-100 dark:bg-ink-800'
                       : 'text-ink-400 dark:text-ink-500 hover:text-ink-600 dark:hover:text-ink-300'
@@ -1442,7 +1442,7 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
             <button
               type="button"
               onClick={handleAdd}
-              className={`ml-auto w-10 h-10 rounded-lg grid place-items-center text-sm font-bold shadow-sm transition-all ${
+              className={`ml-auto w-11 h-11 rounded-lg grid place-items-center text-sm font-bold shadow-sm transition-all ${
                 adding
                   ? 'bg-emerald-500 text-white scale-110'
                   : 'bg-white dark:bg-ink-800 text-ink-900 dark:text-white border border-ink-200 dark:border-ink-700 hover:bg-brand-500 hover:text-white hover:border-brand-500 active:scale-95'

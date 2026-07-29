@@ -218,7 +218,7 @@ export function AuthPage({ redirect, goto, goHome }) {
                   value={loginId}
                   onChange={(e) => setLoginId(e.target.value)}
                   required
-                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition"
+                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm"
                   placeholder="E-mail ou nom d'utilisateur"
                 />
               </label>
@@ -230,7 +230,7 @@ export function AuthPage({ redirect, goto, goHome }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition"
+                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm"
                   placeholder="••••••••"
                 />
               </label>
@@ -247,7 +247,7 @@ export function AuthPage({ redirect, goto, goHome }) {
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition"
+                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm"
                   placeholder="Prénom Nom"
                 />
               </label>
@@ -259,7 +259,7 @@ export function AuthPage({ redirect, goto, goHome }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition"
+                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm"
                   placeholder="vous@exemple.ma"
                 />
               </label>
@@ -272,7 +272,7 @@ export function AuthPage({ redirect, goto, goHome }) {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={4}
-                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition"
+                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm"
                   placeholder="Au moins 10 caractères"
                 />
               </label>

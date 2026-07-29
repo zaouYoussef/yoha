@@ -25,7 +25,7 @@ export function Input({ label, value, onChange, placeholder, type = 'text' }) {
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="block w-full px-3 sm:px-4 py-2.5 rounded-xl bg-slate-50/80 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 dark:focus:border-brand-400 text-sm font-medium transition text-ink-900 dark:text-white placeholder:text-ink-400"
+        className="block w-full px-3 sm:px-4 py-3 rounded-xl bg-slate-50/80 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 dark:focus:border-brand-400 text-base sm:text-sm font-medium transition text-ink-900 dark:text-white placeholder:text-ink-400"
       />
     </label>
   );
