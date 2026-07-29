@@ -41,7 +41,7 @@ export function LiveMapTracker({ orderId, courierName, address, height = '280px'
   const minLng = Math.min(courierLng, destInfo.lng) - 0.006;
   const maxLng = Math.max(courierLng, destInfo.lng) + 0.006;
 
-  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${minLng},${minLat},${maxLng},${maxLat}&layer=mapnik&marker=${courierLat},${courierLng}`;
+  const mapUrl = `https://maps.google.com/maps?q=${courierLat},${courierLng}&z=15&output=embed`;
 
   return (
     <div className="relative rounded-2xl overflow-hidden border border-ink-200 dark:border-ink-800 shadow-lg bg-slate-900 group my-3">

@@ -158,3 +158,33 @@ def send_restaurant_new_order_web_push(order) -> int:
 
     logger.info("web_push_restaurant_sent order=%s success=%s", order.public_id, success)
     return success
+
+
+def send_client_web_push(*, order, title: str, body: str, data: dict | None = None) -> int:
+    """Envoie une notification Web Push au client d'une commande."""
+    vapid_private = _vapid_private_raw()
+    vapid_claims_email = getattr(settings, "VAPID_CLAIMS_EMAIL", "no-reply@yoha.ma")
+    if not vapid_private:
+        return 0
+
+    payload = json.dumps({
+        "title": title,
+        "body": body,
+        "data": data or {},
+    })
+
+    # Client connecté (compte) ou tout admin/superadmin
+    query = WebPushSubscription.objects.select_related("user").filter(
+        user__role__in=["client", "admin", "superadmin"],
+    )
+    subs = list(query.iterator())
+    if not subs:
+        return 0
+
+    success = 0
+    for sub in subs:
+        if _send_web_push(sub, payload, vapid_private, vapid_claims_email):
+            success += 1
+
+    logger.info("web_push_client_sent order=%s success=%s", order.public_id, success)
+    return success

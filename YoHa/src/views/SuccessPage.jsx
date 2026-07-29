@@ -11,6 +11,7 @@ import { formatMad } from '../data/index.js';
 import { OrderRatingCard } from '../components/ui/OrderRatingCard.jsx';
 import { LiveMapTracker } from '../components/ui/LiveMapTracker.jsx';
 import { getCourierGps, calculateHaversineDistance, resolveDestinationCoords } from '../utils/courierGps.js';
+import { subscribeWebPush } from '../lib/webPush.js';
 
 function useNotificationPermission() {
   const [permitted, setPermitted] = useState(false);
@@ -459,7 +460,7 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
           <div className="animate-card-entrance mx-3 mt-3 flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-sky-500/10 to-blue-500/10 border border-sky-200 dark:border-sky-800/40 backdrop-blur-sm">
             <span className="text-sm">🔔</span>
             <p className="text-[10px] font-semibold text-sky-800 dark:text-sky-200 flex-1">Activez les notifications pour suivre en temps réel.</p>
-            <button onClick={requestNotif} className="shrink-0 text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-sky-500 to-blue-600 text-white hover:from-sky-600 hover:to-blue-700 transition-all shadow-md shadow-sky-500/20">
+            <button onClick={async () => { const ok = await requestNotif(); if (ok) subscribeWebPush().catch(() => {}); }} className="shrink-0 text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-sky-500 to-blue-600 text-white hover:from-sky-600 hover:to-blue-700 transition-all shadow-md shadow-sky-500/20">
               Activer
             </button>
           </div>

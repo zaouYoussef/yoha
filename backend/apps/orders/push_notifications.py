@@ -18,7 +18,7 @@ CLIENT_STATUS_LABELS: dict[str, tuple[str, str]] = {
     ),
     Order.Status.PREPARING: ("En préparation", "Le restaurant prépare votre commande."),
     Order.Status.DELIVERING: ("En route vers vous", "Votre livreur arrive bientôt !"),
-    Order.Status.DELIVERED: ("Livré !", "Bon appétit — votre commande est arrivée."),
+    Order.Status.DELIVERED: ("Livré ! 🎉", "Bon appétit ! N'oubliez pas de noter votre expérience ★"),
     Order.Status.CANCELLED: ("Commande annulée", "Cette commande a été annulée."),
 }
 
@@ -81,14 +81,30 @@ def notify_client_order_status(order: Order, status: str) -> int:
         return 0
     title, desc = labels
     tokens = _tokens_for_order(order)
-    if not tokens:
-        return 0
-    count = send_expo_push(
-        tokens,
-        title=title,
-        body=f"{desc} (#{order.public_id})",
-        data={"orderId": order.public_id, "status": status, "type": "client_status"},
-    )
-    if count:
-        logger.info("push_client_status public_id=%s status=%s sent=%s", order.public_id, status, count)
+    count = 0
+    if tokens:
+        count = send_expo_push(
+            tokens,
+            title=title,
+            body=f"{desc} (#{order.public_id})",
+            data={"orderId": order.public_id, "status": status, "type": "client_status"},
+        )
+        if count:
+            logger.info("push_client_status public_id=%s status=%s sent=%s", order.public_id, status, count)
+
+    # Web Push pour le client (navigateur, même Chrome fermé)
+    try:
+        from .web_push_sender import send_client_web_push
+        wc = send_client_web_push(
+            order=order,
+            title=title,
+            body=desc,
+            data={"orderId": order.public_id, "status": status, "type": "client_status", "url": f"/order/{order.public_id}"},
+        )
+        if wc:
+            logger.info("push_client_web public_id=%s status=%s sent=%s", order.public_id, status, wc)
+            count += wc
+    except Exception:
+        logger.exception("push_client_web_error public_id=%s", order.public_id)
+
     return count
