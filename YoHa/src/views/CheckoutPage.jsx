@@ -626,21 +626,21 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                   type="button"
                   onClick={handleConfirm}
                   disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
-                  className="w-full relative group overflow-hidden py-4 px-6 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-600 to-rose-600 hover:from-brand-600 hover:to-rose-700 text-white font-black text-base sm:text-lg shadow-xl shadow-brand-500/25 hover:shadow-brand-500/40 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-3 border border-white/20"
+                  className="w-full relative py-3.5 px-5 sm:px-6 rounded-xl bg-brand-500 hover:bg-brand-600 active:scale-[0.99] text-white font-extrabold text-sm sm:text-base shadow-sm shadow-brand-500/25 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 border border-brand-400/30"
                 >
                   {submitting ? (
-                    <span className="flex items-center justify-center gap-2 font-bold text-sm">
+                    <span className="flex items-center justify-center gap-2 font-bold text-xs sm:text-sm">
                       Traitement en cours... <Loader />
                     </span>
                   ) : (
-                    <span className="flex items-center justify-center gap-2.5 font-display tracking-wide font-black">
+                    <span className="flex items-center justify-center gap-2 font-display">
                       <span>Confirmer la commande</span>
-                      <I.Right size={20} stroke={3} className="group-hover:translate-x-1 transition-transform" />
+                      <I.Right size={18} stroke={2.5} />
                     </span>
                   )}
                 </button>
                 
-                <div className="mt-3.5 flex items-center justify-center gap-2 text-xs text-ink-500 font-medium">
+                <div className="mt-3 flex items-center justify-center gap-2 text-xs text-ink-500 font-medium">
                   <I.Bag size={14} className="text-emerald-500" />
                   <span>Paiement 100% sécurisé à la livraison</span>
                 </div>
@@ -651,20 +651,26 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
       </div>
 
       {/* Mobile Floating Sticky Checkout Bar */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 p-3.5 sm:p-4 bg-white/95 dark:bg-ink-950/95 backdrop-blur-xl border-t border-ink-200/80 dark:border-ink-800 shadow-2xl pb-[calc(12px+env(safe-area-inset-bottom))]">
-        <div className="max-w-md mx-auto">
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 p-3 bg-white/95 dark:bg-ink-950/95 backdrop-blur-xl border-t border-ink-200/80 dark:border-ink-800 shadow-2xl pb-[calc(10px+env(safe-area-inset-bottom))]">
+        <div className="max-w-lg mx-auto flex items-center justify-between gap-3">
+          <div className="shrink-0 pl-1">
+            <div className="text-[10px] font-extrabold uppercase tracking-wider text-ink-400">Total</div>
+            <div className="font-display font-black text-sm sm:text-base text-brand-600 dark:text-brand-400">
+              {isCustom ? (total > 0 ? `${formatMad(grand)}` : '20 DH') : formatMad(grand)}
+            </div>
+          </div>
           <button
             type="button"
             onClick={handleConfirm}
             disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
-            className="w-full relative group overflow-hidden py-3.5 px-6 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-600 to-rose-600 text-white font-black text-base shadow-xl shadow-brand-500/30 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2.5 cursor-pointer border border-white/20"
+            className="flex-1 py-3 px-4 rounded-xl bg-brand-500 active:bg-brand-600 text-white font-extrabold text-xs sm:text-sm shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer border border-brand-400/30"
           >
             {submitting ? (
-              <span className="text-center font-bold text-sm">Traitement en cours...</span>
+              <span className="text-center font-bold text-xs">Traitement…</span>
             ) : (
-              <span className="flex items-center justify-center gap-2 font-display text-base font-black">
+              <span className="flex items-center justify-center gap-1.5 font-display font-bold">
                 <span>Confirmer la commande</span>
-                <I.Right size={18} stroke={3} />
+                <I.Right size={16} stroke={2.5} />
               </span>
             )}
           </button>

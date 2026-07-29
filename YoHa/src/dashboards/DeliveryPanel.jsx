@@ -433,7 +433,6 @@ export function DeliveryAvailable({ courier }) {
 
   const requestNotif = async () => {
     if (typeof window === 'undefined') return;
-    // AudioContext doit être créé SYNC dans le clic (user gesture) sur iOS
     playProBeep();
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent || '');
     const isStandalone = window.navigator?.standalone === true;
@@ -454,8 +453,13 @@ export function DeliveryAvailable({ courier }) {
         try {
           new Notification('YoHa', {
             body: 'Notifications activées !',
-            icon: '/icon.png',
+            icon: '/logo.png',
           });
+        } catch {}
+        // Abonnement Web Push
+        try {
+          const { subscribeWebPush } = await import('@/lib/webPush');
+          await subscribeWebPush();
         } catch {}
       } else if (res === 'denied') {
         alert('Notifications bloquées. Activez-les dans les réglages de votre iPhone.');

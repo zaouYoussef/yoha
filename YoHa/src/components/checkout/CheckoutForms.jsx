@@ -4,14 +4,14 @@ import React from 'react';
 import { I } from '../../icons/Icons.jsx';
 
 export function Card({ children, className = '' }) {
-  return <div className={`bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 rounded-3xl shadow-card overflow-hidden ${className}`}>{children}</div>;
+  return <div className={`bg-white dark:bg-ink-900 border border-ink-200/70 dark:border-ink-800 rounded-2xl sm:rounded-3xl shadow-sm overflow-hidden ${className}`}>{children}</div>;
 }
 
 export function CardHeader({ icon, title }) {
   return (
-    <div className="flex items-center gap-2.5 px-4 sm:px-6 h-14 border-b border-ink-200/60 dark:border-ink-800">
+    <div className="flex items-center gap-2.5 px-3.5 sm:px-6 h-12 sm:h-14 border-b border-ink-100 dark:border-ink-800">
       <span className="text-brand-500 shrink-0">{icon}</span>
-      <h3 className="font-display font-bold text-sm sm:text-base text-ink-900 dark:text-white truncate">{title}</h3>
+      <h3 className="font-display font-extrabold text-xs sm:text-base text-ink-900 dark:text-white truncate">{title}</h3>
     </div>
   );
 }
@@ -25,7 +25,7 @@ export function Input({ label, value, onChange, placeholder, type = 'text' }) {
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="block w-full px-3.5 sm:px-4 py-3 rounded-2xl bg-slate-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 dark:focus:border-brand-400 text-base sm:text-sm font-medium transition text-ink-900 dark:text-white placeholder:text-ink-400"
+        className="block w-full px-3 sm:px-4 py-2.5 rounded-xl bg-slate-50/80 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 dark:focus:border-brand-400 text-sm font-medium transition text-ink-900 dark:text-white placeholder:text-ink-400"
       />
     </label>
   );

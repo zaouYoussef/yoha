@@ -281,7 +281,16 @@ def notify_couriers_new_order(order: Order) -> int:
             len(recipients),
             ",".join(recipients[:3]),
         )
-        return len(recipients)
     except Exception:
         logger.exception("courier_notify_failed public_id=%s", order.public_id)
-        return 0
+
+    # Web Push aux livreurs connectes
+    try:
+        from .web_push_sender import send_courier_new_order_web_push
+        wp_count = send_courier_new_order_web_push(order)
+        if wp_count:
+            logger.info("courier_web_push_sent public_id=%s count=%s", order.public_id, wp_count)
+    except Exception:
+        logger.exception("courier_web_push_error public_id=%s", order.public_id)
+
+    return len(recipients)

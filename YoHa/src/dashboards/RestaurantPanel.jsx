@@ -18,6 +18,7 @@ import {
   OPENING_DAY_LABELS,
 } from '../data/index.js';
 import { useOrders } from '../contexts/AppContexts.jsx';
+import { useAuth } from '../contexts/AuthContext.jsx';
 import { restaurantsApi, restaurantOffersApi } from '@/lib/api';
 import {
   DashLayout,
@@ -638,7 +639,39 @@ function formatOrderWhen(createdAt) {
 
 export function RestoIncoming({ restoId }) {
   const { orders, loadingOrders, updateOrderStatus, cancelOrder } = useOrders();
+  const { user } = useAuth();
   const [filter, setFilter] = useState('active');
+  const [notifGranted, setNotifGranted] = useState(
+    typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted'
+  );
+
+  const requestNotif = async () => {
+    if (typeof window === 'undefined') return;
+    if (!('Notification' in window) || typeof Notification.requestPermission !== 'function') {
+      alert('Les notifications ne sont pas supportées sur ce navigateur.');
+      return;
+    }
+    try {
+      const res = await Notification.requestPermission();
+      if (res === 'granted') {
+        setNotifGranted(true);
+        try {
+          new Notification('YoHa', {
+            body: 'Notifications activées !',
+            icon: '/logo.png',
+          });
+        } catch {}
+        try {
+          const { subscribeWebPush } = await import('@/lib/webPush');
+          await subscribeWebPush();
+        } catch {}
+      } else if (res === 'denied') {
+        alert('Notifications bloquées.');
+      }
+    } catch (e) {
+      alert('Impossible d\'activer les notifications : ' + (e.message || ''));
+    }
+  };
 
   const activeOrders = orders
     .filter((o) => belongsToRestaurant(o, restoId) && isRestaurantActiveOrder(o.status))
@@ -701,6 +734,25 @@ export function RestoIncoming({ restoId }) {
 
   return (
     <div className="space-y-6">
+      {/* Notification Banner */}
+      {!notifGranted && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white shadow-lg border border-violet-400/40">
+          <div className="flex items-center gap-3 text-center sm:text-left">
+            <span className="text-2xl">🔔</span>
+            <div>
+              <p className="font-extrabold text-sm text-white">Activer les notifications push</p>
+              <p className="text-xs text-violet-100 font-medium">Recevez les alertes de nouvelles commandes m&ecirc;me page ferm&eacute;e.</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={requestNotif}
+            className="shrink-0 px-4 py-2.5 rounded-xl bg-white text-slate-950 font-black text-xs uppercase tracking-wider shadow-md hover:scale-105 transition-all cursor-pointer"
+          >
+            Activer
+          </button>
+        </div>
+      )}
       {/* Header with stats */}
       <GradientHeader
         title="Commandes"

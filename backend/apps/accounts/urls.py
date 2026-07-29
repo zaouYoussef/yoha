@@ -13,6 +13,7 @@ from .views import (
     ThrottledTokenObtainPairView,
     ThrottledTokenRefreshView,
 )
+from .web_push_views import VapidPublicKeyView, WebPushSubscribeView, WebPushUnsubscribeView
 
 urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
@@ -26,4 +27,7 @@ urlpatterns = [
     path("youssef/users/", AdminUserListView.as_view(), name="admin-user-list"),
     path("youssef/users/create/", AdminUserCreateView.as_view(), name="admin-user-create"),
     path("youssef/users/<uuid:pk>/", AdminUserDetailView.as_view(), name="admin-user-detail"),
+    path("push/web/vapid-key/", VapidPublicKeyView.as_view(), name="vapid-public-key"),
+    path("push/web/subscribe/", WebPushSubscribeView.as_view(), name="web-push-subscribe"),
+    path("push/web/unsubscribe/", WebPushUnsubscribeView.as_view(), name="web-push-unsubscribe"),
 ]

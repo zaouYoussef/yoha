@@ -104,6 +104,8 @@ export default function RootLayout({ children }) {
     <html lang="fr" suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#fff7ed" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/logo.png" />
         <link rel="preload" as="image" href="/videos/hero-food-orbit-poster.webp" fetchPriority="high" type="image/webp" />
         <script
           type="application/ld+json"

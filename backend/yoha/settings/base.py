@@ -229,7 +229,7 @@ SPECTACULAR_SETTINGS = {
 _jwt_key = env("JWT_SIGNING_KEY", default="")
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=365),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
@@ -266,6 +266,11 @@ YOHA_FRONTEND_URL = env("YOHA_FRONTEND_URL", default="http://localhost:3002")
 
 # E-mails livreurs alertés à chaque nouvelle commande (premier confirmé = course prise)
 YOHA_COURIER_NOTIFY_EMAILS = env.list("YOHA_COURIER_NOTIFY_EMAILS", default=[])
+
+# --- Web Push (VAPID) pour notifications navigateur ---
+VAPID_PUBLIC_KEY = env("VAPID_PUBLIC_KEY", default="")
+VAPID_PRIVATE_KEY = env("VAPID_PRIVATE_KEY", default="")
+VAPID_CLAIMS_EMAIL = env("VAPID_CLAIMS_EMAIL", default="no-reply@yoha.ma")
 
 # ——— E-mail (notifications commande) ———
 EMAIL_HOST = env("EMAIL_HOST", default="")

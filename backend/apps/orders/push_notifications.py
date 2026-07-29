@@ -45,21 +45,32 @@ def _tokens_for_order(order: Order) -> list[str]:
 
 def notify_restaurant_new_order(order: Order) -> int:
     """Course confirmée par un livreur — alerte le propriétaire du restaurant."""
-    order = Order.objects.select_related("restaurant__owner").get(pk=order.pk)
+    order = Order.objects.select_related("restaurant__owner", "courier").get(pk=order.pk)
     owner_id = order.restaurant.owner_id if order.restaurant_id else None
-    if not owner_id:
-        return 0
-    tokens = _tokens_for_user(owner_id)
-    title = "Commande à préparer"
-    body = f"#{order.public_id} · {order.customer_name} — livreur en route"
-    count = send_expo_push(
-        tokens,
-        title=f"🔔 {title}",
-        body=body,
-        data={"orderId": order.public_id, "type": "restaurant_new_order"},
-    )
-    if count:
-        logger.info("push_restaurant_new public_id=%s sent=%s", order.public_id, count)
+    count = 0
+    if owner_id:
+        tokens = _tokens_for_user(owner_id)
+        title = "Commande à préparer"
+        body = f"#{order.public_id} · {order.customer_name} — livreur en route"
+        count = send_expo_push(
+            tokens,
+            title=f"🔔 {title}",
+            body=body,
+            data={"orderId": order.public_id, "type": "restaurant_new_order"},
+        )
+        if count:
+            logger.info("push_restaurant_new public_id=%s sent=%s", order.public_id, count)
+
+    # Web Push restaurant
+    try:
+        from .web_push_sender import send_restaurant_new_order_web_push
+        wp_count = send_restaurant_new_order_web_push(order)
+        if wp_count:
+            logger.info("push_restaurant_web public_id=%s sent=%s", order.public_id, wp_count)
+            count += wp_count
+    except Exception:
+        logger.exception("push_restaurant_web_error public_id=%s", order.public_id)
+
     return count
 
 
