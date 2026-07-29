@@ -587,18 +587,18 @@ export function AdminOrderGpsCell({ order }) {
     };
   }, [order?.id, order?.courierId]);
 
-  // Fetch GPS from backend API (cross-device) — only when a courier is assigned
+  // Fetch GPS from backend API (cross-device) — only when active and assigned to courier
   useEffect(() => {
-    if (!order?.id || !order?.courierName) return;
+    if (!order?.id || !order?.courierName || order.status === 'delivered' || order.status === 'cancelled') return;
     const fetchRemote = () => {
       ordersApi.getLocation(order.id).then((data) => {
         if (data?.latitude != null) setRemoteGps(data);
       }).catch(() => {});
     };
     fetchRemote();
-    const interval = setInterval(fetchRemote, 4000);
+    const interval = setInterval(fetchRemote, 5000);
     return () => clearInterval(interval);
-  }, [order?.id, order?.courierName]);
+  }, [order?.id, order?.courierName, order?.status]);
 
   if (!order || order.status === 'delivered' || order.status === 'cancelled') {
     return <span className="text-ink-400 text-xs">—</span>;
@@ -1169,16 +1169,16 @@ export function AdminCourierLiveGpsBadge({ courier, orders: propOrders }) {
 
   // Cross-device backend GPS polling for active order
   useEffect(() => {
-    if (!activeOrder?.id) return;
+    if (!activeOrder?.id || activeOrder.status === 'delivered' || activeOrder.status === 'cancelled') return;
     const fetchRemote = () => {
       ordersApi.getLocation(activeOrder.id).then((data) => {
         if (data?.latitude != null) setRemoteGps(data);
       }).catch(() => {});
     };
     fetchRemote();
-    const interval = setInterval(fetchRemote, 4000);
+    const interval = setInterval(fetchRemote, 5000);
     return () => clearInterval(interval);
-  }, [activeOrder?.id]);
+  }, [activeOrder?.id, activeOrder?.status]);
 
   const activeLat = remoteGps?.latitude || gpsData?.lat || (activeOrder ? 35.68500 : null);
   const activeLng = remoteGps?.longitude || gpsData?.lng || (activeOrder ? -5.92300 : null);
