@@ -119,25 +119,40 @@ function AppStateProvider({ children, dark, setDark }) {
     }
   }, [pushToast]);
 
-function playCourierBeep() {
+let globalAudioCtx = null;
+
+function getAudioContext() {
+  if (typeof window === 'undefined') return null;
+  if (!globalAudioCtx) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) globalAudioCtx = new AudioCtx();
+  }
+  if (globalAudioCtx && globalAudioCtx.state === 'suspended') {
+    globalAudioCtx.resume().catch(() => {});
+  }
+  return globalAudioCtx;
+}
+
+function playProBeep() {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = getAudioContext();
+    if (!ctx || ctx.state !== 'running') return;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(587.33, ctx.currentTime);
     osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15);
-    gain.gain.setValueAtTime(0.4, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start();
-    osc.stop(ctx.currentTime + 0.6);
+    osc.stop(ctx.currentTime + 0.5);
   } catch {}
 }
 
-function triggerCourierNotification(title, body) {
-  playCourierBeep();
+function triggerProNotification(title, body) {
+  playProBeep();
   if (typeof window !== 'undefined' && 'Notification' in window) {
     if (Notification.permission === 'granted') {
       try {
@@ -145,7 +160,7 @@ function triggerCourierNotification(title, body) {
           body,
           icon: '/icon.png',
           vibrate: [300, 100, 300, 100, 300],
-          tag: 'yoha-order-notif',
+          tag: 'yoha-pro-notif',
         });
       } catch {}
     }
@@ -191,21 +206,40 @@ function triggerCourierNotification(title, body) {
       } catch {}
 
       setOrders((prev) => {
-        for (const o of merged) {
-          const existed = prev.some((p) => p.id === o.id);
-          const isUnassigned = !o.courierId || o.courierId === '0' || o.courierId === 'null';
-          const isNotDone = o.status !== 'delivered' && o.status !== 'cancelled' && o.status !== 'COMPLETED';
-          if (!existed && isUnassigned && isNotDone) {
-            pushToast({
-              title: 'Nouvelle course disponible 🛵',
-              desc: `#${o.id} · ${o.restaurantName || 'YoHa'} — confirmez en premier !`,
-              type: 'success',
-              duration: 8000,
-            });
-            triggerCourierNotification(
-              '🛵 Nouvelle course YoHa disponible !',
-              `Commande #${o.id} chez ${o.restaurantName || 'YoHa'} — Confirmez la course !`
-            );
+        const isCourierContext = user?.role === 'courier' || (typeof window !== 'undefined' && window.location.pathname.includes('/delivery'));
+        const isRestoContext = user?.role === 'restaurant' || (typeof window !== 'undefined' && window.location.pathname.includes('/restaurant-dash'));
+
+        if (silent && (isCourierContext || isRestoContext)) {
+          for (const o of merged) {
+            const existed = prev.some((p) => p.id === o.id);
+            const isUnassigned = !o.courierId || o.courierId === '0' || o.courierId === 'null';
+            const isNotDone = o.status !== 'delivered' && o.status !== 'cancelled' && o.status !== 'COMPLETED';
+
+            if (!existed && isNotDone) {
+              if (isCourierContext && isUnassigned) {
+                pushToast({
+                  title: 'Nouvelle course disponible 🛵',
+                  desc: `#${o.id} · ${o.restaurantName || 'YoHa'} — confirmez en premier !`,
+                  type: 'success',
+                  duration: 8000,
+                });
+                triggerProNotification(
+                  '🛵 Nouvelle course YoHa disponible !',
+                  `Commande #${o.id} chez ${o.restaurantName || 'YoHa'} — Confirmez la course !`
+                );
+              } else if (isRestoContext) {
+                pushToast({
+                  title: 'Nouvelle commande reçue 🍽️',
+                  desc: `#${o.id} · ${o.customer?.name || 'Client'} — ${formatMad(o.totalDh)}`,
+                  type: 'success',
+                  duration: 8000,
+                });
+                triggerProNotification(
+                  '🍽️ Nouvelle commande restaurant !',
+                  `Commande #${o.id} · ${o.customer?.name || 'Client'} — ${formatMad(o.totalDh)}`
+                );
+              }
+            }
           }
         }
         return merged;
@@ -217,7 +251,7 @@ function triggerCourierNotification(title, body) {
     } finally {
       if (!silent) setLoadingOrders(false);
     }
-  }, [pushToast]);
+  }, [pushToast, user?.role]);
 
   const refreshCouriers = useCallback(async () => {
     if (!getTokens()) return;
@@ -242,6 +276,22 @@ function triggerCourierNotification(title, body) {
     refreshOrders();
     refreshCouriers();
   }, [user, refreshOrders, refreshCouriers]);
+
+  /** Unlock AudioContext on first user gesture for Chrome autoplay policy */
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const unlock = () => {
+      getAudioContext();
+      window.removeEventListener('click', unlock);
+      window.removeEventListener('touchstart', unlock);
+    };
+    window.addEventListener('click', unlock);
+    window.addEventListener('touchstart', unlock);
+    return () => {
+      window.removeEventListener('click', unlock);
+      window.removeEventListener('touchstart', unlock);
+    };
+  }, []);
 
   /** Real-time cross-tab storage sync */
   useEffect(() => {
