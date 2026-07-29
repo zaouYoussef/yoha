@@ -410,22 +410,28 @@ class CourierLocationView(APIView):
 
     def post(self, request, public_id):
         user = request.user
-        if not user.is_authenticated or getattr(user, 'role', '') != "courier" or not getattr(user, 'courier_profile_id', None):
-            return Response({"detail": "Réservé aux livreurs."}, status=403)
+        if not user.is_authenticated:
+            return Response({"detail": "Authentification requise."}, status=401)
+
         clean_id = str(public_id).replace("YH-", "").strip()
         order = Order.objects.filter(
             Q(public_id=public_id) | Q(public_id=clean_id) | Q(public_id=f"YH-{clean_id}")
         ).first()
         if not order:
             return Response({"detail": "Commande introuvable."}, status=404)
-        if order.courier_id != user.courier_profile_id:
-            return Response({"detail": "Vous n'êtes pas le livreur assigné."}, status=403)
+
         ser = CourierLocationSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
+
+        courier_profile = getattr(user, 'courier_profile', None)
+        if not order.courier_id and courier_profile:
+            order.courier = courier_profile
+            order.save(update_fields=["courier"])
+
         loc, _ = CourierLocation.objects.update_or_create(
             order=order,
-            courier=order.courier,
             defaults={
+                "courier": order.courier or courier_profile,
                 "latitude": ser.validated_data["latitude"],
                 "longitude": ser.validated_data["longitude"],
             },
@@ -434,4 +440,4 @@ class CourierLocationView(APIView):
             "latitude": float(loc.latitude),
             "longitude": float(loc.longitude),
             "updated_at": loc.updated_at.isoformat(),
-        }, status=200)
+        })

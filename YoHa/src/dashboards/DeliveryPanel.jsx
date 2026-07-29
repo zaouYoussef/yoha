@@ -380,61 +380,72 @@ function useCourierAutoGps(courier, orders) {
     ordersApi.updateLocation(o.id, lat, lng).catch(() => {});
   }, []);
 
-  const requestGps = useCallback(() => {
-    if (typeof window === 'undefined') return;
+  const handlePosition = useCallback((pos) => {
+    const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    setGpsState({ active: true, denied: false, coords });
 
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          setGpsState({ active: true, denied: false, coords });
-
-          const activeOrders = orders.filter(
-            (o) => isOrderAssignedToCourier(o, courier) && o.status !== 'delivered' && o.status !== 'cancelled'
-          );
-          if (activeOrders.length > 0) {
-            activeOrders.forEach((o) => {
-              updateCourierGps(o.id, coords.lat, coords.lng, true);
-              syncGpsRemote(o, coords.lat, coords.lng);
-            });
-          } else {
-            updateCourierGps('active_courier', coords.lat, coords.lng, true);
-            if (courier?.id) updateCourierGps(courier.id, coords.lat, coords.lng, true);
-            if (courier?.name) updateCourierGps(courier.name, coords.lat, coords.lng, true);
-          }
-        },
-        (err) => {
-          console.warn('Courier GPS error, using Tanger fallback:', err);
-          const fallbackCoords = { lat: 35.68500, lng: -5.92300 };
-          setGpsState({ active: true, denied: false, coords: fallbackCoords });
-          const activeOrders = orders.filter(
-            (o) => isOrderAssignedToCourier(o, courier) && o.status !== 'delivered' && o.status !== 'cancelled'
-          );
-          activeOrders.forEach((o) => {
-            updateCourierGps(o.id, fallbackCoords.lat, fallbackCoords.lng, true);
-            syncGpsRemote(o, fallbackCoords.lat, fallbackCoords.lng);
-          });
-        },
-        { enableHighAccuracy: true }
-      );
-    } else {
-      const fallbackCoords = { lat: 35.68500, lng: -5.92300 };
-      setGpsState({ active: true, denied: false, coords: fallbackCoords });
-      const activeOrders = orders.filter(
-        (o) => isOrderAssignedToCourier(o, courier) && o.status !== 'delivered' && o.status !== 'cancelled'
-      );
+    const activeOrders = orders.filter(
+      (o) => isOrderAssignedToCourier(o, courier) && o.status !== 'delivered' && o.status !== 'cancelled'
+    );
+    if (activeOrders.length > 0) {
       activeOrders.forEach((o) => {
-        updateCourierGps(o.id, fallbackCoords.lat, fallbackCoords.lng, true);
-        syncGpsRemote(o, fallbackCoords.lat, fallbackCoords.lng);
+        updateCourierGps(o.id, coords.lat, coords.lng, true);
+        syncGpsRemote(o, coords.lat, coords.lng);
       });
+    } else {
+      updateCourierGps('active_courier', coords.lat, coords.lng, true);
+      if (courier?.id) updateCourierGps(courier.id, coords.lat, coords.lng, true);
+      if (courier?.name) updateCourierGps(courier.name, coords.lat, coords.lng, true);
     }
   }, [courier, orders, syncGpsRemote]);
 
+  const requestGps = useCallback(() => {
+    if (typeof window === 'undefined' || !('geolocation' in navigator)) return;
+
+    // 1. Try High Accuracy GPS first
+    navigator.geolocation.getCurrentPosition(
+      handlePosition,
+      (err) => {
+        console.warn('High accuracy mobile GPS failed, trying standard accuracy:', err);
+        // 2. Fallback to standard accuracy (WiFi / Cell towers for mobile phones)
+        navigator.geolocation.getCurrentPosition(
+          handlePosition,
+          (err2) => {
+            console.warn('Standard mobile GPS failed:', err2);
+            if (err2?.code === 1) {
+              setGpsState((prev) => ({ ...prev, denied: true }));
+            }
+          },
+          { enableHighAccuracy: false, timeout: 10000, maximumAge: 10000 }
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
+    );
+  }, [handlePosition]);
+
+  // Continuous watchPosition for mobile background tracking
   useEffect(() => {
+    if (typeof window === 'undefined' || !('geolocation' in navigator)) return;
+
     requestGps();
-    const interval = setInterval(requestGps, 5000);
-    return () => clearInterval(interval);
-  }, [requestGps]);
+
+    const watchId = navigator.geolocation.watchPosition(
+      handlePosition,
+      (err) => {
+        if (err?.code === 1) {
+          setGpsState((prev) => ({ ...prev, denied: true }));
+        }
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
+    );
+
+    const interval = setInterval(requestGps, 8000);
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+      clearInterval(interval);
+    };
+  }, [requestGps, handlePosition]);
 
   return { ...gpsState, requestGps };
 }
@@ -448,7 +459,7 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
     couriers[0] ||
     { id: '0', name: user?.displayName || 'Livreur' };
 
-  const { active: gpsActive, requestGps } = useCourierAutoGps(COURIER_ME, orders);
+  const { active: gpsActive, coords: gpsCoords, denied: gpsDenied, requestGps } = useCourierAutoGps(COURIER_ME, orders);
 
   const titles = {
     available: 'Commandes disponibles',
@@ -459,31 +470,44 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
   return (
     <DashLayout kind="delivery" current={current} setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
       title={titles[current]} subtitle={`Connecté en tant que ${COURIER_ME.name}`}>
-      
-      {/* Forced GPS Status Banner */}
-      {!gpsActive && (
-        <div className="mb-4 p-4 rounded-2xl bg-amber-500/15 border-2 border-amber-500/40 text-ink-900 dark:text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md animate-pulse">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500 text-white grid place-items-center font-bold text-lg shrink-0">
-              📍
-            </div>
-            <div>
-              <h4 className="font-extrabold text-sm text-amber-900 dark:text-amber-200">
-                Géolocalisation obligatoire pour les livreurs
-              </h4>
-              <p className="text-xs text-amber-800/80 dark:text-amber-300 font-medium">
-                Activez votre GPS pour recevoir les courses et diffuser votre position en direct aux clients.
-              </p>
-            </div>
+
+      {/* Mobile-Friendly Active GPS Tracker Bar */}
+      <div className="mb-6 p-4 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 shadow-sm flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+        <div className="flex items-center gap-3">
+          <div className="relative flex h-3 w-3">
+            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${gpsCoords ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+            <span className={`relative inline-flex rounded-full h-3 w-3 ${gpsCoords ? 'bg-emerald-500' : 'bg-amber-500'}`} />
           </div>
-          <button
-            onClick={requestGps}
-            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-500 text-white font-extrabold text-xs hover:bg-amber-600 transition shadow-sm shrink-0"
-          >
-            Activer le GPS maintenant 🟢
-          </button>
+          <div>
+            <div className="font-extrabold text-xs text-ink-900 dark:text-white flex items-center gap-2">
+              <span>📍 Géolocalisation Mobile Live</span>
+              {gpsCoords ? (
+                <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/30">
+                  Signal GPS actif ({gpsCoords.lat.toFixed(4)}, {gpsCoords.lng.toFixed(4)})
+                </span>
+              ) : gpsDenied ? (
+                <span className="px-2 py-0.5 rounded-full text-[10px] bg-rose-500/15 text-rose-600 dark:text-rose-400 font-bold border border-rose-500/30">
+                  Permission GPS refusée sur le téléphone
+                </span>
+              ) : (
+                <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/30">
+                  Recherche du signal GPS...
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] text-ink-500 dark:text-ink-400 font-medium">
+              Transmet votre position en direct aux clients &amp; à l&apos;administration.
+            </p>
+          </div>
         </div>
-      )}
+        <button
+          type="button"
+          onClick={requestGps}
+          className="px-3.5 py-2 rounded-xl bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 dark:text-brand-400 font-extrabold text-xs transition-all border border-brand-500/30 flex items-center gap-1.5 shrink-0 cursor-pointer"
+        >
+          <span>📡 Activer / Réactualiser GPS</span>
+        </button>
+      </div>
 
       {current === 'available' && <DeliveryAvailable courier={COURIER_ME} />}
       {current === 'mine' && <DeliveryMine courier={COURIER_ME} />}
