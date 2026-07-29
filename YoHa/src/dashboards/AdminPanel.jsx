@@ -879,8 +879,16 @@ export function AdminRestaurants() {
               <div className="relative h-32 w-full">
                 {r.cover ? (
                   <img src={r.cover} className="h-full w-full object-cover" alt="" />
+                ) : r.logo ? (
+                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-brand-500/20 to-pink-500/20 dark:from-brand-500/10 dark:to-pink-500/10">
+                    <img src={r.logo} className="h-16 w-16 rounded-2xl object-cover opacity-80" alt="" />
+                  </div>
                 ) : (
-                  <div className="h-full w-full bg-gradient-to-br from-brand-500/20 to-pink-500/20 dark:from-brand-500/10 dark:to-pink-500/10" />
+                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-brand-500/20 to-pink-500/20 dark:from-brand-500/10 dark:to-pink-500/10">
+                    <span className="text-3xl font-black text-white/30 drop-shadow-lg">
+                      {r.name?.charAt(0)?.toUpperCase() || '?'}
+                    </span>
+                  </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3">
