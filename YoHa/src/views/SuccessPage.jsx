@@ -8,8 +8,8 @@ import { useToast } from '../contexts/AppContexts.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { OrderTrackingTimeline, OrderStatusBadge } from '../components/ui/OrderStep.jsx';
 import { formatMad } from '../data/index.js';
-
 import { OrderRatingCard } from '../components/ui/OrderRatingCard.jsx';
+import { getCourierGps, calculateHaversineDistance, TANGER_DESTINATIONS } from '../utils/courierGps.js';
 
 function useNotificationPermission() {
   const [permitted, setPermitted] = useState(false);
@@ -46,21 +46,71 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   const stepNum = st.step;
   const prevStatusRef = useRef(undefined);
   const [nowMs, setNowMs] = useState(Date.now());
+  const [courierGps, setCourierGps] = useState(null);
+
+  const syncGps = useCallback(() => {
+    if (!orderId) return;
+    const gpsData = getCourierGps(orderId);
+    setCourierGps(gpsData);
+  }, [orderId]);
 
   useEffect(() => {
-    const timer = setInterval(() => setNowMs(Date.now()), 10000);
-    return () => clearInterval(timer);
-  }, []);
+    syncGps();
+    const timer = setInterval(() => {
+      setNowMs(Date.now());
+      syncGps();
+    }, 5000);
+    window.addEventListener('yoha_courier_gps_updated', syncGps);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('yoha_courier_gps_updated', syncGps);
+    };
+  }, [syncGps]);
+
+  // Destination par défaut (CHU / Alliance)
+  const destCoords = TANGER_DESTINATIONS['chu-urgences'];
+
+  // Calcul intelligent basé sur GPS Livreur ou Estimation Temps
+  const gpsCalculated = useMemo(() => {
+    if (!courierGps || !courierGps.active || status === 'delivered') return null;
+    const dist = calculateHaversineDistance(courierGps.lat, courierGps.lng, destCoords.lat, destCoords.lng);
+    const estMins = Math.max(2, Math.ceil((dist / 22) * 60 + 2)); // ~22 km/h en ville
+    const progressPct = Math.min(98, Math.max(30, Math.round(100 - (dist / 3.2) * 65)));
+    return {
+      distanceKm: dist,
+      travelMins: estMins,
+      pct: progressPct,
+    };
+  }, [courierGps, destCoords, status]);
+
+  const smartProgressPct = useMemo(() => {
+    if (status === 'delivered') return 100;
+    if (gpsCalculated) return gpsCalculated.pct;
+    // Mode Estimation automatique sans GPS
+    const basePct = (stepNum / 4) * 100;
+    return Math.min(95, Math.max(15, basePct));
+  }, [status, gpsCalculated, stepNum]);
 
   const liveEtaWindow = useMemo(() => {
     if (status === 'delivered') return null;
     const baseTime = order?.createdAt ? new Date(order.createdAt).getTime() : Date.now();
 
-    // Plage initiale : +20 min à +35 min
+    // If GPS is live and active, calculate exact end window from remaining travel time
+    if (gpsCalculated) {
+      const targetTimeMs = Date.now() + gpsCalculated.travelMins * 60 * 1000;
+      const startMs = targetTimeMs - 5 * 60 * 1000;
+      const endMs = targetTimeMs + 5 * 60 * 1000;
+      const fmt = (ms) => {
+        const d = new Date(ms);
+        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+      };
+      return { start: fmt(startMs), end: fmt(endMs) };
+    }
+
+    // Otherwise, dynamic auto-increment estimation
     let startMs = baseTime + 20 * 60 * 1000;
     let endMs = baseTime + 35 * 60 * 1000;
 
-    // Si la commande n'est pas encore livrée et qu'on s'approche de la fin de plage, décalage automatique +10 min
     while (nowMs > endMs - 3 * 60 * 1000 && status !== 'delivered') {
       startMs += 10 * 60 * 1000;
       endMs += 10 * 60 * 1000;
@@ -68,16 +118,14 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
 
     const fmt = (ms) => {
       const d = new Date(ms);
-      const h = String(d.getHours()).padStart(2, '0');
-      const m = String(d.getMinutes()).padStart(2, '0');
-      return `${h}:${m}`;
+      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     };
 
     return {
       start: fmt(startMs),
       end: fmt(endMs),
     };
-  }, [order?.createdAt, status, nowMs]);
+  }, [order?.createdAt, status, nowMs, gpsCalculated]);
 
   const restoInfo = useMemo(() => {
     if (!order) return null;
@@ -217,17 +265,39 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
           </div>
         </div>
 
-        {/* Progress Bar */}
+        {/* Smart Progress Bar */}
         <div className="px-4 sm:px-6 pt-5">
-          <div className="flex justify-between text-xs font-bold text-ink-500 mb-2">
-            <span>Progression</span>
-            <span className="text-brand-600 dark:text-brand-400">{stepNum}/4</span>
+          <div className="flex justify-between items-center text-xs font-bold text-ink-500 mb-2">
+            <span className="flex items-center gap-1.5 font-extrabold text-ink-800 dark:text-white">
+              <span>🚀</span> Progression Smart
+            </span>
+            <span className="text-brand-600 dark:text-brand-400 font-extrabold text-sm">
+              {smartProgressPct}%
+            </span>
           </div>
-          <div className="h-2.5 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden p-0.5">
+
+          <div className="h-3 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden p-0.5 relative shadow-inner">
             <div
-              className="h-full bg-gradient-to-r from-brand-500 via-pink-500 to-emerald-500 transition-all duration-700 ease-out rounded-full shadow-xs"
-              style={{ width: `${(stepNum / 4) * 100}%` }}
-            />
+              className="h-full bg-gradient-to-r from-brand-500 via-pink-500 to-emerald-500 transition-all duration-700 ease-out rounded-full shadow-md relative overflow-hidden"
+              style={{ width: `${smartProgressPct}%` }}
+            >
+              <div className="absolute inset-0 bg-white/25 animate-pulse" />
+            </div>
+          </div>
+
+          {/* Mode Indicator Badge (GPS vs Estimation) */}
+          <div className="mt-2.5 flex items-center justify-between text-[11px] font-semibold">
+            {gpsCalculated ? (
+              <span className="text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1.5 font-bold">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                📡 GPS Livreur Actif • À {gpsCalculated.distanceKm.toFixed(1)} km (~{gpsCalculated.travelMins} min)
+              </span>
+            ) : (
+              <span className="text-sky-700 dark:text-sky-300 bg-sky-500/10 px-2.5 py-1 rounded-full border border-sky-500/20 flex items-center gap-1.5 font-bold">
+                ⏱️ Estimation automatique (Position GPS livreur non activée)
+              </span>
+            )}
+            <span className="text-ink-400">Étape {stepNum}/4</span>
           </div>
         </div>
 

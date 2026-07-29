@@ -22,6 +22,7 @@ import { RecentOrdersTable as AdminRecentOrdersTable } from './AdminPanel.jsx';
 import { OrderRestaurantNotes } from '../components/ui/OrderRestaurantNotes.jsx';
 import { CancelOrderButton, CancelPhaseBadge, OrderCancellationNote } from '../components/ui/CancelOrderButton.jsx';
 import { ordersApi, getTokens } from '../lib/api.js';
+import { updateCourierGps } from '../utils/courierGps.js';
 
 function formatScheduledRange(iso) {
   if (!iso) return '';
@@ -782,6 +783,7 @@ export function DeliveryMine({ courier }) {
                           Ouvrir dans Google Maps
                         </a>
                       )}
+                      <CourierGpsTrackerToggle orderId={o.id} />
                       <OrderActionButtons order={o} />
                       <CourierStatusButton
                         orderId={o.id}
@@ -803,6 +805,49 @@ export function DeliveryMine({ courier }) {
         </div>
       )}
     </div>
+  );
+}
+
+function CourierGpsTrackerToggle({ orderId }) {
+  const [active, setActive] = useState(false);
+
+  const toggleGps = () => {
+    if (active) {
+      updateCourierGps(orderId, 0, 0, false);
+      setActive(false);
+    } else {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            updateCourierGps(orderId, pos.coords.latitude, pos.coords.longitude, true);
+            setActive(true);
+          },
+          () => {
+            updateCourierGps(orderId, 35.7595, -5.8340, true);
+            setActive(true);
+          },
+          { enableHighAccuracy: true }
+        );
+      } else {
+        updateCourierGps(orderId, 35.7595, -5.8340, true);
+        setActive(true);
+      }
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={toggleGps}
+      className={`w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl font-extrabold text-xs transition-all ${
+        active
+          ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
+          : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hover:bg-emerald-100'
+      }`}
+    >
+      <span className={active ? 'animate-pulse' : ''}>{active ? '🟢' : '📡'}</span>
+      <span>{active ? 'GPS Live Activé (Position transmise au client)' : 'Activer le GPS Live pour le client'}</span>
+    </button>
   );
 }
 
