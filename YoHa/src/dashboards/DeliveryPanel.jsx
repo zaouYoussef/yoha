@@ -432,8 +432,13 @@ export function DeliveryAvailable({ courier }) {
 
   const requestNotif = async () => {
     if (typeof window === 'undefined') return;
-    if (!('Notification' in window) || typeof Notification !== 'function') {
-      alert('Les notifications ne sont pas supportées sur ce navigateur.');
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent || '');
+    if (!('Notification' in window) || typeof Notification.requestPermission !== 'function') {
+      if (isIOS) {
+        alert('Sur iPhone, les notifications push ne fonctionnent que si vous ajoutez YoHa à l\'écran d\'accueil (Partager → Sur l\'écran d\'accueil). Les alertes sonores restent actives.');
+      } else {
+        alert('Les notifications ne sont pas supportées sur ce navigateur.');
+      }
       return;
     }
     try {
@@ -451,7 +456,11 @@ export function DeliveryAvailable({ courier }) {
         alert('Notifications bloquées. Activez-les dans les paramètres de votre navigateur.');
       }
     } catch (e) {
-      alert('Impossible d\'activer les notifications : ' + (e.message || ''));
+      if (isIOS) {
+        alert('Sur iPhone, ajoutez YoHa à l\'écran d\'accueil pour activer les notifications. Les alertes sonores fonctionnent déjà.');
+      } else {
+        alert('Impossible d\'activer les notifications : ' + (e.message || ''));
+      }
     }
   };
 
