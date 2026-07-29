@@ -29,41 +29,145 @@ function useNotificationPermission() {
 }
 
 const HERO = {
-  placed:           { title: 'Commande confirmée !', emoji: '🎉', gradient: 'from-amber-400 to-orange-500' },
-  pickup_confirmed: { title: 'Livreur en route',     emoji: '🛵', gradient: 'from-sky-400 to-blue-500' },
-  preparing:        { title: 'Commande prête',       emoji: '👨‍🍳', gradient: 'from-violet-400 to-purple-500' },
-  delivering:       { title: 'En route vers vous',   emoji: '📦', gradient: 'from-pink-400 to-rose-500' },
-  delivered:        { title: 'Commande livrée !',    emoji: '✅', gradient: 'from-emerald-400 to-teal-500' },
+  placed:           { title: 'Commande confirmée !', emoji: '🎉', gradient: 'from-amber-400 to-orange-500', ring: 'ring-amber-400/40' },
+  pickup_confirmed: { title: 'Livreur en route',     emoji: '🛵', gradient: 'from-sky-400 to-blue-500', ring: 'ring-sky-400/40' },
+  preparing:        { title: 'Commande prête',       emoji: '👨‍🍳', gradient: 'from-violet-400 to-purple-500', ring: 'ring-violet-400/40' },
+  delivering:       { title: 'En route vers vous',   emoji: '📦', gradient: 'from-pink-400 to-rose-500', ring: 'ring-pink-400/40' },
+  delivered:        { title: 'Commande livrée !',    emoji: '✅', gradient: 'from-emerald-400 to-teal-500', ring: 'ring-emerald-400/40' },
 };
 
 const STATUS_COLORS = {
-  placed:           { bg: 'bg-amber-50 dark:bg-amber-950/20', border: 'border-amber-200 dark:border-amber-800/50', text: 'text-amber-700 dark:text-amber-300' },
-  pickup_confirmed: { bg: 'bg-sky-50 dark:bg-sky-950/20', border: 'border-sky-200 dark:border-sky-800/50', text: 'text-sky-700 dark:text-sky-300' },
-  preparing:        { bg: 'bg-violet-50 dark:bg-violet-950/20', border: 'border-violet-200 dark:border-violet-800/50', text: 'text-violet-700 dark:text-violet-300' },
-  delivering:       { bg: 'bg-pink-50 dark:bg-pink-950/20', border: 'border-pink-200 dark:border-pink-800/50', text: 'text-pink-700 dark:text-pink-300' },
-  delivered:        { bg: 'bg-emerald-50 dark:bg-emerald-950/20', border: 'border-emerald-200 dark:border-emerald-800/50', text: 'text-emerald-700 dark:text-emerald-300' },
+  placed:           { badge: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/25', dot: 'bg-amber-500' },
+  pickup_confirmed: { badge: 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/25', dot: 'bg-sky-500' },
+  preparing:        { badge: 'bg-violet-500/15 text-violet-700 dark:text-violet-300 border-violet-500/25', dot: 'bg-violet-500' },
+  delivering:       { badge: 'bg-pink-500/15 text-pink-700 dark:text-pink-300 border-pink-500/25', dot: 'bg-pink-500' },
+  delivered:        { badge: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/25', dot: 'bg-emerald-500' },
 };
+
+function FloatingParticles() {
+  const particles = useMemo(() =>
+    Array.from({ length: 12 }).map((_, i) => ({
+      id: i,
+      emoji: ['🛵', '🍕', '🎉', '⭐', '🔥', '✨', '🚀', '💫', '🌟', '🍔', '🌮', '🥙'][i],
+      left: Math.random() * 100,
+      delay: Math.random() * 8,
+      duration: 12 + Math.random() * 10,
+      size: 14 + Math.random() * 16,
+    })), []);
+  return (
+    <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
+      {particles.map((p) => (
+        <span
+          key={p.id}
+          className="absolute animate-float-particle"
+          style={{
+            left: `${p.left}%`,
+            top: '-30px',
+            fontSize: `${p.size}px`,
+            opacity: 0.15,
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s`,
+          }}
+        >
+          {p.emoji}
+        </span>
+      ))}
+      <style>{`
+        @keyframes float-particle {
+          0% { transform: translateY(0) rotate(0deg) scale(0.5); opacity: 0; }
+          10% { opacity: 0.2; }
+          50% { opacity: 0.15; }
+          90% { opacity: 0.2; }
+          100% { transform: translateY(100vh) rotate(360deg) scale(1.1); opacity: 0; }
+        }
+        .animate-float-particle {
+          animation: float-particle var(--dur, 18s) ease-in infinite;
+        }
+        @keyframes glow-ring {
+          0%, 100% { box-shadow: 0 0 20px rgba(249,115,22,0.2), 0 0 40px rgba(249,115,22,0.1); }
+          50% { box-shadow: 0 0 35px rgba(249,115,22,0.4), 0 0 70px rgba(236,72,153,0.2); }
+        }
+        @keyframes glow-ring-sky {
+          0%, 100% { box-shadow: 0 0 20px rgba(14,165,233,0.2), 0 0 40px rgba(14,165,233,0.1); }
+          50% { box-shadow: 0 0 35px rgba(14,165,233,0.4), 0 0 70px rgba(99,102,241,0.2); }
+        }
+        @keyframes glow-ring-violet {
+          0%, 100% { box-shadow: 0 0 20px rgba(139,92,246,0.2), 0 0 40px rgba(139,92,246,0.1); }
+          50% { box-shadow: 0 0 35px rgba(139,92,246,0.4), 0 0 70px rgba(236,72,153,0.2); }
+        }
+        @keyframes glow-ring-pink {
+          0%, 100% { box-shadow: 0 0 20px rgba(236,72,153,0.2), 0 0 40px rgba(236,72,153,0.1); }
+          50% { box-shadow: 0 0 35px rgba(236,72,153,0.4), 0 0 70px rgba(249,115,22,0.2); }
+        }
+        @keyframes glow-ring-emerald {
+          0%, 100% { box-shadow: 0 0 20px rgba(16,185,129,0.2), 0 0 40px rgba(16,185,129,0.1); }
+          50% { box-shadow: 0 0 35px rgba(16,185,129,0.4), 0 0 70px rgba(99,102,241,0.2); }
+        }
+        @keyframes glow-pulse-bar {
+          0%, 100% { filter: drop-shadow(0 0 6px rgba(249,115,22,0.3)); }
+          50% { filter: drop-shadow(0 0 14px rgba(236,72,153,0.5)) drop-shadow(0 0 30px rgba(16,185,129,0.2)); }
+        }
+        @keyframes shimmer-sweep {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(200%); }
+        }
+        @keyframes card-entrance {
+          0% { opacity: 0; transform: translateY(24px) scale(0.96); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes count-pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        .animate-glow-pulse-bar { animation: glow-pulse-bar 2.4s ease-in-out infinite; }
+        .animate-card-entrance { animation: card-entrance 0.6s cubic-bezier(0.16,1,0.3,1) forwards; }
+        .animate-card-entrance-1 { animation: card-entrance 0.5s cubic-bezier(0.16,1,0.3,1) 0.1s both; }
+        .animate-card-entrance-2 { animation: card-entrance 0.5s cubic-bezier(0.16,1,0.3,1) 0.2s both; }
+        .animate-card-entrance-3 { animation: card-entrance 0.5s cubic-bezier(0.16,1,0.3,1) 0.3s both; }
+        .animate-count-pulse { animation: count-pulse 2s ease-in-out infinite; }
+      `}</style>
+    </div>
+  );
+}
+
+function GlowRing({ gradient }) {
+  const ringKey = gradient.includes('sky') ? 'glow-ring-sky'
+    : gradient.includes('violet') ? 'glow-ring-violet'
+    : gradient.includes('pink') ? 'glow-ring-pink'
+    : gradient.includes('emerald') ? 'glow-ring-emerald'
+    : 'glow-ring';
+  return (
+    <style>{`
+      .hero-glow {
+        animation: ${ringKey} 2.4s ease-in-out infinite;
+      }
+    `}</style>
+  );
+}
 
 function DeliveryWindowBanner({ liveEtaWindow, status }) {
   if (!liveEtaWindow || status === 'delivered') return null;
   return (
-    <div className="mx-auto max-w-md mt-3 p-3 rounded-xl bg-gradient-to-r from-amber-500/10 via-brand-500/10 to-pink-500/10 border border-brand-500/30">
-      <div className="flex items-center gap-2.5">
-        <div className="w-9 h-9 rounded-lg bg-brand-500 text-white grid place-items-center text-sm shrink-0 shadow-sm">
-          ⏰
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">
-            Livraison estimée
+    <div className="animate-card-entrance-1 mx-auto max-w-xs sm:max-w-sm mt-3">
+      <div className="relative rounded-xl bg-gradient-to-br from-white/80 via-brand-500/5 to-pink-500/5 dark:from-ink-900/90 dark:via-ink-900/80 dark:to-ink-900/90 border border-brand-500/30 dark:border-brand-500/20 shadow-lg backdrop-blur-xl overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer-sweep pointer-events-none" style={{ animation: 'shimmer-sweep 3s ease-in-out infinite' }} />
+        <div className="relative flex items-center gap-3 p-3">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 text-white grid place-items-center text-sm shrink-0 shadow-md animate-count-pulse">
+            ⏰
           </div>
-          <div className="font-extrabold text-sm text-ink-900 dark:text-white">
-            {liveEtaWindow.start} – {liveEtaWindow.end}
+          <div className="flex-1 min-w-0">
+            <div className="text-[9px] font-black uppercase tracking-widest text-brand-600 dark:text-brand-400">
+              Livraison estimée
+            </div>
+            <div className="font-display font-black text-base text-ink-900 dark:text-white tabular-nums tracking-tight">
+              {liveEtaWindow.start} – {liveEtaWindow.end}
+            </div>
           </div>
+          <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+            Live
+          </span>
         </div>
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 shrink-0 flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          Live
-        </span>
       </div>
     </div>
   );
@@ -71,20 +175,29 @@ function DeliveryWindowBanner({ liveEtaWindow, status }) {
 
 function CourierCard({ order, status }) {
   if (!order?.courierName || status === 'placed') return null;
+  const c = STATUS_COLORS[status] || STATUS_COLORS.placed;
   return (
-    <div className={`mx-3 sm:mx-5 mb-3 p-3 rounded-xl ${STATUS_COLORS[status]?.bg || 'bg-ink-50 dark:bg-ink-900/50'} border ${STATUS_COLORS[status]?.border || 'border-ink-200 dark:border-ink-800/50'}`}>
-      <div className="flex items-center gap-2.5">
-        <div className="w-9 h-9 rounded-lg bg-sky-500 text-white grid place-items-center shrink-0 shadow-sm text-xs font-bold">
-          {order.courierName.charAt(0).toUpperCase()}
+    <div className="animate-card-entrance-2 mx-3 sm:mx-5 mb-3">
+      <div className="relative rounded-xl bg-gradient-to-br from-white/90 via-sky-50/50 to-white/90 dark:from-ink-800/90 dark:via-ink-800/80 dark:to-ink-800/90 border border-sky-200/70 dark:border-sky-800/40 shadow-sm backdrop-blur-xl overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-sky-500/5 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative flex items-center gap-3 p-3">
+          <div className="relative">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 text-white grid place-items-center shrink-0 shadow-md text-sm font-black">
+              {order.courierName.charAt(0).toUpperCase()}
+            </div>
+            <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white dark:border-ink-900 flex items-center justify-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+            </span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[9px] font-black uppercase tracking-widest text-sky-600 dark:text-sky-400">Votre livreur</div>
+            <div className="font-display font-black text-sm text-ink-900 dark:text-white truncate">{order.courierName}</div>
+          </div>
+          <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg ${c.badge}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${c.dot} animate-ping`} />
+            {status === 'delivering' ? 'En route' : 'Attribué'}
+          </span>
         </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">Livreur</div>
-          <div className="font-extrabold text-sm text-ink-900 dark:text-white truncate">{order.courierName}</div>
-        </div>
-        <span className="text-[10px] font-bold text-ink-400 flex items-center gap-1">
-          <I.Bike size={12} className="text-sky-500" />
-          {status === 'delivering' ? 'En route' : 'Attribué'}
-        </span>
       </div>
     </div>
   );
@@ -93,16 +206,20 @@ function CourierCard({ order, status }) {
 function ItemsSummary({ order, itemCount }) {
   if (!order?.items?.length) return null;
   return (
-    <div className="px-3 pb-3 sm:px-5">
-      <div className="rounded-xl bg-slate-50 dark:bg-ink-900/80 border border-ink-100 dark:border-ink-800/60 overflow-hidden">
-        <div className="px-3 py-2.5 border-b border-ink-100 dark:border-ink-800/60">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Articles ({itemCount})</span>
+    <div className="animate-card-entrance-3 px-3 pb-3 sm:px-5">
+      <div className="rounded-xl bg-white/70 dark:bg-ink-900/70 border border-ink-200/60 dark:border-ink-800/50 backdrop-blur-sm overflow-hidden shadow-sm">
+        <div className="px-3 py-2.5 border-b border-ink-100 dark:border-ink-800/60 flex items-center justify-between">
+          <span className="text-[9px] font-black uppercase tracking-widest text-ink-400">
+            Articles <span className="text-brand-500">({itemCount})</span>
+          </span>
+          <span className="text-[9px] font-bold text-ink-400">{order.items.length} plat{order.items.length > 1 ? 's' : ''}</span>
         </div>
-        <div className="divide-y divide-ink-100 dark:divide-ink-800/40">
+        <div className="divide-y divide-ink-100/60 dark:divide-ink-800/40">
           {order.items.map((it, idx) => (
-            <div key={idx} className="flex items-center justify-between px-3 py-2 text-xs">
+            <div key={idx} className="flex items-center justify-between px-3 py-2 text-xs hover:bg-ink-50/50 dark:hover:bg-ink-800/30 transition-colors">
               <span className="text-ink-700 dark:text-ink-300 font-medium truncate mr-2">
-                <span className="font-extrabold text-brand-600 dark:text-brand-400">{it.qty}×</span> {it.name}
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-brand-500/10 text-brand-600 dark:text-brand-400 font-extrabold text-[10px] mr-1.5">{it.qty}</span>
+                {it.name}
               </span>
               <span className="font-bold text-ink-900 dark:text-white shrink-0 tabular-nums">
                 {formatMad(it.price * (it.qty || 1))}
@@ -110,9 +227,9 @@ function ItemsSummary({ order, itemCount }) {
             </div>
           ))}
         </div>
-        <div className="px-3 py-2.5 border-t border-dashed border-ink-200 dark:border-ink-700 flex items-center justify-between bg-white/50 dark:bg-ink-950/30">
+        <div className="px-3 py-2.5 border-t border-dashed border-ink-200 dark:border-ink-700 flex items-center justify-between bg-gradient-to-r from-brand-500/5 to-transparent">
           <span className="text-xs font-bold text-ink-700 dark:text-ink-300">Total</span>
-          <span className="text-sm font-black text-brand-600 dark:text-brand-400 tabular-nums">
+          <span className="text-sm font-black text-brand-600 dark:text-brand-400 tabular-nums animate-count-pulse">
             {formatMad(order.totalDh || order.total, { decimals: 2 })}
           </span>
         </div>
@@ -126,26 +243,32 @@ function ProgressBarSection({ status, stepNum, displayedProgressPct, gpsCalculat
   return (
     <div className="px-3 sm:px-5 pt-3 pb-1">
       <div className="flex items-center justify-between text-xs font-bold text-ink-500 mb-1.5">
-        <span className="flex items-center gap-1.5">
-          <span className="text-brand-500">🛵</span>
-          <span className="text-ink-800 dark:text-white">Suivi en direct</span>
+        <span className="flex items-center gap-1.5 text-ink-800 dark:text-white">
+          <span className="text-base animate-bounce-horizontal">🛵</span>
+          Suivi en direct
         </span>
-        <span className={gpsCalculated ? 'text-emerald-600 dark:text-emerald-400 flex items-center gap-1' : 'text-ink-400'}>
+        <span className={`flex items-center gap-1.5 ${gpsCalculated ? 'text-emerald-600 dark:text-emerald-400' : 'text-ink-400'}`}>
           {gpsCalculated && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />}
           Étape {stepNum}/4
         </span>
       </div>
 
-      <div className="h-3 rounded-full bg-ink-100 dark:bg-ink-800 p-0.5 relative shadow-inner overflow-hidden">
+      <div className="relative h-3 rounded-full bg-ink-100 dark:bg-ink-800 p-0.5 shadow-inner overflow-hidden">
         <div
-          className="h-full bg-[linear-gradient(90deg,#f97316,#ec4899,#eab308,#10b981,#3b82f6,#f97316)] animate-snake-bar transition-all duration-1000 ease-out rounded-full shadow-md relative"
-          style={{ width: `${displayedProgressPct}%` }}
+          className="h-full rounded-full animate-glow-pulse-bar relative"
+          style={{
+            width: `${displayedProgressPct}%`,
+            background: 'linear-gradient(90deg, #f97316, #ec4899, #eab308, #10b981)',
+            backgroundSize: '200% 100%',
+            animation: 'snake-flow 2.2s ease-in-out infinite, glow-pulse-bar 2.4s ease-in-out infinite',
+            transition: 'width 1s cubic-bezier(0.16,1,0.3,1)',
+          }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent" style={{ animation: 'shimmer-sweep 2.5s ease-in-out infinite' }} />
           {status !== 'delivered' && (
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 flex items-center justify-center">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-white dark:border-ink-900 shadow-[0_0_8px_#10b981] animate-ping" />
-              <span className="absolute w-2 h-2 rounded-full bg-emerald-500 border border-white dark:border-ink-900" />
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2">
+              <span className="block w-3 h-3 rounded-full bg-white border-2 border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.6)] animate-ping" />
+              <span className="absolute inset-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white animate-pulse" />
             </div>
           )}
         </div>
@@ -168,22 +291,26 @@ function ProgressBarSection({ status, stepNum, displayedProgressPct, gpsCalculat
 }
 
 function OrderHeader({ orderId, order, status }) {
+  const c = STATUS_COLORS[status] || STATUS_COLORS.placed;
   return (
     <div className="px-3 pt-3 pb-0 sm:px-5 sm:pt-5">
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <div className="text-[9px] font-bold uppercase tracking-wider text-ink-400">Commande</div>
-          <h2 className="font-extrabold text-sm sm:text-base text-ink-900 dark:text-white truncate">
+          <div className="text-[8px] font-black uppercase tracking-widest text-ink-400">Commande</div>
+          <h2 className="font-display font-black text-sm sm:text-base text-ink-900 dark:text-white truncate tracking-tight">
             #{orderId || 'YH-XXXX'}
           </h2>
           {order?.restaurantName && (
-            <p className="text-xs text-ink-500 dark:text-ink-400 font-medium flex items-center gap-1 mt-0.5">
-              <I.Chef size={12} className="text-brand-500 shrink-0" />
+            <p className="text-[11px] text-ink-500 dark:text-ink-400 font-semibold flex items-center gap-1 mt-0.5">
+              <I.Chef size={11} className="text-brand-500 shrink-0" />
               <span className="truncate">{order.restaurantName}</span>
             </p>
           )}
         </div>
-        <OrderStatusBadge status={status} />
+        <div className={`inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-lg ${c.badge}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
+          <OrderStatusBadge status={status} />
+        </div>
       </div>
     </div>
   );
@@ -191,24 +318,26 @@ function OrderHeader({ orderId, order, status }) {
 
 function HeroSection({ hero, status, st }) {
   return (
-    <div className="text-center px-4 pt-6 sm:pt-10">
+    <div className="text-center px-4 pt-8 sm:pt-12 animate-card-entrance">
       <div className="relative inline-block">
-        <div
-          className={`relative grid place-items-center w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl bg-gradient-to-br ${hero.gradient} shadow-lg transition-transform hover:scale-105`}
-        >
-          <span className="text-2xl sm:text-3xl" role="img" aria-hidden>{hero.emoji}</span>
+        <div className={`hero-glow w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-2xl bg-gradient-to-br ${hero.gradient} shadow-xl grid place-items-center transition-transform hover:scale-105 cursor-default relative overflow-hidden`}>
+          <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent rounded-2xl" />
+          <span className="relative text-3xl sm:text-4xl" role="img" aria-hidden>{hero.emoji}</span>
         </div>
         {status !== 'delivered' && (
-          <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
+          <span className="absolute -top-1 -right-1 flex h-4 w-4">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
+            <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 shadow-lg shadow-emerald-500/50" />
           </span>
         )}
+        {status === 'delivered' && (
+          <div className="absolute -inset-4 rounded-3xl border-2 border-emerald-400/30 animate-pulse" style={{ animation: 'glow-ring-emerald 2s ease-in-out infinite' }} />
+        )}
       </div>
-      <h1 className="mt-2 font-display font-black text-xl sm:text-2xl tracking-tight text-ink-900 dark:text-white">
+      <h1 className="mt-3 font-display font-black text-2xl sm:text-3xl tracking-tight text-ink-900 dark:text-white animate-text-glow-slow">
         {hero.title}
       </h1>
-      <p className="mt-0.5 text-xs sm:text-sm text-ink-500 dark:text-ink-400 font-medium max-w-xs mx-auto">
+      <p className="mt-1 text-xs sm:text-sm text-ink-500 dark:text-ink-400 font-medium max-w-xs mx-auto leading-relaxed">
         {st.clientMsg}
       </p>
     </div>
@@ -217,13 +346,13 @@ function HeroSection({ hero, status, st }) {
 
 function ActionButtons({ onMyOrders, onHome }) {
   return (
-    <div className="mt-5 flex flex-col sm:flex-row gap-2 px-3 sm:px-0">
+    <div className="mt-5 flex flex-col sm:flex-row gap-2 px-3 sm:px-0 animate-card-entrance-3">
       {onMyOrders && (
-        <Button onClick={onMyOrders} variant="secondary" size="md" className="justify-center rounded-xl text-xs sm:text-sm">
+        <Button onClick={onMyOrders} variant="secondary" size="md" className="justify-center rounded-xl text-xs sm:text-sm btn-shimmer">
           Mes commandes
         </Button>
       )}
-      <Button onClick={onHome} variant="primary" size="md" className="justify-center rounded-xl text-xs sm:text-sm">
+      <Button onClick={onHome} variant="primary" size="md" className="justify-center rounded-xl text-xs sm:text-sm btn-shimmer shadow-lg shadow-brand-500/20">
         Commander autre chose
       </Button>
     </div>
@@ -245,13 +374,8 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   const [smoothOffset, setSmoothOffset] = useState(0);
 
   useEffect(() => {
-    if (status === 'delivered') {
-      setSmoothOffset(0);
-      return;
-    }
-    const timer = setInterval(() => {
-      setSmoothOffset((prev) => (prev < 4.5 ? prev + 0.15 : prev));
-    }, 2000);
+    if (status === 'delivered') { setSmoothOffset(0); return; }
+    const timer = setInterval(() => setSmoothOffset((prev) => (prev < 4.5 ? prev + 0.15 : prev)), 2000);
     return () => clearInterval(timer);
   }, [status, stepNum]);
 
@@ -262,27 +386,17 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
 
   useEffect(() => {
     syncGps();
-    const timer = setInterval(() => {
-      setNowMs(Date.now());
-      syncGps();
-    }, 5000);
+    const timer = setInterval(() => { setNowMs(Date.now()); syncGps(); }, 5000);
     window.addEventListener('yoha_courier_gps_updated', syncGps);
-    return () => {
-      clearInterval(timer);
-      window.removeEventListener('yoha_courier_gps_updated', syncGps);
-    };
+    return () => { clearInterval(timer); window.removeEventListener('yoha_courier_gps_updated', syncGps); };
   }, [syncGps]);
 
-  const destInfo = useMemo(() => {
-    return resolveDestinationCoords(order?.customerAddress || order?.address || order?.delivery_instructions || '');
-  }, [order]);
+  const destInfo = useMemo(() => resolveDestinationCoords(order?.customerAddress || order?.address || order?.delivery_instructions || ''), [order]);
 
   const gpsCalculated = useMemo(() => {
     if (!courierGps || !courierGps.active || status === 'delivered') return null;
     const dist = calculateHaversineDistance(courierGps.lat, courierGps.lng, destInfo.lat, destInfo.lng);
-    const estMins = Math.max(2, Math.ceil((dist / 22) * 60 + 2));
-    const progressPct = Math.min(98, Math.max(30, Math.round(100 - (dist / 3.2) * 65)));
-    return { distanceKm: dist, travelMins: estMins, pct: progressPct };
+    return { distanceKm: dist, travelMins: Math.max(2, Math.ceil((dist / 22) * 60 + 2)), pct: Math.min(98, Math.max(30, Math.round(100 - (dist / 3.2) * 65))) };
   }, [courierGps, destInfo, status]);
 
   const smartProgressPct = useMemo(() => {
@@ -299,32 +413,15 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   const liveEtaWindow = useMemo(() => {
     if (status === 'delivered') return null;
     const baseTime = order?.createdAt ? new Date(order.createdAt).getTime() : Date.now();
-
     if (gpsCalculated) {
       const remainingMs = gpsCalculated.travelMins * 60 * 1000;
       const arrivalTargetMs = nowMs + remainingMs;
-      const startMs = Math.max(nowMs, arrivalTargetMs - 3 * 60 * 1000);
-      const endMs = arrivalTargetMs + 7 * 60 * 1000;
-      const fmt = (ms) => {
-        const d = new Date(ms);
-        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-      };
-      return { start: fmt(startMs), end: fmt(endMs) };
+      const fmt = (ms) => { const d = new Date(ms); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+      return { start: fmt(Math.max(nowMs, arrivalTargetMs - 3 * 60 * 1000)), end: fmt(arrivalTargetMs + 7 * 60 * 1000) };
     }
-
-    let startMs = baseTime + 20 * 60 * 1000;
-    let endMs = baseTime + 35 * 60 * 1000;
-
-    while (nowMs > endMs - 2 * 60 * 1000 && status !== 'delivered') {
-      startMs += 10 * 60 * 1000;
-      endMs += 10 * 60 * 1000;
-    }
-
-    const fmt = (ms) => {
-      const d = new Date(ms);
-      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-    };
-
+    let startMs = baseTime + 20 * 60 * 1000, endMs = baseTime + 35 * 60 * 1000;
+    while (nowMs > endMs - 2 * 60 * 1000 && status !== 'delivered') { startMs += 10 * 60 * 1000; endMs += 10 * 60 * 1000; }
+    const fmt = (ms) => { const d = new Date(ms); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
     return { start: fmt(startMs), end: fmt(endMs) };
   }, [order?.createdAt, status, nowMs, gpsCalculated]);
 
@@ -332,8 +429,6 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
     if (!order) return null;
     return restaurants.find((r) => String(r.id) === String(order.restaurantId) || r.name === order.restaurantName);
   }, [order, restaurants]);
-
-  const restoEta = order?.restaurantEta || restoInfo?.eta || restoInfo?.deliveryTime || '30-45 min';
 
   useEffect(() => {
     if (!orderId) return undefined;
@@ -357,82 +452,62 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   const hasCartItems = cart.length > 0;
 
   return (
-    <div className="page-enter relative min-h-screen bg-gradient-to-b from-white via-ink-50/50 to-white dark:from-ink-950 dark:via-ink-900/50 dark:to-ink-950">
+    <div className="page-enter relative min-h-screen bg-gradient-to-b from-white via-ink-50/30 to-white dark:from-ink-950 dark:via-ink-900/30 dark:to-ink-950">
+      <FloatingParticles />
       <Confetti active={status !== 'delivered'} />
+      <GlowRing gradient={hero.gradient} />
 
-      <div className="max-w-lg mx-auto pb-24 sm:pb-12">
-        {/* Notif opt-in */}
+      <div className="max-w-lg mx-auto pb-28 sm:pb-12">
         {!notifPermitted && (
-          <div className="mx-3 mt-3 flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800/40">
+          <div className="animate-card-entrance mx-3 mt-3 flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-sky-500/10 to-blue-500/10 border border-sky-200 dark:border-sky-800/40 backdrop-blur-sm">
             <span className="text-sm">🔔</span>
-            <p className="text-[11px] font-semibold text-sky-800 dark:text-sky-200 flex-1">
-              Activez les notifications pour suivre en temps réel.
-            </p>
-            <button
-              onClick={requestNotif}
-              className="shrink-0 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-sky-600 text-white hover:bg-sky-700 transition-colors"
-            >
+            <p className="text-[10px] font-semibold text-sky-800 dark:text-sky-200 flex-1">Activez les notifications pour suivre en temps réel.</p>
+            <button onClick={requestNotif} className="shrink-0 text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-sky-500 to-blue-600 text-white hover:from-sky-600 hover:to-blue-700 transition-all shadow-md shadow-sky-500/20">
               Activer
             </button>
           </div>
         )}
 
-        {/* Hero */}
         <HeroSection hero={hero} status={status} st={st} />
-
-        {/* Delivery window */}
         <DeliveryWindowBanner liveEtaWindow={liveEtaWindow} status={status} />
 
-        {/* Main Card */}
-        <div className="mt-4 mx-3 sm:mx-0 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200/70 dark:border-ink-800 shadow-sm overflow-hidden">
+        <div className="mt-4 mx-3 sm:mx-0 rounded-2xl bg-white/80 dark:bg-ink-900/80 border border-ink-200/60 dark:border-ink-800/50 shadow-lg backdrop-blur-xl overflow-hidden animate-card-entrance-1">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 via-pink-500 to-emerald-500" />
           <OrderHeader orderId={orderId} order={order} status={status} />
-
-          {/* Progress bar */}
           {status !== 'delivered' && (
             <ProgressBarSection
-              status={status}
-              stepNum={stepNum}
-              displayedProgressPct={displayedProgressPct}
-              gpsCalculated={gpsCalculated}
-              destInfo={destInfo}
-              courierName={order?.courierName}
+              status={status} stepNum={stepNum} displayedProgressPct={displayedProgressPct}
+              gpsCalculated={gpsCalculated} destInfo={destInfo} courierName={order?.courierName}
             />
           )}
-
-          {/* Timeline */}
           <div className="px-2 sm:px-5 py-3">
             <OrderTrackingTimeline status={status} />
           </div>
-
-          {/* Courier */}
           <CourierCard order={order} status={status} />
-
-          {/* Items */}
           <ItemsSummary order={order} itemCount={itemCount} />
         </div>
 
-        {/* Rating */}
-        <div className="mx-3 sm:mx-0 mt-3">
+        <div className="mx-3 sm:mx-0 mt-3 animate-card-entrance-2">
           {order && <OrderRatingCard order={order} />}
         </div>
 
-        {/* Actions */}
         <ActionButtons onMyOrders={onMyOrders} onHome={onHome} />
       </div>
 
-      {/* Mobile bottom bar — only if cart empty */}
       {!hasCartItems && (
-        <div className="fixed bottom-0 inset-x-0 md:hidden bg-white/90 dark:bg-ink-950/90 backdrop-blur-lg border-t border-ink-200 dark:border-ink-800 px-4 py-2.5 flex items-center justify-between gap-3 z-40">
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-lg">🎉</span>
-            <span className="font-semibold text-ink-700 dark:text-ink-300">Commande #{orderId?.slice(0, 8)}</span>
+        <div className="fixed bottom-0 inset-x-0 md:hidden z-40 p-3 pointer-events-none">
+          <div className="pointer-events-auto mx-auto max-w-xs rounded-2xl bg-white/95 dark:bg-ink-900/95 backdrop-blur-xl border border-ink-200/60 dark:border-ink-800/60 shadow-2xl shadow-brand-500/10 px-4 py-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="text-lg">🎉</span>
+              <div>
+                <div className="text-[10px] font-bold text-ink-400">Commande en cours</div>
+                <div className="font-extrabold text-xs text-ink-900 dark:text-white">#{orderId?.slice(0, 8)}</div>
+              </div>
+            </div>
+            <button onClick={onHome} className="text-[10px] font-black uppercase tracking-widest px-3 py-2 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 text-white hover:from-brand-600 hover:to-pink-600 transition-all shadow-lg shadow-brand-500/30 btn-shimmer">
+              Re-commander
+            </button>
           </div>
-          <button
-            onClick={onHome}
-            className="text-[11px] font-black uppercase tracking-wider px-3 py-1.5 rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors"
-          >
-            Re-commander
-          </button>
         </div>
       )}
     </div>
@@ -440,19 +515,17 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
 }
 
 export function Confetti({ active = true }) {
-  const pieces = useMemo(
-    () =>
-      Array.from({ length: 20 }).map((_, i) => ({
-        id: i,
-        left: Math.random() * 100,
-        delay: Math.random() * 0.6,
-        duration: 1.6 + Math.random() * 1.4,
-        color: ['#f97316', '#ec4899', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b'][i % 6],
-        rotate: Math.random() * 360,
-        shape: i % 3,
-      })),
-    [],
-  );
+  const pieces = useMemo(() =>
+    Array.from({ length: 40 }).map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      delay: Math.random() * 1.2,
+      duration: 2 + Math.random() * 2.5,
+      color: ['#f97316', '#ec4899', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4'][i % 8],
+      rotate: Math.random() * 360,
+      shape: i % 3,
+      size: 4 + Math.random() * 8,
+    })), []);
   if (!active) return null;
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
@@ -463,16 +536,17 @@ export function Confetti({ active = true }) {
             position: 'absolute',
             top: '-10px',
             left: `${p.left}%`,
-            width: p.shape === 1 ? 8 : 6,
-            height: p.shape === 0 ? 10 : 6,
+            width: p.size,
+            height: p.shape === 0 ? p.size * 1.4 : p.size,
             background: p.color,
             borderRadius: p.shape === 2 ? '50%' : 2,
             transform: `rotate(${p.rotate}deg)`,
-            animation: `fall ${p.duration}s ${p.delay}s ease-in forwards`,
+            opacity: 0.9,
+            animation: `fall ${p.duration}s ${p.delay}s cubic-bezier(0.25,0.46,0.45,0.94) forwards`,
           }}
         />
       ))}
-      <style>{`@keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 0.3; } }`}</style>
+      <style>{`@keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 0.9; } 100% { transform: translateY(105vh) rotate(720deg); opacity: 0.2; } }`}</style>
     </div>
   );
 }
