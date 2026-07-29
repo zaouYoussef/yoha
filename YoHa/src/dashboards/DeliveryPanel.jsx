@@ -462,8 +462,11 @@ export function DeliveryAvailable({ courier }) {
         // Abonnement Web Push
         try {
           const { subscribeWebPush } = await import('@/lib/webPush');
-          await subscribeWebPush();
-        } catch {}
+          const ok = await subscribeWebPush();
+          if (!ok) throw new Error('Échec abonnement push (jeton ou SW)');
+        } catch (e) {
+          alert('Notifications activées, mais l\'abonnement push navigateur a échoué : ' + (e.message || 'erreur') + '. Les notifications ne marcheront pas en arrière-plan.');
+        }
       } else if (res === 'denied') {
         alert('Notifications bloquées. Activez-les dans les réglages de votre iPhone.');
       }

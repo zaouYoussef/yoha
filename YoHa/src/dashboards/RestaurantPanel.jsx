@@ -647,7 +647,11 @@ export function RestoIncoming({ restoId }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-      import('@/lib/webPush').then(({ subscribeWebPush }) => subscribeWebPush().catch(() => {}));
+      import('@/lib/webPush').then(({ subscribeWebPush }) => {
+        subscribeWebPush().then((ok) => {
+          if (!ok) setNotifGranted(false);
+        }).catch(() => setNotifGranted(false));
+      }).catch(() => {});
     }
   }, []);
 
@@ -669,8 +673,11 @@ export function RestoIncoming({ restoId }) {
         } catch {}
         try {
           const { subscribeWebPush } = await import('@/lib/webPush');
-          await subscribeWebPush();
-        } catch {}
+          const ok = await subscribeWebPush();
+          if (!ok) throw new Error('Échec abonnement push navigateur');
+        } catch (e) {
+          alert('Notifications activées, mais l\'abonnement push a échoué : ' + (e.message || '') + '. Les notifications ne marcheront pas en arrière-plan.');
+        }
       } else if (res === 'denied') {
         alert('Notifications bloquées.');
       }
