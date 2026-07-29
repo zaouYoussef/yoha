@@ -380,7 +380,17 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
    AVAILABLE ORDERS
    ═══════════════════════════════════════════════════ */
 export function DeliveryAvailable({ courier }) {
-  const { orders, assignCourier } = useOrders();
+  const { orders, assignCourier, refreshOrders } = useOrders();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refreshOrders();
+    } catch {}
+    setRefreshing(false);
+  }, [refreshOrders]);
+
   const available = orders.filter(
     (o) =>
       (!o.courierId || o.courierId === '0' || o.courierId === 'null' || o.courierId === null) &&
@@ -390,6 +400,10 @@ export function DeliveryAvailable({ courier }) {
       o.status !== 'LIVRÉ' &&
       o.status !== 'delivered_client',
   );
+
+  useEffect(() => {
+    handleRefresh();
+  }, []);
 
   const [notifGranted, setNotifGranted] = useState(
     typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted'
@@ -466,6 +480,17 @@ export function DeliveryAvailable({ courier }) {
         subtitle="Confirmez en premier — la course est à vous. Les autres livreurs la verront disparaître."
         icon="🛵"
         gradient="from-violet-500 via-fuchsia-500 to-pink-500"
+        actions={
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-1.5 rounded-xl bg-white/15 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm transition hover:bg-white/25 disabled:opacity-50"
+          >
+            <I.Refresh size={14} className={refreshing ? 'animate-spin' : ''} />
+            {refreshing ? '…' : 'Rafraîchir'}
+          </button>
+        }
       >
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <div className="rounded-xl bg-white/15 px-3 py-2 backdrop-blur-sm">

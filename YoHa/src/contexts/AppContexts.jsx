@@ -15,6 +15,7 @@ export const useOrders = () => useContext(OrdersCtx) || {
   restaurantsError: null,
   refreshRestaurants: () => {},
   addOrder: async () => {},
+  refreshOrders: async () => {},
 };
 
 export const CartCtx = createContext(null);
