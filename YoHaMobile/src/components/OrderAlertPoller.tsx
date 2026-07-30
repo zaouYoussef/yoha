@@ -1,30 +1,50 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useOrderAlerts } from '../hooks/useOrderAlerts';
 import { useRestaurantMe } from '../hooks/useRestaurantMe';
 import { Order, ordersApi } from '../lib/api';
 import { getGuestOrderIds } from '../lib/guestOrders';
+import { subscribeOrder, unsubscribe } from '../lib/ws/client';
 
-/** Polling léger + alertes sonores pour le parcours client (tous les onglets). */
+/** WebSocket-driven order alerts for client tab. Falls back to polling if WS fails. */
 export function ClientOrderAlertPoller() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [armed, setArmed] = useState(false);
+  const wsSubs = useRef<string[]>([]);
 
   const load = useCallback(async () => {
     try {
-      if (user) {
-        const data = await ordersApi.list();
-        setOrders(Array.isArray(data) ? data : []);
-      } else {
-        const ids = await getGuestOrderIds();
-        if (!ids.length) {
-          setOrders([]);
-          return;
-        }
-        const data = await ordersApi.guestList(ids);
-        setOrders(Array.isArray(data) ? data : []);
+      const data = user
+        ? await ordersApi.list()
+        : await ordersApi.guestList(await getGuestOrderIds());
+      const list = Array.isArray(data) ? data : [];
+      setOrders(list);
+
+      for (const o of list) {
+        if (wsSubs.current.includes(o.public_id || o.id)) continue;
+        const pid = o.public_id || o.id;
+        subscribeOrder(pid, {
+          onState: (data) => {
+            setOrders((prev) =>
+              prev.map((p) =>
+                (p.public_id || p.id) === pid
+                  ? { ...p, status: data.status, eta_minutes: data.eta_minutes }
+                  : p,
+              ),
+            );
+          },
+        });
+        wsSubs.current.push(pid);
       }
+
+      const currentIds = new Set(list.map((o) => o.public_id || o.id));
+      for (const subId of wsSubs.current) {
+        if (!currentIds.has(subId)) {
+          unsubscribe(subId);
+        }
+      }
+      wsSubs.current = wsSubs.current.filter((id) => currentIds.has(id));
     } catch {
       setOrders([]);
     } finally {
@@ -34,20 +54,26 @@ export function ClientOrderAlertPoller() {
 
   useEffect(() => {
     setArmed(false);
+    wsSubs.current.forEach(unsubscribe);
+    wsSubs.current = [];
     load();
-    const interval = setInterval(load, 10000);
-    return () => clearInterval(interval);
+    const interval = setInterval(load, 30000);
+    return () => {
+      clearInterval(interval);
+      wsSubs.current.forEach(unsubscribe);
+    };
   }, [load]);
 
   useOrderAlerts(orders, { mode: 'client', armed });
   return null;
 }
 
-/** Polling + alertes pour le dashboard restaurant (tous les onglets). */
+/** WebSocket-driven order alerts for restaurant dashboard. */
 export function RestaurantOrderAlertPoller() {
   const { restoId } = useRestaurantMe();
   const [orders, setOrders] = useState<Order[]>([]);
   const [armed, setArmed] = useState(false);
+  const wsSubs = useRef<string[]>([]);
 
   const load = useCallback(async () => {
     if (!restoId) {
@@ -57,7 +83,33 @@ export function RestaurantOrderAlertPoller() {
     }
     try {
       const data = await ordersApi.list();
-      setOrders(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+      setOrders(list);
+
+      for (const o of list) {
+        if (wsSubs.current.includes(o.public_id || o.id)) continue;
+        const pid = o.public_id || o.id;
+        subscribeOrder(pid, {
+          onState: (data) => {
+            setOrders((prev) =>
+              prev.map((p) =>
+                (p.public_id || p.id) === pid
+                  ? { ...p, status: data.status, eta_minutes: data.eta_minutes }
+                  : p,
+              ),
+            );
+          },
+        });
+        wsSubs.current.push(pid);
+      }
+
+      const currentIds = new Set(list.map((o) => o.public_id || o.id));
+      for (const subId of wsSubs.current) {
+        if (!currentIds.has(subId)) {
+          unsubscribe(subId);
+        }
+      }
+      wsSubs.current = wsSubs.current.filter((id) => currentIds.has(id));
     } catch {
       setOrders([]);
     } finally {
@@ -67,10 +119,15 @@ export function RestaurantOrderAlertPoller() {
 
   useEffect(() => {
     setArmed(false);
+    wsSubs.current.forEach(unsubscribe);
+    wsSubs.current = [];
     load();
     if (!restoId) return;
-    const interval = setInterval(load, 5000);
-    return () => clearInterval(interval);
+    const interval = setInterval(load, 30000);
+    return () => {
+      clearInterval(interval);
+      wsSubs.current.forEach(unsubscribe);
+    };
   }, [load, restoId]);
 
   useOrderAlerts(orders, { mode: 'restaurant', restoId, armed });

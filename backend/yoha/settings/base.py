@@ -24,6 +24,7 @@ DEBUG = env("DJANGO_DEBUG")
 ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS")
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -38,6 +39,8 @@ INSTALLED_APPS = [
     "django_filters",
     "drf_spectacular",
     "axes",
+    "channels",
+
     # YoHa
     "apps.core",
     "apps.accounts",
@@ -46,7 +49,9 @@ INSTALLED_APPS = [
     "apps.payments",
     "apps.audit",
     "apps.marketing",
+    "apps.locations",
 ]
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -184,6 +189,18 @@ else:
             "LOCATION": "yoha-local",
         }
     }
+
+# ——— Channels (WebSocket) ———
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [_redis_url] if _redis_url else [("127.0.0.1", 6379)],
+            "capacity": 1500,
+            "expiry": 60,
+        },
+    },
+}
 
 # ——— CORS ———
 CORS_ALLOWED_ORIGINS = env("DJANGO_CORS_ALLOWED_ORIGINS")

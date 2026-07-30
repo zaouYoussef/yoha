@@ -117,8 +117,10 @@ def transition_order(*, order: Order, new_status: str, actor, note: str = "") ->
     else:
         send_order_status_email(order, new_status)
     from .push_notifications import notify_client_order_status
+    from .ws_notify import notify_order_status
 
     notify_client_order_status(order, new_status)
+    notify_order_status(order.public_id, new_status, order.eta_minutes)
     return order
 
 
