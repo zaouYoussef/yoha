@@ -34,24 +34,9 @@ export function resolveApiBase(): string {
   if (fromEnv && !fromEnv.includes('127.0.0.1')) {
     return fromEnv;
   }
-  if (!__DEV__) {
-    return 'https://yoha.ma/api/v1';
-  }
-  if (Platform.OS === 'web') {
-    return 'http://127.0.0.1:8000/api/v1';
-  }
-  const lanIp = devMachineIp();
-  if (fromEnv) {
-    return fromEnv;
-  }
-  if (lanIp && lanIp !== '127.0.0.1') {
-    return `http://${lanIp}:8000/api/v1`;
-  }
-  if (Platform.OS === 'android' && !Constants.isDevice) {
-    return 'http://10.0.2.2:8000/api/v1';
-  }
-  return 'http://127.0.0.1:8000/api/v1';
+  return 'https://yoha.ma/api/v1';
 }
+
 
 
 /** URL API courante (recalculée à chaque appel en dev). */

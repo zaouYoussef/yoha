@@ -811,3 +811,211 @@ export function RecentOrdersTable({ orders, title, full, gainMad, hideCourier = 
 }
 
 import { CancelPhaseBadge, OrderCancellationNote } from '../components/ui/CancelOrderButton.jsx';
+
+/* ─── Horizontal Bar (percentage) ─── */
+export function HorizontalBar({ value, max = 100, label, color = 'from-brand-500 to-pink-500', height = 8, showLabel = true }) {
+  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
+  return (
+    <div className="flex items-center gap-2">
+      {showLabel && label && <span className="w-20 shrink-0 text-[11px] font-bold text-ink-500 truncate">{label}</span>}
+      <div className="flex-1 h-3 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden">
+        <div className={`h-full rounded-full bg-gradient-to-r ${color} transition-all duration-700`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="w-10 text-right text-[11px] font-bold text-ink-700 dark:text-ink-300">{value}</span>
+    </div>
+  );
+}
+
+/* ─── HorizontalBarChart (comparison set) ─── */
+export function HorizontalBarChart({ data, color = 'from-brand-500 to-pink-500' }) {
+  const maxVal = Math.max(1, ...data.map((d) => d.value));
+  return (
+    <div className="space-y-2">
+      {data.map((d, i) => (
+        <HorizontalBar key={i} value={d.value} max={maxVal} label={d.label} color={color} />
+      ))}
+    </div>
+  );
+}
+
+/* ─── Mini Trend (sparkline) ─── */
+export function MiniTrend({ data, color = '#f97316', height = 30 }) {
+  const list = Array.isArray(data) && data.length ? data : [0];
+  const max = Math.max(1, ...list.map((v) => Number(v) || 0));
+  const w = 60;
+  const denom = Math.max(1, list.length - 1);
+  const points = list.map((v, i) => `${(i / denom) * w},${height - ((Number(v) || 0) / max) * (height - 4) - 2}`);
+  const path = `M ${points.join(' L ')}`;
+  return (
+    <svg viewBox={`0 0 ${w} ${height}`} className="w-full h-full" preserveAspectRatio="none">
+      <path d={path} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      {points.map((p, i) => {
+        const [x, y] = p.split(',');
+        return <circle key={i} cx={x} cy={y} r="1.2" fill={color} />;
+      })}
+    </svg>
+  );
+}
+
+/* ─── Gauge Chart (circular) ─── */
+export function GaugeChart({ value, max = 5, label = '', size = 100 }) {
+  const pct = Math.min(value / max, 1);
+  const angle = pct * 180;
+  const color = pct > 0.8 ? '#10b981' : pct > 0.5 ? '#f97316' : '#ef4444';
+  return (
+    <div className="relative inline-flex flex-col items-center" style={{ width: size, height: size }}>
+      <svg viewBox="0 0 100 50" className="w-full h-full" style={{ transform: 'rotate(0deg)' }}>
+        <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#e2e8f0" strokeWidth="8" strokeLinecap="round" />
+        <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke={color} strokeWidth="8" strokeLinecap="round"
+          strokeDasharray={`${(angle / 180) * 125.6} 125.6`} />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center pb-1">
+        <span className="font-display text-lg font-black" style={{ color }}>{typeof value === 'number' ? value.toFixed(1) : value}</span>
+        {label && <span className="text-[9px] font-bold text-ink-400 mt-[-2px]">{label}</span>}
+      </div>
+    </div>
+  );
+}
+
+/* ─── ComparisonBadge ─── */
+export function ComparisonBadge({ current, previous, label = '', inverse = false }) {
+  const pct = previous > 0 ? ((current - previous) / previous) * 100 : current > 0 ? 100 : 0;
+  const positive = inverse ? pct < 0 : pct >= 0;
+  return (
+    <span className={`inline-flex items-center gap-0.5 text-[10px] font-bold rounded-full px-1.5 py-0.5 ${positive ? 'text-emerald-600 bg-emerald-500/10' : 'text-red-600 bg-red-500/10'}`}>
+      {positive ? '▲' : '▼'} {Math.abs(pct).toFixed(0)}%
+    </span>
+  );
+}
+
+/* ─── KpiCard (enhanced StatCard with trend + comparison) ─── */
+export function KpiCard({ label, value, sub, icon, color, trend, trendLabel, format }) {
+  const display = format ? format(value) : typeof value === 'number' ? value.toLocaleString('fr-FR') : value;
+  return (
+    <GlassCard className="p-4 sm:p-5" glow={color}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-[10px] font-bold uppercase tracking-wider text-ink-500">{label}</div>
+          <div className="mt-0.5 font-display text-xl font-black sm:text-2xl truncate">{display}</div>
+          {sub && <div className="mt-0.5 text-[11px] text-ink-400">{sub}</div>}
+          {trend !== undefined && (
+            <div className="mt-1.5 flex items-center gap-1.5">
+              {trendLabel && <span className="text-[10px] text-ink-400">{trendLabel}</span>}
+              <ComparisonBadge current={trend} previous={0} />
+            </div>
+          )}
+        </div>
+        <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br text-white shadow-md ${color}`}>
+          {icon}
+        </span>
+      </div>
+    </GlassCard>
+  );
+}
+
+/* ─── LegendRow (for donut/bar legends) ─── */
+export function LegendRow({ items, colors = ['#f97316', '#ec4899', '#8b5cf6', '#3b82f6', '#10b981', '#eab308'] }) {
+  return (
+    <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
+      {items.map((item, i) => (
+        <div key={i} className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: colors[i % colors.length] }} />
+          <span className="text-ink-600 dark:text-ink-300 truncate max-w-[120px]">{item.label}</span>
+          <span className="font-bold text-ink-900 dark:text-white">{item.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─── InsightCard ─── */
+export function InsightCard({ children, icon, color = 'border-l-brand-500' }) {
+  return (
+    <div className={`rounded-xl border-l-4 bg-white/60 dark:bg-ink-900/60 px-4 py-3 text-sm shadow-sm dark:border-ink-800 ${color}`}>
+      <div className="flex items-start gap-2">
+        {icon && <span className="mt-0.5 shrink-0">{icon}</span>}
+        <div className="text-ink-700 dark:text-ink-200">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── DataRow ─── */
+export function DataRow({ label, value, color = '' }) {
+  return (
+    <div className="flex items-center justify-between py-1.5 text-sm">
+      <span className="text-ink-500 dark:text-ink-400">{label}</span>
+      <span className={`font-bold text-right ${color || 'text-ink-900 dark:text-white'}`}>{value}</span>
+    </div>
+  );
+}
+
+/* ─── SectionDivider ─── */
+export function SectionDivider() {
+  return <div className="border-t border-ink-200/40 dark:border-ink-800/40 my-4" />;
+}
+
+/* ─── MetricGrid ─── */
+export function MetricGrid({ children, cols = 4 }) {
+  return (
+    <div className={`grid grid-cols-2 md:grid-cols-${Math.min(cols, 4)} lg:grid-cols-${cols} gap-3`}>
+      {children}
+    </div>
+  );
+}
+
+/* ─── TimeDistribution (hourly bars) ─── */
+export function TimeDistribution({ data, label = 'Heure' }) {
+  const max = Math.max(1, ...data.map((v) => v || 0));
+  return (
+    <div className="space-y-1">
+      {data.map((v, i) => {
+        const pct = max > 0 ? (v / max) * 100 : 0;
+        return (
+          <div key={i} className="flex items-center gap-2 text-[11px]">
+            <span className="w-6 text-right font-mono text-ink-400 shrink-0">{String(i).padStart(2, '0')}h</span>
+            <div className="flex-1 h-3 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden">
+              <div className="h-full rounded-full bg-gradient-to-r from-brand-500 to-pink-500 transition-all" style={{ width: `${pct}%` }} />
+            </div>
+            <span className="w-6 text-right font-bold text-ink-600 dark:text-ink-300 shrink-0">{v || ''}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ─── DayComparison (weekday bars) ─── */
+export function DayComparison({ data, labels, color1 = 'from-brand-500', color2 = 'to-pink-400' }) {
+  const max = Math.max(1, ...data.map((v) => Number(v) || 0));
+  return (
+    <div className="flex items-end gap-1.5 h-32">
+      {data.map((v, i) => {
+        const pct = max > 0 ? (Number(v) / max) * 100 : 0;
+        return (
+          <div key={i} className="flex-1 flex flex-col items-center gap-1">
+            <div className="w-full flex-1 flex flex-col justify-end">
+              <div className={`w-full rounded-t-lg bg-gradient-to-t ${color1} ${color2} transition-all`} style={{ height: `${pct}%`, minHeight: v > 0 ? 8 : 0 }} />
+            </div>
+            <span className="text-[9px] text-ink-400 font-medium">{labels?.[i] || ''}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ─── FunnelStep ─── */
+export function FunnelStep({ label, value, pct, color = 'from-brand-500 to-pink-500' }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className={`h-10 w-10 shrink-0 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center text-white font-black text-sm`}>
+        {pct}%
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-xs font-bold text-ink-900 dark:text-white">{value.toLocaleString('fr-FR')}</div>
+        <div className="text-[11px] text-ink-400 truncate">{label}</div>
+      </div>
+    </div>
+  );
+}
