@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { userRequestsApi } from '../../src/lib/api.js';
+import { userRequestsApi } from '@/lib/api.js';
 
 function RequestForm() {
   const [form, setForm] = useState({ request_type: 'deletion', email: '', display_name: '', message: '' });
