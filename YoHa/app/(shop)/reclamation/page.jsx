@@ -26,7 +26,7 @@ export default function ReclamationPage() {
         <div className="mt-6 text-center">
           <p className="text-xs text-ink-400">
             Vous pouvez aussi nous écrire à{' '}
-            <a href="mailto:support@yoha.ma" className="text-brand-600 hover:underline font-bold">support@yoha.ma</a>
+            <a href="mailto:yohadelivery@gmail.com" className="text-brand-600 hover:underline font-bold">support@yoha.ma</a>
             {' '}·{' '}
             <a href="/privacy" className="text-ink-400 hover:text-ink-600 underline">Politique de confidentialité</a>
           </p>

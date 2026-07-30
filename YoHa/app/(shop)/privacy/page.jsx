@@ -73,7 +73,7 @@ export default function PrivacyPage() {
             <p className="mt-2">
               <strong>YoHa</strong><br />
               Site web : <a href="https://yoha.ma" className="text-brand-600 hover:underline">https://yoha.ma</a><br />
-              Email : <a href="mailto:support@yoha.ma" className="text-brand-600 hover:underline">support@yoha.ma</a>
+              Email : <a href="mailto:yohadelivery@gmail.com" className="text-brand-600 hover:underline">support@yoha.ma</a>
             </p>
           </section>
         </div>
