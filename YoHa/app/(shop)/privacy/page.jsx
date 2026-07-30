@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function PrivacyPage() {
   return (
-    <div className="page-enter max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6">
+    <div className="page-enter max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       <div className="rounded-3xl bg-white dark:bg-ink-900/80 border border-ink-200/60 dark:border-ink-800/50 shadow-lg p-6 sm:p-10">
         <h1 className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight text-ink-900 dark:text-white mb-2">
           Politique de Confidentialité
@@ -77,14 +77,6 @@ export default function PrivacyPage() {
             </p>
           </section>
         </div>
-      </div>
-
-      <div className="rounded-3xl bg-white dark:bg-ink-900/80 border border-ink-200/60 dark:border-ink-800/50 shadow-lg p-6 sm:p-10 text-center">
-        <h2 className="text-xl font-display font-extrabold text-ink-900 dark:text-white mb-1">Supprimer mon compte</h2>
-        <p className="text-sm text-ink-400 mb-5">Pour demander la suppression de vos données personnelles, rendez-vous sur la page dédiée.</p>
-        <a href="/reclamation" className="inline-flex items-center gap-2 py-3 px-6 rounded-2xl bg-brand-500 text-white font-black text-sm hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/20">
-          Faire une demande →
-        </a>
       </div>
     </div>
   );
