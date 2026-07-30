@@ -867,6 +867,22 @@ export function DateRangeSelector({ dateRange, setDateRange, startDate, setStart
   );
 }
 
+/* ─── StarRating ─── */
+export function StarRating({ rating, count }) {
+  const stars = Math.round(Number(rating) || 0);
+  return (
+    <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map((s) => (
+          <span key={s} className={`text-xs ${s <= stars ? 'text-amber-400' : 'text-ink-300 dark:text-ink-600'}`}>★</span>
+        ))}
+      </div>
+      {rating != null && <span className="text-[11px] font-extrabold text-ink-900 dark:text-white">{Number(rating).toFixed(1)}</span>}
+      {count !== undefined && count !== null && <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold ml-0.5">({count} avis)</span>}
+    </div>
+  );
+}
+
 /* ─── Horizontal Bar (percentage) ─── */
 export function HorizontalBar({ value, max = 100, label, color = 'from-brand-500 to-pink-500', height = 8, showLabel = true }) {
   const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;

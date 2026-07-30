@@ -13,6 +13,7 @@ import { resolveImageUrl } from '../../src/lib/resolveImageUrl';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = (SCREEN_WIDTH - 36) / 2;
+const HORIZONTAL_CARD_WIDTH = 220;
 
 const MAIN_SERVICE_TABS = [
   { id: 'all', label: 'Restos', emoji: '🍔' },
@@ -105,6 +106,10 @@ export default function ClientHome() {
 
   const openCount = useMemo(() => restaurants.filter((r) => r.isOpen).length, [restaurants]);
   const featured = useMemo(() => restaurants.find((r) => r.promo || r.isOpen) || restaurants[0], [restaurants]);
+
+  const freeDeliveryRestos = useMemo(() => restaurants.filter((r) => r.isOpen), [restaurants]);
+  const popularRestos = useMemo(() => restaurants.slice().sort((a, b) => (b.isOpen ? 1 : 0) - (a.isOpen ? 1 : 0)), [restaurants]);
+  const promoRestos = useMemo(() => restaurants.filter((r) => !!r.promo), [restaurants]);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -223,7 +228,33 @@ export default function ClientHome() {
               </View>
             ) : null}
 
-            {/* ═══ 4. FEATURED "COUP DE CŒUR" SPOTLIGHT ═══ */}
+            {/* ═══ 4. MARQUES POPULAIRES LOGO BUBBLES ═══ */}
+            {!search && restaurants.length > 0 ? (
+              <View style={styles.brandsSection}>
+                <Text style={styles.subSectionTitle}>🏷️ Marques Populaires à Tanger</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.brandsScroll}>
+                  {restaurants.map((r) => (
+                    <Pressable
+                      key={`brand-${r.slug}`}
+                      onPress={() => router.push(`/(client)/restaurant/${r.slug}`)}
+                      style={styles.brandCircleBtn}
+                    >
+                      <View style={styles.brandLogoWrap}>
+                        <Image
+                          source={{ uri: resolveImageUrl(r.logo || r.cover, r.cuisine) }}
+                          style={styles.brandLogo}
+                          contentFit="cover"
+                          transition={300}
+                        />
+                      </View>
+                      <Text style={styles.brandName} numberOfLines={1}>{r.name}</Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            ) : null}
+
+            {/* ═══ 5. FEATURED "COUP DE CŒUR" SPOTLIGHT ═══ */}
             {featured && !search && cuisineFilter === 'all' ? (
               <View style={styles.spotlightWrap}>
                 <Pressable
@@ -260,6 +291,56 @@ export default function ClientHome() {
                     </View>
                   </View>
                 </Pressable>
+              </View>
+            ) : null}
+
+            {/* ═══ 6. HORIZONTAL ROW: FRAIS DE LIVRAISON OFFERTS ═══ */}
+            {!search && freeDeliveryRestos.length > 0 ? (
+              <View style={styles.hSectionWrap}>
+                <View style={styles.hSectionTitleRow}>
+                  <Text style={styles.hSectionTitle}>🛵 Frais de livraison offerts</Text>
+                  <Text style={styles.hSectionSub}>Livraison 0 MAD CHU & Campus</Text>
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
+                  {freeDeliveryRestos.map((r) => (
+                    <Pressable
+                      key={`free-${r.slug}`}
+                      onPress={() => router.push(`/(client)/restaurant/${r.slug}`)}
+                      style={({ pressed }) => [styles.hCard, { transform: [{ scale: pressed ? 0.97 : 1 }] }]}
+                    >
+                      <Image source={{ uri: resolveImageUrl(r.cover, r.cuisine) }} style={styles.hCardImg} contentFit="cover" />
+                      <View style={styles.hCardBody}>
+                        <Text style={styles.hCardName} numberOfLines={1}>{r.name}</Text>
+                        <Text style={styles.hCardFee}>🏍️ Livraison Gratuite</Text>
+                      </View>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            ) : null}
+
+            {/* ═══ 7. HORIZONTAL ROW: POPULAIRES DANS VOTRE QUARTIER ═══ */}
+            {!search && popularRestos.length > 0 ? (
+              <View style={styles.hSectionWrap}>
+                <View style={styles.hSectionTitleRow}>
+                  <Text style={styles.hSectionTitle}>🔥 Populaires dans votre quartier</Text>
+                  <Text style={styles.hSectionSub}>Établissements très prisés au campus</Text>
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
+                  {popularRestos.map((r) => (
+                    <Pressable
+                      key={`pop-${r.slug}`}
+                      onPress={() => router.push(`/(client)/restaurant/${r.slug}`)}
+                      style={({ pressed }) => [styles.hCard, { transform: [{ scale: pressed ? 0.97 : 1 }] }]}
+                    >
+                      <Image source={{ uri: resolveImageUrl(r.cover, r.cuisine) }} style={styles.hCardImg} contentFit="cover" />
+                      <View style={styles.hCardBody}>
+                        <Text style={styles.hCardName} numberOfLines={1}>{r.name}</Text>
+                        <Text style={styles.hCardStar}>★ 4.9 · {formatDistance(r.distance)}</Text>
+                      </View>
+                    </Pressable>
+                  ))}
+                </ScrollView>
               </View>
             ) : null}
 
@@ -584,7 +665,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0,0,0,0.1)',
   },
-
   cuisineCircleLabel: {
     fontSize: 11,
     fontWeight: '800',
@@ -594,6 +674,42 @@ const styles = StyleSheet.create({
   cuisineCircleLabelActive: {
     color: brand[600],
     fontWeight: '900',
+  },
+  brandsSection: {
+    marginBottom: 16,
+  },
+  brandsScroll: {
+    paddingHorizontal: 4,
+    gap: 12,
+  },
+  brandCircleBtn: {
+    alignItems: 'center',
+    width: 68,
+  },
+  brandLogoWrap: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#ffffff',
+    marginBottom: 6,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  brandLogo: {
+    width: '100%',
+    height: '100%',
+  },
+  brandName: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#0f172a',
+    textAlign: 'center',
   },
   spotlightWrap: {
     marginBottom: 16,
@@ -672,6 +788,64 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '800',
     color: '#ffffff',
+  },
+  hSectionWrap: {
+    marginBottom: 16,
+  },
+  hSectionTitleRow: {
+    paddingHorizontal: 4,
+    marginBottom: 10,
+  },
+  hSectionTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#0f172a',
+  },
+  hSectionSub: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: ink[400],
+    marginTop: 2,
+  },
+  hScroll: {
+    paddingHorizontal: 4,
+    gap: 12,
+  },
+  hCard: {
+    width: HORIZONTAL_CARD_WIDTH,
+    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    overflow: 'hidden',
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  hCardImg: {
+    width: '100%',
+    height: 110,
+  },
+  hCardBody: {
+    padding: 10,
+  },
+  hCardName: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#0f172a',
+    marginBottom: 2,
+  },
+  hCardFee: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: brand[600],
+  },
+  hCardStar: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#f59e0b',
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -825,7 +999,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#f1f5f9',
   },
-
   cardFee: {
     fontSize: 11,
     color: brand[600],
