@@ -293,4 +293,14 @@ def notify_couriers_new_order(order: Order) -> int:
     except Exception:
         logger.exception("courier_web_push_error public_id=%s", order.public_id)
 
+    # Push Mobile Expo aux livreurs
+    try:
+        from .push_notifications import notify_couriers_mobile_push
+        mp_count = notify_couriers_mobile_push(order)
+        if mp_count:
+            logger.info("courier_mobile_push_sent public_id=%s count=%s", order.public_id, mp_count)
+    except Exception:
+        logger.exception("courier_mobile_push_error public_id=%s", order.public_id)
+
     return len(recipients)
+

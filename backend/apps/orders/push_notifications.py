@@ -43,6 +43,17 @@ def _tokens_for_order(order: Order) -> list[str]:
     return [t for t in tokens if t]
 
 
+def _tokens_for_active_couriers() -> list[str]:
+    """Tokens Expo Push pour tous les comptes ayant le rôle livreur."""
+    return list(
+        PushDevice.objects.filter(
+            user__role="courier",
+            user__is_active=True,
+        ).values_list("expo_push_token", flat=True)
+    )
+
+
+
 def notify_restaurant_new_order(order: Order) -> int:
     """Course confirmée par un livreur — alerte le propriétaire du restaurant."""
     order = Order.objects.select_related("restaurant__owner", "courier").get(pk=order.pk)
@@ -108,3 +119,23 @@ def notify_client_order_status(order: Order, status: str) -> int:
         logger.exception("push_client_web_error public_id=%s", order.public_id)
 
     return count
+
+
+def notify_couriers_mobile_push(order: Order) -> int:
+    """Alerte Expo Push mobile pour tous les livreurs enregistrés."""
+    tokens = _tokens_for_active_couriers()
+    if not tokens:
+        return 0
+
+    order = Order.objects.select_related("restaurant").get(pk=order.pk)
+    rest_name = order.restaurant.name if order.restaurant else "Nouveau restaurant"
+    count = send_expo_push(
+        tokens,
+        title="⚡ Nouvelle course disponible !",
+        body=f"Commande #{order.public_id} à retirer chez {rest_name}.",
+        data={"orderId": order.public_id, "type": "courier_new_order"},
+    )
+    if count:
+        logger.info("push_couriers_mobile_sent public_id=%s sent=%s", order.public_id, count)
+    return count
+

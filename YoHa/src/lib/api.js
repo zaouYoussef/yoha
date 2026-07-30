@@ -623,3 +623,16 @@ export const userRequestsApi = {
     return apiFetch(`/accounts/requests/?${params}`);
   },
 };
+
+export const reviewsApi = {
+  async create(data) {
+    return apiFetch("/orders/reviews/", { method: "POST", body: data });
+  },
+
+  async list({ search, rating, page = 1, limit = 100 } = {}) {
+    const params = new URLSearchParams({ page, limit });
+    if (search) params.set("search", search);
+    if (rating) params.set("rating", rating);
+    return apiFetch(`/orders/reviews/?${params}`);
+  },
+};

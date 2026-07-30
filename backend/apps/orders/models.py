@@ -257,4 +257,22 @@ class CourierLocation(models.Model):
         return f"{self.courier} @ ({self.latitude}, {self.longitude})"
 
 
+class Review(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True, related_name="reviews")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    customer_name = models.CharField(max_length=120, blank=True)
+    restaurant_name = models.CharField(max_length=200)
+    courier_name = models.CharField(max_length=100, blank=True)
+    rating = models.PositiveSmallIntegerField()
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "avis client"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.customer_name or 'Client'} — {self.rating}★"
+
+
 from .push_models import OrderPushSubscription  # noqa: E402, F401

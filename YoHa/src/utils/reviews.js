@@ -1,65 +1,61 @@
 'use client';
 
+import { reviewsApi } from '../lib/api.js';
+
 const STORAGE_KEY = 'yoha_order_reviews';
 
-export const INITIAL_REVIEWS = [
-  {
-    id: 'rev-101',
-    orderId: 'YH-8921',
-    createdAt: Date.now() - 1000 * 60 * 45,
-    rating: 5,
-    comment: "Livré ultra rapidement aux urgences CHU Tanger. Repas bien chaud et livreur Yacine très courtois !",
-    customerName: "Salma M.",
-    restaurantName: "Burger House",
-    courierName: "Yacine, livreur",
-  },
-  {
-    id: 'rev-102',
-    orderId: 'YH-8918',
-    createdAt: Date.now() - 1000 * 60 * 180,
-    rating: 5,
-    comment: "Service parfait au pavillon FMPT. Emballage soigneux.",
-    customerName: "Amine K.",
-    restaurantName: "Pizza Napoli",
-    courierName: "Karim, livreur",
-  },
-  {
-    id: 'rev-103',
-    orderId: 'YH-8910',
-    createdAt: Date.now() - 1000 * 60 * 360,
-    rating: 4,
-    comment: "Très bonne paella, arrivée en 24 minutes chrono.",
-    customerName: "Dr. Othmane B.",
-    restaurantName: "Le Chef Tanger",
-    courierName: "Yacine, livreur",
-  }
-];
-
-export function getStoredReviews() {
-  if (typeof window === 'undefined') return INITIAL_REVIEWS;
+export async function saveReview(review) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_REVIEWS));
-      return INITIAL_REVIEWS;
-    }
-    return JSON.parse(raw);
-  } catch (_) {
-    return INITIAL_REVIEWS;
-  }
-}
-
-export function saveReview(review) {
-  if (typeof window === 'undefined') return;
-  try {
+    const resp = await reviewsApi.create({
+      order_id: review.orderId,
+      customer_name: review.customerName,
+      restaurant_name: review.restaurantName,
+      courier_name: review.courierName,
+      rating: review.rating,
+      comment: review.comment,
+    });
+    const apiReview = {
+      id: resp.id,
+      orderId: review.orderId,
+      createdAt: new Date(resp.created_at).getTime(),
+      rating: resp.rating,
+      comment: resp.comment,
+      customerName: review.customerName,
+      restaurantName: review.restaurantName,
+      courierName: review.courierName,
+    };
     const current = getStoredReviews();
-    const updated = [review, ...current.filter(r => r.orderId !== review.orderId)];
+    const updated = [apiReview, ...current.filter(r => r.orderId !== review.orderId)];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     window.dispatchEvent(new Event('yoha_reviews_updated'));
     return updated;
   } catch (e) {
     console.error('Error saving review:', e);
   }
+}
+
+export function getStoredReviews() {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+export async function fetchReviewsFromApi(params = {}) {
+  try {
+    const resp = await reviewsApi.list(params);
+    return resp.results.map((r) => ({
+      id: String(r.id),
+      orderId: r.order_id,
+      createdAt: new Date(r.created_at).getTime(),
+      rating: r.rating,
+      comment: r.comment,
+      customerName: r.customer_name,
+      restaurantName: r.restaurant_name,
+      courierName: r.courier_name,
+    }));
+  } catch { return []; }
 }
 
 export function deleteReview(reviewId) {

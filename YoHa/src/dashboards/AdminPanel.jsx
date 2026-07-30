@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { I } from '../icons/Icons.jsx';
-import { getStoredReviews, deleteReview } from '../utils/reviews.js';
+import { deleteReview, fetchReviewsFromApi } from '../utils/reviews.js';
 import { getCourierGps, calculateHaversineDistance, resolveDestinationCoords } from '../utils/courierGps.js';
 import { LiveMapTracker } from '../components/ui/LiveMapTracker.jsx';
 import {
@@ -2040,9 +2040,10 @@ export function AdminReviews() {
   const [filterRating, setFilterRating] = useState('all');
   const { push: pushToast } = useToast();
 
-  const loadReviews = useCallback(() => {
-    setReviews(getStoredReviews());
-  }, []);
+  const loadReviews = useCallback(async () => {
+    const data = await fetchReviewsFromApi({ search, rating: filterRating !== 'all' ? filterRating : undefined });
+    setReviews(data);
+  }, [search, filterRating]);
 
   useEffect(() => {
     loadReviews();

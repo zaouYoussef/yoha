@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 from apps.restaurants.models import MenuItem, Restaurant, MenuCategory
 
-from .models import CourierProfile, Order, OrderLine
+from .models import CourierProfile, Order, OrderLine, Review
 
 User = get_user_model()
 
@@ -275,3 +275,21 @@ class CourierSerializer(serializers.ModelSerializer):
         if obj.user_id and obj.user:
             return obj.user.email
         return None
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ("id", "order_id", "customer_name", "restaurant_name", "courier_name", "rating", "comment", "created_at")
+
+
+class ReviewCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ("order_id", "customer_name", "restaurant_name", "courier_name", "rating", "comment")
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            validated_data["user"] = request.user
+        return super().create(validated_data)

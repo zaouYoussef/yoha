@@ -15,6 +15,7 @@ from .views import (
     OrderListView,
     OrderReadyView,
     OrderStatusView,
+    ReviewView,
     SendToRestaurantView,
 )
 
@@ -34,4 +35,5 @@ urlpatterns = [
     path("<str:public_id>/assign-courier/", AssignCourierView.as_view(), name="order-assign"),
     path("<str:public_id>/send-to-restaurant/", SendToRestaurantView.as_view(), name="order-send-to-restaurant"),
     path("<str:public_id>/location/", CourierLocationView.as_view(), name="order-location"),
+    path("reviews/", ReviewView.as_view(), name="order-reviews"),
 ]

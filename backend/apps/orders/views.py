@@ -13,7 +13,7 @@ from apps.payments.services import record_cod_payment
 
 from django.utils import timezone
 
-from .models import CourierLocation, CourierProfile, Order
+from .models import CourierLocation, CourierProfile, Order, Review
 from .push_models import OrderPushSubscription
 from .serializers import (
     AssignCourierSerializer,
@@ -22,6 +22,8 @@ from .serializers import (
     CourierSerializer,
     OrderSerializer,
     OrderStatusUpdateSerializer,
+    ReviewCreateSerializer,
+    ReviewSerializer,
 )
 from .services import assign_courier, auto_dispatch_order, mark_order_ready_for_pickup, send_to_restaurant, transition_order
 
@@ -440,4 +442,43 @@ class CourierLocationView(APIView):
             "latitude": float(loc.latitude),
             "longitude": float(loc.longitude),
             "updated_at": loc.updated_at.isoformat(),
+        })
+
+
+class ReviewView(APIView):
+    def post(self, request):
+        ser = ReviewCreateSerializer(data=request.data, context={"request": request})
+        ser.is_valid(raise_exception=True)
+        obj = ser.save()
+        return Response({
+            "id": str(obj.id),
+            "rating": obj.rating,
+            "comment": obj.comment,
+            "created_at": obj.created_at.isoformat(),
+        }, status=201)
+
+    def get(self, request):
+        if not request.user.is_authenticated or (request.user.role != "admin" and not request.user.is_superuser):
+            return Response({"detail": "Accès refusé."}, status=403)
+        qs = Review.objects.all()
+        rating = request.query_params.get("rating")
+        if rating:
+            qs = qs.filter(rating=rating)
+        search = request.query_params.get("search", "").strip()
+        if search:
+            qs = qs.filter(
+                Q(customer_name__icontains=search) |
+                Q(restaurant_name__icontains=search) |
+                Q(courier_name__icontains=search) |
+                Q(comment__icontains=search)
+            )
+        page = int(request.query_params.get("page", 1))
+        limit = int(request.query_params.get("limit", 100))
+        start = (page - 1) * limit
+        total = qs.count()
+        qs = qs[start:start + limit]
+        return Response({
+            "total": total,
+            "page": page,
+            "results": ReviewSerializer(qs, many=True).data,
         })
