@@ -39,10 +39,10 @@ export const CAMPUS_ZONES = [
 ];
 
 export const LANDING_TESTIMONIALS = [
-  { name: 'Dr. Samia · CHU', text: 'YoHa a changé mes nuits de garde 🤍 Je mange mieux et je gagne du temps.', stars: 5, emoji: '👩‍⚕️' },
-  { name: 'Dr. Lina · CHU', text: 'Le menu MedEat est pratique et vraiment adapté à notre rythme.', stars: 5, emoji: '👩‍⚕️' },
-  { name: 'Dr. Mohamed', text: 'YoHa m\'a sauvé pendant mon internat. Je mange sans stress.', stars: 5, emoji: '👨‍⚕️' },
-  { name: 'Dr. Maryam · CHU', text: 'Service rapide et fiable même en période de forte demande.', stars: 5, emoji: '👩‍⚕️' },
+  { name: 'Dr. Samia · CHU', text: 'YoHa a changé mes nuits de garde 🤍 Je mange mieux et je gagne du temps.', stars: 5, emoji: '👩‍⚕️', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80' },
+  { name: 'Dr. Lina · CHU', text: 'Le menu MedEat est pratique et vraiment adapté à notre rythme.', stars: 5, emoji: '👩‍⚕️', avatar: 'https://images.unsplash.com/photo-1594824813566-82823d5afe4a?w=150&auto=format&fit=crop&q=80' },
+  { name: 'Dr. Mohamed · Alliance', text: 'YoHa m\'a vraiment sauvé pendant ma période d\'internat en médecine interne. Avec un emploi du temps chargé à l\'hôpital, je peux enfin manger facilement et sans stress.', stars: 5, emoji: '👨‍⚕️', avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&auto=format&fit=crop&q=80' },
+  { name: 'Dr. Maryam · CHU', text: 'Service rapide et fiable même en période de forte demande.', stars: 5, emoji: '👩‍⚕️', avatar: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=150&auto=format&fit=crop&q=80' },
 ];
 
 export const FLOATING_FOOD = ['🍕', '🥗', '🍣', '🥤', '🍔', '🌮'];

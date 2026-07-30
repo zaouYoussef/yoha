@@ -154,12 +154,17 @@ export function TestimonialsBlock() {
             <Text style={styles.testiQuote}>"</Text>
             <Text style={styles.testiText}>{t.text}</Text>
             <View style={styles.testiFoot}>
-              <Text style={styles.testiAvatar}>{t.emoji}</Text>
+              {t.avatar ? (
+                <Image source={{ uri: t.avatar }} style={styles.testiPhoto} />
+              ) : (
+                <Text style={styles.testiAvatar}>{t.emoji}</Text>
+              )}
               <View>
                 <Text style={styles.testiName}>{t.name}</Text>
                 <Text style={styles.testiStars}>{'★'.repeat(t.stars)}</Text>
               </View>
             </View>
+
           </View>
         ))}
       </ScrollView>
@@ -287,7 +292,9 @@ const styles = StyleSheet.create({
   testiText: { fontFamily: fonts.medium, fontSize: 15, color: ink[700], lineHeight: 22 },
   testiFoot: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 16 },
   testiAvatar: { fontSize: 32 },
+  testiPhoto: { width: 38, height: 38, borderRadius: 19, backgroundColor: ink[100] },
   testiName: { fontFamily: fonts.bold, fontSize: 13, color: ink[900] },
+
   testiStars: { color: brand[500], fontSize: 12, letterSpacing: 2, marginTop: 2 },
   phone: {
     alignSelf: 'center',
