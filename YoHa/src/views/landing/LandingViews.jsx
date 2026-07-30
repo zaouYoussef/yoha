@@ -49,7 +49,8 @@ function useSectionScrollProgress(ref) {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [ref]);
 
   return progress;
@@ -183,7 +184,7 @@ export function Hero({ onStart, onHowItWorks }) {
 
           <p className="mt-3 sm:mt-6 max-w-xl text-[13px] sm:text-base lg:text-lg text-ink-600 dark:text-ink-300 leading-relaxed animate-fade-up" style={{ animationDelay:'600ms' }}>
             <span className="sm:hidden">Commandez et faites-vous livrer à la chambre, à l&apos;aile ou à la BU — en moins de 30 min.</span>
-            <span className="hidden sm:inline">Commandez auprès de vos cuisines préférées et faites-vous livrer directement à votre chambre, à l&apos;aile hospitalière ou à la BU — en moins de 30 minutes. Aucun détour.</span>
+            <span className="hidden sm:inline">Commandez auprès de vos cuisines préférées et faites-vous livrer directement à votre chambre, à l&apos;aile hospitalière ou à la BU — en moins de 40 minutes. Aucun détour.</span>
           </p>
 
           <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 animate-fade-up" style={{ animationDelay:'750ms' }}>
@@ -215,8 +216,8 @@ export function Hero({ onStart, onHowItWorks }) {
                 <span className="ml-1 font-semibold text-ink-900 dark:text-ink-50">4,9</span>
               </div>
               <div className="text-ink-500 dark:text-ink-400 leading-snug">
-                <span className="sm:hidden">12 000+ utilisateurs satisfaits</span>
-                <span className="hidden sm:inline">Adoré par 12 000+ étudiants & soignants</span>
+                <span className="sm:hidden">200+ utilisateurs satisfaits</span>
+                <span className="hidden sm:inline">Adoré par 200+ étudiants & soignants</span>
               </div>
             </div>
           </div>

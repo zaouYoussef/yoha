@@ -1,359 +1,190 @@
 import React, { useMemo, useState } from 'react';
-
-import {
-
-  ActivityIndicator,
-
-  RefreshControl,
-
-  ScrollView,
-
-  StyleSheet,
-
-  Text,
-
-  View,
-
-} from 'react-native';
-
-import { RestoDashShell } from '../../src/components/restaurant-dash/RestoDashShell';
-
-import { RestoWeekChart } from '../../src/components/restaurant-dash/RestoWeekChart';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 import { useOrders } from '../../src/hooks/useOrders';
-
 import { useRestaurantMe } from '../../src/hooks/useRestaurantMe';
-
-import { formatMad, isRestaurantStatsOrder } from '../../src/lib/constants';
-
+import { useLayoutChrome } from '../../src/lib/layoutChrome';
 import {
-
-  bucketOrderCountLast7Days,
-
-  bucketRevenueLast7Days,
-
   belongsToRestaurant,
-
-  orderFoodTotal,
-
+  bucketOrderCountLast7Days,
+  bucketRevenueLast7Days,
+  last7DayLabels,
 } from '../../src/lib/restaurantOrder';
-
-import { brand, ink, radius, shadows } from '../../src/theme';
-
-import { fonts } from '../../src/theme/fonts';
-
-
-
-function StatCard({ label, value }: { label: string; value: string }) {
-
-  return (
-
-    <View style={[styles.card, shadows.card]}>
-
-      <Text style={styles.cardLabel}>{label}</Text>
-
-      <Text style={styles.cardValue}>{value}</Text>
-
-    </View>
-
-  );
-
-}
-
-
+import { isRestaurantStatsOrder } from '../../src/lib/constants';
+import { accent, line, radius, surface } from '../../src/theme';
+import { Screen } from '../../src/components/yoha/Screen';
+import { Body, Display, Label, Money } from '../../src/components/yoha/Type';
+import { Hairline, SectionHeader, Skeleton } from '../../src/components/yoha/Atoms';
+import { OpsCard, OpsEmpty, OpsHeader, StatStrip } from '../../src/components/yoha/Ops';
 
 export default function RestaurantStats() {
-
-  const { restaurant, loading: restoLoading, error: restoError, refresh: refreshResto, restoId } =
-
-    useRestaurantMe();
-
-  const { orders, loading, refresh } = useOrders(8000);
-
+  const { restaurant, restoId } = useRestaurantMe();
+  const { orders, loading, refresh } = useOrders(30000);
+  const { scrollBottomPadding } = useLayoutChrome();
   const [refreshing, setRefreshing] = useState(false);
 
-
-
   const mine = useMemo(
-
     () =>
-
-      restoId
-
-        ? orders.filter((o) => belongsToRestaurant(o, restoId) && isRestaurantStatsOrder(o))
-
-        : [],
-
+      orders.filter((o) => belongsToRestaurant(o, restoId) && isRestaurantStatsOrder(o)),
     [orders, restoId],
-
   );
 
-
-
+  const labels = useMemo(() => last7DayLabels(), []);
   const revenue = useMemo(
-
-    () => mine.reduce((s, o) => s + orderFoodTotal(o), 0),
-
-    [mine],
-
-  );
-
-
-
-  const barData = useMemo(
-
-    () => (restoId ? bucketOrderCountLast7Days(orders, restoId) : []),
-
+    () => bucketRevenueLast7Days(orders, String(restoId ?? '')),
     [orders, restoId],
-
   );
-
-  const lineData = useMemo(
-
-    () => (restoId ? bucketRevenueLast7Days(orders, restoId) : []),
-
+  const counts = useMemo(
+    () => bucketOrderCountLast7Days(orders, String(restoId ?? '')),
     [orders, restoId],
-
   );
 
+  const week = revenue.reduce((s, v) => s + v, 0);
+  const weekCount = counts.reduce((s, v) => s + v, 0);
+  const basket = weekCount ? week / weekCount : 0;
 
+  /* Les plats les plus vendus : ce qu'il faut mettre en avant demain. */
+  const top = useMemo(() => {
+    const map = new Map<string, { name: string; qty: number; total: number }>();
+    for (const o of mine) {
+      for (const it of o.items ?? []) {
+        const key = it.name;
+        const entry = map.get(key) ?? { name: key, qty: 0, total: 0 };
+        entry.qty += Number(it.qty) || 0;
+        entry.total += (Number(it.price) || 0) * (Number(it.qty) || 0);
+        map.set(key, entry);
+      }
+    }
+    return [...map.values()].sort((a, b) => b.qty - a.qty).slice(0, 5);
+  }, [mine]);
 
-  const onRefresh = async () => {
-
-    setRefreshing(true);
-
-    await Promise.all([refresh(), refreshResto()]);
-
-    setRefreshing(false);
-
-  };
-
-
-
-  if (restaurant === undefined || restoLoading) {
-
-    return (
-
-      <RestoDashShell title="Statistiques">
-
-        <ActivityIndicator color={brand[500]} style={{ marginTop: 40 }} />
-
-      </RestoDashShell>
-
-    );
-
-  }
-
-
-
-  if (restaurant === null) {
-
-    return (
-
-      <RestoDashShell title="Statistiques">
-
-        <View style={styles.noRestoBox}>
-
-          {restoError ? <Text style={styles.error}>{restoError}</Text> : null}
-
-          <Text style={styles.noRestoTitle}>Aucun établissement lié</Text>
-
-          <Text style={styles.noRestoSub}>
-
-            Les statistiques apparaîtront une fois votre restaurant configuré sur le site web.
-
-          </Text>
-
-        </View>
-
-      </RestoDashShell>
-
-    );
-
-  }
-
-
+  const peak = Math.max(1, ...revenue);
 
   return (
-
-    <RestoDashShell title="Statistiques" subtitle={restaurant.name}>
-
+    <Screen>
       <ScrollView
-
-        style={{ flex: 1 }}
-
-        contentContainerStyle={{ paddingBottom: 16 }}
-
-        refreshControl={
-
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand[500]} />
-
-        }
-
         showsVerticalScrollIndicator={false}
-
+        contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            tintColor={accent.ember}
+            onRefresh={async () => {
+              setRefreshing(true);
+              await refresh();
+              setRefreshing(false);
+            }}
+          />
+        }
       >
+        <OpsHeader kicker={restaurant?.name ?? 'Cuisine'} title="Sept jours" />
 
-        {loading && mine.length === 0 ? (
+        <StatStrip
+          items={[
+            { label: 'Chiffre 7j', value: '', money: week, tone: 'ember' },
+            { label: 'Commandes', value: String(weekCount) },
+            { label: 'Panier moyen', value: '', money: Math.round(basket) },
+          ]}
+        />
 
-          <ActivityIndicator color={brand[500]} style={{ marginTop: 24 }} />
-
-        ) : null}
-
-
-
-        {mine.length === 0 && !loading ? (
-
-          <View style={styles.emptyBox}>
-
-            <Text style={styles.emptyTitle}>Aucune commande pour l&apos;instant</Text>
-
-            <Text style={styles.emptySub}>
-
-              Les graphiques se rempliront dès que des clients commanderont chez vous.
-
-            </Text>
-
+        {loading && !orders.length ? (
+          <View style={{ padding: 18, gap: 12 }}>
+            <Skeleton height={180} />
           </View>
-
-        ) : null}
-
-
-
-        <View style={styles.grid}>
-
-          <StatCard label="Commandes" value={String(mine.length)} />
-
-          <StatCard label="CA (plats)" value={formatMad(revenue, 0)} />
-
-          <StatCard
-
-            label="Livrées"
-
-            value={String(mine.filter((o) => o.status === 'delivered').length)}
-
+        ) : !mine.length ? (
+          <OpsEmpty
+            title="Pas de données"
+            line="Les statistiques apparaissent dès la première commande traitée."
           />
+        ) : (
+          <>
+            {/* Histogramme en barres verticales : lisible d'un coup d'œil, aucune librairie. */}
+            <SectionHeader kicker="Jour par jour" title="Recette" />
+            <View
+              style={{
+                marginHorizontal: 18,
+                padding: 16,
+                borderRadius: radius.xl,
+                backgroundColor: surface.soot,
+                borderWidth: StyleSheet.hairlineWidth,
+                borderColor: line.hair,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'flex-end',
+                  gap: 8,
+                  height: 132,
+                }}
+              >
+                {revenue.map((v, i) => (
+                  <View key={i} style={{ flex: 1, alignItems: 'center', gap: 8 }}>
+                    <Body size="caption" tone="dim">
+                      {v ? Math.round(v) : ''}
+                    </Body>
+                    <View
+                      style={{
+                        width: '100%',
+                        height: Math.max(3, (v / peak) * 92),
+                        borderRadius: 6,
+                        backgroundColor: v === peak && v > 0 ? accent.ember : line.soft,
+                      }}
+                    />
+                  </View>
+                ))}
+              </View>
+              <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
+                {labels.map((l, i) => (
+                  <Label key={`${l}-${i}`} tone="dim" style={{ flex: 1, textAlign: 'center' }}>
+                    {l}
+                  </Label>
+                ))}
+              </View>
+            </View>
 
-          <StatCard
+            {top.length ? (
+              <>
+                <SectionHeader kicker="Ce qui part" title="Top plats" />
+                <OpsCard style={{ marginHorizontal: 18 }}>
+                  {top.map((t, i) => (
+                    <View key={t.name}>
+                      {i ? <Hairline /> : null}
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: 12,
+                          paddingVertical: 11,
+                        }}
+                      >
+                        <Display size="h3" tone={i === 0 ? 'ember' : 'dim'} style={{ width: 26 }}>
+                          {i + 1}
+                        </Display>
+                        <Body size="small" style={{ flex: 1 }} numberOfLines={1}>
+                          {t.name}
+                        </Body>
+                        <Body size="caption" tone="dim">
+                          ×{t.qty}
+                        </Body>
+                        <Money value={t.total} size={13} tone="fog" />
+                      </View>
+                    </View>
+                  ))}
+                </OpsCard>
+              </>
+            ) : null}
 
-            label="En cours"
-
-            value={String(mine.filter((o) => !['delivered', 'cancelled'].includes(o.status)).length)}
-
-          />
-
-        </View>
-
-
-
-        <RestoWeekChart title="Commandes par jour" data={barData} mode="count" />
-
-        <RestoWeekChart title="CA sur 7 jours" data={lineData} mode="revenue" />
-
+            <Body
+              size="caption"
+              tone="dim"
+              style={{ textAlign: 'center', marginTop: 24, paddingHorizontal: 32 }}
+            >
+              Recette hors frais de livraison, calculée sur {mine.length} commandes traitées.
+            </Body>
+          </>
+        )}
       </ScrollView>
-
-    </RestoDashShell>
-
+    </Screen>
   );
-
 }
-
-
-
-const styles = StyleSheet.create({
-
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 8 },
-
-  card: {
-
-    width: '47%',
-
-    backgroundColor: '#fff',
-
-    borderRadius: radius.lg,
-
-    padding: 16,
-
-    borderWidth: 1,
-
-    borderColor: ink[100],
-
-  },
-
-  cardLabel: { fontSize: 12, fontFamily: fonts.semibold, color: ink[500] },
-
-  cardValue: { marginTop: 8, fontSize: 22, fontFamily: fonts.extrabold, color: brand[600] },
-
-  emptyBox: {
-
-    padding: 20,
-
-    borderRadius: radius.lg,
-
-    borderWidth: 1,
-
-    borderStyle: 'dashed',
-
-    borderColor: ink[200],
-
-    marginBottom: 16,
-
-  },
-
-  emptyTitle: { fontSize: 18, fontFamily: fonts.bold, color: ink[900], textAlign: 'center' },
-
-  emptySub: {
-
-    marginTop: 6,
-
-    fontSize: 13,
-
-    fontFamily: fonts.medium,
-
-    color: ink[500],
-
-    textAlign: 'center',
-
-    lineHeight: 20,
-
-  },
-
-  error: { color: '#ef4444', marginBottom: 12, fontFamily: fonts.medium },
-
-  noRestoBox: {
-
-    marginTop: 32,
-
-    padding: 20,
-
-    borderRadius: 16,
-
-    backgroundColor: '#fff',
-
-    borderWidth: 1,
-
-    borderColor: ink[200],
-
-  },
-
-  noRestoTitle: { fontSize: 18, fontFamily: fonts.bold, color: ink[900], textAlign: 'center' },
-
-  noRestoSub: {
-
-    marginTop: 8,
-
-    fontSize: 14,
-
-    fontFamily: fonts.medium,
-
-    color: ink[500],
-
-    textAlign: 'center',
-
-    lineHeight: 22,
-
-  },
-
-});
-
-

@@ -1,37 +1,48 @@
 import {
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
-  Inter_800ExtraBold,
-  useFonts,
-} from '@expo-google-fonts/inter';
+  Archivo_400Regular,
+  Archivo_500Medium,
+  Archivo_600SemiBold,
+  Archivo_700Bold,
+} from '@expo-google-fonts/archivo';
 import {
-  PlusJakartaSans_700Bold,
-  PlusJakartaSans_800ExtraBold,
-} from '@expo-google-fonts/plus-jakarta-sans';
+  BigShouldersDisplay_700Bold,
+  BigShouldersDisplay_800ExtraBold,
+  BigShouldersDisplay_900Black,
+} from '@expo-google-fonts/big-shoulders-display';
+import { DMMono_400Regular, DMMono_500Medium } from '@expo-google-fonts/dm-mono';
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import { View } from 'react-native';
+
 import { PushRegistration } from '../src/components/PushRegistration';
 import { AuthProvider } from '../src/contexts/AuthContext';
-import { initOrderNotifications } from '../src/lib/orderNotifications';
 import { CartProvider } from '../src/contexts/CartContext';
 import { ToastProvider } from '../src/contexts/ToastContext';
+import { initOrderNotifications } from '../src/lib/orderNotifications';
+import { surface } from '../src/theme';
 
 SplashScreen.preventAutoHideAsync();
 
+/**
+ * Trois familles, trois rôles, jamais mélangés :
+ * Big Shoulders pour les titres (condensé, éditorial), Archivo pour la lecture,
+ * DM Mono pour tout ce qui est un nombre — prix, minutes, quantités —
+ * afin que les colonnes s'alignent au pixel.
+ */
 export default function RootLayout() {
   const [loaded] = useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
-    Inter_800ExtraBold,
-    PlusJakartaSans_700Bold,
-    PlusJakartaSans_800ExtraBold,
+    BigShouldersDisplay_700Bold,
+    BigShouldersDisplay_800ExtraBold,
+    BigShouldersDisplay_900Black,
+    Archivo_400Regular,
+    Archivo_500Medium,
+    Archivo_600SemiBold,
+    Archivo_700Bold,
+    DMMono_400Regular,
+    DMMono_500Medium,
   });
 
   useEffect(() => {
@@ -42,8 +53,9 @@ export default function RootLayout() {
     void initOrderNotifications();
   }, []);
 
+  /* Le fond de chargement est déjà le fond de l'app : aucun flash blanc. */
   if (!loaded) {
-    return <View style={{ flex: 1, backgroundColor: '#fff7ed' }} />;
+    return <View style={{ flex: 1, backgroundColor: surface.void }} />;
   }
 
   return (
@@ -51,16 +63,22 @@ export default function RootLayout() {
       <PushRegistration />
       <CartProvider>
         <ToastProvider>
-        <StatusBar style="dark" />
-        <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="landing" options={{ animation: 'fade_from_bottom' }} />
-          <Stack.Screen name="auth/login" />
-          <Stack.Screen name="auth/register" />
-          <Stack.Screen name="(client)" />
-          <Stack.Screen name="(courier)" />
-          <Stack.Screen name="(restaurant)" />
-        </Stack>
+          <StatusBar style="light" />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: 'fade',
+              contentStyle: { backgroundColor: surface.void },
+            }}
+          >
+            <Stack.Screen name="index" />
+            <Stack.Screen name="landing" options={{ animation: 'fade_from_bottom' }} />
+            <Stack.Screen name="auth/login" />
+            <Stack.Screen name="auth/register" />
+            <Stack.Screen name="(client)" />
+            <Stack.Screen name="(courier)" />
+            <Stack.Screen name="(restaurant)" />
+          </Stack>
         </ToastProvider>
       </CartProvider>
     </AuthProvider>

@@ -1,475 +1,260 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { Linking, RefreshControl, ScrollView, View } from 'react-native';
 
-import {
-
-  ActivityIndicator,
-
-  RefreshControl,
-
-  ScrollView,
-
-  StyleSheet,
-
-  Text,
-
-  View,
-
-} from 'react-native';
-
-import { RestoCancelButton } from '../../src/components/restaurant-dash/RestoCancelButton';
-
-import { RestoDashShell } from '../../src/components/restaurant-dash/RestoDashShell';
-
-import { RestoOrderCard } from '../../src/components/restaurant-dash/RestoOrderCard';
-
-import { YohaButton } from '../../src/components/ui/YohaButton';
-
+import { ordersApi, type Order } from '../../src/lib/api';
 import { useOrders } from '../../src/hooks/useOrders';
-
 import { useRestaurantMe } from '../../src/hooks/useRestaurantMe';
+import { useLayoutChrome } from '../../src/lib/layoutChrome';
+import { RESTO_CANCEL_BEFORE, isRestaurantActiveOrder } from '../../src/lib/constants';
+import {
+  belongsToRestaurant,
+  formatOrderWhen,
+  orderFoodTotal,
+  sortOrdersNewest,
+} from '../../src/lib/restaurantOrder';
+import { accent } from '../../src/theme';
+import { Screen } from '../../src/components/yoha/Screen';
+import { Body, Display, Money } from '../../src/components/yoha/Type';
+import { Chip, Pill, SectionHeader, Skeleton } from '../../src/components/yoha/Atoms';
+import { Rise } from '../../src/components/yoha/Motion';
+import { EmberButton } from '../../src/components/yoha/EmberButton';
+import { Sheet } from '../../src/components/yoha/Sheet';
+import {
+  OpsAction,
+  OpsCard,
+  OpsEmpty,
+  OpsField,
+  OpsHeader,
+  OpsItems,
+} from '../../src/components/yoha/Ops';
 
-import { ordersApi } from '../../src/lib/api';
+export default function RestaurantOrders() {
+  const { restaurant, loading: loadingResto, error, restoId } = useRestaurantMe();
+  const { orders, loading, refresh } = useOrders(8000);
+  const { scrollBottomPadding } = useLayoutChrome();
 
-import { isRestaurantActiveOrder, isRestaurantCancelledOrder } from '../../src/lib/constants';
-
-import { belongsToRestaurant, sortOrdersNewest } from '../../src/lib/restaurantOrder';
-
-import { brand, ink } from '../../src/theme';
-
-import { fonts } from '../../src/theme/fonts';
-
-
-
-function SectionTitle({ title, sub }: { title: string; sub?: string }) {
-
-  return (
-
-    <View style={styles.sectionHead}>
-
-      <Text style={styles.sectionTitle}>{title}</Text>
-
-      {sub ? <Text style={styles.sectionSub}>{sub}</Text> : null}
-
-    </View>
-
-  );
-
-}
-
-
-
-export default function RestaurantIncoming() {
-
-  const { restaurant, loading: restoLoading, error: restoError, refresh: refreshResto, restoId } =
-
-    useRestaurantMe();
-
-  const { orders, loading, error, refresh } = useOrders(5000);
-
-  const [busyId, setBusyId] = useState<string | null>(null);
-
+  const [busy, setBusy] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-
-
+  const [cancelling, setCancelling] = useState<Order | null>(null);
+  const [reason, setReason] = useState(RESTO_CANCEL_BEFORE[0]);
 
   const mine = useMemo(
-
-    () => (restoId ? orders.filter((o) => belongsToRestaurant(o, restoId)) : []),
-
+    () => sortOrdersNewest(orders.filter((o) => belongsToRestaurant(o, restoId))),
     [orders, restoId],
-
   );
 
-
-
-  const active = useMemo(
-
-    () => sortOrdersNewest(mine.filter((o) => isRestaurantActiveOrder(o.status))),
-
+  /* Un livreur attend au comptoir : ces commandes passent avant tout. */
+  const active = useMemo(() => mine.filter((o) => isRestaurantActiveOrder(o.status)), [mine]);
+  const incoming = useMemo(() => mine.filter((o) => o.status === 'placed'), [mine]);
+  const done = useMemo(
+    () => mine.filter((o) => o.status === 'delivering' || o.status === 'delivered'),
     [mine],
-
   );
 
-  const cancelled = useMemo(
-
-    () => sortOrdersNewest(mine.filter((o) => isRestaurantCancelledOrder(o))),
-
-    [mine],
-
+  const markReady = useCallback(
+    async (order: Order) => {
+      setBusy(order.id);
+      try {
+        await ordersApi.updateStatus(order.id, 'preparing');
+        await refresh();
+      } finally {
+        setBusy(null);
+      }
+    },
+    [refresh],
   );
 
-
-
-  const updateStatus = async (orderId: string, status: string) => {
-
-    setBusyId(orderId);
-
+  const confirmCancel = useCallback(async () => {
+    if (!cancelling) return;
+    setBusy(cancelling.id);
     try {
-
-      await ordersApi.updateStatus(orderId, status);
-
+      await ordersApi.updateStatus(cancelling.id, 'cancelled', reason);
       await refresh();
-
+      setCancelling(null);
     } finally {
-
-      setBusyId(null);
-
+      setBusy(null);
     }
-
-  };
-
-
-
-  const cancel = async (orderId: string, reason: string) => {
-
-    await ordersApi.cancelOrder(orderId, reason);
-
-    await refresh();
-
-  };
-
-
-
-  const onRefresh = async () => {
-
-    setRefreshing(true);
-
-    await Promise.all([refresh(), refreshResto()]);
-
-    setRefreshing(false);
-
-  };
-
-
-
-  if (restaurant === undefined || (restoLoading && restaurant === undefined)) {
-
-    return (
-
-      <RestoDashShell title="Commandes entrantes">
-
-        <ActivityIndicator color={brand[500]} style={{ marginTop: 40 }} />
-
-      </RestoDashShell>
-
-    );
-
-  }
-
-
-
-  if (restaurant === null) {
-
-    return (
-
-      <RestoDashShell title="Commandes entrantes">
-
-        <View style={styles.noRestoBox}>
-
-          {restoError ? <Text style={styles.error}>{restoError}</Text> : null}
-
-          <Text style={styles.noRestoTitle}>Aucun établissement lié</Text>
-
-          <Text style={styles.noRestoSub}>
-
-            Configurez votre restaurant sur le site web YoHa pour recevoir des commandes ici.
-
-          </Text>
-
-        </View>
-
-      </RestoDashShell>
-
-    );
-
-  }
-
-
-
-  const renderActions = (o: (typeof active)[0]) => {
-
-    if (o.status === 'pickup_confirmed') {
-
-      return (
-
-        <>
-
-          <Text style={styles.hintSky}>🛵 Livreur en route vers vous</Text>
-
-          <YohaButton
-
-            title={busyId === o.id ? '…' : '✅ Accepter & préparer'}
-
-            onPress={() => updateStatus(o.id, 'preparing')}
-
-            loading={busyId === o.id}
-
-          />
-
-          <RestoCancelButton onCancel={(r) => cancel(o.id, r)} />
-
-        </>
-
-      );
-
-    }
-
-    if (o.status === 'preparing') {
-
-      return (
-
-        <>
-
-          <Text style={styles.hintViolet}>
-
-            👨‍🍳{' '}
-
-            {o.courierName
-
-              ? `Prête — ${o.courierName} va récupérer`
-
-              : 'En préparation — livreur en attente'}
-
-          </Text>
-
-          <RestoCancelButton
-
-            label="Annuler (avant récupération)"
-
-            onCancel={(r) => cancel(o.id, r)}
-
-          />
-
-        </>
-
-      );
-
-    }
-
-    return null;
-
-  };
-
-
+  }, [cancelling, reason, refresh]);
 
   return (
-
-    <RestoDashShell
-
-      title="Commandes entrantes"
-
-      subtitle={restaurant.name ? `Connecté · ${restaurant.name}` : undefined}
-
-    >
-
+    <Screen>
       <ScrollView
-
-        style={{ flex: 1 }}
-
-        contentContainerStyle={{ paddingBottom: 16 }}
-
-        refreshControl={
-
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand[500]} />
-
-        }
-
         showsVerticalScrollIndicator={false}
-
+        contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            tintColor={accent.ember}
+            onRefresh={async () => {
+              setRefreshing(true);
+              await refresh();
+              setRefreshing(false);
+            }}
+          />
+        }
       >
+        <OpsHeader
+          kicker={restaurant?.name ?? 'Cuisine'}
+          title="Commandes"
+          live={active.length ? `${active.length} au comptoir` : 'En service'}
+        />
 
-        {loading && mine.length === 0 ? (
-
-          <ActivityIndicator color={brand[500]} style={{ marginTop: 24 }} />
-
+        {error ? (
+          <Body size="small" tone="ember" style={{ paddingHorizontal: 18, marginTop: 16 }}>
+            {error}
+          </Body>
         ) : null}
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-
-
-
-        <SectionTitle title="En cours" />
-
-        {active.length === 0 && !loading ? (
-
-          <View style={styles.emptyBox}>
-
-            <Text style={styles.emptyText}>Aucune commande active pour ce restaurant.</Text>
-
+        {(loading || loadingResto) && !mine.length ? (
+          <View style={{ padding: 18, gap: 12 }}>
+            <Skeleton height={160} />
+            <Skeleton height={160} />
           </View>
-
+        ) : !mine.length ? (
+          <OpsEmpty
+            title="Comptoir calme"
+            line="Aucune commande pour le moment. L'écran se met à jour tout seul dès qu'une arrive."
+          />
         ) : (
+          <>
+            {active.length ? (
+              <>
+                <SectionHeader kicker="Livreur sur place" title="À préparer" />
+                <View style={{ paddingHorizontal: 18, gap: 12 }}>
+                  {active.map((o, i) => (
+                    <Rise key={o.id} delay={i * 55}>
+                      <KitchenCard
+                        order={o}
+                        busy={busy === o.id}
+                        onReady={() => void markReady(o)}
+                        onCancel={() => {
+                          setReason(RESTO_CANCEL_BEFORE[0]);
+                          setCancelling(o);
+                        }}
+                      />
+                    </Rise>
+                  ))}
+                </View>
+              </>
+            ) : null}
 
-          active.map((o) => (
+            {incoming.length ? (
+              <>
+                <SectionHeader kicker="En attente de livreur" title="Reçues" />
+                <View style={{ paddingHorizontal: 18, gap: 12 }}>
+                  {incoming.map((o) => (
+                    <KitchenCard key={o.id} order={o} waiting />
+                  ))}
+                </View>
+              </>
+            ) : null}
 
-            <RestoOrderCard key={o.id} order={o}>
-
-              {renderActions(o)}
-
-            </RestoOrderCard>
-
-          ))
-
+            {done.length ? (
+              <>
+                <SectionHeader kicker="Parties" title="Récupérées" />
+                <View style={{ paddingHorizontal: 18, gap: 12 }}>
+                  {done.slice(0, 12).map((o) => (
+                    <KitchenCard key={o.id} order={o} compact />
+                  ))}
+                </View>
+              </>
+            ) : null}
+          </>
         )}
-
-
-
-        <SectionTitle title="Annulées" sub="Annulées avant récupération par le livreur." />
-
-        {cancelled.length === 0 ? (
-
-          <View style={styles.emptyBoxMuted}>
-
-            <Text style={styles.emptyText}>Aucune commande annulée.</Text>
-
-          </View>
-
-        ) : (
-
-          cancelled.map((o) => (
-
-            <RestoOrderCard key={o.id} order={o} completed />
-
-          ))
-
-        )}
-
       </ScrollView>
 
-    </RestoDashShell>
-
+      {/* Annuler coûte cher au client : on force à dire pourquoi. */}
+      <Sheet visible={!!cancelling} onClose={() => setCancelling(null)}>
+        <View style={{ paddingHorizontal: 18, paddingBottom: 8 }}>
+          <Display size="h2">Annuler ?</Display>
+          <Body size="small" tone="fog" style={{ marginTop: 8 }}>
+            Le client est prévenu immédiatement et remboursé. Indique la raison.
+          </Body>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 18 }}>
+            {RESTO_CANCEL_BEFORE.map((r) => (
+              <Chip key={r} label={r} active={reason === r} onPress={() => setReason(r)} />
+            ))}
+          </View>
+          <View style={{ marginTop: 22 }}>
+            <EmberButton
+              label={busy ? 'Annulation…' : "Confirmer l'annulation"}
+              loading={!!busy}
+              disabled={!!busy}
+              onPress={() => void confirmCancel()}
+            />
+          </View>
+        </View>
+      </Sheet>
+    </Screen>
   );
-
 }
 
-
-
-const styles = StyleSheet.create({
-
-  sectionHead: { marginTop: 8, marginBottom: 12 },
-
-  sectionTitle: { fontSize: 18, fontFamily: fonts.extrabold, color: ink[800] },
-
-  sectionSub: { marginTop: 4, fontSize: 13, fontFamily: fonts.medium, color: ink[500] },
-
-  emptyBox: {
-
-    paddingVertical: 32,
-
-    paddingHorizontal: 16,
-
-    borderRadius: 16,
-
-    borderWidth: 2,
-
-    borderStyle: 'dashed',
-
-    borderColor: ink[200],
-
-    marginBottom: 20,
-
-  },
-
-  emptyBoxMuted: {
-
-    paddingVertical: 24,
-
-    paddingHorizontal: 16,
-
-    borderRadius: 16,
-
-    backgroundColor: 'rgba(248,250,252,0.8)',
-
-    borderWidth: 1,
-
-    borderColor: ink[100],
-
-    marginBottom: 20,
-
-  },
-
-  emptyText: { textAlign: 'center', fontSize: 13, fontFamily: fonts.medium, color: ink[500] },
-
-  hintAmber: {
-
-    fontSize: 12,
-
-    fontFamily: fonts.bold,
-
-    color: '#b45309',
-
-    textAlign: 'center',
-
-    marginBottom: 4,
-
-  },
-
-  hintSky: {
-
-    fontSize: 12,
-
-    fontFamily: fonts.bold,
-
-    color: '#0284c7',
-
-    textAlign: 'center',
-
-    marginBottom: 8,
-
-  },
-
-  hintViolet: {
-
-    fontSize: 12,
-
-    fontFamily: fonts.bold,
-
-    color: '#7c3aed',
-
-    textAlign: 'center',
-
-    marginBottom: 4,
-
-  },
-
-  hintPink: { fontSize: 12, fontFamily: fonts.bold, color: '#db2777', textAlign: 'center' },
-
-  error: { color: '#ef4444', marginBottom: 12, fontFamily: fonts.medium },
-
-  noRestoBox: {
-
-    marginTop: 32,
-
-    padding: 20,
-
-    borderRadius: 16,
-
-    backgroundColor: '#fff',
-
-    borderWidth: 1,
-
-    borderColor: ink[200],
-
-  },
-
-  noRestoTitle: { fontSize: 18, fontFamily: fonts.bold, color: ink[900], textAlign: 'center' },
-
-  noRestoSub: {
-
-    marginTop: 8,
-
-    fontSize: 14,
-
-    fontFamily: fonts.medium,
-
-    color: ink[500],
-
-    textAlign: 'center',
-
-    lineHeight: 22,
-
-  },
-
-});
-
-
+function KitchenCard({
+  order,
+  busy,
+  waiting,
+  compact,
+  onReady,
+  onCancel,
+}: {
+  order: Order;
+  busy?: boolean;
+  waiting?: boolean;
+  compact?: boolean;
+  onReady?: () => void;
+  onCancel?: () => void;
+}) {
+  return (
+    <OpsCard accented={!waiting && !compact}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Pill tone={compact ? 'dark' : waiting ? 'dark' : 'ember'}>{`#${order.id}`}</Pill>
+        <Body size="caption" tone="dim" style={{ flex: 1 }} numberOfLines={1}>
+          {formatOrderWhen(order.createdAt)}
+        </Body>
+        <Money value={orderFoodTotal(order)} size={14} tone="fog" />
+      </View>
+
+      <Display size="h3" style={{ marginTop: 10 }} numberOfLines={1}>
+        {order.customer?.name || 'Client'}
+      </Display>
+
+      {compact ? null : (
+        <>
+          <OpsField label="Livreur" value={order.courierName} />
+          <OpsField label="Note" value={order.restaurantNotes} />
+          <OpsItems items={order.items} />
+        </>
+      )}
+
+      {waiting ? (
+        <Body size="caption" tone="dim" style={{ marginTop: 12 }}>
+          Un livreur doit d'abord accepter la course. Tu pourras lancer la cuisson ensuite.
+        </Body>
+      ) : null}
+
+      {onReady ? (
+        <>
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
+            <OpsAction
+              label="Appeler le client"
+              glyph="phone"
+              disabled={!order.customer?.phone}
+              onPress={() => void Linking.openURL(`tel:${order.customer?.phone}`)}
+            />
+            {onCancel ? (
+              <OpsAction label="Annuler" glyph="close" tone="ember" onPress={onCancel} />
+            ) : null}
+          </View>
+          <View style={{ marginTop: 10 }}>
+            <EmberButton
+              label={busy ? 'Envoi…' : 'Prête au comptoir'}
+              loading={busy}
+              disabled={busy}
+              onPress={onReady}
+            />
+          </View>
+        </>
+      ) : null}
+    </OpsCard>
+  );
+}

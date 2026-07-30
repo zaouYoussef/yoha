@@ -1,177 +1,172 @@
-import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { RestoDashShell } from '../../src/components/restaurant-dash/RestoDashShell';
-import { RestoOpeningHoursEditor } from '../../src/components/restaurant-dash/RestoOpeningHoursEditor';
-import { YohaButton } from '../../src/components/ui/YohaButton';
-import { useRestaurantMe } from '../../src/hooks/useRestaurantMe';
-import { restaurantsApi } from '../../src/lib/api';
-import {
-  normalizeOpeningHours,
-  type OpeningHoursMap,
-} from '../../src/lib/openingHours';
-import { brand, ink, radius, shadows } from '../../src/theme';
-import { fonts } from '../../src/theme/fonts';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Linking, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Image } from 'expo-image';
+import { router } from 'expo-router';
 
-function ReadOnlyField({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.field}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={styles.value}>{value || '—'}</Text>
-    </View>
-  );
-}
+import { restaurantsApi } from '../../src/lib/api';
+import { useAuth } from '../../src/contexts/AuthContext';
+import { useRestaurantMe } from '../../src/hooks/useRestaurantMe';
+import { useLayoutChrome } from '../../src/lib/layoutChrome';
+import { resolveImageUrl } from '../../src/lib/resolveImageUrl';
+import { accent, line, radius, surface, text as palette } from '../../src/theme';
+import { Screen } from '../../src/components/yoha/Screen';
+import { Body, Display, Label } from '../../src/components/yoha/Type';
+import { Hairline, Pill } from '../../src/components/yoha/Atoms';
+import { LivePulse } from '../../src/components/yoha/Motion';
+import { OutlineButton } from '../../src/components/yoha/EmberButton';
+import { OpsAction, OpsCard, OpsField, OpsHeader } from '../../src/components/yoha/Ops';
 
 export default function RestaurantProfile() {
+  const { logout } = useAuth();
   const { restaurant, loading, error, refresh } = useRestaurantMe();
-  const [refreshing, setRefreshing] = useState(false);
-  const [hours, setHours] = useState<OpeningHoursMap>(() => normalizeOpeningHours(undefined));
+  const { scrollBottomPadding } = useLayoutChrome();
+
+  const [open, setOpen] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState('');
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (restaurant?.openingHours) {
-      setHours(normalizeOpeningHours(restaurant.openingHours));
-    }
+    if (restaurant) setOpen(restaurant.isOpen !== false);
   }, [restaurant]);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await refresh();
-    setRefreshing(false);
-  };
-
-  const saveHours = async () => {
-    setSaving(true);
-    setMsg('');
-    try {
-      await restaurantsApi.updateMe({ opening_hours: normalizeOpeningHours(hours) });
-      await refresh();
-      setMsg('Horaires enregistrés.');
-    } catch (e) {
-      setMsg(e instanceof Error ? e.message : 'Erreur lors de l’enregistrement.');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  if (restaurant === undefined || loading) {
-    return (
-      <RestoDashShell title="Mon établissement">
-        <ActivityIndicator color={brand[500]} style={{ marginTop: 40 }} />
-      </RestoDashShell>
-    );
-  }
-
-  if (restaurant === null) {
-    return (
-      <RestoDashShell title="Mon établissement">
-        <View style={styles.emptyBox}>
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-          <Text style={styles.emptyTitle}>Aucun établissement lié</Text>
-          <Text style={styles.emptySub}>
-            Créez votre restaurant sur le site web YoHa pour le gérer ici.
-          </Text>
-        </View>
-      </RestoDashShell>
-    );
-  }
+  /* Le seul réglage vraiment urgent en cuisine : couper les commandes. */
+  const toggleOpen = useCallback(
+    async (next: boolean) => {
+      setOpen(next);
+      setSaving(true);
+      setSaveError(null);
+      try {
+        await restaurantsApi.updateMe({ is_open: next });
+        await refresh();
+      } catch (e) {
+        setOpen(!next);
+        setSaveError(e instanceof Error ? e.message : 'Changement impossible.');
+      } finally {
+        setSaving(false);
+      }
+    },
+    [refresh],
+  );
 
   return (
-    <RestoDashShell title="Mon établissement" subtitle={restaurant.name}>
+    <Screen>
       <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 16 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand[500]} />
-        }
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
       >
-        <View style={styles.infoBanner}>
-          <Text style={styles.infoText}>
-            Nom, description et photos se modifient sur le site web. Les horaires ci-dessous sont
-            synchronisés avec le dashboard web.
-          </Text>
-        </View>
+        <OpsHeader kicker="Établissement" title="Profil" />
 
-        <View style={[styles.card, shadows.card]}>
-          <ReadOnlyField label="Nom" value={String(restaurant.name || '')} />
-          <ReadOnlyField label="Cuisine" value={String(restaurant.cuisine || '')} />
-          <ReadOnlyField label="Description" value={String(restaurant.description || '')} />
-          <ReadOnlyField label="Promo (badge)" value={String(restaurant.promo || '')} />
-          <ReadOnlyField label="WhatsApp / téléphone" value={String(restaurant.phone || '')} />
-        </View>
+        {error ? (
+          <Body size="small" tone="ember" style={{ paddingHorizontal: 18, marginTop: 16 }}>
+            {error}
+          </Body>
+        ) : null}
 
-        <View style={[styles.card, shadows.card, { marginTop: 14 }]}>
-          <Text style={styles.sectionTitle}>Horaires d&apos;ouverture</Text>
-          <Text style={styles.sectionSub}>
-            Les clients voient « Fermé » en dehors de ces plages (app et site).
-          </Text>
-          <RestoOpeningHoursEditor value={hours} onChange={setHours} disabled={saving} />
-          {msg ? (
-            <Text style={[styles.msg, msg.includes('Erreur') ? styles.msgErr : styles.msgOk]}>
-              {msg}
-            </Text>
-          ) : null}
-          <YohaButton
-            title={saving ? 'Enregistrement…' : 'Enregistrer les horaires'}
-            onPress={saveHours}
-            loading={saving}
-            style={{ marginTop: 14 }}
+        <View style={{ paddingHorizontal: 18, marginTop: 20, gap: 12 }}>
+          <OpsCard>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+              <Image
+                source={{ uri: resolveImageUrl(restaurant?.logo || restaurant?.cover) }}
+                contentFit="cover"
+                style={{
+                  width: 58,
+                  height: 58,
+                  borderRadius: radius.md,
+                  backgroundColor: surface.smoke,
+                }}
+              />
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Display size="h3" numberOfLines={1}>
+                  {restaurant?.name ?? (loading ? 'Chargement…' : 'Restaurant')}
+                </Display>
+                <Body size="caption" tone="dim" numberOfLines={1} style={{ marginTop: 3 }}>
+                  {restaurant?.cuisine ?? '—'}
+                </Body>
+              </View>
+              {open ? <LivePulse /> : null}
+              <Pill tone={open ? 'mint' : 'dark'}>{open ? 'Ouvert' : 'Fermé'}</Pill>
+            </View>
+
+            <OpsField label="Adresse" value={restaurant?.address} />
+            <OpsField label="Tél" value={restaurant?.phone} />
+            <OpsField label="Zone" value={restaurant?.distance} />
+          </OpsCard>
+
+          {/* Interrupteur maître */}
+          <OpsCard accented={!open}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ flex: 1 }}>
+                <Label tone={open ? 'mint' : 'ember'}>Réception des commandes</Label>
+                <Body size="caption" tone="dim" style={{ marginTop: 6 }}>
+                  {open
+                    ? 'Ta carte est visible et commandable en ce moment.'
+                    : 'Le restaurant est masqué du catalogue. Personne ne peut commander.'}
+                </Body>
+              </View>
+              <Switch
+                value={open}
+                disabled={saving || !restaurant}
+                onValueChange={(v) => void toggleOpen(v)}
+                trackColor={{ false: line.soft, true: accent.ember }}
+                thumbColor={palette.bone}
+              />
+            </View>
+            {saveError ? (
+              <Body size="caption" tone="ember" style={{ marginTop: 10 }}>
+                {saveError}
+              </Body>
+            ) : null}
+          </OpsCard>
+
+          <OpsCard>
+            <Label tone="dim">Gestion de la carte</Label>
+            <Body size="small" tone="fog" style={{ marginTop: 8 }}>
+              Les plats, les photos et les prix se modifient depuis le dashboard web — l'écran y est
+              plus large et les images se téléversent mieux.
+            </Body>
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
+              <OpsAction
+                label="Ouvrir le dashboard"
+                glyph="forward"
+                tone="ember"
+                onPress={() => void Linking.openURL('https://yoha-ten.vercel.app/dashboard')}
+              />
+            </View>
+          </OpsCard>
+
+          <View
+            style={{
+              padding: 14,
+              borderRadius: radius.xl,
+              backgroundColor: surface.soot,
+              borderWidth: StyleSheet.hairlineWidth,
+              borderColor: line.hair,
+            }}
+          >
+            <Label tone="dim">Support YoHa</Label>
+            <Hairline style={{ marginVertical: 12 }} />
+            <Body size="small" tone="fog">
+              Un litige, un livreur absent, une commande bloquée : appelle, on décroche pendant le
+              service.
+            </Body>
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
+              <OpsAction
+                label="Appeler le support"
+                glyph="phone"
+                onPress={() => void Linking.openURL('tel:+212600000000')}
+              />
+            </View>
+          </View>
+
+          <OutlineButton
+            label="Se déconnecter"
+            onPress={() => {
+              void logout();
+              router.replace('/landing');
+            }}
           />
         </View>
       </ScrollView>
-    </RestoDashShell>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  infoBanner: {
-    marginBottom: 14,
-    padding: 12,
-    borderRadius: radius.md,
-    backgroundColor: 'rgba(14,165,233,0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(14,165,233,0.2)',
-  },
-  infoText: { fontSize: 12, fontFamily: fonts.medium, color: '#0369a1', lineHeight: 18 },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: radius.lg,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: ink[100],
-  },
-  field: { marginTop: 14 },
-  label: { fontSize: 11, fontFamily: fonts.bold, color: ink[400], textTransform: 'uppercase', letterSpacing: 0.4 },
-  value: { marginTop: 4, fontSize: 16, fontFamily: fonts.medium, color: ink[800], lineHeight: 22 },
-  sectionTitle: { fontSize: 16, fontFamily: fonts.bold, color: ink[900] },
-  sectionSub: { marginTop: 4, marginBottom: 12, fontSize: 12, fontFamily: fonts.medium, color: ink[500], lineHeight: 18 },
-  msg: { marginTop: 12, fontSize: 13, fontFamily: fonts.medium, textAlign: 'center' },
-  msgOk: { color: '#059669' },
-  msgErr: { color: '#ef4444' },
-  emptyBox: {
-    marginTop: 24,
-    padding: 20,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: ink[200],
-    backgroundColor: '#fff',
-  },
-  emptyTitle: { fontSize: 18, fontFamily: fonts.bold, color: ink[900], textAlign: 'center' },
-  emptySub: {
-    marginTop: 8,
-    fontSize: 14,
-    fontFamily: fonts.medium,
-    color: ink[500],
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  error: { color: '#ef4444', marginBottom: 12, fontFamily: fonts.medium, textAlign: 'center' },
-});

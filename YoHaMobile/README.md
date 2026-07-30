@@ -1,92 +1,84 @@
-# YoHa Mobile (Expo)
+# YoHa Mobile — refonte « braise cinématique »
 
-Application **Android & iOS** pour YoHa — client, livreur et restaurant (pas d’admin).
+Refonte complète de l'app Expo : direction artistique, design system et écrans.
+Le dossier reproduit l'arborescence de `YoHaMobile/`, fichier pour fichier.
 
-## Prérequis
+## 1. Installer les polices
 
-- Node.js 20+
-- [Expo Go](https://expo.dev/go) sur votre téléphone (Android ou iOS)
-- Backend Django qui tourne et accessible en **Wi‑Fi local**
-- PC et téléphone sur le **même réseau**
+Trois familles, trois rôles. Aucune n'est déjà dans le projet :
 
-## 1. Backend (obligatoire pour mobile)
-
-```powershell
-cd backend
-# Dans .env, ajoutez votre IP LAN :
-# DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,192.168.x.x
-python manage.py runserver 0.0.0.0:8000
+```bash
+npx expo install @expo-google-fonts/big-shoulders-display @expo-google-fonts/archivo @expo-google-fonts/dm-mono
 ```
 
-> Les apps natives n’utilisent pas le proxy Next.js : l’URL doit pointer **directement** vers Django.
+| Famille | Rôle |
+| --- | --- |
+| Big Shoulders Display | titres condensés, capitales, interlignage serré |
+| Archivo | texte courant, boutons, formulaires |
+| DM Mono | prix, minutes, quantités — les colonnes s'alignent |
 
-## 2. Configurer l’API
+`@expo-google-fonts/inter` et `plus-jakarta-sans` ne sont plus chargées par
+`app/_layout.tsx` ; tu peux les désinstaller une fois la migration finie.
 
-```powershell
-cd YoHaMobile
-copy .env.example .env
+## 2. Copier les fichiers
+
+Depuis la racine de ton clone `yoha` :
+
+```bash
+cp -R chemin/vers/yoha-mobile/app/*       YoHaMobile/app/
+cp -R chemin/vers/yoha-mobile/src/*       YoHaMobile/src/
 ```
 
-Éditez `.env` :
+Ce qui est **écrasé** :
 
-```
-EXPO_PUBLIC_API_URL=http://VOTRE_IP:8000/api/v1
-```
+- `src/theme/index.ts`, `src/theme/fonts.ts` — nouveaux tokens
+- `src/components/ui/YohaTabBar.tsx` — barre d'onglets redessinée
+- `app/_layout.tsx`, `app/(client)/_layout.tsx`
+- tous les écrans `app/(client)/`, `app/(courier)/`, `app/(restaurant)/`,
+  `app/landing.tsx`, `app/auth/login.tsx`, `app/auth/register.tsx`
 
-Trouver votre IP Windows : `ipconfig` → **Adresse IPv4**.
+Ce qui est **ajouté** : `src/components/yoha/` (Type, Motion, Atoms, Cards,
+Sheet, Screen, EmberButton, StickyCartBar, Ops).
 
-## 3. Lancer avec Expo Go
+Rien d'autre n'est touché : `src/lib/api.ts`, les contextes, les hooks et le
+backend Django restent identiques. Les nouveaux écrans consomment la même
+surface d'API qu'avant.
 
-```powershell
-cd YoHaMobile
-npm install
-npx expo start
-```
+## 3. Compatibilité
 
-- Scannez le **QR code** avec Expo Go (Android) ou l’app Appareil photo / Expo Go (iOS).
-- Si le QR ne marche pas, tapez l’URL manuellement dans Expo Go.
+`src/theme/index.ts` réexporte tous les anciens noms (`brand`, `ink`, `accent`,
+`gradients.primary`, `shadows.glow`…). Un écran non encore migré compile donc
+sans modification — il héritera juste des nouvelles couleurs.
 
-## Comptes démo
+## 4. La direction artistique en une page
 
-| Rôle        | E-mail           | Mot de passe        |
-|-------------|------------------|---------------------|
-| Client      | client@yoha.ma   | DemoClient2025!     |
-| Livreur     | livreur@yoha.ma  | DemoCourier2025!    |
-| Restaurant  | resto@yoha.ma    | DemoResto2025!      |
+- **Fond charbon chaud** `#0a0806`, jamais du noir pur. La photo du plat est la
+  seule source de lumière de l'écran.
+- **Un seul accent**, la braise `#ff5a1f`. Un bouton plein par écran, pas deux :
+  l'œil sait toujours où appuyer.
+- **Braises flottantes** (`EmberField`) en fond de héros, `useNativeDriver`
+  partout, aucune dépendance d'animation ajoutée.
+- **Icônes en glyphes unicode** plutôt qu'une librairie : `react-native-svg`
+  n'est pas installé et le trait fin colle au registre éditorial.
 
-(`python manage.py seed_yoha` si la base est vide.)
+## 5. Les leviers de commande
 
-## Fonctionnalités
+Chaque écran a une raison de faire avancer la commande :
 
-### Client
-- Parcourir les restaurants, menu, panier, checkout
-- Suivi de commande en temps réel
-- Historique des commandes
+- accueil : un plat, un prix, un bouton — commander sans rien parcourir
+- « livraison offerte · aucun compte requis » dès le premier écran
+- dé « Crave Roulette » contre la paralysie du choix
+- bandeau de re-commande, preuve sociale en direct, « N personnes regardent »
+- barre panier collante qui rebondit à chaque ajout
+- jauge de livraison offerte à 200 DH (fait monter le panier moyen)
+- checkout sur un seul écran, adresse pré-remplie
+- garantie « livré à HH:MM sinon remboursé »
+- « Re-commander » proposé dès la fin du suivi
 
-### Livreur
-- Courses disponibles (claim)
-- Mes courses (récupération → livraison)
-- Historique + gains estimés (16 MAD/course)
+## 6. Écrans métier
 
-### Restaurant
-- Commandes entrantes (accepter, préparer, annuler)
-- Consultation du menu
-- Statistiques CA
-- Profil (WhatsApp)
-
-## Dépannage
-
-| Problème | Solution |
-|----------|----------|
-| « Impossible de joindre l'API » | Vérifiez IP, `runserver 0.0.0.0:8000`, pare-feu Windows |
-| Invalid HTTP_HOST | Ajoutez votre IP dans `DJANGO_ALLOWED_HOSTS` |
-| Images cassées | Normal si `MEDIA_PUBLIC_BASE_URL` vide — utilisez l’IP Django pour `/media/` |
-
-## Structure
-
-```
-YoHaMobile/
-  app/           # écrans Expo Router
-  src/           # API, thème, contextes, composants
-  .env           # EXPO_PUBLIC_API_URL (local, ne pas committer)
-```
+- **Livreur** — `À prendre` (gain visible avant d'accepter), `Mes courses`
+  (une seule action suivante par carte), `Historique` (gain du jour d'abord).
+- **Restaurant** — `Commandes` (les livreurs au comptoir passent en premier,
+  annulation motivée obligatoire), `Sept jours` (histogramme sans librairie,
+  top plats), `Profil` (interrupteur maître de réception des commandes).

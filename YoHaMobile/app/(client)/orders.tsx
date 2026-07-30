@@ -1,387 +1,231 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Animated, FlatList, Pressable, RefreshControl, StyleSheet, Text, View,
-} from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
-
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+
 import { ordersApi, type Order } from '../../src/lib/api';
-import { brand, gradients, ink, radius, shadows } from '../../src/theme';
-import { DisputeReportModal } from '../../src/components/DisputeReportModal';
+import { resolveImageUrl } from '../../src/lib/resolveImageUrl';
+import { getGuestOrderIds } from '../../src/lib/guestOrders';
+import { useAuth } from '../../src/contexts/AuthContext';
+import { useCart } from '../../src/contexts/CartContext';
+import { useLayoutChrome } from '../../src/lib/layoutChrome';
+import { accent, line, radius, surface, text as palette } from '../../src/theme';
+import { Screen } from '../../src/components/yoha/Screen';
+import { Body, Display, Label, Money } from '../../src/components/yoha/Type';
+import { Glyph, Pill, SectionHeader, Skeleton } from '../../src/components/yoha/Atoms';
+import { Rise } from '../../src/components/yoha/Motion';
+import { EmberButton } from '../../src/components/yoha/EmberButton';
 
+const LIVE = ['pending', 'accepted', 'preparing', 'ready', 'delivering'];
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: string }> = {
-  pending: { label: 'En attente', color: '#d97706', bg: '#fef3c7', icon: '⏳' },
-  accepted: { label: 'Acceptée', color: '#2563eb', bg: '#dbeafe', icon: '👍' },
-  preparing: { label: 'En préparation', color: '#7c3aed', bg: '#ede9fe', icon: '🍳' },
-  delivering: { label: 'En cours de livraison', color: brand[600], bg: '#fff7ed', icon: '🏍️' },
-  delivered: { label: 'Livrée avec succès', color: '#059669', bg: '#d1fae5', icon: '✅' },
-  cancelled: { label: 'Annulée', color: '#dc2626', bg: '#fee2e2', icon: '❌' },
+const STATUS_LABEL: Record<string, string> = {
+  pending: 'Reçue',
+  accepted: 'Acceptée',
+  preparing: 'En cuisine',
+  ready: 'Prête',
+  delivering: 'En route',
+  delivered: 'Livrée',
+  cancelled: 'Annulée',
 };
 
-const TABS = [
-  { key: 'all', label: 'Toutes' },
-  { key: 'active', label: 'En cours 🏍️' },
-  { key: 'delivered', label: 'Livrées ✅' },
-  { key: 'cancelled', label: 'Annulées' },
-] as const;
-
-function formatOrderDate(dateStr?: string) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-}
-
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
-
 export default function ClientOrders() {
-  const insets = useSafeAreaInsets();
+  const { user } = useAuth();
+  const { replaceItems } = useCart();
+  const { scrollBottomPadding } = useLayoutChrome();
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>('all');
-  const [disputeOrderId, setDisputeOrderId] = useState<string | null>(null);
-  const scrollY = useRef(new Animated.Value(0)).current;
 
-
-  const fetchOrders = useCallback(async () => {
+  const load = useCallback(async () => {
     try {
-      const list = await ordersApi.list();
-      setOrders(list);
+      if (user) {
+        setOrders(await ordersApi.list());
+      } else {
+        const ids = await getGuestOrderIds();
+        setOrders(ids.length ? await ordersApi.guestList(ids) : []);
+      }
     } catch {
       setOrders([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
-    setLoading(true);
-    fetchOrders().finally(() => setLoading(false));
-  }, [fetchOrders]);
+    void load();
+  }, [load]);
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await fetchOrders();
-    setRefreshing(false);
-  }, [fetchOrders]);
+  const live = useMemo(() => orders.filter((o) => LIVE.includes(o.status)), [orders]);
+  const past = useMemo(() => orders.filter((o) => !LIVE.includes(o.status)), [orders]);
 
-  const filtered = useMemo(() => {
-    if (activeTab === 'active') return orders.filter((o) => ['pending', 'accepted', 'preparing', 'delivering'].includes(o.status));
-    if (activeTab === 'delivered') return orders.filter((o) => o.status === 'delivered');
-    if (activeTab === 'cancelled') return orders.filter((o) => o.status === 'cancelled');
-    return orders;
-  }, [orders, activeTab]);
+  /** Re-commander recharge le panier tel quel : zéro re-sélection. */
+  const reorder = useCallback(
+    (order: Order) => {
+      const lines = (order.items ?? []).map((i) => ({
+        id: i.id,
+        name: i.name,
+        price: Number(i.price) || 0,
+        qty: i.qty,
+        img: i.img,
+        restaurantId: String(order.restaurantId ?? ''),
+        restaurantName: order.restaurantName ?? 'YoHa',
+      }));
+      if (!lines.length) return;
+      replaceItems(lines);
+      router.push('/(client)/cart');
+    },
+    [replaceItems],
+  );
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Image source={require('../../assets/images/logo.png')} style={{ width: 32, height: 32, borderRadius: 8 }} contentFit="contain" />
-          <Text style={styles.headerTitle}>Mes Commandes YoHa</Text>
-        </View>
-        <Text style={styles.headerSub}>Suivez la livraison de vos plats et produits en direct</Text>
-      </View>
-
-
-      {/* Tabs Row */}
-      <View style={styles.tabRow}>
-        {TABS.map((tab) => {
-          const active = activeTab === tab.key;
-          return (
-            <Pressable
-              key={tab.key}
-              onPress={() => setActiveTab(tab.key)}
-              style={[styles.tab, active && styles.tabActive]}
-            >
-              <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{tab.label}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
-
-      <AnimatedFlatList
-        data={filtered}
-        keyExtractor={(o: any) => String(o.id || o.public_id || Math.random())}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 100, paddingHorizontal: 16 }}
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand[500]} />}
-        renderItem={({ item: order }: { item: any }) => {
-          const cfg = STATUS_CONFIG[order.status] || { label: order.status, color: ink[500], bg: ink[100], icon: '📋' };
-          const isDelivered = order.status === 'delivered';
-
-          return (
-            <Pressable
-              onPress={() => router.push(`/(client)/order/${order.public_id || order.id}`)}
-              style={({ pressed }) => [
-                styles.card,
-                { transform: [{ scale: pressed ? 0.98 : 1 }] },
-              ]}
-            >
-              <View style={styles.cardTop}>
-                <View style={styles.cardRestoRow}>
-                  <Text style={styles.cardRestaurant} numberOfLines={1}>
-                    📍 {order.restaurantName || 'Restaurant YoHa'}
-                  </Text>
-                  <Text style={styles.cardDate}>{formatOrderDate(order.createdAt)}</Text>
-                </View>
-
-                <View style={[styles.statusBadge, { backgroundColor: cfg.bg }]}>
-                  <Text style={[styles.statusText, { color: cfg.color }]}>
-                    {cfg.icon} {cfg.label}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={styles.divider} />
-
-              {/* Items Summary */}
-              {order.items && order.items.length > 0 && (
-                <View style={styles.itemsWrap}>
-                  {order.items.slice(0, 3).map((item: any, idx: number) => (
-                    <Text key={idx} style={styles.itemRowText} numberOfLines={1}>
-                      • {item.qty || 1}x {item.name}
-                    </Text>
-                  ))}
-                  {order.items.length > 3 ? (
-                    <Text style={styles.moreItemsText}>+ {order.items.length - 3} autres articles</Text>
-                  ) : null}
-                </View>
-              )}
-
-              {/* Card Footer */}
-              <View style={styles.cardFooter}>
-                <Text style={styles.cardTotalLabel}>
-                  Total : <Text style={styles.cardTotalValue}>{Number(order.totalDh || 0).toFixed(2)} DH</Text>
-                </Text>
-
-                {isDelivered && (
-                  <View style={{ flexDirection: 'row', gap: 8 }}>
-                    <Pressable
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        setDisputeOrderId(String(order.public_id || order.id));
-                      }}
-                      style={[styles.reorderBtn, { backgroundColor: '#fee2e2' }]}
-                    >
-                      <Text style={[styles.reorderBtnText, { color: '#dc2626' }]}>🚨 Litige</Text>
-                    </Pressable>
-                    <View style={styles.reorderBtn}>
-                      <Text style={styles.reorderBtnText}>Recommander 🔄</Text>
-                    </View>
-                  </View>
-                )}
-              </View>
-            </Pressable>
-          );
-        }}
-        ListEmptyComponent={
-          !loading ? (
-            <View style={styles.empty}>
-              <Text style={styles.emptyEmoji}>📋</Text>
-              <Text style={styles.emptyTitle}>Aucune commande trouvée</Text>
-              <Text style={styles.emptyDesc}>
-                {activeTab === 'all' ? 'Vous n’avez pas encore passé de commande.' : 'Aucune commande dans cette section.'}
-              </Text>
-              <Pressable onPress={() => router.replace('/(client)')} style={styles.orderBtnWrap}>
-                <LinearGradient colors={gradients.hero} style={styles.orderBtn}>
-                  <Text style={styles.orderBtnText}>Commander maintenant ➔</Text>
-                </LinearGradient>
-              </Pressable>
-            </View>
-          ) : null
+    <Screen>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            tintColor={accent.ember}
+            onRefresh={() => {
+              setRefreshing(true);
+              void load();
+            }}
+          />
         }
-      />
+      >
+        <View style={{ paddingHorizontal: 18, paddingTop: 8 }}>
+          <Label tone="ember">Ton historique</Label>
+          <Display size="h1" style={{ marginTop: 5 }}>
+            Commandes
+          </Display>
+        </View>
 
-      {disputeOrderId && (
-        <DisputeReportModal
-          visible={!!disputeOrderId}
-          orderId={disputeOrderId}
-          onClose={() => setDisputeOrderId(null)}
-        />
-      )}
-    </View>
+        {loading ? (
+          <View style={{ padding: 18, gap: 12 }}>
+            <Skeleton height={100} />
+            <Skeleton height={100} />
+          </View>
+        ) : !orders.length ? (
+          <View style={{ alignItems: 'center', paddingTop: 90, paddingHorizontal: 32, gap: 12 }}>
+            <Display size="h1" tone="fog">
+              Rien encore
+            </Display>
+            <Body size="small" tone="dim" style={{ textAlign: 'center' }}>
+              Ta première commande arrive en 20 minutes, et la livraison est offerte.
+            </Body>
+            <View style={{ width: '100%', maxWidth: 280, marginTop: 12 }}>
+              <EmberButton label="Découvrir" onPress={() => router.push('/(client)')} />
+            </View>
+          </View>
+        ) : (
+          <>
+            {live.length ? (
+              <>
+                <SectionHeader kicker="En direct" title="En cours" />
+                <View style={{ paddingHorizontal: 18, gap: 10 }}>
+                  {live.map((o, i) => (
+                    <Rise key={o.id} delay={i * 50}>
+                      <OrderRow order={o} onPress={() => router.push(`/(client)/order/${o.id}`)} live />
+                    </Rise>
+                  ))}
+                </View>
+              </>
+            ) : null}
+
+            {past.length ? (
+              <>
+                <SectionHeader kicker="Déjà goûté" title="Passées" />
+                <View style={{ paddingHorizontal: 18, gap: 10 }}>
+                  {past.map((o, i) => (
+                    <Rise key={o.id} delay={i * 40}>
+                      <OrderRow
+                        order={o}
+                        onPress={() => router.push(`/(client)/order/${o.id}`)}
+                        onReorder={() => reorder(o)}
+                      />
+                    </Rise>
+                  ))}
+                </View>
+              </>
+            ) : null}
+          </>
+        )}
+      </ScrollView>
+    </Screen>
   );
 }
 
+function OrderRow({
+  order,
+  onPress,
+  onReorder,
+  live,
+}: {
+  order: Order;
+  onPress: () => void;
+  onReorder?: () => void;
+  live?: boolean;
+}) {
+  const first = order.items?.[0];
+  const extra = Math.max(0, (order.items?.length ?? 0) - 1);
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  header: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 10,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: '#0f172a',
-  },
-  headerSub: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: ink[400],
-    marginTop: 2,
-  },
-  tabRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 8,
-  },
-  tab: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 18,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  tabActive: {
-    backgroundColor: brand[500],
-    borderColor: brand[500],
-  },
-  tabLabel: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: ink[600],
-  },
-  tabLabelActive: {
-    color: '#ffffff',
-  },
-  card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 22,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  cardTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  cardRestoRow: {
-    flex: 1,
-    marginRight: 10,
-  },
-  cardRestaurant: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: '#0f172a',
-    marginBottom: 2,
-  },
-  cardDate: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: ink[400],
-  },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
-  },
-  statusText: {
-    fontSize: 11,
-    fontWeight: '900',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#f1f5f9',
-    marginVertical: 10,
-  },
-  itemsWrap: {
-    marginBottom: 10,
-  },
-  itemRowText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: ink[700],
-    marginBottom: 2,
-  },
-  moreItemsText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: brand[500],
-    marginTop: 2,
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
-  },
-  cardTotalLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: ink[500],
-  },
-  cardTotalValue: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: brand[600],
-  },
-  reorderBtn: {
-    backgroundColor: '#fff7ed',
-    borderWidth: 1,
-    borderColor: '#ffedd5',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 14,
-  },
-  reorderBtnText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: brand[600],
-  },
-  empty: {
-    alignItems: 'center',
-    paddingTop: 60,
-    paddingHorizontal: 40,
-  },
-  emptyEmoji: {
-    fontSize: 48,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: '#0f172a',
-    marginBottom: 8,
-  },
-  emptyDesc: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: ink[500],
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  orderBtnWrap: {
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
-  orderBtn: {
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-  },
-  orderBtnText: {
-    fontSize: 15,
-    fontWeight: '900',
-    color: '#ffffff',
-  },
-});
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        padding: 12,
+        borderRadius: radius.lg,
+        backgroundColor: surface.soot,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: pressed ? accent.ember : live ? line.ember : line.hair,
+      })}
+    >
+      <Image
+        source={{ uri: resolveImageUrl(first?.img) }}
+        contentFit="cover"
+        style={{ width: 54, height: 54, borderRadius: radius.md, backgroundColor: surface.smoke }}
+      />
+
+      <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
+        <Body size="small" weight="semibold" numberOfLines={1}>
+          {order.restaurantName ?? 'YoHa'}
+        </Body>
+        <Body size="caption" tone="dim" numberOfLines={1}>
+          {first?.name ?? '—'}
+          {extra ? ` +${extra}` : ''}
+        </Body>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}>
+          <Pill tone={live ? 'mint' : 'dark'}>{STATUS_LABEL[order.status] ?? order.status}</Pill>
+          <Money value={Number(order.totalDh ?? 0)} size={12} />
+        </View>
+      </View>
+
+      {onReorder ? (
+        <Body
+          size="caption"
+          weight="semibold"
+          tone="ember"
+          onPress={onReorder}
+          suppressHighlighting
+          style={{
+            paddingHorizontal: 12,
+            paddingVertical: 7,
+            borderRadius: radius.full,
+            borderWidth: StyleSheet.hairlineWidth * 2,
+            borderColor: line.ember,
+          }}
+        >
+          Reprendre
+        </Body>
+      ) : (
+        <Glyph name="chevron" size={18} color={palette.dim} />
+      )}
+    </Pressable>
+  );
+}

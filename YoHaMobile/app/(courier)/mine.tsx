@@ -1,171 +1,220 @@
-import React, { useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import {
-  CancelOrderButton,
-  CourierOrderCard,
-} from '../../src/components/courier/CourierOrderCard';
-import { CourierDashShell } from '../../src/components/courier/CourierDashShell';
-import { YohaButton } from '../../src/components/ui/YohaButton';
+import React, { useCallback, useMemo, useState } from 'react';
+import { Linking, RefreshControl, ScrollView, View } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
+
+import { ordersApi, type Order } from '../../src/lib/api';
 import { useCourierMe } from '../../src/hooks/useCourierMe';
 import { useOrders } from '../../src/hooks/useOrders';
-import { ordersApi } from '../../src/lib/api';
-import { isActiveOrderStatus } from '../../src/lib/constants';
-import { brand, ink } from '../../src/theme';
-import { fonts } from '../../src/theme/fonts';
+import { useLayoutChrome } from '../../src/lib/layoutChrome';
+import { buildOrderCopyText, whatsAppUrl } from '../../src/lib/courierOrder';
+import { orderFoodTotal, sortOrdersNewest } from '../../src/lib/restaurantOrder';
+import { accent } from '../../src/theme';
+import { Screen } from '../../src/components/yoha/Screen';
+import { Body, Display, Money } from '../../src/components/yoha/Type';
+import { Pill, Skeleton, StepBar } from '../../src/components/yoha/Atoms';
+import { Rise } from '../../src/components/yoha/Motion';
+import { EmberButton } from '../../src/components/yoha/EmberButton';
+import {
+  OpsAction,
+  OpsCard,
+  OpsEmpty,
+  OpsField,
+  OpsHeader,
+  OpsItems,
+} from '../../src/components/yoha/Ops';
+
+/**
+ * Le livreur n'a qu'une question en tête : « je fais quoi maintenant ? ».
+ * Chaque carte n'expose donc qu'une seule action suivante, en gros.
+ */
+const NEXT: Record<string, { label: string; status: string; hint: string; step: number }> = {
+  placed: {
+    label: 'Je suis au restaurant',
+    status: 'pickup_confirmed',
+    hint: 'Direction la cuisine.',
+    step: 0,
+  },
+  pickup_confirmed: {
+    label: 'Commande récupérée',
+    status: 'delivering',
+    hint: 'Attends que la cuisine te tende le sac.',
+    step: 1,
+  },
+  preparing: {
+    label: 'Commande récupérée',
+    status: 'delivering',
+    hint: 'Le sac est prêt au comptoir.',
+    step: 1,
+  },
+  delivering: {
+    label: 'Livré au client',
+    status: 'delivered',
+    hint: 'Encaisse puis valide.',
+    step: 2,
+  },
+};
 
 export default function CourierMine() {
   const { courier } = useCourierMe();
-  const { orders, loading, error, refresh } = useOrders(8000);
-  const [busyId, setBusyId] = useState<string | null>(null);
+  const { orders, loading, refresh } = useOrders(8000);
+  const { scrollBottomPadding } = useLayoutChrome();
+  const [busy, setBusy] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [sendingId, setSendingId] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
 
-  const mine = useMemo(
-    () =>
+  const mine = useMemo(() => {
+    const id = String(courier?.id ?? '');
+    if (!id) return [];
+    return sortOrdersNewest(
       orders.filter(
         (o) =>
-          courier?.id &&
-          String(o.courierId) === String(courier.id) &&
-          isActiveOrderStatus(o.status),
+          String(o.courierId ?? '') === id && o.status !== 'delivered' && o.status !== 'cancelled',
       ),
-    [orders, courier?.id],
+    );
+  }, [orders, courier]);
+
+  const advance = useCallback(
+    async (order: Order) => {
+      const next = NEXT[order.status];
+      if (!next) return;
+      setBusy(order.id);
+      try {
+        await ordersApi.updateStatus(order.id, next.status);
+        await refresh();
+      } finally {
+        setBusy(null);
+      }
+    },
+    [refresh],
   );
 
-  const updateStatus = async (orderId: string, status: string) => {
-    setBusyId(orderId);
-    try {
-      await ordersApi.updateStatus(orderId, status);
-      await refresh();
-    } finally {
-      setBusyId(null);
-    }
-  };
-
-  const cancel = async (orderId: string, reason: string) => {
-    await ordersApi.cancelOrder(orderId, reason);
-    await refresh();
-  };
-
-  const handleSendToRestaurant = async (orderId: string) => {
-    setSendingId(orderId);
-    try {
-      await ordersApi.sendToRestaurant(orderId);
-      await refresh();
-    } finally {
-      setSendingId(null);
-    }
-  };
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await refresh();
-    setRefreshing(false);
-  };
+  const copy = useCallback(async (order: Order) => {
+    await Clipboard.setStringAsync(buildOrderCopyText(order));
+    setCopied(order.id);
+    setTimeout(() => setCopied(null), 1600);
+  }, []);
 
   return (
-    <CourierDashShell
-      title="Mes courses en cours"
-      subtitle={courier ? `Connecté en tant que ${courier.name}` : undefined}
-    >
+    <Screen>
       <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 16 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand[500]} />
-        }
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            tintColor={accent.ember}
+            onRefresh={async () => {
+              setRefreshing(true);
+              await refresh();
+              setRefreshing(false);
+            }}
+          />
+        }
       >
-        {loading && mine.length === 0 ? (
-          <ActivityIndicator color={brand[500]} style={{ marginTop: 32 }} />
-        ) : null}
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        <OpsHeader
+          kicker="En main"
+          title="Mes courses"
+          live={mine.length ? `${mine.length} active` : undefined}
+        />
 
-        {mine.length === 0 && !loading ? (
-          <View style={styles.empty}>
-            <Text style={styles.emptyEmoji}>📍</Text>
-            <Text style={styles.emptyTitle}>Aucune course en cours</Text>
-            <Text style={styles.emptySub}>Allez prendre une commande dans « Disponibles ».</Text>
+        {loading && !orders.length ? (
+          <View style={{ padding: 18, gap: 12 }}>
+            <Skeleton height={180} />
           </View>
-        ) : null}
-
-        {mine.map((o) => (
-          <CourierOrderCard key={o.id} order={o} showMap>
-            {o.status === 'placed' && o.scheduledDeliveryAt ? (
-              <>
-                <View style={[styles.statusBanner, { backgroundColor: 'rgba(245,158,11,0.12)' }]}>
-                  <Text style={styles.statusBannerText}>🕐 Commande programmée — envoyer au restaurant</Text>
-                </View>
-                <YohaButton
-                  title={sendingId === o.id ? 'Envoi…' : '📤 Envoyer au restaurant'}
-                  onPress={() => handleSendToRestaurant(o.id)}
-                  loading={sendingId === o.id}
+        ) : !mine.length ? (
+          <OpsEmpty
+            title="Guidon libre"
+            line="Aucune course en main. Passe sur « À prendre » : les cuisines lancent en continu."
+          />
+        ) : (
+          <View style={{ paddingHorizontal: 18, gap: 12, marginTop: 20 }}>
+            {mine.map((o, i) => (
+              <Rise key={o.id} delay={i * 55}>
+                <ActiveMission
+                  order={o}
+                  busy={busy === o.id}
+                  copied={copied === o.id}
+                  onAdvance={() => void advance(o)}
+                  onCopy={() => void copy(o)}
                 />
-                <CancelOrderButton phase="before_pickup" onCancel={(r) => cancel(o.id, r)} />
-              </>
-            ) : null}
-            {(o.status === 'pickup_confirmed' || o.status === 'preparing') && (
-              <>
-                <View
-                  style={[
-                    styles.statusBanner,
-                    o.status === 'preparing' ? styles.bannerViolet : styles.bannerSky,
-                  ]}
-                >
-                  <Text style={styles.statusBannerText}>
-                    {o.status === 'preparing'
-                      ? '📦 La commande vous attend au restaurant'
-                      : '🛵 Direction le restaurant…'}
-                  </Text>
-                </View>
-                <YohaButton
-                  title={busyId === o.id ? 'Mise à jour…' : "✅ J'ai récupéré la commande"}
-                  onPress={() => updateStatus(o.id, 'delivering')}
-                  loading={busyId === o.id}
-                />
-                <CancelOrderButton phase="before_pickup" onCancel={(r) => cancel(o.id, r)} />
-              </>
-            )}
-            {o.status === 'delivering' && (
-              <>
-                <View style={[styles.statusBanner, styles.bannerPink]}>
-                  <Text style={styles.statusBannerText}>📍 Livraison en cours vers le client</Text>
-                </View>
-                <YohaButton
-                  title={busyId === o.id ? 'Mise à jour…' : '✅ Marquer comme livré'}
-                  onPress={() => updateStatus(o.id, 'delivered')}
-                  loading={busyId === o.id}
-                />
-                <CancelOrderButton phase="after_pickup" onCancel={(r) => cancel(o.id, r)} />
-              </>
-            )}
-          </CourierOrderCard>
-        ))}
+              </Rise>
+            ))}
+          </View>
+        )}
       </ScrollView>
-    </CourierDashShell>
+    </Screen>
   );
 }
 
-const styles = StyleSheet.create({
-  error: { color: '#ef4444', marginBottom: 12, fontFamily: fonts.medium },
-  empty: { alignItems: 'center', paddingVertical: 48 },
-  emptyEmoji: { fontSize: 56 },
-  emptyTitle: { marginTop: 12, fontSize: 20, fontFamily: fonts.extrabold, color: ink[900] },
-  emptySub: { marginTop: 6, fontSize: 14, fontFamily: fonts.medium, color: ink[500], textAlign: 'center' },
-  statusBanner: {
-    marginBottom: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-  },
-  bannerSky: { backgroundColor: 'rgba(14,165,233,0.12)' },
-  bannerViolet: { backgroundColor: 'rgba(139,92,246,0.12)' },
-  bannerPink: { backgroundColor: 'rgba(236,72,153,0.12)' },
-  statusBannerText: { fontSize: 13, fontFamily: fonts.semibold, color: ink[700] },
-});
+function ActiveMission({
+  order,
+  busy,
+  copied,
+  onAdvance,
+  onCopy,
+}: {
+  order: Order;
+  busy: boolean;
+  copied: boolean;
+  onAdvance: () => void;
+  onCopy: () => void;
+}) {
+  const next = NEXT[order.status];
+  const wa = whatsAppUrl(order.customer?.phone, buildOrderCopyText(order));
+
+  return (
+    <OpsCard accented>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Pill tone="mint">{`#${order.id}`}</Pill>
+        <View style={{ flex: 1 }} />
+        <Money value={orderFoodTotal(order)} size={14} tone="fog" />
+      </View>
+
+      <Display size="h3" style={{ marginTop: 10 }} numberOfLines={1}>
+        {order.restaurantName ?? 'Restaurant'}
+      </Display>
+
+      <View style={{ marginTop: 12, width: 120 }}>
+        <StepBar total={3} current={next?.step ?? 2} />
+      </View>
+
+      <Body size="caption" tone="dim" style={{ marginTop: 8 }}>
+        {next?.hint ?? 'Course terminée.'}
+      </Body>
+
+      <OpsField label="Client" value={order.customer?.name} />
+      <OpsField label="Adresse" value={order.customer?.address} />
+      <OpsField label="Tél" value={order.customer?.phone} />
+
+      <OpsItems items={order.items} />
+
+      <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
+        <OpsAction
+          label="Appeler"
+          glyph="phone"
+          disabled={!order.customer?.phone}
+          onPress={() => void Linking.openURL(`tel:${order.customer?.phone}`)}
+        />
+        <OpsAction
+          label="WhatsApp"
+          glyph="chat"
+          tone="mint"
+          disabled={!wa}
+          onPress={() => wa && void Linking.openURL(wa)}
+        />
+        <OpsAction label={copied ? 'Copié' : 'Copier'} glyph="copy" onPress={onCopy} />
+      </View>
+
+      {next ? (
+        <View style={{ marginTop: 10 }}>
+          <EmberButton
+            label={busy ? 'Envoi…' : next.label}
+            loading={busy}
+            disabled={busy}
+            onPress={onAdvance}
+          />
+        </View>
+      ) : null}
+    </OpsCard>
+  );
+}
