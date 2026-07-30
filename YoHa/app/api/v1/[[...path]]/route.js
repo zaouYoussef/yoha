@@ -29,6 +29,8 @@ async function proxy(request, context) {
     const contentType = request.headers.get('content-type');
     if (auth) headers.set('Authorization', auth);
     if (contentType) headers.set('Content-Type', contentType);
+    headers.set('X-Forwarded-Proto', 'https');
+    headers.set('X-Forwarded-Host', request.headers.get('host') || 'yoha.ma');
 
     const init = {
       method: request.method,
