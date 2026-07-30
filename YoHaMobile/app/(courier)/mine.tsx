@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Linking, RefreshControl, ScrollView, View } from 'react-native';
-import * as Clipboard from 'expo-clipboard';
-
+import { copyText } from '../../src/lib/copyText';
 import { ordersApi, type Order } from '../../src/lib/api';
+
 import { useCourierMe } from '../../src/hooks/useCourierMe';
 import { useOrders } from '../../src/hooks/useOrders';
 import { useLayoutChrome } from '../../src/lib/layoutChrome';
@@ -89,10 +89,11 @@ export default function CourierMine() {
   );
 
   const copy = useCallback(async (order: Order) => {
-    await Clipboard.setStringAsync(buildOrderCopyText(order));
+    await copyText(buildOrderCopyText(order));
     setCopied(order.id);
     setTimeout(() => setCopied(null), 1600);
   }, []);
+
 
   return (
     <Screen>
