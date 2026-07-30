@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, Fragment } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { I } from '../icons/Icons.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { formatMad } from '../data/index.js';
@@ -48,21 +49,33 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
             <p className="mt-2.5 text-sm text-ink-500 dark:text-ink-400 max-w-xs leading-relaxed">
               Ajoutez quelques délices et ils apparaîtront ici.
             </p>
-            <button
-              type="button"
+            <Button
+              variant="primary"
+              size="lg"
               onClick={onClose}
-              className="cursor-grow mt-8 w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-brand-500 to-pink-500 text-white font-extrabold text-sm shadow-lg shadow-brand-500/30 hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2"
+              className="mt-8 w-full justify-center"
             >
               <span>Découvrir les établissements</span>
               <span>🚀</span>
-            </button>
+            </Button>
           </div>
         ) : (
           <Fragment>
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
-              {items.map(item => (
-                <CartLine key={item.id} item={item} setQty={setQty} remove={remove} />
-              ))}
+              <AnimatePresence initial={false}>
+                {items.map(item => (
+                  <motion.div
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: 40, height: 0, marginBottom: 0 }}
+                    transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <CartLine item={item} setQty={setQty} remove={remove} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
 
               {(() => {
                 const isCustom = items.some(i => i.isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes(i.restaurantCuisine));
@@ -168,7 +181,7 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
 export function CartLine({ item, setQty, remove }) {
   const { setCart } = useCart();
   return (
-    <div className="flex gap-3 items-start bg-ink-50 dark:bg-ink-900 rounded-2xl p-3 animate-fade-up">
+    <div className="flex gap-3 items-start bg-ink-50 dark:bg-ink-900 rounded-2xl p-3">
       <MenuItemImage src={item.img} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0 mt-1"/>
       <div className="flex-1 min-w-0">
         {item.isCustom ? (
@@ -216,9 +229,9 @@ export function CartLine({ item, setQty, remove }) {
       </div>
       <div className="flex flex-col items-end gap-2 shrink-0">
         <div className="flex items-center gap-1 bg-white dark:bg-ink-800 rounded-full p-0.5 border border-ink-200 dark:border-ink-700">
-          <button onClick={() => setQty(item.id, item.qty - 1)} className="cursor-grow w-10 h-10 rounded-full hover:bg-ink-100 dark:hover:bg-ink-700 grid place-items-center" aria-label="Diminuer"><I.Minus size={14}/></button>
+          <button onClick={() => setQty(item.id, item.qty - 1)} className="cursor-grow w-10 h-10 rounded-full hover:bg-ink-100 dark:hover:bg-ink-700 grid place-items-center transition-colors" aria-label="Diminuer"><I.Minus size={14}/></button>
           <span className="min-w-[24px] text-center text-sm font-bold">{item.qty}</span>
-          <button onClick={() => setQty(item.id, item.qty + 1)} className="cursor-grow w-10 h-10 rounded-full hover:bg-ink-100 dark:hover:bg-ink-700 grid place-items-center" aria-label="Augmenter"><I.Plus size={14}/></button>
+          <button onClick={() => setQty(item.id, item.qty + 1)} className="cursor-grow w-10 h-10 rounded-full bg-brand-500 text-white hover:bg-brand-600 grid place-items-center transition-colors" aria-label="Augmenter"><I.Plus size={14}/></button>
         </div>
         <button onClick={() => remove(item.id)} className="cursor-grow w-10 h-10 rounded-lg flex items-center justify-center text-ink-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition" aria-label="Supprimer">
           <I.Trash size={16}/>
@@ -240,10 +253,13 @@ export function FloatingCart({ count, total, items = [], onClick, hidden }) {
   const displayTotal = total + deliveryFee;
   
   return (
-    <button
+    <motion.button
       type="button"
       onClick={onClick}
-      className="cursor-pointer fixed bottom-20 md:bottom-6 right-3 sm:right-6 z-50 group flex items-center gap-2.5 sm:gap-3 px-3.5 sm:px-5 py-3 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white shadow-glow-lg active:scale-95 transition-all duration-200 pointer-events-auto border border-white/20 touch-manipulation"
+      initial={{ y: 60, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+      className="btn-sweep cursor-pointer fixed bottom-20 md:bottom-6 right-3 sm:right-6 z-50 group flex items-center gap-2.5 sm:gap-3 px-3.5 sm:px-5 py-3 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white shadow-glow-lg active:scale-95 transition-all duration-200 pointer-events-auto border border-white/20 touch-manipulation"
     >
       <span className="relative">
         <I.Bag size={20}/>
@@ -257,6 +273,6 @@ export function FloatingCart({ count, total, items = [], onClick, hidden }) {
         }
       </span>
       <I.Right size={16}/>
-    </button>
+    </motion.button>
   );
 }

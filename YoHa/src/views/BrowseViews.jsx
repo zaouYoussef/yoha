@@ -969,70 +969,58 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      className="cursor-pointer shrink-0 w-[240px] sm:w-[270px] lg:w-[290px] snap-start group"
+      className="cursor-grow card-glow-hover group relative shrink-0 w-[240px] sm:w-[270px] lg:w-[290px] h-[210px] sm:h-[230px] snap-start overflow-hidden rounded-2xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-sm hover:shadow-cardhover hover:-translate-y-1 transition-all duration-500"
     >
-      <div className="relative rounded-2xl overflow-hidden transition-all duration-300 border border-ink-100 dark:border-ink-800/80 bg-white dark:bg-ink-900 shadow-sm hover:shadow-md">
-        {/* Cover Image Container */}
-        <div className="relative h-36 sm:h-40 overflow-hidden bg-ink-100 dark:bg-ink-800">
-          <img
-            src={restaurantCover(restaurant.cover)}
-            alt={restaurant.name}
-            loading="lazy"
-            className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${
-              !open ? 'filter blur-[2px] grayscale opacity-50' : ''
-            }`}
-          />
+      <img
+        src={restaurantCover(restaurant.cover)}
+        alt={restaurant.name}
+        loading="lazy"
+        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08] ${
+          !open ? 'filter blur-[2px] grayscale opacity-50' : ''
+        }`}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/5" />
 
-          {/* Time Badge Pill Bottom-Right (Deliveroo style) */}
-          <div className="absolute bottom-2.5 right-2.5 z-10">
-            <span className="px-2.5 py-1 rounded-full bg-white text-ink-950 font-extrabold text-xs shadow-md border border-black/5">
-              {restaurant.eta || '30-45 min'}
-            </span>
-          </div>
+      {/* Time Badge */}
+      <div className="absolute top-2.5 right-2.5 z-10">
+        <span className="px-2.5 py-1 rounded-full bg-white text-ink-950 font-extrabold text-xs shadow-md">
+          {restaurant.eta || '30-45 min'}
+        </span>
+      </div>
 
-          {/* Closed overlay */}
-          {!open && (
-            <div className="absolute inset-0 bg-ink-950/60 backdrop-blur-[2px] flex items-center justify-center z-10">
-              <span className="px-3.5 py-1.5 rounded-full bg-black/80 text-white text-xs font-black border border-white/20 shadow-xl uppercase tracking-wider">
-                🔒 Fermé
-              </span>
-            </div>
-          )}
+      {/* Closed overlay */}
+      {!open && (
+        <div className="absolute inset-0 bg-ink-950/60 backdrop-blur-[2px] flex items-center justify-center z-10">
+          <span className="px-3.5 py-1.5 rounded-full bg-black/80 text-white text-xs font-black border border-white/20 shadow-xl uppercase tracking-wider">
+            🔒 Fermé
+          </span>
+        </div>
+      )}
+
+      {/* Contenu ancré en bas, sur le voile */}
+      <div className="absolute inset-x-0 bottom-0 p-3.5 flex flex-col gap-1 text-left text-white z-10">
+        <h3 className="font-extrabold text-base truncate transition-colors group-hover:text-brand-400">
+          {restaurant.name}
+        </h3>
+
+        <div className="flex items-center gap-1.5 text-xs text-white/75 font-medium truncate">
+          <span className="text-teal-400 font-extrabold">★</span>
+          <span className="font-bold text-white">{(restaurant.rating ?? 4.4).toString().replace('.', ',')}</span>
+          <span>·</span>
+          <span>{restaurant.distance || '1.5 km'}</span>
+          <span>·</span>
+          <span className="text-teal-400 font-bold">⚡ Rapide</span>
         </div>
 
-        {/* Card Content Body */}
-        <div className="p-3.5 flex flex-col gap-1 text-left">
-          <h3 className="font-extrabold text-base text-ink-900 dark:text-white truncate group-hover:text-brand-500 transition-colors">
-            {restaurant.name}
-          </h3>
-
-          <div className="flex items-center gap-1.5 text-xs text-ink-500 dark:text-ink-400 font-medium truncate">
-            <span className="text-teal-600 dark:text-teal-400 font-extrabold">★</span>
-            <span className="font-bold text-ink-900 dark:text-white">{(restaurant.rating ?? 4.4).toString().replace('.', ',')}</span>
-            <span>·</span>
-            <span>{restaurant.distance || '1.5 km'}</span>
-            <span>·</span>
-            <span className="text-teal-600 dark:text-teal-400 font-bold">⚡ Rapide</span>
-          </div>
-
-          {/* Delivery Fee Line */}
-          <div className="flex items-center gap-1.5 text-xs mt-0.5 font-bold">
-            {isCustom || ['pharmacy','dessert','supermarket','shop','parapharmacy'].includes(restaurant.cuisine) ? (
-              <span className="text-amber-600 dark:text-amber-400 text-[11px]">20 MAD de livraison</span>
-            ) : (
-              <>
-                <span className="line-through text-rose-600 font-bold">% 19,99 MAD</span>
-                <span className="text-rose-600 dark:text-rose-400 font-bold">0,00 MAD de livraison</span>
-              </>
-            )}
-          </div>
-
-          {/* Tag Pills */}
-          <div className="mt-1 flex items-center gap-1.5 flex-wrap">
-            <span className="px-2 py-0.5 rounded-lg bg-ink-100 dark:bg-ink-800 text-ink-500 dark:text-ink-400 text-[10px] font-bold">
-              Sponsorisé
-            </span>
-          </div>
+        <div className="flex items-center gap-1.5 text-xs mt-0.5 font-bold">
+          {isCustom || ['pharmacy','dessert','supermarket','shop','parapharmacy'].includes(restaurant.cuisine) ? (
+            <span className="text-amber-400 text-[11px]">20 MAD de livraison</span>
+          ) : (
+            <>
+              <span className="line-through text-white/40 font-normal">19,99 MAD</span>
+              <span className="text-emerald-400 font-bold">0,00 MAD livraison</span>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -1041,16 +1029,11 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
 
 function RestaurantCardSkeletonHorizontal() {
   return (
-    <div className="shrink-0 w-[72vw] sm:w-[260px] lg:w-[300px] bg-white dark:bg-ink-900 rounded-[1.25rem] overflow-hidden border border-ink-100 dark:border-ink-800 animate-pulse">
-      <div className="h-40 sm:h-44 bg-ink-200 dark:bg-ink-800 skeleton" />
-      <div className="p-3.5 space-y-2.5">
-        <div className="h-4 w-3/4 rounded-lg bg-ink-200 dark:bg-ink-800 skeleton" />
-        <div className="h-3 w-1/2 rounded bg-ink-200 dark:bg-ink-800 skeleton" />
-        <div className="h-px w-full bg-ink-100 dark:bg-ink-800" />
-        <div className="flex justify-between">
-          <div className="h-3 w-16 rounded bg-ink-200 dark:bg-ink-800 skeleton" />
-          <div className="h-3 w-20 rounded bg-ink-200 dark:bg-ink-800 skeleton" />
-        </div>
+    <div className="shrink-0 w-[72vw] sm:w-[270px] lg:w-[290px] h-[210px] sm:h-[230px] relative rounded-2xl overflow-hidden border border-ink-100 dark:border-ink-800">
+      <div className="absolute inset-0 bg-ink-200 dark:bg-ink-800 skeleton" />
+      <div className="absolute inset-x-0 bottom-0 p-3.5 space-y-2">
+        <div className="h-4 w-2/3 rounded-lg bg-white/20 animate-pulse" />
+        <div className="h-3 w-1/2 rounded bg-white/15 animate-pulse" />
       </div>
     </div>
   );
@@ -1580,73 +1563,71 @@ export function RestaurantCard({ restaurant, onClick }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      className="cursor-grow group text-left w-full bg-white dark:bg-ink-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-md border border-ink-200/60 dark:border-ink-800 transition-all duration-300"
+      className="cursor-grow card-glow-hover group relative block h-[300px] w-full overflow-hidden rounded-3xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-sm hover:shadow-cardhover transition-shadow duration-500"
     >
-      <div className="relative aspect-[16/10] overflow-hidden bg-ink-100 dark:bg-ink-950">
-        <img
-          src={restaurantCover(restaurant.cover)}
-          alt={restaurant.name}
-          loading="lazy"
-          className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${
-            !open ? 'filter blur-sm grayscale opacity-70' : ''
-          }`}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/10"></div>
-        
-        {/* Closed Overlay */}
-        {!open && (
-          <div className="absolute inset-0 bg-ink-950/40 backdrop-blur-[2px] flex flex-col items-center justify-center text-white">
-            <span className="bg-ink-950/75 border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-red-500" />
-              Fermé · Réouverture demain
-            </span>
-          </div>
-        )}
+      {/* Image plein cadre : plus de bandeau blanc séparé, tout vit sur la photo. */}
+      <img
+        src={restaurantCover(restaurant.cover)}
+        alt={restaurant.name}
+        loading="lazy"
+        className={`absolute inset-0 h-full w-full object-cover transition-transform duration-[1.1s] ease-out group-hover:scale-[1.08] ${
+          !open ? 'filter blur-sm grayscale opacity-70' : ''
+        }`}
+      />
+      {/* Voile bas : le texte se lit toujours, quelle que soit la photo. */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-black/5" />
 
-        {restaurant.isCustomRequest && (
-          <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-md animate-pulse z-10">
+      {/* Fermé */}
+      {!open && (
+        <div className="absolute inset-0 bg-ink-950/40 backdrop-blur-[2px] flex flex-col items-center justify-center text-white">
+          <span className="bg-ink-950/75 border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-red-500" />
+            Fermé · Réouverture demain
+          </span>
+        </div>
+      )}
+
+      {/* Pastilles en haut */}
+      <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-4 z-10">
+        {restaurant.isCustomRequest ? (
+          <span className="px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-md animate-pulse">
             ✨ SUR-MESURE (+20 MAD)
           </span>
-        )}
-        {restaurant.promo && open && !restaurant.isCustomRequest && (
-          <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-md animate-pulse-slow">
+        ) : restaurant.promo && open ? (
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-md animate-pulse-slow">
             🎁 {restaurant.promo}
           </span>
-        )}
+        ) : <span />}
+
+        <span className="shrink-0 inline-flex items-center gap-0.5 px-2 py-1 rounded-lg bg-white/95 text-emerald-600 text-[10px] sm:text-xs font-bold shadow-sm">
+          <I.Star size={11} className="fill-emerald-500 text-emerald-500 sm:w-3 sm:h-3" />{' '}
+          {(restaurant.rating ?? 4.8).toString().replace('.', ',')}
+        </span>
       </div>
 
-      <div className="p-4 relative z-10">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="font-display font-extrabold text-sm sm:text-base md:text-lg truncate text-ink-900 dark:text-white group-hover:text-brand-500 transition-colors">
-              {restaurant.name}
-            </h3>
-            <div className="text-[10px] sm:text-xs text-ink-500 dark:text-ink-400 truncate mt-0.5 flex items-center gap-1.5">
-              <span>{formatTags(restaurant.tags, ' • ')}</span>
-              <span className="px-1.5 py-0.5 rounded bg-ink-100 dark:bg-ink-800 text-ink-500 text-[10px] font-bold shrink-0">
-                Sponsorisé
-              </span>
-            </div>
-          </div>
-          <span className="shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs font-bold border border-emerald-500/10">
-            <I.Star size={11} className="fill-emerald-500 text-emerald-500 sm:w-3 sm:h-3" />{' '}
-            {(restaurant.rating ?? 4.8).toString().replace('.', ',')}
+      {/* Contenu, ancré en bas sur le voile — repris de hiho/yoha-web (RestaurantCard) */}
+      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 z-10 text-white">
+        <h3 className="font-display font-extrabold text-lg sm:text-xl truncate transition-colors group-hover:text-brand-400">
+          {restaurant.name}
+        </h3>
+        <div className="mt-1 flex items-center gap-1.5 text-[11px] sm:text-xs text-white/70 truncate">
+          <span className="truncate">{formatTags(restaurant.tags, ' • ')}</span>
+          <span className="shrink-0 px-1.5 py-0.5 rounded bg-white/10 text-white/70 text-[10px] font-bold">
+            Sponsorisé
           </span>
         </div>
 
-        <div className="mt-3 pt-2.5 sm:mt-4 sm:pt-3 border-t border-ink-100 dark:border-ink-800/80 flex items-center justify-between text-[10px] sm:text-xs">
-          <div className="flex flex-col gap-0.5">
-            <div className="text-ink-500 dark:text-ink-400 flex items-center gap-1">
-              <I.MapPin size={12} className="text-ink-400 sm:w-3.5 sm:h-3.5" /> {restaurant.distance}
-            </div>
-            <div className="flex items-center gap-1.5 text-xs font-semibold mt-1">
-              <span className="line-through text-ink-400 font-normal">19,99 MAD</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">0,00 MAD de livraison</span>
-            </div>
-          </div>
-          <div className="font-bold inline-flex items-center gap-0.5 text-brand-600 dark:text-brand-400 shrink-0">
-            Voir le menu <I.Right size={12} className="sm:w-3.5 sm:h-3.5" />
-          </div>
+        <div className="mt-3 sm:mt-4 flex items-center gap-3 border-t border-white/[0.12] pt-3 text-[11px] sm:text-xs">
+          <span className="flex items-center gap-1 text-white/70">
+            <I.MapPin size={12} className="text-white/50" /> {restaurant.distance}
+          </span>
+          <span className="text-white/20">|</span>
+          <span className="line-through text-white/40">19,99 MAD</span>
+          <span className="font-bold text-emerald-400">0,00 MAD livraison</span>
+          <span className="flex-1" />
+          <span className="hidden sm:inline-flex items-center gap-0.5 font-bold text-brand-400 shrink-0">
+            Voir le menu <I.Right size={12} />
+          </span>
         </div>
       </div>
     </div>
@@ -1657,12 +1638,11 @@ export const DeliverooCard = RestaurantCard;
 
 export function RestaurantSkeleton() {
   return (
-    <div className="bg-white dark:bg-ink-900 rounded-3xl overflow-hidden border border-ink-200/60 dark:border-ink-800 shadow-sm animate-pulse">
-      <div className="aspect-[16/10] bg-ink-200 dark:bg-ink-800/50 skeleton"></div>
-      <div className="p-5 space-y-3">
-        <div className="h-5 w-2/3 rounded bg-ink-200 dark:bg-ink-800/50 skeleton"></div>
-        <div className="h-3.5 w-1/2 rounded bg-ink-200 dark:bg-ink-800/50 skeleton"></div>
-        <div className="h-3 w-3/4 rounded bg-ink-200 dark:bg-ink-800/50 skeleton"></div>
+    <div className="relative h-[300px] rounded-3xl overflow-hidden border border-ink-200/60 dark:border-ink-800 shadow-sm">
+      <div className="absolute inset-0 bg-ink-200 dark:bg-ink-800/50 skeleton"></div>
+      <div className="absolute inset-x-0 bottom-0 p-5 space-y-3">
+        <div className="h-5 w-2/3 rounded bg-white/20 animate-pulse"></div>
+        <div className="h-3.5 w-1/2 rounded bg-white/15 animate-pulse"></div>
       </div>
     </div>
   );
@@ -2110,4 +2090,3 @@ function DeliverooPopularBrandsSection({ restaurants, onPick }) {
     </section>
   );
 }
-

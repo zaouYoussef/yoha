@@ -125,7 +125,14 @@ export function AuthPage({ redirect, goto, goHome }) {
   };
 
   return (
-    <div className="page-enter min-h-[calc(100dvh-8rem)] flex flex-col items-center justify-center px-4 py-10">
+    <div className="page-enter relative min-h-[calc(100dvh-8rem)] flex flex-col items-center justify-center px-4 py-10 overflow-hidden">
+      {/* Ambiance : les mêmes blobs animés que le Hero, pour que cette page
+          ne soit plus la seule totalement statique de l'app. */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+        <div className="absolute top-[-15%] left-[-10%] w-[22rem] h-[22rem] rounded-full bg-brand-400/30 blur-3xl animate-blob" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[24rem] h-[24rem] rounded-full bg-violet-400/25 blur-3xl animate-blob" style={{ animationDelay: '5s' }} />
+      </div>
+
       <div className="w-full max-w-md">
         <button
           type="button"
@@ -135,7 +142,7 @@ export function AuthPage({ redirect, goto, goHome }) {
           <I.Left size={18}/> Retour
         </button>
 
-        <div className="rounded-3xl border border-ink-200/70 bg-white/90 dark:bg-ink-900/80 dark:border-ink-800 shadow-card p-6 sm:p-8">
+        <div className="rounded-3xl border border-ink-200/70 bg-white/90 dark:bg-ink-900/80 dark:border-ink-800 shadow-card backdrop-blur-xl p-6 sm:p-8">
           <h1 className="font-display font-extrabold text-2xl sm:text-3xl tracking-tight text-center">
             {tab === 'login' ? 'Connexion' : 'Créer un compte client'}
           </h1>

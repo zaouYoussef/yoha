@@ -15,6 +15,7 @@ import { Button } from '../../components/ui/Button.jsx';
 import { Magnetic } from '../../components/ui/Magnetic.jsx';
 import { Tilt } from '../../components/ui/Tilt.jsx';
 import { Reveal } from '../../components/ui/Reveal.jsx';
+import { LiveCount } from '../../components/ui/LiveCount.jsx';
 import { HERO_RESTAURANTS } from '../../data/heroRestaurants.js';
 import { Star } from 'lucide-react';
 import { restaurantCover } from '../../components/ui/MenuItemImage.jsx';
@@ -216,8 +217,8 @@ export function Hero({ onStart, onHowItWorks }) {
                 <span className="ml-1 font-semibold text-ink-900 dark:text-ink-50">4,9</span>
               </div>
               <div className="text-ink-500 dark:text-ink-400 leading-snug">
-                <span className="sm:hidden">200+ utilisateurs satisfaits</span>
-                <span className="hidden sm:inline">Adoré par 200+ étudiants & soignants</span>
+                <span className="sm:hidden"><LiveCount to={200} format={(v) => `${v}+`} /> utilisateurs satisfaits</span>
+                <span className="hidden sm:inline">Adoré par <LiveCount to={200} format={(v) => `${v}+`} /> étudiants & soignants</span>
               </div>
             </div>
           </div>
@@ -1054,12 +1055,12 @@ export function ShowcaseSection({ onStart }) {
           {/* Premium Highlights Grid */}
           <div className="mt-6 sm:mt-10 grid grid-cols-2 gap-2.5 sm:gap-4">
             {[
-              { icon: '⚡', title: '14 min de livraison', desc: 'Moyenne record sur le campus' },
+              { icon: '⚡', title: <><LiveCount to={14} /> min de livraison</>, desc: 'Moyenne record sur le campus' },
               { icon: '🍔', title: 'Gourmet & Ultra-frais', desc: 'Préparé sous vos yeux' },
               { icon: '🛵', title: 'Suivi live interactif', desc: 'Savoir exactement où est le livreur' },
               { icon: '🔒', title: 'Zéro friction', desc: 'Commande en 3 clics sans friction' }
             ].map((item, idx) => (
-              <Reveal key={item.title} delay={100 + idx * 80}>
+              <Reveal key={idx} delay={100 + idx * 80}>
                 <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/60 border border-amber-100 hover:border-brand-500/20 hover:bg-white transition-all duration-300 flex items-start gap-3 group shadow-sm hover:shadow-md">
                   <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-amber-100/50 text-amber-800 group-hover:bg-brand-500/20 group-hover:text-brand-600 transition-all duration-300 flex items-center justify-center text-base sm:text-lg shrink-0">
                     {item.icon}

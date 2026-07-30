@@ -138,6 +138,29 @@
     animation: shine 1.2s linear;
   }
 
+  /* Repris de hiho/yoha-web (.ember-btn) : reflet permanent, décorrélé de la couleur.
+     Le bouton reste "vivant" sans avoir besoin d'un hover pour attirer l'oeil. */
+  .btn-sweep {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .btn-sweep::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: sweep 2.8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: -1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-sweep::after {
+      animation: none;
+    }
+  }
+
   .ripple {
     position: relative;
     overflow: hidden;

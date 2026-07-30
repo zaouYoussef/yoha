@@ -72,6 +72,8 @@ export default {
         'char-up': 'char-up .9s cubic-bezier(.16,1,.3,1) both',
         'reveal-y': 'reveal-y 1s cubic-bezier(.16,1,.3,1) both',
         orbit: 'orbit 20s linear infinite',
+        /* Repris de hiho/yoha-web : reflet continu sur le bouton principal */
+        sweep: 'sweep 2.8s ease-in-out infinite',
       },
       keyframes: {
         'gradient-x': {
@@ -155,6 +157,10 @@ export default {
         orbit: {
           from: { transform: 'rotate(0deg) translateX(140px) rotate(0deg)' },
           to: { transform: 'rotate(360deg) translateX(140px) rotate(-360deg)' },
+        },
+        sweep: {
+          '0%': { transform: 'translateX(-130%)' },
+          '55%, 100%': { transform: 'translateX(230%)' },
         },
       },
     },
