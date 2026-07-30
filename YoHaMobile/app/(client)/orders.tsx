@@ -34,6 +34,8 @@ function getItemCount(items?: Order['items']): number {
   return (items || []).reduce((sum, i) => sum + (i.qty || 1), 0);
 }
 
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+
 export default function ClientOrders() {
   const insets = useSafeAreaInsets();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -63,9 +65,10 @@ export default function ClientOrders() {
   }, [fetchOrders]);
 
   const filtered = useMemo(() => {
-    if (activeTab === 'all') return orders;
-    if (activeTab === 'active') return orders.filter((o) => !['delivered', 'cancelled'].includes(o.status));
-    return orders.filter((o) => o.status === activeTab);
+    if (activeTab === 'active') return orders.filter((o) => ['pending', 'accepted', 'preparing', 'delivering'].includes(o.status));
+    if (activeTab === 'delivered') return orders.filter((o) => o.status === 'delivered');
+    if (activeTab === 'cancelled') return orders.filter((o) => o.status === 'cancelled');
+    return orders;
   }, [orders, activeTab]);
 
   const headerOpacity = scrollY.interpolate({
@@ -96,13 +99,14 @@ export default function ClientOrders() {
         })}
       </View>
 
-      <FlatList
+      <AnimatedFlatList
         data={filtered}
-        keyExtractor={(o: Order) => String(o.id || (o as any).public_id || Math.random())}
+        keyExtractor={(o: any) => String(o.id || o.public_id || Math.random())}
         contentContainerStyle={{ paddingBottom: insets.bottom + 100, paddingHorizontal: 16 }}
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand[500]} />}
-        renderItem={({ item: order }) => {
+        renderItem={({ item: order }: { item: any }) => {
+
           const cfg = STATUS_CONFIG[order.status] || { label: order.status, color: ink[500], bg: ink[100] };
           return (
             <Pressable
@@ -133,7 +137,8 @@ export default function ClientOrders() {
                 <Text style={styles.cardTotal}>Total: <Text style={styles.cardTotalValue}>{Number(order.totalDh || 0).toFixed(2)} DH</Text></Text>
                 {order.items && order.items.length > 0 && (
                   <Text style={styles.cardItemPreview} numberOfLines={1}>
-                    {order.items.slice(0, 3).map((i) => i.name).join(', ')}
+                    {order.items.slice(0, 3).map((i: any) => i.name).join(', ')}
+
                     {order.items.length > 3 ? '…' : ''}
                   </Text>
                 )}

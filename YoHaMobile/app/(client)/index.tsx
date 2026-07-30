@@ -45,6 +45,8 @@ function SkeletonCard() {
   );
 }
 
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+
 export default function ClientHome() {
   const insets = useSafeAreaInsets();
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -113,9 +115,9 @@ export default function ClientHome() {
         </View>
       </View>
 
-      <FlatList
+      <AnimatedFlatList
         data={restaurants}
-        keyExtractor={(r) => r.slug}
+        keyExtractor={(r: any) => r.slug}
         numColumns={2}
         contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 100 }]}
         columnWrapperStyle={styles.row}
@@ -147,7 +149,7 @@ export default function ClientHome() {
             )}
           </>
         }
-        renderItem={({ item: r, index }) => (
+        renderItem={({ item: r, index }: { item: any; index: number }) => (
           <RestaurantCardItem
             restaurant={r}
             index={index}
@@ -167,6 +169,7 @@ export default function ClientHome() {
     </View>
   );
 }
+
 
 function RestaurantCardItem({ restaurant: r, index, onPress }: { restaurant: Restaurant; index: number; onPress: () => void }) {
   const emoji = { pizza: '🍕', tacos: '🌮', kebab: '🥙', sushi: '🍣', burger: '🍔', healthy: '🥗', medical: '🏥', pharmacy: '💊' }[r.cuisine || ''] || '🍽️';
