@@ -10,6 +10,7 @@ urlpatterns = [
     path("", RootView.as_view(), name="root"),
     path("zaoujal/", admin.site.urls),
     path("api/v1/", include("apps.core.urls")),
+    path("api/v1/auth/", include("apps.accounts.urls")),
     path("api/v1/accounts/", include("apps.accounts.urls")),
     path("api/v1/restaurants/", include("apps.restaurants.urls")),
     path("api/v1/orders/", include("apps.orders.urls")),
