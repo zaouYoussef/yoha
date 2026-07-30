@@ -1,5 +1,4 @@
 import React from 'react';
-import { RequestForm } from '@/components/ui/RequestForm.jsx';
 
 export default function PrivacyPage() {
   return (
@@ -80,14 +79,12 @@ export default function PrivacyPage() {
         </div>
       </div>
 
-      <div className="rounded-3xl bg-white dark:bg-ink-900/80 border border-ink-200/60 dark:border-ink-800/50 shadow-lg p-6 sm:p-10">
+      <div className="rounded-3xl bg-white dark:bg-ink-900/80 border border-ink-200/60 dark:border-ink-800/50 shadow-lg p-6 sm:p-10 text-center">
         <h2 className="text-xl font-display font-extrabold text-ink-900 dark:text-white mb-1">Supprimer mon compte</h2>
-        <p className="text-sm text-ink-400 mb-5">Remplissez ce formulaire pour demander la suppression de vos données personnelles.</p>
-        <RequestForm defaultType="deletion" />
-        <p className="text-xs text-ink-400 mt-4 text-center">
-          Vous avez une réclamation&nbsp;?{' '}
-          <a href="/reclamation" className="text-brand-600 hover:underline font-bold">Aller sur la page Réclamation →</a>
-        </p>
+        <p className="text-sm text-ink-400 mb-5">Pour demander la suppression de vos données personnelles, rendez-vous sur la page dédiée.</p>
+        <a href="/reclamation" className="inline-flex items-center gap-2 py-3 px-6 rounded-2xl bg-brand-500 text-white font-black text-sm hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/20">
+          Faire une demande →
+        </a>
       </div>
     </div>
   );
