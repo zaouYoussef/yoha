@@ -16,6 +16,7 @@ ALLOWED_HOSTS = [
     "yoha.ma",
     "www.yoha.ma",
     "localhost",
+    "127.0.0.1",
 ]
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
