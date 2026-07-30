@@ -3,6 +3,8 @@ import {
   Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet,
   Text, TextInput, View,
 } from 'react-native';
+import { Image } from 'expo-image';
+
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -88,8 +90,10 @@ export default function ClientCheckout() {
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Panier</Text>
           </Pressable>
+          <Image source={require('../../assets/images/logo.png')} style={{ width: 28, height: 28, borderRadius: 6, marginRight: 6 }} contentFit="contain" />
           <Text style={styles.headerTitle}>Validation de Commande</Text>
         </View>
+
 
         <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 160 }}>
           {/* Address Selector */}

@@ -187,15 +187,19 @@ export default function ClientHome() {
       {/* ═══ TOP HERO & SEARCH HEADER ═══ */}
       <View style={styles.topHeader}>
         <View style={styles.locationBar}>
-          <View style={styles.locationPill}>
-            <Text style={styles.locationPin}>📍</Text>
-            <Text style={styles.locationText}>CHU-Tanger</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Image source={require('../../assets/images/logo.png')} style={{ width: 34, height: 34, borderRadius: 8 }} contentFit="contain" />
+            <View style={styles.locationPill}>
+              <Text style={styles.locationPin}>📍</Text>
+              <Text style={styles.locationText}>CHU-Tanger</Text>
+            </View>
           </View>
           <View style={styles.openBadge}>
             <View style={styles.openDot} />
             <Text style={styles.openBadgeText}>{openCount || 4} ouverts</Text>
           </View>
         </View>
+
 
         <View style={styles.greetingWrap}>
           <Text style={styles.greetingText}>

@@ -63,6 +63,7 @@ export default function ClientCart() {
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backBtnText}>← Retour</Text>
         </Pressable>
+        <Image source={require('../../assets/images/logo.png')} style={{ width: 28, height: 28, borderRadius: 6, marginRight: 6 }} contentFit="contain" />
         <Text style={styles.headerTitle}>Mon Panier</Text>
         <Text style={styles.headerCount}>{count} article{count > 1 ? 's' : ''}</Text>
         {items.length > 0 && (
@@ -71,6 +72,7 @@ export default function ClientCart() {
           </Pressable>
         )}
       </View>
+
 
       {items.length === 0 ? (
         <View style={styles.empty}>

@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Animated, FlatList, Pressable, RefreshControl, StyleSheet, Text, View,
 } from 'react-native';
+import { Image } from 'expo-image';
+
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -71,9 +73,13 @@ export default function ClientOrders() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Mes Commandes YoHa</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Image source={require('../../assets/images/logo.png')} style={{ width: 32, height: 32, borderRadius: 8 }} contentFit="contain" />
+          <Text style={styles.headerTitle}>Mes Commandes YoHa</Text>
+        </View>
         <Text style={styles.headerSub}>Suivez la livraison de vos plats et produits en direct</Text>
       </View>
+
 
       {/* Tabs Row */}
       <View style={styles.tabRow}>

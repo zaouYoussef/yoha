@@ -2,6 +2,8 @@ import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
 } from 'react-native';
+import { Image } from 'expo-image';
+
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -64,12 +66,11 @@ export default function LoginScreen() {
 
         {/* Hero Brand Title */}
         <View style={styles.heroHeader}>
-          <LinearGradient colors={gradients.hero} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.logoBadge}>
-            <Text style={styles.logoText}>YoHa</Text>
-          </LinearGradient>
+          <Image source={require('../../assets/images/logo.png')} style={{ width: 54, height: 54, borderRadius: 14, marginBottom: 8 }} contentFit="contain" />
           <Text style={styles.heroTitle}>Livraison Express CHU & Tanger</Text>
           <Text style={styles.heroSub}>Connectez-vous pour accéder à vos commandes et avantages</Text>
         </View>
+
 
         {/* Card Form */}
         <View style={styles.card}>
