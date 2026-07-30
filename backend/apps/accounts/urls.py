@@ -12,6 +12,7 @@ from .views import (
     RegisterView,
     ThrottledTokenObtainPairView,
     ThrottledTokenRefreshView,
+    UserRequestView,
 )
 from .web_push_views import VapidPublicKeyView, WebPushSubscribeView, WebPushUnsubscribeView
 
@@ -30,4 +31,5 @@ urlpatterns = [
     path("push/web/vapid-key/", VapidPublicKeyView.as_view(), name="vapid-public-key"),
     path("push/web/subscribe/", WebPushSubscribeView.as_view(), name="web-push-subscribe"),
     path("push/web/unsubscribe/", WebPushUnsubscribeView.as_view(), name="web-push-unsubscribe"),
+    path("requests/", UserRequestView.as_view(), name="user-requests"),
 ]

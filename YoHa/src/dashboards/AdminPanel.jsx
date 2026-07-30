@@ -19,7 +19,7 @@ import {
   CUISINE_CATEGORIES,
 } from '../data/index.js';
 import { useOrders, useToast } from '../contexts/AppContexts.jsx';
-import { apiFetch, ordersApi } from '../lib/api.js';
+import { apiFetch, ordersApi, userRequestsApi } from '../lib/api.js';
 import { CancelOrderButton, CancelPhaseBadge, OrderCancellationNote } from '../components/ui/CancelOrderButton.jsx';
 import {
   DashLayout,
@@ -39,6 +39,66 @@ import {
   SectionHeader,
   AnimatedCounter,
 } from './DashShared.jsx';
+function useRequests() {
+  const [data, setData] = useState({ results: [], total: 0 });
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState('');
+  const re = useCallback(async (s) => {
+    setLoading(true);
+    try {
+      const r = await userRequestsApi.list({ status: s || undefined });
+      setData(r);
+    } catch { setData({ results: [], total: 0 }); }
+    setLoading(false);
+  }, []);
+  useEffect(() => { re(status); }, [re, status]);
+  return { ...data, loading, status, setStatus, refresh: () => re(status) };
+}
+
+function AdminRequests() {
+  const { results, total, loading, status, setStatus, refresh } = useRequests();
+
+  return (
+    <div className="space-y-5">
+      <GradientHeader title={`Requêtes (${total})`} subtitle="Demandes de suppression / réclamations"
+        icon="bell" gradient="from-rose-500 via-orange-500 to-amber-500"
+        actions={
+          <div className="flex gap-2">
+            <ActionButton active={!status} onClick={() => setStatus('')}>Toutes</ActionButton>
+            <ActionButton active={status === 'pending'} onClick={() => setStatus('pending')}>En attente</ActionButton>
+            <ActionButton active={status === 'resolved'} onClick={() => setStatus('resolved')}>Résolues</ActionButton>
+          </div>
+        }
+      />
+      <GlassCard>
+        {loading ? (
+          <p className="text-sm text-ink-400 p-4">Chargement…</p>
+        ) : results.length === 0 ? (
+          <EmptyState icon="bell" title="Aucune demande" description="Aucune requête client pour le moment" />
+        ) : (
+          <div className="divide-y divide-ink-100 dark:divide-ink-800">
+            {results.map((r) => (
+              <div key={r.id} className="p-4 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-ink-400">{r.request_type}</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                    r.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                    : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                  }`}>{r.status === 'pending' ? 'En attente' : 'Résolue'}</span>
+                </div>
+                <p className="text-sm font-bold text-ink-900 dark:text-white">{r.email}</p>
+                {r.display_name && <p className="text-xs text-ink-400">{r.display_name}</p>}
+                {r.message && <p className="text-sm text-ink-600 dark:text-ink-300 mt-1">{r.message}</p>}
+                <p className="text-xs text-ink-300">{new Date(r.created_at).toLocaleString('fr-FR')}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </GlassCard>
+    </div>
+  );
+}
+
 function isOrderAssignedToCourier(order, courier) {
   if (!order || !courier) return false;
   const cId = String(courier.id || '').toLowerCase();
@@ -240,6 +300,7 @@ export function AdminDashboard({ goto, dark, setDark }) {
     revenue: 'Revenus & Bénéfices',
     promos: 'Codes promo',
     reviews: 'Avis & Notes clients',
+    requests: 'Requêtes clients',
   };
 
   return (
@@ -252,6 +313,7 @@ export function AdminDashboard({ goto, dark, setDark }) {
       {current === 'revenue' && <AdminRevenue orders={orders} />}
       {current === 'promos' && <AdminPromos />}
       {current === 'reviews' && <AdminReviews />}
+      {current === 'requests' && <AdminRequests />}
     </DashLayout>
   );
 }

@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from .models import UserRequest
+
 User = get_user_model()
 
 
@@ -85,3 +87,25 @@ class AdminUserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("id", "email", "display_name", "role", "is_active", "created_at")
+
+
+class UserRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
+        read_only_fields = ("id", "status", "created_at", "updated_at")
+
+
+class UserRequestCreateSerializer(serializers.Serializer):
+    request_type = serializers.ChoiceField(choices=["deletion", "complaint", "other"])
+    email = serializers.EmailField()
+    display_name = serializers.CharField(max_length=120, required=False, allow_blank=True)
+    message = serializers.CharField(required=False, allow_blank=True)
+
+    def create(self, validated_data):
+        user = self.context.get("request").user if self.context.get("request") else None
+        if user and user.is_authenticated:
+            validated_data["user"] = user
+            validated_data.setdefault("email", user.email)
+            validated_data.setdefault("display_name", user.display_name)
+        return UserRequest.objects.create(**validated_data)

@@ -11,6 +11,7 @@ from .tokens import EmailTokenObtainPairSerializer
 
 from apps.audit.services import log_audit
 
+from .models import UserRequest
 from .serializers import (
     AdminUserCreateSerializer,
     AdminUserListSerializer,
@@ -19,6 +20,8 @@ from .serializers import (
     ProfileUpdateSerializer,
     RegisterSerializer,
     UserPublicSerializer,
+    UserRequestCreateSerializer,
+    UserRequestSerializer,
 )
 from . import social as social_auth
 from .push_models import PushDevice
@@ -230,3 +233,31 @@ class AppleAuthView(APIView):
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         return _jwt_response_for_user(user, request, "auth.apple_login")
+
+
+class UserRequestView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        ser = UserRequestCreateSerializer(data=request.data, context={"request": request})
+        ser.is_valid(raise_exception=True)
+        obj = ser.save()
+        return Response({"id": str(obj.id), "status": obj.status}, status=201)
+
+    def get(self, request):
+        if not request.user.is_authenticated or (request.user.role != "admin" and not request.user.is_superuser):
+            return Response({"detail": "Accès refusé."}, status=403)
+        qs = UserRequest.objects.all()
+        status_filter = request.query_params.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        page = int(request.query_params.get("page", 1))
+        limit = int(request.query_params.get("limit", 50))
+        start = (page - 1) * limit
+        total = qs.count()
+        qs = qs[start:start + limit]
+        return Response({
+            "total": total,
+            "page": page,
+            "results": UserRequestSerializer(qs, many=True).data,
+        })

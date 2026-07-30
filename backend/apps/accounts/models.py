@@ -114,3 +114,33 @@ class UserOAuthProvider(models.Model):
 
 
 from .push_models import PushDevice  # noqa: E402, F401
+
+
+class UserRequest(models.Model):
+    class Type(models.TextChoices):
+        DELETION = "deletion", "Suppression de compte"
+        COMPLAINT = "complaint", "Réclamation"
+        OTHER = "other", "Autre"
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "En attente"
+        RESOLVED = "resolved", "Résolu"
+        REJECTED = "rejected", "Rejeté"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="requests")
+    email = models.EmailField()
+    display_name = models.CharField("nom", max_length=120, blank=True)
+    request_type = models.CharField(max_length=20, choices=Type.choices, default=Type.DELETION)
+    message = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "demande utilisateur"
+        verbose_name_plural = "demandes utilisateurs"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"[{self.get_request_type_display()}] {self.email} — {self.get_status_display()}"

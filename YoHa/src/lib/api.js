@@ -611,3 +611,15 @@ export const ordersApi = {
     }
   },
 };
+
+export const userRequestsApi = {
+  async create(data) {
+    return apiFetch("/accounts/requests/", { method: "POST", body: data });
+  },
+
+  async list({ status, page = 1, limit = 50 } = {}) {
+    const params = new URLSearchParams({ page, limit });
+    if (status) params.set("status", status);
+    return apiFetch(`/accounts/requests/?${params}`);
+  },
+};
