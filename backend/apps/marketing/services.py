@@ -160,6 +160,8 @@ def run_promo_campaign(*, force: bool = False, dry_run: bool = False) -> dict:
     subject = f"🍽️ {base_ctx['title']} · YoHa"
 
     for email in recipients:
+        if not email or email.strip().lower().endswith('@yoha.ma'):
+            continue
         try:
             with transaction.atomic():
                 PromoEmailLog.objects.create(
@@ -180,8 +182,9 @@ def run_promo_campaign(*, force: bool = False, dry_run: bool = False) -> dict:
                 to=[email],
             )
             msg.attach_alternative(render_promo_email_html(ctx), "text/html")
-            msg.send(fail_silently=False)
+            msg.send(fail_silently=True)
             sent += 1
+
             delay = getattr(settings, "PROMO_EMAIL_DELAY_SECONDS", 1.0)
             if delay > 0:
                 time.sleep(delay)

@@ -41,6 +41,8 @@ def _send_promo_code_to_all_async(promo_code_id: int):
     delay = getattr(settings, "PROMO_EMAIL_DELAY_SECONDS", 1.0)
 
     for email in recipients:
+        if not email or email.strip().lower().endswith('@yoha.ma'):
+            continue
         unsub_url = build_unsubscribe_url(email)
         html_content = render_new_promo_email_html(
             code=promo.code,
@@ -63,8 +65,9 @@ def _send_promo_code_to_all_async(promo_code_id: int):
                 to=[email],
             )
             msg.attach_alternative(html_content, "text/html")
-            msg.send(fail_silently=False)
+            msg.send(fail_silently=True)
             sent += 1
+
             if delay > 0:
                 time.sleep(delay)
         except Exception:
