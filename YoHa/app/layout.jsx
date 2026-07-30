@@ -1,5 +1,6 @@
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import { AppProviders } from '@/providers/AppProviders';
+import { AnalyticsTracker } from '@/components/ui/AnalyticsTracker';
 import './globals.css';
 
 const inter = Inter({
@@ -113,7 +114,10 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className={`${inter.variable} ${jakarta.variable} font-sans min-h-screen min-h-[100dvh] bg-white dark:bg-ink-950 text-ink-900 dark:text-ink-50 overflow-x-hidden`}>
-        <AppProviders>{children}</AppProviders>
+        <AppProviders>
+          <AnalyticsTracker />
+          {children}
+        </AppProviders>
       </body>
     </html>
   );

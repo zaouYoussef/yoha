@@ -32,10 +32,13 @@ export function OrderRatingCard({ order }) {
       createdAt: Date.now(),
       rating: Number(rating),
       comment: comment.trim() || 'Commande bien reçue !',
-      customerName: order.customerName || order.name || 'Client YoHa',
+      customerName: order.customerName || order.name || order.customer_name || 'Client YoHa',
+      customerPhone: order.customerPhone || order.phone || order.customer_phone || '',
+      customerEmail: order.customerEmail || order.email || order.customer_email || '',
       restaurantName: order.restaurantName || 'Restaurant',
       courierName: order.courierName || 'Livreur YoHa',
     };
+
     saveReview(newReview);
     setExistingReview(newReview);
     setSubmitted(true);

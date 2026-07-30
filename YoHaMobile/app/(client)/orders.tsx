@@ -1,146 +1,217 @@
-import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+  Animated, FlatList, Pressable, RefreshControl, StyleSheet, Text, View,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FadeInView } from '../../src/components/animations/FadeInView';
-import { PremiumBackground } from '../../src/components/PremiumBackground';
-import { LiveOrderChip } from '../../src/components/LiveOrderChip';
-import { OrderCard } from '../../src/components/OrderCard';
-import { StickyCartBar } from '../../src/components/StickyCartBar';
-import { YohaButton } from '../../src/components/ui/YohaButton';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { useCart } from '../../src/contexts/CartContext';
-import { useToast } from '../../src/contexts/ToastContext';
-import { useActiveOrder } from '../../src/hooks/useActiveOrder';
-import { Order, ordersApi } from '../../src/lib/api';
-import { orderToCartItems } from '../../src/lib/reorder';
-import { getGuestOrderIds } from '../../src/lib/guestOrders';
-import { hapticSuccess } from '../../src/lib/haptics';
-import { useLayoutChrome } from '../../src/lib/layoutChrome';
-import { brand, gradients, ink } from '../../src/theme';
-import { fonts } from '../../src/theme/fonts';
+import { router } from 'expo-router';
+import { ordersApi, type Order } from '../../src/lib/api';
+import { brand, gradients, ink, radius, shadows, typography } from '../../src/theme';
+
+const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
+  pending: { label: 'En attente', color: '#f59e0b', bg: '#fef3c7' },
+  accepted: { label: 'Acceptée', color: '#3b82f6', bg: '#dbeafe' },
+  preparing: { label: 'En préparation', color: '#8b5cf6', bg: '#ede9fe' },
+  delivering: { label: 'En livraison', color: brand[500], bg: brand[100] },
+  delivered: { label: 'Livrée', color: '#10b981', bg: '#d1fae5' },
+  cancelled: { label: 'Annulée', color: '#ef4444', bg: '#fee2e2' },
+};
+
+const TABS = [
+  { key: 'all', label: 'Toutes' },
+  { key: 'active', label: 'En cours' },
+  { key: 'delivered', label: 'Livrées' },
+  { key: 'cancelled', label: 'Annulées' },
+] as const;
+
+function formatOrderDate(dateStr?: string) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
+function getItemCount(items?: Order['items']): number {
+  return (items || []).reduce((sum, i) => sum + (i.qty || 1), 0);
+}
 
 export default function ClientOrders() {
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
-  const { replaceItems } = useCart();
-  const { showToast } = useToast();
-  const { activeOrder } = useActiveOrder();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const { scrollBottomPadding } = useLayoutChrome();
+  const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>('all');
+  const scrollY = useRef(new Animated.Value(0)).current;
 
-  const load = useCallback(async () => {
-    setError('');
+  const fetchOrders = useCallback(async () => {
     try {
-      if (user) {
-        const data = await ordersApi.list();
-        setOrders(Array.isArray(data) ? data : []);
-      } else {
-        const ids = await getGuestOrderIds();
-        const data = await ordersApi.guestList(ids);
-        setOrders(Array.isArray(data) ? data : []);
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erreur');
-    } finally {
-      setLoading(false);
+      const list = await ordersApi.list();
+      setOrders(list);
+    } catch {
+      setOrders([]);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
-    load();
-    const interval = setInterval(load, 15000);
-    return () => clearInterval(interval);
-  }, [load]);
+    setLoading(true);
+    fetchOrders().finally(() => setLoading(false));
+  }, [fetchOrders]);
 
-  const handleReorder = (order: Order) => {
-    const lines = orderToCartItems(order);
-    if (!lines.length) {
-      showToast('Panier vide', 'Cette commande ne contient pas d’articles.');
-      return;
-    }
-    const cartLines = lines.map((l) => {
-      const qty = order.items?.find((i) => String(i.id) === l.id)?.qty || 1;
-      return { ...l, qty };
-    });
-    replaceItems(cartLines);
-    showToast('Panier rempli !', 'Commandez à nouveau en un clic', '↻');
-    router.push('/(client)/cart' as never);
-    hapticSuccess();
-  };
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchOrders();
+    setRefreshing(false);
+  }, [fetchOrders]);
 
-  if (!user && !loading && orders.length === 0) {
-    return (
-      <PremiumBackground>
-        <View style={[styles.guest, { paddingTop: insets.top + 48, paddingBottom: scrollBottomPadding }]}>
-          <FadeInView variant="zoom">
-            <LinearGradient colors={[...gradients.primary]} style={styles.guestIcon} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-              <Text style={{ fontSize: 40 }}>📦</Text>
-            </LinearGradient>
-          </FadeInView>
-          <FadeInView delay={120}>
-            <Text style={styles.guestTitle}>Vos commandes</Text>
-            <Text style={styles.guestSub}>
-              Commandez en invité — vos commandes apparaîtront ici automatiquement.
-            </Text>
-          </FadeInView>
-          <FadeInView delay={240} style={{ width: '100%', paddingHorizontal: 24, marginTop: 28 }}>
-            <YohaButton title="Commander maintenant" onPress={() => router.replace('/(client)' as never)} />
-            <YohaButton title="Se connecter" variant="ghost" onPress={() => router.push('/auth/login' as never)} style={{ marginTop: 12 }} />
-          </FadeInView>
-        </View>
-      </PremiumBackground>
-    );
-  }
+  const filtered = useMemo(() => {
+    if (activeTab === 'all') return orders;
+    if (activeTab === 'active') return orders.filter((o) => !['delivered', 'cancelled'].includes(o.status));
+    return orders.filter((o) => o.status === activeTab);
+  }, [orders, activeTab]);
+
+  const headerOpacity = scrollY.interpolate({
+    inputRange: [0, 60],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
 
   return (
-    <PremiumBackground>
-      {activeOrder ? <LiveOrderChip order={activeOrder} /> : null}
-      <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingTop: insets.top + (activeOrder ? 72 : 16), paddingBottom: scrollBottomPadding }]}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={brand[500]} />}
-      >
-        <FadeInView>
-          <Text style={styles.title}>{user ? 'Mes commandes' : 'Commandes invité'}</Text>
-        </FadeInView>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <Animated.View style={[styles.header, { opacity: headerOpacity }]}>
+        <LinearGradient colors={['#fff7ed', '#ffffff']} style={StyleSheet.absoluteFill} />
+        <Text style={styles.headerTitle}>Mes commandes</Text>
+      </Animated.View>
 
-        {loading && orders.length === 0 ? <ActivityIndicator color={brand[500]} style={{ marginTop: 40 }} /> : null}
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-        {!loading && orders.length === 0 && user ? (
-          <Text style={styles.empty}>Aucune commande pour le moment</Text>
-        ) : null}
-
-        {orders.map((o, i) => (
-          <FadeInView key={o.id} delay={i * 80}>
-            <Pressable onPress={() => router.push(`/(client)/order/${o.id}` as never)}>
-              <OrderCard order={o} onReorder={handleReorder} />
+      <View style={styles.tabRow}>
+        {TABS.map((tab) => {
+          const active = activeTab === tab.key;
+          return (
+            <Pressable
+              key={tab.key}
+              onPress={() => setActiveTab(tab.key)}
+              style={[styles.tab, active && styles.tabActive]}
+            >
+              <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{tab.label}</Text>
             </Pressable>
-          </FadeInView>
-        ))}
-      </ScrollView>
-      <StickyCartBar />
-    </PremiumBackground>
+          );
+        })}
+      </View>
+
+      <FlatList
+        data={filtered}
+        keyExtractor={(o: Order) => String(o.id || (o as any).public_id || Math.random())}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 100, paddingHorizontal: 16 }}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand[500]} />}
+        renderItem={({ item: order }) => {
+          const cfg = STATUS_CONFIG[order.status] || { label: order.status, color: ink[500], bg: ink[100] };
+          return (
+            <Pressable
+              onPress={() => router.push(`/(client)/order/${order.public_id || order.id}`)}
+              style={({ pressed }) => [
+                styles.card,
+                { transform: [{ scale: pressed ? 0.98 : 1 }] },
+              ]}
+            >
+              <View style={styles.cardTop}>
+                <View style={styles.cardRestoRow}>
+                  <Text style={styles.cardRestaurant} numberOfLines={1}>
+                    {order.restaurantName || 'Restaurant'}
+                  </Text>
+                </View>
+                <View style={[styles.statusBadge, { backgroundColor: cfg.bg }]}>
+                  <Text style={[styles.statusText, { color: cfg.color }]}>{cfg.label}</Text>
+                </View>
+              </View>
+
+              <View style={styles.cardMeta}>
+                <Text style={styles.cardDate}>{formatOrderDate(order.createdAt)}</Text>
+                <Text style={styles.cardDot}>·</Text>
+                <Text style={styles.cardItems}>{getItemCount(order.items)} article(s)</Text>
+              </View>
+
+              <View style={styles.cardBottom}>
+                <Text style={styles.cardTotal}>Total: <Text style={styles.cardTotalValue}>{Number(order.totalDh || 0).toFixed(2)} DH</Text></Text>
+                {order.items && order.items.length > 0 && (
+                  <Text style={styles.cardItemPreview} numberOfLines={1}>
+                    {order.items.slice(0, 3).map((i) => i.name).join(', ')}
+                    {order.items.length > 3 ? '…' : ''}
+                  </Text>
+                )}
+              </View>
+            </Pressable>
+          );
+        }}
+        ListHeaderComponent={
+          loading ? (
+            <View>
+              {[1, 2, 3].map((i) => (
+                <View key={i} style={[styles.skeleton, { marginBottom: 12 }]}>
+                  <View style={[styles.skelLine, { width: '50%' }]} />
+                  <View style={[styles.skelLine, { width: '30%', marginTop: 8 }]} />
+                  <View style={[styles.skelLine, { width: '65%', marginTop: 8 }]} />
+                </View>
+              ))}
+            </View>
+          ) : null
+        }
+        ListEmptyComponent={
+          !loading ? (
+            <View style={styles.empty}>
+              <Text style={styles.emptyEmoji}>📋</Text>
+              <Text style={styles.emptyTitle}>Aucune commande</Text>
+              <Text style={styles.emptyDesc}>
+                {activeTab === 'all' ? 'Passez votre première commande dès maintenant.' : 'Aucune commande dans cette catégorie.'}
+              </Text>
+              <Pressable onPress={() => router.back()} style={styles.orderBtn}>
+                <Text style={styles.orderBtnText}>Commander</Text>
+              </Pressable>
+            </View>
+          ) : null
+        }
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { paddingHorizontal: 20 },
-  title: { fontFamily: fonts.display, fontSize: 28, color: ink[900], marginBottom: 20 },
-  error: { color: '#b91c1c', fontFamily: fonts.medium },
-  empty: { color: ink[500], fontFamily: fonts.medium, marginTop: 24, textAlign: 'center' },
-  guest: { flex: 1, alignItems: 'center', paddingHorizontal: 24 },
-  guestIcon: { width: 96, height: 96, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
-  guestTitle: { marginTop: 24, fontFamily: fonts.display, fontSize: 26, color: ink[900] },
-  guestSub: { marginTop: 12, fontFamily: fonts.medium, fontSize: 15, color: ink[500], textAlign: 'center', lineHeight: 22 },
+  container: { flex: 1, backgroundColor: '#f8fafc' },
+  header: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 12 },
+  headerTitle: { ...typography.h1, color: ink[900] },
+  tabRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 8, marginBottom: 16 },
+  tab: {
+    paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20,
+    backgroundColor: '#ffffff', borderWidth: 1, borderColor: ink[200],
+  },
+  tabActive: { backgroundColor: brand[500], borderColor: brand[500] },
+  tabLabel: { fontSize: 13, fontWeight: '700', color: ink[600] },
+  tabLabelActive: { color: '#ffffff' },
+  card: {
+    backgroundColor: '#ffffff', borderRadius: 16, padding: 16, marginBottom: 10,
+    borderWidth: 1, borderColor: ink[100],
+    shadowColor: ink[900], shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
+  },
+  cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
+  cardRestoRow: { flex: 1, marginRight: 8 },
+  cardRestaurant: { ...typography.h3, color: ink[900] },
+  statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
+  statusText: { fontSize: 11, fontWeight: '800' },
+  cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 8 },
+  cardDate: { fontSize: 12, color: ink[400], fontWeight: '500' },
+  cardDot: { fontSize: 12, color: ink[300] },
+  cardItems: { fontSize: 12, color: ink[400], fontWeight: '500' },
+  cardBottom: {},
+  cardTotal: { fontSize: 14, color: ink[500] },
+  cardTotalValue: { fontSize: 15, fontWeight: '800', color: brand[500] },
+  cardItemPreview: { fontSize: 12, color: ink[400], marginTop: 4 },
+  skeleton: { backgroundColor: '#ffffff', borderRadius: 16, padding: 16 },
+  skelLine: { height: 12, borderRadius: 6, backgroundColor: ink[200] },
+  empty: { alignItems: 'center', paddingTop: 60, paddingHorizontal: 40 },
+  emptyEmoji: { fontSize: 48, marginBottom: 16 },
+  emptyTitle: { ...typography.h2, color: ink[900], marginBottom: 8 },
+  emptyDesc: { ...typography.body, color: ink[500], textAlign: 'center', marginBottom: 24 },
+  orderBtn: {
+    backgroundColor: brand[500], paddingHorizontal: 24, paddingVertical: 14,
+    borderRadius: radius.full,
+  },
+  orderBtnText: { color: '#ffffff', fontWeight: '800', fontSize: 15 },
 });

@@ -11,6 +11,8 @@ const gerantPhoto = '/logo.webp';
 const DASH_LINKS = {
   admin: [
     { id: 'overview', label: 'Vue d\'ensemble', icon: <I.Sparkle size={18} /> },
+    { id: 'analytics', label: 'Analytics', icon: <I.LayoutDashboard size={18} /> },
+    { id: 'clients', label: 'Clients', icon: <I.User size={18} /> },
     { id: 'requests', label: 'Requêtes', icon: <I.Bell size={18} /> },
     { id: 'orders', label: 'Commandes', icon: <I.Bag size={18} /> },
     { id: 'restaurants', label: 'Restaurants', icon: <I.Chef size={18} /> },

@@ -20,6 +20,8 @@ import {
 } from '../data/index.js';
 import { useOrders, useToast } from '../contexts/AppContexts.jsx';
 import { apiFetch, ordersApi, userRequestsApi } from '../lib/api.js';
+import { AdminAnalytics } from './AdminAnalytics.jsx';
+import { AdminClients } from './AdminClients.jsx';
 import { CancelOrderButton, CancelPhaseBadge, OrderCancellationNote } from '../components/ui/CancelOrderButton.jsx';
 import {
   DashLayout,
@@ -143,19 +145,31 @@ function formatRelativeDate(dateStr) {
   return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
 }
 
-function StarRating({ rating }) {
+function StarRating({ rating, count }) {
   const stars = Math.round(Number(rating) || 0);
   return (
-    <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <span key={s} className={`text-xs ${s <= stars ? 'text-amber-400' : 'text-ink-300 dark:text-ink-600'}`}>
-          ★
+    <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map((s) => (
+          <span key={s} className={`text-xs ${s <= stars ? 'text-amber-400' : 'text-ink-300 dark:text-ink-600'}`}>
+            ★
+          </span>
+        ))}
+      </div>
+      {rating != null && (
+        <span className="text-[11px] font-extrabold text-ink-900 dark:text-white">
+          {Number(rating).toFixed(1)}
         </span>
-      ))}
-      {rating != null && <span className="ml-1 text-[10px] text-ink-500">{Number(rating).toFixed(1)}</span>}
+      )}
+      {count !== undefined && count !== null && (
+        <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold ml-0.5">
+          ({count} avis)
+        </span>
+      )}
     </div>
   );
 }
+
 
 const PROMO_SECTIONS = [
   { id: 'all', label: 'Toutes les sections' },
@@ -294,6 +308,8 @@ export function AdminDashboard({ goto, dark, setDark }) {
 
   const titles = {
     overview: 'Tableau de bord',
+    analytics: 'Analytics trafic',
+    clients: 'Clients',
     orders: 'Toutes les commandes',
     restaurants: 'Restaurants',
     couriers: 'Livreurs',
@@ -307,6 +323,8 @@ export function AdminDashboard({ goto, dark, setDark }) {
     <DashLayout kind="admin" current={current} setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
       title={titles[current]} subtitle="Vue d'ensemble de la plateforme YoHa">
       {current === 'overview' && <AdminOverview orders={orders} restaurantCount={restaurantPartnersCount} />}
+      {current === 'analytics' && <AdminAnalytics />}
+      {current === 'clients' && <AdminClients />}
       {current === 'orders' && <AdminOrders orders={orders} />}
       {current === 'restaurants' && <AdminRestaurants />}
       {current === 'couriers' && <AdminCouriers />}
@@ -1295,12 +1313,38 @@ export function AdminCourierLiveGpsBadge({ courier, orders: propOrders }) {
 export function AdminCouriers() {
   const { orders = [], couriers, refreshOrders } = useOrders();
   const [courierList, setCourierList] = useState([]);
+  const [allReviews, setAllReviews] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [adding, setAdding] = useState(false);
+
+  const loadAllReviews = useCallback(async () => {
+    const apiRevs = await fetchReviewsFromApi();
+    const storedRevs = getStoredReviews();
+    const mergedMap = new Map();
+    [...storedRevs, ...apiRevs].forEach((r) => mergedMap.set(String(r.id || r.orderId), r));
+    setAllReviews(Array.from(mergedMap.values()));
+  }, []);
+
+  useEffect(() => {
+    loadAllReviews();
+    window.addEventListener('yoha_reviews_updated', loadAllReviews);
+    return () => window.removeEventListener('yoha_reviews_updated', loadAllReviews);
+  }, [loadAllReviews]);
+
+  const courierReviewStats = useMemo(() => {
+    const map = {};
+    allReviews.forEach((r) => {
+      if (!r.courierName) return;
+      const key = r.courierName.toLowerCase().trim();
+      if (!map[key]) map[key] = [];
+      map[key].push(Number(r.rating) || 5);
+    });
+    return map;
+  }, [allReviews]);
 
   const saveCouriersLocally = (newList) => {
     setCourierList(newList);
@@ -1356,14 +1400,7 @@ export function AdminCouriers() {
         return;
       }
 
-      if (!localList || localList.length === 0) {
-        localList = [
-          { id: 'c-1', name: 'Youssef B.', displayName: 'Youssef B.', email: 'youssef.b@yoha.ma', vehicle: 'Scooter Honda 125', isActive: true, totalDeliveries: 142, totalRevenue: 2840, rating: 4.9 },
-          { id: 'c-2', name: 'Amine K.', displayName: 'Amine K.', email: 'amine.k@yoha.ma', vehicle: 'Yamaha NMAX', isActive: true, totalDeliveries: 98, totalRevenue: 1960, rating: 4.8 },
-          { id: 'c-3', name: 'Driss T.', displayName: 'Driss T.', email: 'driss.t@yoha.ma', vehicle: 'Peugeot Tweet', isActive: true, totalDeliveries: 64, totalRevenue: 1280, rating: 4.7 },
-        ];
-        saveCouriersLocally(localList);
-      } else {
+      if (localList && localList.length > 0) {
         setCourierList(localList);
       }
     } catch {
@@ -1372,7 +1409,14 @@ export function AdminCouriers() {
   }, []);
 
   useEffect(() => {
-    try { if (typeof window !== 'undefined') localStorage.removeItem('yoha_couriers'); } catch {}
+    try {
+      const cached = localStorage.getItem('yoha_couriers');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        const hasMock = parsed.some((c) => c.id === 'c-1' || c.id === 'c-2' || c.id === 'c-3');
+        if (hasMock) localStorage.removeItem('yoha_couriers');
+      }
+    } catch {}
     loadCouriers();
   }, [loadCouriers]);
 
@@ -1491,55 +1535,76 @@ export function AdminCouriers() {
       )}
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {courierList.map((c) => (
-          <GlassCard key={c.id} className="p-4" hover>
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0">
-                {c.avatar ? (
-                  <img src={c.avatar} className="h-12 w-12 rounded-xl object-cover ring-2 ring-white/50 dark:ring-ink-800 shrink-0" alt="" />
-                ) : (
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg">
-                    <I.Bike size={20} />
-                  </span>
-                )}
-                <div className="min-w-0">
-                  <h3 className="font-display font-bold truncate">{c.name || c.displayName || '—'}</h3>
-                  <div className="text-xs text-ink-500 truncate">{c.vehicle || 'Véhicule non spécifié'}</div>
-                  <div className="text-[10px] font-mono text-ink-400 truncate mt-0.5">{c.email || '—'}</div>
+        {courierList.map((c) => {
+          const cNameKey = (c.name || c.displayName || c.email || '').toLowerCase().trim();
+          const cEmailPrefix = (c.email || '').split('@')[0].toLowerCase().trim();
+
+          let matchedRatings = courierReviewStats[cNameKey] || courierReviewStats[cEmailPrefix] || [];
+          if (!matchedRatings.length) {
+            Object.keys(courierReviewStats).forEach((k) => {
+              if (k.includes(cNameKey) || cNameKey.includes(k) || (cEmailPrefix && (k.includes(cEmailPrefix) || cEmailPrefix.includes(k)))) {
+                matchedRatings = [...matchedRatings, ...courierReviewStats[k]];
+              }
+            });
+          }
+
+          const hasRevs = matchedRatings.length > 0;
+          const computedRating = hasRevs
+            ? (matchedRatings.reduce((a, b) => a + b, 0) / matchedRatings.length).toFixed(1)
+            : Number(c.rating || 5.0).toFixed(1);
+          const reviewCount = matchedRatings.length;
+
+          return (
+            <GlassCard key={c.id} className="p-4" hover>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  {c.avatar ? (
+                    <img src={c.avatar} className="h-12 w-12 rounded-xl object-cover ring-2 ring-white/50 dark:ring-ink-800 shrink-0" alt="" />
+                  ) : (
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg">
+                      <I.Bike size={20} />
+                    </span>
+                  )}
+                  <div className="min-w-0">
+                    <h3 className="font-display font-bold truncate">{c.name || c.displayName || '—'}</h3>
+                    <div className="text-xs text-ink-500 truncate">{c.vehicle || 'Moto Express'}</div>
+                    <div className="text-[10px] font-mono text-ink-400 truncate mt-0.5">{c.email || '—'}</div>
+                  </div>
+                </div>
+                <button onClick={() => handleDelete(c.id)}
+                  className="cursor-grow shrink-0 h-8 w-8 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 transition-colors flex items-center justify-center">
+                  <I.Trash size={14} />
+                </button>
+              </div>
+
+              {/* Delivery stats */}
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <div className="rounded-xl bg-ink-50/50 dark:bg-ink-950/30 p-2.5 text-center">
+                  <div className="text-[10px] text-ink-400 font-bold">Livraisons</div>
+                  <div className="font-display font-black text-sm">{c.totalDeliveries || '—'}</div>
+                </div>
+                <div className="rounded-xl bg-ink-50/50 dark:bg-ink-950/30 p-2.5 text-center">
+                  <div className="text-[10px] text-ink-400 font-bold">Revenus générés</div>
+                  <div className="font-display font-black text-sm">{c.totalRevenue ? formatMAD(c.totalRevenue) : '—'}</div>
                 </div>
               </div>
-              <button onClick={() => handleDelete(c.id)}
-                className="cursor-grow shrink-0 h-8 w-8 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 transition-colors flex items-center justify-center">
-                <I.Trash size={14} />
-              </button>
-            </div>
 
-            {/* Delivery stats */}
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <div className="rounded-xl bg-ink-50/50 dark:bg-ink-950/30 p-2.5 text-center">
-                <div className="text-[10px] text-ink-400 font-bold">Livraisons</div>
-                <div className="font-display font-black text-sm">{c.totalDeliveries || '—'}</div>
+              {/* Rating + status */}
+              <div className="mt-3 flex items-center justify-between">
+                <StarRating rating={computedRating} count={reviewCount} />
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ${c.isActive !== false ? 'bg-emerald-500/10 text-emerald-600' : 'bg-ink-200/50 text-ink-400 dark:bg-ink-800/50'}`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${c.isActive !== false ? 'bg-emerald-500' : 'bg-ink-400'}`} />
+                  {c.isActive !== false ? 'Actif' : 'Inactif'}
+                </span>
               </div>
-              <div className="rounded-xl bg-ink-50/50 dark:bg-ink-950/30 p-2.5 text-center">
-                <div className="text-[10px] text-ink-400 font-bold">Revenus générés</div>
-                <div className="font-display font-black text-sm">{c.totalRevenue ? formatMAD(c.totalRevenue) : '—'}</div>
-              </div>
-            </div>
 
-            {/* Rating + status */}
-            <div className="mt-3 flex items-center justify-between">
-              <StarRating rating={c.rating} />
-              <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ${c.isActive !== false ? 'bg-emerald-500/10 text-emerald-600' : 'bg-ink-200/50 text-ink-400 dark:bg-ink-800/50'}`}>
-                <span className={`h-1.5 w-1.5 rounded-full ${c.isActive !== false ? 'bg-emerald-500' : 'bg-ink-400'}`} />
-                {c.isActive !== false ? 'Actif' : 'Inactif'}
-              </span>
-            </div>
-
-            {/* Live GPS Badge */}
-            <AdminCourierLiveGpsBadge courier={c} orders={orders} />
-          </GlassCard>
-        ))}
+              {/* Live GPS Badge */}
+              <AdminCourierLiveGpsBadge courier={c} orders={orders} />
+            </GlassCard>
+          );
+        })}
       </div>
+
 
       {courierList.length === 0 && (
         <EmptyState
@@ -2035,14 +2100,19 @@ export function AdminPromos() {
    REVIEWS & RATINGS (AVIS CLIENTS)
    ═══════════════════════════════════════════════════════════════ */
 export function AdminReviews() {
+
   const [reviews, setReviews] = useState([]);
   const [search, setSearch] = useState('');
   const [filterRating, setFilterRating] = useState('all');
   const { push: pushToast } = useToast();
+  const { orders } = useOrders();
 
   const loadReviews = useCallback(async () => {
-    const data = await fetchReviewsFromApi({ search, rating: filterRating !== 'all' ? filterRating : undefined });
-    setReviews(data);
+    const apiReviews = await fetchReviewsFromApi({ search, rating: filterRating !== 'all' ? filterRating : undefined });
+    const stored = getStoredReviews();
+    const mergedMap = new Map();
+    [...stored, ...apiReviews].forEach((r) => mergedMap.set(String(r.id || r.orderId), r));
+    setReviews(Array.from(mergedMap.values()));
   }, [search, filterRating]);
 
   useEffect(() => {
@@ -2059,11 +2129,43 @@ export function AdminReviews() {
     }
   };
 
+  const enrichedReviews = useMemo(() => {
+    return reviews.map((r) => {
+      const order = (orders || []).find(
+        (o) =>
+          String(o.public_id || o.id) === String(r.orderId) ||
+          String(o.id) === String(r.orderId) ||
+          (r.orderId && String(r.orderId).includes(String(o.public_id || o.id)))
+      );
+
+      const nameCandidate = order?.customerName || order?.name || order?.customer_name;
+      const finalName =
+        (nameCandidate && !['Client', 'Client YoHa'].includes(nameCandidate) ? nameCandidate : null) ||
+        (r.customerName && !['Client', 'Client YoHa'].includes(r.customerName) ? r.customerName : null) ||
+        order?.customerPhone ||
+        r.customerPhone ||
+        order?.customerEmail ||
+        r.customerEmail ||
+        'Client (Commande #' + (r.orderId || r.id) + ')';
+
+      return {
+        ...r,
+        customerName: finalName,
+        customerPhone: order?.customerPhone || order?.phone || r.customerPhone || null,
+        customerEmail: order?.customerEmail || order?.email || r.customerEmail || null,
+        restaurantName: order?.restaurantName || r.restaurantName || 'Restaurant',
+        courierName: order?.courierName || r.courierName || 'Livreur',
+      };
+    });
+  }, [reviews, orders]);
+
   const filtered = useMemo(() => {
-    return reviews.filter((r) => {
+    return enrichedReviews.filter((r) => {
       const matchSearch =
         !search.trim() ||
         (r.customerName || '').toLowerCase().includes(search.toLowerCase()) ||
+        (r.customerPhone || '').toLowerCase().includes(search.toLowerCase()) ||
+        (r.customerEmail || '').toLowerCase().includes(search.toLowerCase()) ||
         (r.restaurantName || '').toLowerCase().includes(search.toLowerCase()) ||
         (r.courierName || '').toLowerCase().includes(search.toLowerCase()) ||
         (r.orderId || '').toLowerCase().includes(search.toLowerCase()) ||
@@ -2073,21 +2175,21 @@ export function AdminReviews() {
 
       return matchSearch && matchRating;
     });
-  }, [reviews, search, filterRating]);
+  }, [enrichedReviews, search, filterRating]);
 
   const avgRating = useMemo(() => {
-    if (!reviews.length) return '0.0';
-    const sum = reviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0);
-    return (sum / reviews.length).toFixed(1);
-  }, [reviews]);
+    if (!enrichedReviews.length) return '0.0';
+    const sum = enrichedReviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0);
+    return (sum / enrichedReviews.length).toFixed(1);
+  }, [enrichedReviews]);
 
   const ratingCounts = useMemo(() => {
     const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-    reviews.forEach((r) => {
+    enrichedReviews.forEach((r) => {
       if (counts[r.rating] !== undefined) counts[r.rating]++;
     });
     return counts;
-  }, [reviews]);
+  }, [enrichedReviews]);
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -2110,7 +2212,7 @@ export function AdminReviews() {
               {avgRating} <span className="text-sm font-bold text-ink-400">/ 5.0</span>
             </div>
             <div className="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-0.5">
-              Basé sur {reviews.length} avis client{reviews.length > 1 ? 's' : ''}
+              Basé sur {enrichedReviews.length} avis client{enrichedReviews.length > 1 ? 's' : ''}
             </div>
           </div>
         </GlassCard>
@@ -2119,7 +2221,7 @@ export function AdminReviews() {
         <GlassCard className="p-5 sm:col-span-2 space-y-1.5 justify-center flex flex-col">
           {[5, 4, 3, 2, 1].map((num) => {
             const cnt = ratingCounts[num] || 0;
-            const pct = reviews.length ? Math.round((cnt / reviews.length) * 100) : 0;
+            const pct = enrichedReviews.length ? Math.round((cnt / enrichedReviews.length) * 100) : 0;
             return (
               <div key={num} className="flex items-center gap-3 text-xs font-semibold">
                 <span className="w-8 shrink-0 flex items-center gap-0.5 text-amber-500 font-bold">
@@ -2197,9 +2299,11 @@ export function AdminReviews() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 font-mono text-xs font-bold border border-brand-500/20">
-                      #{rev.orderId}
-                    </span>
+                    {rev.orderId && (
+                      <span className="px-2.5 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 font-mono text-xs font-bold border border-brand-500/20">
+                        #{rev.orderId}
+                      </span>
+                    )}
                     <button
                       onClick={() => handleDelete(rev.id)}
                       className="cursor-grow h-8 w-8 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 dark:bg-red-950/40 transition-colors flex items-center justify-center"
@@ -2217,11 +2321,19 @@ export function AdminReviews() {
 
                 {/* Detailed Breakdown: Customer, Restaurant, Courier */}
                 <div className="grid grid-cols-3 gap-2 pt-1 text-xs">
-                  <div className="p-2 rounded-xl bg-slate-100/70 dark:bg-ink-800/40">
+                  <div className="p-2 rounded-xl bg-slate-100/70 dark:bg-ink-800/40 space-y-0.5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400 block">👤 Client</span>
-                    <span className="font-bold text-ink-900 dark:text-white truncate block mt-0.5">
-                      {rev.customerName || 'Client'}
+                    <span className="font-extrabold text-ink-900 dark:text-white truncate block">
+                      {rev.customerName}
                     </span>
+                    {rev.customerPhone && (
+                      <span className="text-[11px] font-bold text-brand-600 dark:text-brand-400 block truncate">
+                        📞 {rev.customerPhone}
+                      </span>
+                    )}
+                    {rev.customerEmail && (
+                      <span className="text-[10px] text-ink-400 block truncate">{rev.customerEmail}</span>
+                    )}
                   </div>
 
                   <div className="p-2 rounded-xl bg-amber-500/10 dark:bg-amber-500/5">
@@ -2252,3 +2364,4 @@ export function AdminReviews() {
     </div>
   );
 }
+

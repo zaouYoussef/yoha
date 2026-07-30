@@ -1,384 +1,279 @@
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+  ActivityIndicator, Animated, Dimensions, FlatList, Pressable, RefreshControl,
+  StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CategoryBannerScroll } from '../../src/components/ui/CategoryBannerScroll';
-import { DiscoverBento } from '../../src/components/discover/DiscoverBento';
-import { DiscoverEmptyWow } from '../../src/components/discover/DiscoverEmptyWow';
-import { CraveRoulette } from '../../src/components/discover/CraveRoulette';
-import { DiscoverHero } from '../../src/components/discover/DiscoverHero';
-import { DiscoverPromoDeck } from '../../src/components/discover/DiscoverPromoDeck';
-import { DiscoverSectionHeader } from '../../src/components/discover/DiscoverSectionHeader';
-import { FavoritesRow } from '../../src/components/discover/FavoritesRow';
-import { OrderAgainStrip } from '../../src/components/discover/OrderAgainStrip';
-import { TrendingCarousel } from '../../src/components/discover/TrendingCarousel';
-import { PromoRow } from '../../src/components/discover/PromoRow';
-import { PremiumBackground } from '../../src/components/PremiumBackground';
-import { RestaurantCard } from '../../src/components/RestaurantCard';
-import { SocialProofBanner } from '../../src/components/SocialProofBanner';
-import { StickyCartBar } from '../../src/components/StickyCartBar';
-import { RestaurantSkeleton } from '../../src/components/ui/Skeleton';
-import { YohaButton } from '../../src/components/ui/YohaButton';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { useCart } from '../../src/contexts/CartContext';
-import { useToast } from '../../src/contexts/ToastContext';
-import { useActiveOrder } from '../../src/hooks/useActiveOrder';
-import { useLastOrder } from '../../src/hooks/useLastOrder';
-import { Restaurant, restaurantsApi } from '../../src/lib/api';
-import { getFavoriteIds } from '../../src/lib/favorites';
-import { hapticSuccess } from '../../src/lib/haptics';
-import { useLayoutChrome } from '../../src/lib/layoutChrome';
-import { orderToCartItems } from '../../src/lib/reorder';
-import { hasAnyRestaurantOpen } from '../../src/lib/openingHours';
-import { STATIC_STORES } from '../../src/data/staticStores';
-import { brand } from '../../src/theme';
-import { fonts } from '../../src/theme/fonts';
+import { router } from 'expo-router';
+import { restaurantsApi, type Restaurant } from '../../src/lib/api';
+import { brand, gradients, ink, radius, shadows, typography } from '../../src/theme';
 
-const AnimatedScroll = Animated.createAnimatedComponent(ScrollView);
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CARD_WIDTH = (SCREEN_WIDTH - 40) / 2;
 
-function ServiceGrid({ active, onSelect }: { active: string; onSelect: (id: string) => void }) {
-  const services = [
-    { id: '', label: 'Restaurants', emoji: '🍽️', colors: ['#fb923c', '#f97316'] as [string, string] },
-    { id: 'dessert', label: 'Pâtisseries', emoji: '🥐', colors: ['#f472b6', '#ec4899'] as [string, string] },
-    { id: 'pharmacy', label: 'Pharmacies', emoji: '💊', colors: ['#34d399', '#10b981'] as [string, string] },
-    { id: 'parapharmacy', label: 'Parapharma', emoji: '🌿', colors: ['#6ee7b7', '#059669'] as [string, string] },
-    { id: 'supermarket', label: 'Supermarché', emoji: '🛒', colors: ['#60a5fa', '#3b82f6'] as [string, string] },
-    { id: 'shop', label: 'Magasins', emoji: '🛍️', colors: ['#c084fc', '#a855f7'] as [string, string] },
-  ];
+const CUISINES = [
+  { key: '', label: 'Tout', emoji: '🔥' },
+  { key: 'pizza', label: 'Pizza', emoji: '🍕' },
+  { key: 'tacos', label: 'Tacos', emoji: '🌮' },
+  { key: 'burger', label: 'Burger', emoji: '🍔' },
+  { key: 'sushi', label: 'Sushi', emoji: '🍣' },
+  { key: 'kebab', label: 'Kebab', emoji: '🥙' },
+  { key: 'sandwich', label: 'Sandwich', emoji: '🥪' },
+  { key: 'healthy', label: 'Healthy', emoji: '🥗' },
+];
 
+function formatDistance(d: string | undefined) {
+  if (!d) return null;
+  const num = parseFloat(d);
+  if (isNaN(num)) return d;
+  return num < 1 ? `${Math.round(num * 1000)} m` : `${num.toFixed(1)} km`;
+}
+
+function SkeletonCard() {
   return (
-    <View style={styles.serviceGrid}>
-      {services.map(s => {
-        const isActive = active === s.id;
-        return (
-          <Pressable
-            key={s.id}
-            onPress={() => onSelect(s.id)}
-            style={[styles.serviceCard, isActive && styles.serviceCardActive]}
-          >
-            <LinearGradient colors={s.colors} style={styles.serviceGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-              <Text style={styles.serviceEmoji}>{s.emoji}</Text>
-              <Text style={styles.serviceLabel}>{s.label}</Text>
-            </LinearGradient>
-          </Pressable>
-        );
-      })}
+    <View style={[styles.card, { backgroundColor: ink[100] }]}>
+      <View style={[styles.cardImage, { backgroundColor: ink[200] }]} />
+      <View style={styles.cardBody}>
+        <View style={[styles.skelLine, { width: '70%' }]} />
+        <View style={[styles.skelLine, { width: '45%', marginTop: 6 }]} />
+        <View style={[styles.skelLine, { width: '55%', marginTop: 6 }]} />
+      </View>
     </View>
   );
 }
 
 export default function ClientHome() {
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
-  const { activeOrder } = useActiveOrder();
-  const { lastOrder } = useLastOrder();
-  const { replaceItems } = useCart();
-  const { showToast } = useToast();
-  const params = useLocalSearchParams<{ filterCuisine?: string; searchVal?: string }>();
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState('');
-  const [query, setQuery] = useState('');
+  const [search, setSearch] = useState('');
   const [cuisine, setCuisine] = useState('');
-  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
-  const scrollY = useSharedValue(0);
-  const isFirstLoad = useRef(true);
-  const { scrollBottomPadding } = useLayoutChrome();
+  const scrollY = useRef(new Animated.Value(0)).current;
+
+  const fetchData = useCallback(async () => {
+    try {
+      const params: { cuisine?: string; q?: string } = {};
+      if (cuisine) params.cuisine = cuisine;
+      if (search.trim()) params.q = search.trim();
+      const list = await restaurantsApi.list(params);
+      setRestaurants(list);
+    } catch {
+      setRestaurants([]);
+    }
+  }, [cuisine, search]);
 
   useEffect(() => {
-    if (params.filterCuisine !== undefined) {
-      setCuisine(params.filterCuisine === 'all' ? '' : params.filterCuisine);
-    }
-  }, [params.filterCuisine]);
+    setLoading(true);
+    fetchData().finally(() => setLoading(false));
+  }, [fetchData]);
 
-  useEffect(() => {
-    if (params.searchVal !== undefined) {
-      setQuery(params.searchVal);
-    }
-  }, [params.searchVal]);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  }, [fetchData]);
 
-  const onScroll = useAnimatedScrollHandler({
-    onScroll: (e) => { scrollY.value = e.contentOffset.y; },
+  const headerOpacity = scrollY.interpolate({
+    inputRange: [0, 80],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
   });
 
-  const load = useCallback(async (opts?: { pull?: boolean; showSkeleton?: boolean }) => {
-    setError('');
-    if (opts?.pull) setRefreshing(true);
-    else if (opts?.showSkeleton) setLoading(true);
-    try {
-      if (['pharmacy', 'dessert', 'parapharmacy', 'supermarket', 'shop'].includes(cuisine)) {
-        let filtered = STATIC_STORES.filter(s => s.cuisine === cuisine);
-        if (query) {
-          const q = query.toLowerCase();
-          filtered = filtered.filter(s => 
-            s.name.toLowerCase().includes(q) || 
-            s.tags.some(t => t.toLowerCase().includes(q))
-          );
-        }
-        const mapped = filtered.map(s => ({
-          id: s.id,
-          slug: s.id,
-          name: s.name,
-          cuisine: s.cuisine,
-          cover: s.cover,
-          logo: s.logo,
-          description: s.description,
-          fee: s.fee,
-          distance: s.distance,
-          eta: s.eta,
-          tags: s.tags,
-          isOpen: s.isOpen,
-          isStatic: s.isStatic,
-          isCustomRequest: s.isCustomRequest,
-          menu: []
-        } as Restaurant));
-        setRestaurants(mapped);
-      } else {
-        const data = await restaurantsApi.list({
-          ...(query ? { q: query } : {}),
-          ...(cuisine && cuisine !== 'promos' ? { cuisine } : {}),
-        });
-        if (cuisine === 'promos') {
-          setRestaurants(data.filter((r) => !!r.promo));
-        } else {
-          setRestaurants(data);
-        }
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erreur de chargement');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [query, cuisine]);
-
-  useEffect(() => {
-    const showSkeleton = isFirstLoad.current;
-    const t = setTimeout(() => {
-      load({ showSkeleton });
-      isFirstLoad.current = false;
-    }, query ? 300 : 0);
-    return () => clearTimeout(t);
-  }, [load, query, cuisine]);
-
-  useFocusEffect(
-    useCallback(() => {
-      getFavoriteIds().then(setFavoriteIds);
-    }, []),
-  );
-
-  const name = useMemo(() => {
-    if (!user?.displayName) return 'toi';
-    return user.displayName.split(/\s+/)[0];
-  }, [user]);
-
-  const userInitial = user?.displayName?.[0]?.toUpperCase() ?? 'Y';
-  const isGuest = !user;
-  const hasFilter = !!(query || cuisine);
-  const showWowSections = !hasFilter && !loading && !error;
-
-  const favorites = useMemo(
-    () => restaurants.filter((r) => favoriteIds.includes(r.slug)),
-    [restaurants, favoriteIds],
-  );
-
-  const trending = useMemo(() => restaurants.slice(0, 6), [restaurants]);
-  const bentoRestaurants = useMemo(() => restaurants.slice(0, 5), [restaurants]);
-  const listRestaurants = useMemo(
-    () => (hasFilter ? restaurants : restaurants.slice(1)),
-    [hasFilter, restaurants],
-  );
-
-  const anyRestoOpen = useMemo(() => hasAnyRestaurantOpen(restaurants), [restaurants]);
-
-  const applyCuisine = useCallback((id: string) => {
-    setCuisine(id);
-    setQuery('');
-  }, []);
-
-  const handleSelectCuisine = useCallback((id: string) => {
-    applyCuisine(id === 'all' ? '' : id);
-  }, [applyCuisine]);
-
-  const handleReorder = useCallback((order: typeof lastOrder) => {
-    if (!order) return;
-    const lines = orderToCartItems(order);
-    if (!lines.length) {
-      showToast('Panier vide', 'Cette commande ne contient pas d’articles.');
-      return;
-    }
-    const cartLines = lines.map((l) => {
-      const qty = order.items?.find((i) => String(i.id) === l.id)?.qty || 1;
-      return { ...l, qty };
-    });
-    replaceItems(cartLines);
-    showToast('Panier rempli !', 'Commandez à nouveau en un clic', '↻');
-    router.push('/(client)/cart' as never);
-    hapticSuccess();
-  }, [replaceItems, showToast]);
+  const featured = useMemo(() => restaurants.filter((r) => r.promo).slice(0, 4), [restaurants]);
 
   return (
-    <PremiumBackground variant="warm">
-      <View style={{ flex: 1 }}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <Animated.View style={[styles.hero, { opacity: headerOpacity }]}>
+        <LinearGradient colors={['#fff7ed', '#ffffff']} style={StyleSheet.absoluteFill} />
+        <View style={styles.heroContent}>
+          <Text style={styles.greeting}>Découvrez</Text>
+          <Text style={styles.title}>Les meilleurs <Text style={styles.titleAccent}>restaurants</Text></Text>
+        </View>
+      </Animated.View>
 
-
-        <AnimatedScroll
-          onScroll={onScroll}
-          scrollEventThrottle={16}
-          contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => load({ pull: true })}
-              tintColor={brand[500]}
-            />
-          }
-          showsVerticalScrollIndicator={false}
-        >
-          <DiscoverHero
-            name={name}
-            userInitial={userInitial}
-            isGuest={isGuest}
-            query={query}
-            onQueryChange={setQuery}
-            activeOrder={activeOrder}
-            topInset={insets.top}
-            onPromoPress={() => handleSelectCuisine('promos')}
+      <View style={[styles.searchWrap, { paddingHorizontal: 16 }]}>
+        <View style={styles.searchBar}>
+          <Text style={styles.searchIcon}>🔍</Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Rechercher un restaurant…"
+            placeholderTextColor={ink[400]}
+            value={search}
+            onChangeText={setSearch}
           />
-
-          <View style={styles.body}>
-            <ServiceGrid
-              active={cuisine}
-              onSelect={handleSelectCuisine}
-            />
-
-            {!['pharmacy', 'parapharmacy', 'supermarket', 'shop', 'dessert'].includes(cuisine) ? (
-              <CategoryBannerScroll
-                active={cuisine || 'all'}
-                onSelect={handleSelectCuisine}
-              />
-            ) : null}
-
-            {showWowSections && restaurants.length > 0 ? (
-              <DiscoverBento restaurants={bentoRestaurants} activeOrder={activeOrder} />
-            ) : null}
-
-            {showWowSections && lastOrder && lastOrder.status === 'delivered' ? (
-              <OrderAgainStrip order={lastOrder} onReorder={handleReorder} />
-            ) : null}
-
-            {showWowSections && restaurants.length > 0 ? (
-              <CraveRoulette restaurants={restaurants} />
-            ) : null}
-
-            {showWowSections && restaurants.length > 0 ? (
-              <PromoRow restaurants={restaurants} />
-            ) : null}
-
-            {anyRestoOpen ? <SocialProofBanner /> : null}
-            <DiscoverPromoDeck onOffresFlashPress={() => handleSelectCuisine('promos')} />
-
-            {showWowSections && favorites.length > 0 ? (
-              <FavoritesRow restaurants={favorites} />
-            ) : null}
-
-            {showWowSections && restaurants.length > 0 ? (
-              <TrendingCarousel restaurants={trending} />
-            ) : null}
-
-            {!loading && !error && restaurants.length > 0 ? (
-              <DiscoverSectionHeader
-                cuisine={cuisine}
-                count={restaurants.length}
-                loading={loading}
-                onClearFilter={() => applyCuisine('')}
-              />
-            ) : null}
-
-            {loading && restaurants.length === 0 ? (
-              <View style={{ marginTop: 12 }}>
-                {[1, 2, 3].map((i) => <RestaurantSkeleton key={i} />)}
-              </View>
-            ) : null}
-
-            {error ? (
-              <View style={styles.errorBox}>
-                <Text style={styles.errorText}>{error}</Text>
-                <YohaButton title="Réessayer" onPress={() => load()} size="md" style={{ marginTop: 14 }} />
-              </View>
-            ) : null}
-
-            {!loading && !error && restaurants.length === 0 ? (
-              <DiscoverEmptyWow onReset={() => applyCuisine('')} />
-            ) : null}
-
-            {listRestaurants.map((r, i) => (
-              <RestaurantCard
-                key={r.slug}
-                restaurant={r}
-                featured={hasFilter && i === 0}
-                onPress={() => router.push(`/(client)/restaurant/${r.slug}` as never)}
-              />
-            ))}
-          </View>
-        </AnimatedScroll>
-
-        <StickyCartBar />
+          {search.length > 0 && (
+            <Pressable onPress={() => setSearch('')} style={styles.searchClear}>
+              <Text style={styles.searchClearText}>✕</Text>
+            </Pressable>
+          )}
+        </View>
       </View>
-    </PremiumBackground>
+
+      <FlatList
+        data={restaurants}
+        keyExtractor={(r) => r.slug}
+        numColumns={2}
+        contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 100 }]}
+        columnWrapperStyle={styles.row}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand[500]} />}
+        ListHeaderComponent={
+          <>
+            <View style={styles.cuisineRow}>
+              {CUISINES.map((c) => {
+                const active = cuisine === c.key;
+                return (
+                  <Pressable
+                    key={c.key}
+                    onPress={() => setCuisine(c.key)}
+                    style={[styles.chip, active && styles.chipActive]}
+                  >
+                    <Text style={styles.chipEmoji}>{c.emoji}</Text>
+                    <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>
+                      {c.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            {loading && (
+              <View style={styles.row}>
+                {[0, 1].map((i) => <SkeletonCard key={i} />)}
+              </View>
+            )}
+          </>
+        }
+        renderItem={({ item: r, index }) => (
+          <RestaurantCardItem
+            restaurant={r}
+            index={index}
+            onPress={() => router.push(`/(client)/restaurant/${r.slug}`)}
+          />
+        )}
+        ListEmptyComponent={
+          !loading ? (
+            <View style={styles.empty}>
+              <Text style={styles.emptyEmoji}>🍽️</Text>
+              <Text style={styles.emptyTitle}>Aucun restaurant trouvé</Text>
+              <Text style={styles.emptyDesc}>Essayez de modifier vos filtres</Text>
+            </View>
+          ) : null
+        }
+      />
+    </View>
+  );
+}
+
+function RestaurantCardItem({ restaurant: r, index, onPress }: { restaurant: Restaurant; index: number; onPress: () => void }) {
+  const emoji = { pizza: '🍕', tacos: '🌮', kebab: '🥙', sushi: '🍣', burger: '🍔', healthy: '🥗', medical: '🏥', pharmacy: '💊' }[r.cuisine || ''] || '🍽️';
+  const hasPromo = !!r.promo;
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.card,
+        hasPromo && styles.cardPromo,
+        { transform: [{ scale: pressed ? 0.97 : 1 }] },
+      ]}
+    >
+      <LinearGradient colors={['#ffffff', '#fff7ed']} style={StyleSheet.absoluteFill} />
+      <View style={styles.cardImageWrap}>
+        <Image
+          source={{ uri: r.cover }}
+          style={styles.cardImage}
+          contentFit="cover"
+          transition={300}
+          placeholder={{ uri: 'https://placehold.co/400x300/f5f5f5/a0a0a0?text=YoHa' }}
+        />
+        <LinearGradient colors={['transparent', 'rgba(0,0,0,0.5)']} style={styles.cardImageOverlay} />
+        <View style={styles.cardCuisineBadge}>
+          <Text style={styles.cardCuisineText}>{emoji} {r.cuisine}</Text>
+        </View>
+        {hasPromo && (
+          <View style={styles.promoBadge}>
+            <Text style={styles.promoText}>{r.promo}</Text>
+          </View>
+        )}
+      </View>
+      <View style={styles.cardBody}>
+        <Text style={styles.cardName} numberOfLines={1}>{r.name}</Text>
+        <View style={styles.cardMeta}>
+          <Text style={styles.cardDist}>{formatDistance(r.distance) || '—'}</Text>
+          <Text style={styles.cardDot}>·</Text>
+          <Text style={[styles.cardOpen, r.isOpen ? styles.open : styles.closed]}>
+            {r.isOpen ? 'Ouvert' : 'Fermé'}
+          </Text>
+        </View>
+        <Text style={styles.cardFee}>{r.fee || 'Livraison offerte'}</Text>
+      </View>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: 20, paddingTop: 20 },
-  errorBox: { backgroundColor: '#fef2f2', borderRadius: 16, padding: 18, marginBottom: 16 },
-  errorText: { color: '#b91c1c', fontSize: 14, fontFamily: fonts.medium },
-  serviceGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 20,
+  container: { flex: 1, backgroundColor: '#f8fafc' },
+  hero: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12 },
+  heroContent: {},
+  greeting: { ...typography.caption, color: brand[500], textTransform: 'uppercase', letterSpacing: 1 },
+  title: { ...typography.h1, color: ink[900], marginTop: 2 },
+  titleAccent: { color: brand[500] },
+  searchWrap: { paddingBottom: 8, zIndex: 10 },
+  searchBar: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffff',
+    borderRadius: 16, paddingHorizontal: 14, height: 46,
+    borderWidth: 1, borderColor: ink[200],
+    shadowColor: ink[900], shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.06, shadowRadius: 12, elevation: 3,
   },
-  serviceCard: {
-    width: '48%',
-    height: 80,
-    borderRadius: 16,
-    marginBottom: 12,
-    overflow: 'hidden',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+  searchIcon: { fontSize: 16, marginRight: 8 },
+  searchInput: { flex: 1, fontSize: 15, fontWeight: '500', color: ink[900] },
+  searchClear: { padding: 4 },
+  searchClearText: { fontSize: 14, color: ink[400], fontWeight: '700' },
+  cuisineRow: { flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 16, gap: 8, flexWrap: 'wrap' },
+  chip: {
+    flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 8,
+    borderRadius: 20, backgroundColor: '#ffffff', borderWidth: 1, borderColor: ink[200],
+    shadowColor: ink[900], shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
   },
-  serviceCardActive: {
-    borderWidth: 2.5,
-    borderColor: '#fff',
-    elevation: 4,
-    shadowOpacity: 0.15,
+  chipActive: { backgroundColor: brand[500], borderColor: brand[500] },
+  chipEmoji: { fontSize: 14, marginRight: 4 },
+  chipLabel: { fontSize: 12, fontWeight: '700', color: ink[600] },
+  chipLabelActive: { color: '#ffffff' },
+  list: { paddingHorizontal: 12, paddingTop: 8 },
+  row: { gap: 8, justifyContent: 'space-between', paddingHorizontal: 4 },
+  card: {
+    width: CARD_WIDTH, marginBottom: 12, borderRadius: 20,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.6)',
+    overflow: 'hidden', ...shadows.card,
   },
-  serviceGradient: {
-    flex: 1,
-    padding: 12,
-    justifyContent: 'space-between',
+  cardPromo: { borderColor: brand[300] },
+  cardImageWrap: { height: 120, position: 'relative' },
+  cardImage: { width: '100%', height: '100%' },
+  cardImageOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 50 },
+  cardCuisineBadge: {
+    position: 'absolute', top: 8, left: 8,
+    backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3,
   },
-  serviceEmoji: {
-    fontSize: 24,
+  cardCuisineText: { fontSize: 10, fontWeight: '700', color: '#ffffff' },
+  promoBadge: {
+    position: 'absolute', top: 8, right: 8,
+    backgroundColor: brand[500], borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3,
   },
-  serviceLabel: {
-    color: '#fff',
-    fontSize: 14,
-    fontFamily: fonts.extrabold,
-    letterSpacing: -0.3,
-  },
+  promoText: { fontSize: 10, fontWeight: '800', color: '#ffffff' },
+  cardBody: { padding: 12 },
+  cardName: { ...typography.h3, color: ink[900], marginBottom: 4 },
+  cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 },
+  cardDist: { fontSize: 11, color: ink[400], fontWeight: '600' },
+  cardDot: { fontSize: 11, color: ink[300] },
+  cardOpen: { fontSize: 11, fontWeight: '700' },
+  open: { color: '#10b981' },
+  closed: { color: ink[400] },
+  cardFee: { fontSize: 11, color: brand[600], fontWeight: '700' },
+  skelLine: { height: 10, borderRadius: 5, backgroundColor: ink[200] },
+  empty: { alignItems: 'center', paddingTop: 60, paddingHorizontal: 40 },
+  emptyEmoji: { fontSize: 48, marginBottom: 16 },
+  emptyTitle: { ...typography.h2, color: ink[900], marginBottom: 8 },
+  emptyDesc: { ...typography.body, color: ink[500], textAlign: 'center' },
 });

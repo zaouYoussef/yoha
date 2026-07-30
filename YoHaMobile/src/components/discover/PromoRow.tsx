@@ -8,6 +8,8 @@ import { brand, ink, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
 import { hapticLight } from '../../lib/haptics';
 
+import { resolveImageUrl } from '../../lib/resolveImageUrl';
+
 export const PromoRow = React.memo(function PromoRow({ restaurants }: { restaurants: Restaurant[] }) {
   const promoRestos = restaurants.filter((r) => !!r.promo && r.isOpen !== false);
   if (!promoRestos.length) return null;
@@ -31,8 +33,9 @@ export const PromoRow = React.memo(function PromoRow({ restaurants }: { restaura
             style={({ pressed }) => [styles.card, shadows.float, pressed && { opacity: 0.94 }]}
           >
             {/* Background Cover Image */}
-            <Image source={{ uri: r.cover }} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
+            <Image source={{ uri: resolveImageUrl(r.cover, r.cuisine) }} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
             <LinearGradient colors={['rgba(0,0,0,0.25)', 'rgba(0,0,0,0.85)']} style={StyleSheet.absoluteFill} />
+
 
             {/* Top promo badge */}
             <View style={styles.badgeWrap}>

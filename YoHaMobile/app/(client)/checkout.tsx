@@ -1,516 +1,245 @@
-import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
+  Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet,
+  Text, TextInput, View,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FadeInView } from '../../src/components/animations/FadeInView';
-import { PremiumBackground } from '../../src/components/PremiumBackground';
-import { CheckoutSteps } from '../../src/components/ui/CheckoutSteps';
-import { GlassCard } from '../../src/components/ui/GlassCard';
-import { YohaButton } from '../../src/components/ui/YohaButton';
-import { YohaInput } from '../../src/components/ui/YohaInput';
-import { TimeSlotPicker } from '../../src/components/ui/TimeSlotPicker';
-import { useAuth } from '../../src/contexts/AuthContext';
+import { router } from 'expo-router';
 import { useCart } from '../../src/contexts/CartContext';
-import { useToast } from '../../src/contexts/ToastContext';
 import { ordersApi } from '../../src/lib/api';
-import { ADDRESS_PRESETS } from '../../src/lib/addresses';
-import { addGuestOrderId } from '../../src/lib/guestOrders';
-import { getStoredDeliveryDetails, saveDeliveryDetails } from '../../src/lib/deliveryDetails';
-import { formatMad, getServiceFeeMad } from '../../src/lib/constants';
-import { hapticSuccess } from '../../src/lib/haptics';
-import { subscribeOrdersPush } from '../../src/lib/pushRegistration';
-import { useLayoutChrome } from '../../src/lib/layoutChrome';
-import { brand, gradients, ink, radius, shadows } from '../../src/theme';
-import { fonts } from '../../src/theme/fonts';
+import { brand, gradients, ink, radius, shadows, typography } from '../../src/theme';
 
-type PaymentMethod = 'cash' | 'card';
+type Step = 'address' | 'contact' | 'confirm';
 
-export default function CheckoutScreen() {
+export default function ClientCheckout() {
   const insets = useSafeAreaInsets();
-  const { footerBottomPadding } = useLayoutChrome();
-  const { user } = useAuth();
-  const { items, subtotal, clear, count, replaceItems } = useCart();
-  const { showToast } = useToast();
-  const [name, setName] = useState(user?.displayName || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [address, setAddress] = useState('Urgences CHU Tanger');
-  const [phone, setPhone] = useState('+212 6 12 34 56 78');
+  const { items, subtotal, restaurantId, clear } = useCart();
+  const restaurantName = items[0]?.restaurantName;
+
+  const [step, setStep] = useState<Step>('address');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
-  const [floor, setFloor] = useState('Pavillon des Urgences, RDC');
-  const [addressPreset, setAddressPreset] = useState('chu-urgences');
-  const [payment, setPayment] = useState<PaymentMethod>('cash');
-  const [scheduledTime, setScheduledTime] = useState('');
-  const [promoInput, setPromoInput] = useState('');
-  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountPct: number } | null>(null);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    async function loadDetails() {
-      const stored = await getStoredDeliveryDetails();
-      if (stored) {
-        if (stored.name) setName(stored.name);
-        if (stored.email) setEmail(stored.email);
-        if (stored.address) setAddress(stored.address);
-        if (stored.phone) setPhone(stored.phone);
-        if (stored.notes !== undefined) setNotes(stored.notes);
-        if (stored.floor !== undefined) setFloor(stored.floor);
-        if (stored.addressPreset) setAddressPreset(stored.addressPreset);
-        if (stored.payment) setPayment(stored.payment);
-        if (stored.scheduledTime) setScheduledTime(stored.scheduledTime);
-      }
-      setLoaded(true);
-    }
-    loadDetails();
-  }, []);
+  const serviceFee = useMemo(() => Math.round(subtotal * 0.05), [subtotal]);
+  const deliveryFee = subtotal >= 40 ? 0 : 8;
+  const total = subtotal + serviceFee + deliveryFee;
 
-  useEffect(() => {
-    if (!loaded) return;
-      saveDeliveryDetails({
-      name,
-      email,
-      address,
-      floor,
-      phone,
-      notes,
-      addressPreset,
-      payment,
-      scheduledTime: scheduledTime || undefined,
-    });
-  }, [name, email, address, floor, phone, notes, addressPreset, payment, scheduledTime, loaded]);
+  const stepProgress = { address: 1, contact: 2, confirm: 3 };
 
-  useEffect(() => {
-    if (count === 0) router.replace('/(client)/cart' as never);
-  }, [count]);
-
-  const isCustom = items.some(i => (i as any).isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes((i as any).restaurantCuisine));
-  const customItems = items.filter(i => (i as any).isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes((i as any).restaurantCuisine));
-  const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
-  const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
-  const isLimitBlocked = !isCustom && subtotal < 40;
-  const serviceFee = getServiceFeeMad(subtotal);
-  const discountAmount = appliedPromo ? Math.round((subtotal * appliedPromo.discountPct) / 100) : 0;
-  const total = Math.max(0, subtotal - discountAmount) + serviceFee + deliveryFee;
-
-  const handleApplyPromo = () => {
-    const code = promoInput.trim().toUpperCase();
-    if (!code) return;
-    if (code === 'YOHA15' || code === 'YOHA10' || code === 'YOHA50') {
-      const pct = code === 'YOHA50' ? 50 : code === 'YOHA15' ? 15 : 10;
-      setAppliedPromo({ code, discountPct: pct });
-      showToast('Code promo appliqué !', `-${pct}% sur votre commande 🎉`, '🏷️');
-      setError('');
-    } else {
-      setError('Code promo invalide (essayez YOHA15).');
-    }
-  };
-
-  const handlePreset = (id: string) => {
-    setAddressPreset(id);
-    const preset = ADDRESS_PRESETS.find((p) => p.id === id);
-    if (preset) {
-      setAddress(preset.label);
-      setFloor(preset.detail);
-    }
-  };
-
-  const handleConfirm = async () => {
-    setError('');
-    if (isLimitBlocked) {
-      setError('Commande inférieure à 40 DH non acceptée.');
+  const handleSubmit = useCallback(async () => {
+    if (!address.trim() || !city.trim() || !phone.trim()) {
+      Alert.alert('Champs requis', 'Veuillez remplir tous les champs');
       return;
     }
-    if (!name.trim() || !address.trim() || !phone.trim()) {
-      setError('Nom, adresse et téléphone sont obligatoires.');
-      return;
-    }
-    if (!user && !email.trim()) {
-      setError('E-mail obligatoire pour commander en mode invité.');
-      return;
-    }
-    setLoading(true);
+    setSubmitting(true);
     try {
-      const fullAddress = floor.trim() ? `${address.trim()} — ${floor.trim()}` : address.trim();
       const order = await ordersApi.checkout({
-        items: items.map((i) => ({
-          menu_item_id: i.id,
-          restaurant_slug: i.restaurantId,
-          quantity: i.qty,
-          item_name: i.name,
-          item_price: i.price,
-          restaurant_name: i.restaurantName,
-        })),
-        customer_name: name.trim(),
-        customer_email: email.trim() || undefined,
-        customer_address: fullAddress,
-        customer_phone: phone.trim(),
-        delivery_instructions: notes.trim(),
-        payment_method: payment,
-        scheduled_delivery_at: scheduledTime || undefined,
-        promo_code: appliedPromo?.code || undefined,
+        restaurant_id: restaurantId,
+        items: items.map((i) => ({ id: i.id, name: i.name, qty: i.qty, price: i.price, img: i.img })),
+        address: address.trim(),
+        city: city.trim(),
+        phone: phone.trim(),
+        notes: notes.trim(),
+        total: String(total),
       });
-      if (!user && order.id) await addGuestOrderId(String(order.id));
-      if (order.id) await subscribeOrdersPush([String(order.id)]);
       clear();
-      showToast('Commande confirmée !', 'Votre repas arrive bientôt 🛵', '🎉');
-      router.replace(`/(client)/order/${order.id}?justPlaced=true` as never);
-      hapticSuccess();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Commande impossible');
+      router.replace(`/(client)/order/${order.public_id || order.id}`);
+    } catch {
+      Alert.alert('Erreur', 'Impossible de passer commande. Réessayez.');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
-  };
+  }, [address, city, phone, notes, total, restaurantId, items, clear]);
+
+  const nextStep = useCallback(() => {
+    if (step === 'address') {
+      if (!address.trim() || !city.trim()) { Alert.alert('Champs requis', 'Adresse et ville requises'); return; }
+      setStep('contact');
+    } else if (step === 'contact') {
+      if (!phone.trim()) { Alert.alert('Champs requis', 'Numéro de téléphone requis'); return; }
+      setStep('confirm');
+    }
+  }, [step, address, city, phone]);
 
   return (
-    <PremiumBackground variant="cream">
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView
-          contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 16, paddingBottom: footerBottomPadding + 88 }]}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <FadeInView>
-            <Pressable onPress={() => router.back()}>
-              <Text style={styles.back}>← Retour au panier</Text>
-            </Pressable>
-          </FadeInView>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <LinearGradient colors={['#fff7ed', '#ffffff']} style={styles.header}>
+          <Pressable onPress={() => step === 'address' ? router.back() : setStep(step === 'contact' ? 'address' : 'contact')} style={styles.backBtn}>
+            <Text style={styles.backText}>← Retour</Text>
+          </Pressable>
+          <Text style={styles.headerTitle}>Commander</Text>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${(stepProgress[step] / 3) * 100}%` }]} />
+          </View>
+        </LinearGradient>
 
-          <FadeInView delay={60}>
-            <CheckoutSteps current={2} />
-          </FadeInView>
-
-          <FadeInView delay={80}>
-            <LinearGradient colors={[...gradients.cta]} style={[styles.heroIcon, shadows.glow]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-              <Text style={{ fontSize: 36 }}>🛵</Text>
-            </LinearGradient>
-            <Text style={styles.title}>Presque livré !</Text>
-            <Text style={styles.sub}>
-              {user ? 'Vérifiez vos infos de livraison.' : 'Mode invité — l’e-mail sert à confirmer votre commande.'}
-            </Text>
-          </FadeInView>
-
-          <FadeInView delay={120}>
-            <Text style={styles.sectionLabel}>Adresse de livraison</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.presetRow}>
-              {ADDRESS_PRESETS.map((p) => (
-                <Pressable
-                  key={p.id}
-                  onPress={() => handlePreset(p.id)}
-                  style={[styles.preset, addressPreset === p.id && styles.presetActive]}
-                >
-                  <Text style={styles.presetIcon}>{p.icon}</Text>
-                  <Text style={[styles.presetLabel, addressPreset === p.id && styles.presetLabelActive]}>{p.label}</Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </FadeInView>
-
-          <FadeInView delay={160}>
-            <GlassCard>
-              <YohaInput label="Nom complet *" value={name} onChangeText={setName} placeholder="Votre nom" />
-              <YohaInput
-                label={user ? 'E-mail' : 'E-mail *'}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                placeholder="vous@email.com"
+        <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 160 }}>
+          {step === 'address' && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>📍 Adresse de livraison</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Adresse"
+                placeholderTextColor={ink[400]}
+                value={address}
+                onChangeText={setAddress}
               />
-              <YohaInput label="Adresse *" value={address} onChangeText={setAddress} placeholder="Quartier, rue, repère…" />
-              <YohaInput label="Étage / Service / Bâtiment" value={floor} onChangeText={setFloor} placeholder="Ex. Bloc A, 3e étage" />
-              <YohaInput label="Téléphone *" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
-              <YohaInput label="Remarques" value={notes} onChangeText={setNotes} placeholder="Sonnette, sans oignons…" multiline />
-            </GlassCard>
-          </FadeInView>
-
-          <FadeInView delay={200}>
-            <Text style={styles.sectionLabel}>🕐 Livraison</Text>
-            <TimeSlotPicker selected={scheduledTime} onSelect={setScheduledTime} />
-          </FadeInView>
-
-          <FadeInView delay={220}>
-            <Text style={styles.sectionLabel}>Mode de paiement</Text>
-            <View style={styles.payRow}>
-              <Pressable
-                onPress={() => setPayment('cash')}
-                style={[styles.payCard, payment === 'cash' && styles.payCardActive]}
-              >
-                <Text style={styles.payEmoji}>💵</Text>
-                <Text style={[styles.payTitle, payment === 'cash' && styles.payTitleActive]}>Espèces</Text>
-                <Text style={styles.paySub}>À la livraison</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setPayment('card')}
-                style={[styles.payCard, payment === 'card' && styles.payCardActive]}
-              >
-                <Text style={styles.payEmoji}>💳</Text>
-                <Text style={[styles.payTitle, payment === 'card' && styles.payTitleActive]}>Carte</Text>
-                <Text style={styles.paySub}>Bientôt disponible</Text>
-              </Pressable>
+              <TextInput
+                style={styles.input}
+                placeholder="Ville"
+                placeholderTextColor={ink[400]}
+                value={city}
+                onChangeText={setCity}
+              />
             </View>
-          </FadeInView>
+          )}
 
-          <FadeInView delay={240}>
-            <View style={[styles.summary, shadows.card]}>
-              <Text style={styles.summaryTitle}>Récapitulatif</Text>
-              {items.map((i) => (
-                <View key={i.id} style={{ marginBottom: 12 }}>
-                  {(i as any).isCustom ? (
-                    <View style={{ gap: 4 }}>
-                      <Text style={[styles.line, { fontFamily: fonts.bold }]}>{i.qty}× Demande sur-mesure</Text>
-                      {(i as any).customDetails?.storeAddress && (
-                        <Text style={{ fontSize: 11, color: ink[500], fontFamily: fonts.semibold }}>
-                          Établissement : {(i as any).customDetails.storeName}
-                        </Text>
-                      )}
-                      <TextInput
-                        value={(i as any).customDetails?.details || ''}
-                        onChangeText={(newDetails) => {
-                          const updated = items.map((p) => {
-                            if (p.id === i.id) {
-                              const customDetails = (p as any).customDetails || {};
-                              const storeName = customDetails.storeName || p.restaurantName;
-                              const name = customDetails.storeAddress 
-                                ? `[${storeName}] ${newDetails.trim()}`
-                                : `${p.restaurantName} - ${newDetails.trim()}`;
-                              return {
-                                ...p,
-                                name,
-                                customDetails: {
-                                  ...customDetails,
-                                  details: newDetails
-                                }
-                              };
-                            }
-                            return p;
-                          });
-                          replaceItems(updated);
-                        }}
-                        placeholder="Modifier les détails de votre demande..."
-                        placeholderTextColor="#9ca3af"
-                        multiline
-                        numberOfLines={2}
-                        style={{
-                          fontSize: 13,
-                          fontFamily: fonts.medium,
-                          color: ink[900],
-                          backgroundColor: 'rgba(0,0,0,0.02)',
-                          borderWidth: 1,
-                          borderColor: ink[200],
-                          borderRadius: radius.md,
-                          paddingHorizontal: 8,
-                          paddingVertical: 4,
-                          textAlignVertical: 'top',
-                        }}
-                      />
-                    </View>
-                  ) : (
-                    <Text style={styles.line}>
-                      {i.qty}× {i.name}
-                    </Text>
-                  )}
-                </View>
-              ))}
-              <View style={styles.divider} />
-              <Row
-                label="Sous-total"
-                value={isCustom
-                  ? (subtotal > 0 ? `${formatMad(subtotal)} + achats` : 'Sur ticket')
-                  : formatMad(subtotal)
-                }
+          {step === 'contact' && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>📞 Contact</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Numéro de téléphone"
+                placeholderTextColor={ink[400]}
+                keyboardType="phone-pad"
+                value={phone}
+                onChangeText={setPhone}
               />
-              <Row label="Frais de service" value={formatMad(serviceFee)} />
-              <Row
-                label="Livraison"
-                value={deliveryFee > 0 ? formatMad(deliveryFee) : 'Offerte ✨'}
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder="Notes pour le livreur (optionnel)"
+                placeholderTextColor={ink[400]}
+                multiline
+                numberOfLines={3}
+                value={notes}
+                onChangeText={setNotes}
               />
-              {appliedPromo && (
-                <Row
-                  label={`Remise (${appliedPromo.code})`}
-                  value={`-${formatMad(discountAmount)}`}
-                />
-              )}
-              <Row
-                label="Total"
-                value={isCustom
-                  ? `${formatMad(total)} + achats`
-                  : formatMad(total)
-                }
-                bold
-              />
+            </View>
+          )}
 
-              {/* Code Promo UI */}
-              <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: ink[100] }}>
-                <Text style={{ fontFamily: fonts.bold, fontSize: 13, color: ink[700], marginBottom: 6 }}>
-                  🏷️ Code Promo
-                </Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <TextInput
-                    value={promoInput}
-                    onChangeText={setPromoInput}
-                    placeholder="Ex: YOHA15"
-                    autoCapitalize="characters"
-                    style={{
-                      flex: 1,
-                      height: 42,
-                      borderWidth: 1,
-                      borderColor: ink[200],
-                      borderRadius: radius.md,
-                      paddingHorizontal: 12,
-                      fontFamily: fonts.bold,
-                      fontSize: 14,
-                      color: ink[900],
-                      backgroundColor: '#f8fafc',
-                    }}
-                  />
-                  <Pressable
-                    onPress={handleApplyPromo}
-                    style={{
-                      height: 42,
-                      paddingHorizontal: 16,
-                      borderRadius: radius.md,
-                      backgroundColor: brand[500],
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Text style={{ color: '#fff', fontFamily: fonts.bold, fontSize: 13 }}>Appliquer</Text>
-                  </Pressable>
+          {step === 'confirm' && (
+            <>
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>📋 Récapitulatif</Text>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Restaurant</Text>
+                  <Text style={styles.infoValue}>{restaurantName || '—'}</Text>
                 </View>
-                {appliedPromo && (
-                  <Text style={{ color: '#10b981', fontFamily: fonts.bold, fontSize: 12, marginTop: 4 }}>
-                    ✓ Code {appliedPromo.code} (-{appliedPromo.discountPct}%) activé !
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Adresse</Text>
+                  <Text style={styles.infoValue}>{address}, {city}</Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Téléphone</Text>
+                  <Text style={styles.infoValue}>{phone}</Text>
+                </View>
+                {notes ? (
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Notes</Text>
+                    <Text style={styles.infoValue}>{notes}</Text>
+                  </View>
+                ) : null}
+              </View>
+
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>🛍️ Articles</Text>
+                {items.map((item) => (
+                  <View key={item.id} style={styles.itemRow}>
+                    <Text style={styles.itemName}>{item.qty}x {item.name}</Text>
+                    <Text style={styles.itemPrice}>{(item.qty * item.price).toFixed(2)} DH</Text>
+                  </View>
+                ))}
+              </View>
+
+              <View style={styles.summary}>
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Sous-total</Text>
+                  <Text style={styles.summaryValue}>{subtotal.toFixed(2)} DH</Text>
+                </View>
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Service</Text>
+                  <Text style={styles.summaryValue}>{serviceFee.toFixed(2)} DH</Text>
+                </View>
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Livraison</Text>
+                  <Text style={[styles.summaryValue, deliveryFee === 0 && styles.free]}>
+                    {deliveryFee === 0 ? 'OFFERTE' : `${deliveryFee.toFixed(2)} DH`}
                   </Text>
-                )}
+                </View>
+                <View style={[styles.summaryRow, styles.totalRow]}>
+                  <Text style={styles.totalLabel}>Total</Text>
+                  <Text style={styles.totalValue}>{total.toFixed(2)} DH</Text>
+                </View>
               </View>
-            </View>
-          </FadeInView>
-
-          {isLimitBlocked ? (
-            <FadeInView delay={260}>
-              <View style={styles.warnBanner}>
-                <Text style={styles.warnText}>
-                  ⚠️ Commande minimale de 40 DH non atteinte. Veuillez retourner au panier pour ajouter des articles.
-                </Text>
-              </View>
-            </FadeInView>
-          ) : null}
-
-          {error ? (
-            <FadeInView>
-              <Text style={styles.error}>{error}</Text>
-            </FadeInView>
-          ) : null}
-
-          <FadeInView delay={320}>
-            <YohaButton
-              title={
-                loading
-                  ? 'Validation…'
-                  : isLimitBlocked
-                    ? 'Minimum 70 DH requis'
-                    : isCustom
-                      ? `Confirmer · ${formatMad(total)} + achats`
-                      : `Confirmer · ${formatMad(total)}`
-              }
-              onPress={handleConfirm}
-              loading={loading}
-              disabled={isLimitBlocked || loading}
-              style={{ marginTop: 20 }}
-            />
-          </FadeInView>
+            </>
+          )}
         </ScrollView>
-      </KeyboardAvoidingView>
-    </PremiumBackground>
-  );
-}
 
-function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
-  return (
-    <View style={styles.row}>
-      <Text style={[styles.rowLabel, bold && styles.bold]}>{label}</Text>
-      <Text style={[styles.rowValue, bold && styles.bold]}>{value}</Text>
-    </View>
+        <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 16 }]}>
+          {step !== 'confirm' ? (
+            <Pressable onPress={nextStep} style={styles.primaryBtn}>
+              <LinearGradient colors={[...gradients.hero]} style={StyleSheet.absoluteFill} />
+              <Text style={styles.primaryBtnText}>Continuer</Text>
+            </Pressable>
+          ) : (
+            <Pressable onPress={handleSubmit} disabled={submitting} style={styles.primaryBtn}>
+              <LinearGradient colors={[...gradients.hero]} style={StyleSheet.absoluteFill} />
+              <Text style={styles.primaryBtnText}>
+                {submitting ? 'Commande en cours…' : `Payer ${total.toFixed(2)} DH`}
+              </Text>
+            </Pressable>
+          )}
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { paddingHorizontal: 20 },
-  back: { fontFamily: fonts.semibold, color: brand[600], marginBottom: 16, fontSize: 15 },
-  heroIcon: { width: 72, height: 72, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
-  title: { fontFamily: fonts.display, fontSize: 30, color: ink[900], letterSpacing: -0.8 },
-  sub: { marginTop: 6, fontFamily: fonts.medium, color: ink[500], lineHeight: 22, marginBottom: 20 },
-  sectionLabel: { fontFamily: fonts.bold, fontSize: 15, color: ink[800], marginBottom: 12 },
-  presetRow: { gap: 10, marginBottom: 16 },
-  preset: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderRadius: radius.lg,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderWidth: 1.5,
-    borderColor: ink[100],
-    minWidth: 110,
+  container: { flex: 1, backgroundColor: '#f8fafc' },
+  header: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16 },
+  backBtn: { marginBottom: 8 },
+  backText: { fontSize: 14, fontWeight: '700', color: brand[500] },
+  headerTitle: { ...typography.h1, color: ink[900], marginBottom: 8 },
+  progressBar: { height: 4, backgroundColor: ink[200], borderRadius: 2 },
+  progressFill: { height: '100%', backgroundColor: brand[500], borderRadius: 2 },
+  scroll: { flex: 1 },
+  section: { marginHorizontal: 16, marginTop: 16, backgroundColor: '#ffffff', borderRadius: 16, padding: 16 },
+  sectionTitle: { ...typography.h3, color: ink[900], marginBottom: 12 },
+  input: {
+    height: 48, borderWidth: 1, borderColor: ink[200], borderRadius: 12,
+    paddingHorizontal: 14, fontSize: 15, fontWeight: '500', color: ink[900],
+    backgroundColor: '#ffffff', marginBottom: 10,
   },
-  presetActive: { borderColor: brand[400], backgroundColor: brand[50] },
-  presetIcon: { fontSize: 22, marginBottom: 4 },
-  presetLabel: { fontFamily: fonts.semibold, fontSize: 12, color: ink[600] },
-  presetLabelActive: { color: brand[700] },
-  payRow: { flexDirection: 'row', gap: 12, marginBottom: 16 },
-  payCard: {
-    flex: 1,
-    padding: 16,
-    borderRadius: radius.xl,
-    backgroundColor: 'rgba(255,255,255,0.92)',
-    borderWidth: 2,
-    borderColor: ink[100],
-    alignItems: 'center',
+  textArea: { height: 80, textAlignVertical: 'top', paddingTop: 12 },
+  infoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  infoLabel: { fontSize: 14, color: ink[500] },
+  infoValue: { fontSize: 14, fontWeight: '700', color: ink[900], maxWidth: '55%', textAlign: 'right' },
+  itemRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
+  itemName: { fontSize: 14, color: ink[900] },
+  itemPrice: { fontSize: 14, fontWeight: '700', color: ink[900] },
+  summary: { marginHorizontal: 16, marginTop: 16, backgroundColor: '#ffffff', borderRadius: 16, padding: 16 },
+  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  summaryLabel: { fontSize: 14, color: ink[500], fontWeight: '500' },
+  summaryValue: { fontSize: 14, fontWeight: '700', color: ink[900] },
+  free: { color: '#10b981' },
+  totalRow: { borderTopWidth: 1, borderTopColor: ink[100], paddingTop: 12, marginTop: 4 },
+  totalLabel: { ...typography.h3, color: ink[900] },
+  totalValue: { ...typography.h3, color: brand[500] },
+  bottomBar: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    paddingHorizontal: 16, paddingTop: 12,
+    backgroundColor: '#ffffff', borderTopWidth: 1, borderTopColor: ink[100],
+    shadowColor: ink[900], shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 8,
   },
-  payCardActive: { borderColor: brand[400], backgroundColor: brand[50] },
-  payEmoji: { fontSize: 28 },
-  payTitle: { marginTop: 8, fontFamily: fonts.bold, fontSize: 15, color: ink[700] },
-  payTitleActive: { color: brand[700] },
-  paySub: { marginTop: 2, fontFamily: fonts.medium, fontSize: 11, color: ink[400] },
-  summary: {
-    marginTop: 4,
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    borderRadius: radius.xl,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: ink[100],
+  primaryBtn: {
+    height: 52, borderRadius: radius.md, overflow: 'hidden',
+    alignItems: 'center', justifyContent: 'center',
   },
-  summaryTitle: { fontFamily: fonts.bold, fontSize: 17, color: ink[900], marginBottom: 10 },
-  line: { fontFamily: fonts.medium, fontSize: 14, color: ink[600], marginBottom: 4 },
-  divider: { height: 1, backgroundColor: ink[100], marginVertical: 12 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  rowLabel: { fontFamily: fonts.medium, color: ink[500], fontSize: 14 },
-  rowValue: { fontFamily: fonts.semibold, color: ink[800], fontSize: 14 },
-  bold: { fontFamily: fonts.extrabold, color: ink[900], fontSize: 18 },
-  error: { color: '#ef4444', marginTop: 12, fontFamily: fonts.medium, textAlign: 'center' },
-  warnBanner: {
-    backgroundColor: '#fffbeb',
-    borderColor: '#fde68a',
-    borderWidth: 1.5,
-    borderRadius: radius.xl,
-    padding: 16,
-    marginTop: 16,
-  },
-  warnText: {
-    color: '#b45309',
-    fontFamily: fonts.bold,
-    fontSize: 13,
-    lineHeight: 18,
-    textAlign: 'center',
-  },
+  primaryBtnText: { color: '#ffffff', fontWeight: '800', fontSize: 17 },
 });

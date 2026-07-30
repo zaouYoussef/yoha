@@ -9,6 +9,8 @@ import { hapticLight } from '../../lib/haptics';
 import { brand, gradients, ink, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
 
+import { resolveImageUrl, getSmartFallback } from '../../lib/resolveImageUrl';
+
 export const DiscoverBento = React.memo(function DiscoverBento({
   restaurants,
   activeOrder,
@@ -18,6 +20,12 @@ export const DiscoverBento = React.memo(function DiscoverBento({
 }) {
   const [idx, setIdx] = useState(0);
   const spot = restaurants[idx] || restaurants[0];
+  const [spotImg, setSpotImg] = useState(() => resolveImageUrl(spot?.cover, spot?.cuisine));
+
+  React.useEffect(() => {
+    if (spot) setSpotImg(resolveImageUrl(spot.cover, spot.cuisine));
+  }, [spot]);
+
   const trackStep = activeOrder
     ? CLIENT_TRACK_STEPS.indexOf(activeOrder.status)
     : -1;
@@ -33,11 +41,18 @@ export const DiscoverBento = React.memo(function DiscoverBento({
       {spot ? (
         <Pressable onPress={openSpot}>
           <View style={[styles.spotlight, shadows.glow]}>
-            <Image source={{ uri: spot.cover }} style={StyleSheet.absoluteFill} contentFit="cover" transition={0} />
+            <Image
+              source={{ uri: spotImg }}
+              style={StyleSheet.absoluteFill}
+              contentFit="cover"
+              transition={0}
+              onError={() => setSpotImg(getSmartFallback(spot?.cuisine))}
+            />
             <LinearGradient colors={['transparent', 'rgba(2,6,23,0.35)', 'rgba(2,6,23,0.92)']} style={StyleSheet.absoluteFill} />
             <LinearGradient colors={[...gradients.cta]} style={styles.spotRibbon} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
               <Text style={styles.spotRibbonText}>⭐ Coup de cœur du moment</Text>
             </LinearGradient>
+
             {spot.promo ? (
               <View style={styles.promoPill}>
                 <Text style={styles.promoText} numberOfLines={1}>🔥 {spot.promo}</Text>

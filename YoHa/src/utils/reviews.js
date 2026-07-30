@@ -21,6 +21,8 @@ export async function saveReview(review) {
       rating: resp.rating,
       comment: resp.comment,
       customerName: review.customerName,
+      customerPhone: review.customerPhone,
+      customerEmail: review.customerEmail,
       restaurantName: review.restaurantName,
       courierName: review.courierName,
     };
@@ -52,11 +54,14 @@ export async function fetchReviewsFromApi(params = {}) {
       rating: r.rating,
       comment: r.comment,
       customerName: r.customer_name,
+      customerPhone: r.customer_phone,
+      customerEmail: r.customer_email,
       restaurantName: r.restaurant_name,
       courierName: r.courier_name,
     }));
   } catch { return []; }
 }
+
 
 export function deleteReview(reviewId) {
   if (typeof window === 'undefined') return;

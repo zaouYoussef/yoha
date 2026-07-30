@@ -278,11 +278,49 @@ class CourierSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    order_id = serializers.CharField(source="order.pk", read_only=True)
+    order_id = serializers.SerializerMethodField()
+    customer_name = serializers.SerializerMethodField()
+    customer_email = serializers.SerializerMethodField()
+    customer_phone = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
-        fields = ("id", "order_id", "customer_name", "restaurant_name", "courier_name", "rating", "comment", "created_at")
+        fields = (
+            "id",
+            "order_id",
+            "customer_name",
+            "customer_email",
+            "customer_phone",
+            "restaurant_name",
+            "courier_name",
+            "rating",
+            "comment",
+            "created_at",
+        )
+
+    def get_order_id(self, obj):
+        return obj.order.public_id if obj.order else None
+
+    def get_customer_name(self, obj):
+        if obj.customer_name and obj.customer_name not in ["Client", "Client YoHa"]:
+            return obj.customer_name
+        if obj.order and obj.order.customer_name:
+            return obj.order.customer_name
+        if obj.user:
+            return obj.user.display_name or obj.user.email
+        return obj.customer_name or "Client YoHa"
+
+    def get_customer_email(self, obj):
+        if obj.user and obj.user.email:
+            return obj.user.email
+        if obj.order and getattr(obj.order, "customer_email", None):
+            return obj.order.customer_email
+        return None
+
+    def get_customer_phone(self, obj):
+        if obj.order and getattr(obj.order, "customer_phone", None):
+            return obj.order.customer_phone
+        return None
 
 
 class ReviewCreateSerializer(serializers.Serializer):
@@ -306,7 +344,12 @@ class ReviewCreateSerializer(serializers.Serializer):
                 pass
         if order:
             validated_data["order"] = order
+            if not validated_data.get("customer_name") or validated_data.get("customer_name") in ["Client", "Client YoHa"]:
+                validated_data["customer_name"] = order.customer_name or (order.user.display_name if order.user else "")
         request = self.context.get("request")
         if request and request.user.is_authenticated:
             validated_data["user"] = request.user
+            if not validated_data.get("customer_name") or validated_data.get("customer_name") in ["Client", "Client YoHa"]:
+                validated_data["customer_name"] = request.user.display_name or request.user.email
         return Review.objects.create(**validated_data)
+

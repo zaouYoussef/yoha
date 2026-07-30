@@ -31,9 +31,11 @@ function devMachineIp(): string | null {
  */
 export function resolveApiBase(): string {
   const fromEnv = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '');
+  if (fromEnv && !fromEnv.includes('127.0.0.1')) {
+    return fromEnv;
+  }
   if (!__DEV__) {
-    // Release build pour Play Store / Production
-    return fromEnv && !fromEnv.includes('127.0.0.1') ? fromEnv : 'https://yoha.ma/api/v1';
+    return 'https://yoha.ma/api/v1';
   }
   if (Platform.OS === 'web') {
     return 'http://127.0.0.1:8000/api/v1';
@@ -50,6 +52,7 @@ export function resolveApiBase(): string {
   }
   return 'http://127.0.0.1:8000/api/v1';
 }
+
 
 /** URL API courante (recalculée à chaque appel en dev). */
 export function getApiBase(): string {
@@ -226,12 +229,16 @@ export async function apiFetch<T = unknown>(
     });
   } catch {
     const base = getApiBase();
+    if (!__DEV__ || base.includes('yoha.ma')) {
+      throw new Error(`Impossible de se connecter au serveur YoHa. Veuillez vérifier votre connexion internet.`);
+    }
     const hint =
       base.includes('127.0.0.1')
         ? 'Câble USB ? Lancez: npm run adb:reverse. Django: python manage.py runserver 127.0.0.1:8000'
         : 'Wi‑Fi ? Django: python manage.py runserver 0.0.0.0:8000 + même réseau que le téléphone';
     throw new Error(`Impossible de joindre l'API (${base}). ${hint}`);
   }
+
 
   if (res.status === 401 && auth && retry && tokens?.refresh) {
     const access = await refreshAccessToken();

@@ -9,6 +9,7 @@ import { formatMad } from '../../lib/constants';
 import { hapticLight } from '../../lib/haptics';
 import { brand, gradients, ink, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
+import { resolveImageUrl } from '../../lib/resolveImageUrl';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -46,8 +47,15 @@ export function MenuItemCard({
     >
       <View style={styles.imgWrap}>
         {item.img ? (
-          <Image source={{ uri: item.img }} style={styles.img} contentFit="cover" transition={280} />
+          <Image
+            source={{ uri: resolveImageUrl(item.img, item.name) }}
+            style={styles.img}
+            contentFit="cover"
+            transition={280}
+          />
         ) : (
+
+
           <LinearGradient colors={[brand[100], brand[50]]} style={[styles.img, styles.imgPh]}>
             <Text style={{ fontSize: 28 }}>🍽️</Text>
           </LinearGradient>

@@ -11,6 +11,8 @@ import { ShimmerSweep } from './animations/ShimmerSweep';
 import { brand, gradients, ink, radius, shadows } from '../theme';
 import { fonts } from '../theme/fonts';
 
+import { resolveImageUrl, getSmartFallback } from '../lib/resolveImageUrl';
+
 const cuisineEmoji: Record<string, string> = {
   pizza: '🍕', tacos: '🌮', kebab: '🥙', sushi: '🍣', burger: '🍔',
   healthy: '🥗', medical: '🏥', pharmacy: '💊', asian: '🍜', dessert: '🍰', drinks: '🥤',
@@ -29,6 +31,11 @@ export const RestaurantCard = React.memo(function RestaurantCard({
 }) {
   const emoji = cuisineEmoji[restaurant.cuisine || ''] || '🍽️';
   const [fav, setFav] = useState(false);
+  const [imgUri, setImgUri] = useState(() => resolveImageUrl(restaurant.cover, restaurant.cuisine));
+
+  useEffect(() => {
+    setImgUri(resolveImageUrl(restaurant.cover, restaurant.cuisine));
+  }, [restaurant.cover, restaurant.cuisine]);
 
   useEffect(() => {
     if (showFavorite) isFavorite(restaurant.slug).then(setFav);
@@ -57,15 +64,17 @@ export const RestaurantCard = React.memo(function RestaurantCard({
       <View style={[styles.card, promo ? styles.promoBorder : null]}>
         <View style={[styles.imageWrap, featured && styles.imageFeatured]}>
           <Image
-            source={{ uri: restaurant.cover || undefined }}
+            source={{ uri: imgUri }}
             style={styles.cover}
             contentFit="cover"
             transition={0}
+            onError={() => setImgUri(getSmartFallback(restaurant.cuisine))}
           />
           <LinearGradient
             colors={['transparent', 'rgba(15,23,42,0.15)', 'rgba(15,23,42,0.88)']}
             style={StyleSheet.absoluteFill}
           />
+
           {featured ? (
             <LinearGradient colors={[...gradients.cta]} style={styles.featuredRibbon} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
               <Text style={styles.featuredText}>⭐ Coup de cœur</Text>
