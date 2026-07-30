@@ -4,37 +4,33 @@ import { useEffect } from 'react';
 
 export function SmoothScrollProvider({ children }) {
   useEffect(() => {
-    let lenisInstance = null;
-    let animId = null;
+    if (typeof window === 'undefined') return;
 
-    import('lenis')
-      .then(({ default: Lenis }) => {
-        lenisInstance = new Lenis({
+    // Enable smooth scroll behavior at root level
+    document.documentElement.style.scrollBehavior = 'smooth';
+
+    // Safely load Lenis dynamically if available without throwing webpack resolution errors
+    const loadLenis = async () => {
+      try {
+        const moduleName = 'lenis';
+        const { default: Lenis } = await import(/* webpackIgnore: true */ moduleName);
+        const lenis = new Lenis({
           duration: 1.2,
           easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
           smoothWheel: true,
-          wheelMultiplier: 1.0,
-          touchMultiplier: 1.5,
         });
-
         function raf(time) {
-          if (lenisInstance) {
-            lenisInstance.raf(time);
-            animId = requestAnimationFrame(raf);
-          }
+          lenis.raf(time);
+          requestAnimationFrame(raf);
         }
-        animId = requestAnimationFrame(raf);
-      })
-      .catch(() => {
-        // Fallback optionnel si Lenis est absent du serveur
-      });
-
-    return () => {
-      if (animId) cancelAnimationFrame(animId);
-      if (lenisInstance) lenisInstance.destroy();
+        requestAnimationFrame(raf);
+      } catch {
+        // Native fallback smooth scroll is active
+      }
     };
+
+    loadLenis();
   }, []);
 
   return <>{children}</>;
 }
-
