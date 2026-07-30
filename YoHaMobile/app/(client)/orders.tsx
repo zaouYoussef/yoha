@@ -9,6 +9,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ordersApi, type Order } from '../../src/lib/api';
 import { brand, gradients, ink, radius, shadows } from '../../src/theme';
+import { DisputeReportModal } from '../../src/components/DisputeReportModal';
+
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: string }> = {
   pending: { label: 'En attente', color: '#d97706', bg: '#fef3c7', icon: '⏳' },
@@ -40,7 +42,9 @@ export default function ClientOrders() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('all');
+  const [disputeOrderId, setDisputeOrderId] = useState<string | null>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
+
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -153,8 +157,19 @@ export default function ClientOrders() {
                 </Text>
 
                 {isDelivered && (
-                  <View style={styles.reorderBtn}>
-                    <Text style={styles.reorderBtnText}>Recommander 🔄</Text>
+                  <View style={{ flexDirection: 'row', gap: 8 }}>
+                    <Pressable
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        setDisputeOrderId(String(order.public_id || order.id));
+                      }}
+                      style={[styles.reorderBtn, { backgroundColor: '#fee2e2' }]}
+                    >
+                      <Text style={[styles.reorderBtnText, { color: '#dc2626' }]}>🚨 Litige</Text>
+                    </Pressable>
+                    <View style={styles.reorderBtn}>
+                      <Text style={styles.reorderBtnText}>Recommander 🔄</Text>
+                    </View>
                   </View>
                 )}
               </View>
@@ -178,9 +193,18 @@ export default function ClientOrders() {
           ) : null
         }
       />
+
+      {disputeOrderId && (
+        <DisputeReportModal
+          visible={!!disputeOrderId}
+          orderId={disputeOrderId}
+          onClose={() => setDisputeOrderId(null)}
+        />
+      )}
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

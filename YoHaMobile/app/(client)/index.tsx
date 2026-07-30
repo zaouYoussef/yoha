@@ -11,6 +11,10 @@ import { restaurantsApi, type Restaurant } from '../../src/lib/api';
 import { brand, gradients, ink, radius, shadows, typography } from '../../src/theme';
 import { resolveImageUrl } from '../../src/lib/resolveImageUrl';
 import { hapticLight, hapticSelection, hapticSuccess } from '../../src/lib/haptics';
+import { CraveRoulette } from '../../src/components/CraveRoulette';
+import { ReorderBanner } from '../../src/components/ReorderBanner';
+import { LoyaltyStreakCard } from '../../src/components/LoyaltyStreakCard';
+
 
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -208,24 +212,35 @@ function SearchBar({ value, onChange }: { value: string; onChange: (v: string) =
   );
 }
 
-function PromoBannersCarousel() {
+function PromoBannersCarousel({ onSelectCategory }: { onSelectCategory?: (cat: string) => void }) {
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.promoScroll}>
-      {PROMO_BANNERS.map((p) => (
-        <LinearGradient
-          key={p.id}
-          colors={p.bg as any}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.promoCard}
-        >
-          <Text style={styles.promoTitle}>{p.title}</Text>
-          <Text style={styles.promoSubtitle}>{p.subtitle}</Text>
-        </LinearGradient>
-      ))}
-    </ScrollView>
+    <View style={{ gap: 12 }}>
+      <ReorderBanner
+        lastOrderName="Tacos XL Double & Frites"
+        lastOrderPrice="45 DH"
+        onReorder={() => router.push('/(client)/cart')}
+      />
+      <LoyaltyStreakCard points={140} streakCount={3} level="Argent 🥈" />
+      {onSelectCategory ? <CraveRoulette onSelectCategory={onSelectCategory} /> : null}
+
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.promoScroll}>
+        {PROMO_BANNERS.map((p) => (
+          <LinearGradient
+            key={p.id}
+            colors={p.bg as any}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.promoCard}
+          >
+            <Text style={styles.promoTitle}>{p.title}</Text>
+            <Text style={styles.promoSubtitle}>{p.subtitle}</Text>
+          </LinearGradient>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
+
 
 function CuisineCategories({ filter, onFilter }: { filter: string; onFilter: (id: string) => void }) {
   return (
@@ -616,8 +631,8 @@ export default function ClientHome() {
               </View>
             )}
 
-            {/* ═══ PROMO BANNERS ═══ */}
-            {!search && serviceTab === 'all' && <PromoBannersCarousel />}
+            {/* ═══ PROMO BANNERS & REORDER & CRAVEROULETTE ═══ */}
+            {isDefault && <PromoBannersCarousel onSelectCategory={(cat) => setCuisineFilter(cat)} />}
 
             {/* ═══ CUISINE CATEGORIES ═══ */}
             {!search && serviceTab === 'all' && (
