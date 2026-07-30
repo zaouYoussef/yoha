@@ -101,7 +101,6 @@ const jsonLd = {
 };
 
 import { SmoothScrollProvider } from '@/components/effects/SmoothScrollProvider';
-import { CustomCursor } from '@/components/effects/CustomCursor';
 
 export default function RootLayout({ children }) {
   return (
@@ -119,7 +118,6 @@ export default function RootLayout({ children }) {
       <body className={`${inter.variable} ${jakarta.variable} font-sans min-h-screen min-h-[100dvh] bg-white dark:bg-ink-950 text-ink-900 dark:text-ink-50 overflow-x-hidden`}>
         <AppProviders>
           <SmoothScrollProvider>
-            <CustomCursor />
             <AnalyticsTracker />
             {children}
           </SmoothScrollProvider>
@@ -128,4 +126,5 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
 
