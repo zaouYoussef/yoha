@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const CAMPUS_ZONES = [
   {
@@ -75,7 +74,7 @@ export function InteractiveCampusMap() {
                     isSelected ? 'animate-ping bg-orange-500/40 scale-150' : 'group-hover:bg-orange-500/20 scale-110'
                   }`}
                 />
-                
+
                 {/* Pin Button */}
                 <div
                   className={`relative flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold shadow-lg transition-all duration-300 ${
@@ -94,43 +93,34 @@ export function InteractiveCampusMap() {
 
         {/* Right Side: Zone Details Card */}
         <div className="lg:col-span-5">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={selectedZone.id}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.25 }}
-              className="space-y-5"
-            >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-semibold">
-                <span>{selectedZone.badge}</span>
-              </div>
+          <div className="space-y-5 transition-all duration-300">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-semibold">
+              <span>{selectedZone.badge}</span>
+            </div>
 
-              <h3 className="text-2xl md:text-3xl font-extrabold text-white flex items-center gap-3">
-                <span>{selectedZone.emoji}</span>
-                <span>{selectedZone.name}</span>
-              </h3>
+            <h3 className="text-2xl md:text-3xl font-extrabold text-white flex items-center gap-3">
+              <span>{selectedZone.emoji}</span>
+              <span>{selectedZone.name}</span>
+            </h3>
 
-              <p className="text-slate-400 text-sm md:text-base leading-relaxed">
-                {selectedZone.desc}
-              </p>
+            <p className="text-slate-400 text-sm md:text-base leading-relaxed">
+              {selectedZone.desc}
+            </p>
 
-              <div className="flex items-center justify-between p-4 rounded-xl bg-slate-900 border border-slate-800">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">🏍️</span>
-                  <div>
-                    <div className="text-xs text-slate-400">Temps Moyen de Livraison</div>
-                    <div className="text-base font-bold text-orange-400">{selectedZone.eta}</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs text-slate-400">Frais de Livraison</div>
-                  <div className="text-base font-bold text-emerald-400">0 DH (Offert)</div>
+            <div className="flex items-center justify-between p-4 rounded-xl bg-slate-900 border border-slate-800">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🏍️</span>
+                <div>
+                  <div className="text-xs text-slate-400">Temps Moyen de Livraison</div>
+                  <div className="text-base font-bold text-orange-400">{selectedZone.eta}</div>
                 </div>
               </div>
-            </motion.div>
-          </AnimatePresence>
+              <div className="text-right">
+                <div className="text-xs text-slate-400">Frais de Livraison</div>
+                <div className="text-base font-bold text-emerald-400">0 DH (Offert)</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

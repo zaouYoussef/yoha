@@ -1,29 +1,21 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 export function CustomCursor() {
+  const [pos, setPos] = useState({ x: -100, y: -100 });
   const [hovered, setHovered] = useState(false);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
-
-  const cursorX = useMotionValue(-100);
-  const cursorY = useMotionValue(-100);
-
-  const springConfig = { damping: 28, stiffness: 350, mass: 0.5 };
-  const smoothX = useSpring(cursorX, springConfig);
-  const smoothY = useSpring(cursorY, springConfig);
+  const [isTouch, setIsTouch] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (window.matchMedia('(pointer: coarse)').matches) {
-      setIsTouchDevice(true);
+      setIsTouch(true);
       return;
     }
 
     const moveCursor = (e) => {
-      cursorX.set(e.clientX);
-      cursorY.set(e.clientY);
+      setPos({ x: e.clientX, y: e.clientY });
     };
 
     const handleMouseOver = (e) => {
@@ -47,36 +39,27 @@ export function CustomCursor() {
       window.removeEventListener('mousemove', moveCursor);
       window.removeEventListener('mouseover', handleMouseOver);
     };
-  }, [cursorX, cursorY]);
+  }, []);
 
-  if (isTouchDevice) return null;
+  if (isTouch) return null;
 
   return (
     <>
       {/* Central glow dot */}
-      <motion.div
-        className="pointer-events-none fixed left-0 top-0 z-[9999] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500 shadow-[0_0_12px_#f97316]"
+      <div
+        className="pointer-events-none fixed left-0 top-0 z-[9999] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500 shadow-[0_0_12px_#f97316] transition-transform duration-75 ease-out"
         style={{
-          x: smoothX,
-          y: smoothY,
+          transform: `translate3d(${pos.x}px, ${pos.y}px, 0) scale(${hovered ? 1.8 : 1})`,
         }}
-        animate={{
-          scale: hovered ? 1.8 : 1,
-        }}
-        transition={{ duration: 0.15 }}
       />
       {/* Outer ring */}
-      <motion.div
-        className="pointer-events-none fixed left-0 top-0 z-[9998] h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border border-orange-500/40 bg-orange-500/5 backdrop-blur-[1px]"
+      <div
+        className={`pointer-events-none fixed left-0 top-0 z-[9998] h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border bg-orange-500/5 backdrop-blur-[1px] transition-all duration-150 ease-out ${
+          hovered ? 'border-orange-500/80 scale-125' : 'border-orange-500/30 scale-100'
+        }`}
         style={{
-          x: smoothX,
-          y: smoothY,
+          transform: `translate3d(${pos.x}px, ${pos.y}px, 0)`,
         }}
-        animate={{
-          scale: hovered ? 1.6 : 1,
-          borderColor: hovered ? 'rgba(249, 115, 22, 0.8)' : 'rgba(249, 115, 22, 0.3)',
-        }}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
       />
     </>
   );
