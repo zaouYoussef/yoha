@@ -14,16 +14,31 @@ import { resolveImageUrl } from '../../src/lib/resolveImageUrl';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = (SCREEN_WIDTH - 36) / 2;
 
-const CUISINES = [
-  { key: '', label: 'Tout', emoji: '🔥' },
-  { key: 'pizza', label: 'Pizza', emoji: '🍕' },
-  { key: 'tacos', label: 'Tacos', emoji: '🌮' },
-  { key: 'burger', label: 'Burger', emoji: '🍔' },
-  { key: 'sushi', label: 'Sushi', emoji: '🍣' },
-  { key: 'kebab', label: 'Kebab', emoji: '🥙' },
-  { key: 'sandwich', label: 'Sandwich', emoji: '🥪' },
-  { key: 'healthy', label: 'Healthy', emoji: '🥗' },
-  { key: 'pharmacy', label: 'Pharmacie', emoji: '💊' },
+const MAIN_SERVICE_TABS = [
+  { id: 'all', label: 'Restos', emoji: '🍔' },
+  { id: 'pharmacy', label: 'Pharmacies', emoji: '💊' },
+  { id: 'parapharmacy', label: 'Parapharma', emoji: '🌿' },
+  { id: 'dessert', label: 'Pâtisseries', emoji: '🥐' },
+  { id: 'supermarket', label: 'Supermarché', emoji: '🛒' },
+  { id: 'shop', label: 'Magasins', emoji: '🛍️' },
+];
+
+const CUISINE_CATEGORIES = [
+  { id: 'all', label: 'Tout', emoji: '🔥', image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80' },
+  { id: 'pizza', label: 'Pizza', emoji: '🍕', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80' },
+  { id: 'tacos', label: 'Tacos', emoji: '🌮', image: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&auto=format&fit=crop&q=80' },
+  { id: 'burger', label: 'Burgers', emoji: '🍔', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80' },
+  { id: 'kebab', label: 'Kebab', emoji: '🥙', image: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=600&auto=format&fit=crop&q=80' },
+  { id: 'sandwich', label: 'Sandwich', emoji: '🥪', image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&auto=format&fit=crop&q=80' },
+  { id: 'sushi', label: 'Sushi', emoji: '🍣', image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=600&auto=format&fit=crop&q=80' },
+  { id: 'healthy', label: 'Healthy', emoji: '🥗', image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80' },
+  { id: 'dessert', label: 'Desserts', emoji: '🍰', image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&auto=format&fit=crop&q=80' },
+];
+
+const PROMO_BANNERS = [
+  { id: 'p-1', title: 'Livraison Offerte 🏍️', subtitle: 'Sur vos 3 premières commandes YoHa', bg: ['#f97316', '#ec4899'] },
+  { id: 'p-2', title: '-20% sur les Tacos 🌮', subtitle: 'Offre exclusive Snack Roma Tanger', bg: ['#8b5cf6', '#d946ef'] },
+  { id: 'p-3', title: 'Les Coups de Cœur 🔥', subtitle: 'Sélection des meilleurs restos CHU', bg: ['#059669', '#10b981'] },
 ];
 
 function timeGreeting(): string {
@@ -61,20 +76,21 @@ export default function ClientHome() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
-  const [cuisine, setCuisine] = useState('');
+  const [serviceTab, setServiceTab] = useState('all');
+  const [cuisineFilter, setCuisineFilter] = useState('all');
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const fetchData = useCallback(async () => {
     try {
       const params: { cuisine?: string; q?: string } = {};
-      if (cuisine) params.cuisine = cuisine;
+      if (cuisineFilter && cuisineFilter !== 'all') params.cuisine = cuisineFilter;
       if (search.trim()) params.q = search.trim();
       const list = await restaurantsApi.list(params);
       setRestaurants(list);
     } catch {
       setRestaurants([]);
     }
-  }, [cuisine, search]);
+  }, [cuisineFilter, search]);
 
   useEffect(() => {
     setLoading(true);
@@ -92,7 +108,7 @@ export default function ClientHome() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Search Header */}
+      {/* ═══ TOP HERO & SEARCH HEADER ═══ */}
       <View style={styles.topHeader}>
         <View style={styles.locationBar}>
           <View style={styles.locationPill}>
@@ -141,39 +157,74 @@ export default function ClientHome() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand[500]} />}
         ListHeaderComponent={
           <>
-            {/* Horizontal Cuisines Pills */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.cuisineScroll}
-            >
-              {CUISINES.map((c) => {
-                const active = cuisine === c.key;
-                return (
-                  <Pressable
-                    key={c.key}
-                    onPress={() => setCuisine(c.key)}
-                    style={[styles.chip, active && styles.chipActive]}
-                  >
-                    {active ? (
-                      <LinearGradient
-                        colors={gradients.hero}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={StyleSheet.absoluteFill}
-                      />
-                    ) : null}
-                    <Text style={styles.chipEmoji}>{c.emoji}</Text>
-                    <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>
-                      {c.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
+            {/* ═══ 1. TOP SERVICE TABS (Restos, Pharmacies, Parapharma...) ═══ */}
+            <View style={styles.serviceTabsWrap}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.serviceTabsScroll}>
+                {MAIN_SERVICE_TABS.map((tab) => {
+                  const active = serviceTab === tab.id;
+                  return (
+                    <Pressable
+                      key={tab.id}
+                      onPress={() => setServiceTab(tab.id)}
+                      style={[styles.serviceTabBtn, active && styles.serviceTabBtnActive]}
+                    >
+                      <Text style={[styles.serviceTabLabel, active && styles.serviceTabLabelActive]}>
+                        {tab.label} {tab.emoji}
+                      </Text>
+                      {active && <View style={styles.serviceTabIndicator} />}
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            </View>
 
-            {/* Featured Banner Spotlight */}
-            {featured && !search && !cuisine ? (
+            {/* ═══ 2. PROMO BANNERS CAROUSEL ═══ */}
+            {!search ? (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.promoScroll}>
+                {PROMO_BANNERS.map((p) => (
+                  <LinearGradient
+                    key={p.id}
+                    colors={p.bg as any}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.promoCard}
+                  >
+                    <Text style={styles.promoTitle}>{p.title}</Text>
+                    <Text style={styles.promoSubtitle}>{p.subtitle}</Text>
+                  </LinearGradient>
+                ))}
+              </ScrollView>
+            ) : null}
+
+            {/* ═══ 3. FOOD CUISINE IMAGE CAROUSEL (Circles with Photos) ═══ */}
+            {!search ? (
+              <View style={styles.cuisineSection}>
+                <Text style={styles.subSectionTitle}>Catégories Gourmandes</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cuisineScroll}>
+                  {CUISINE_CATEGORIES.map((c) => {
+                    const active = cuisineFilter === c.id;
+                    return (
+                      <Pressable
+                        key={c.id}
+                        onPress={() => setCuisineFilter(active ? 'all' : c.id)}
+                        style={styles.cuisineCircleBtn}
+                      >
+                        <View style={[styles.cuisineImageWrap, active && styles.cuisineImageWrapActive]}>
+                          <Image source={{ uri: c.image }} style={styles.cuisineImage} contentFit="cover" transition={300} />
+                          <View style={styles.cuisineOverlay} />
+                        </View>
+                        <Text style={[styles.cuisineCircleLabel, active && styles.cuisineCircleLabelActive]} numberOfLines={1}>
+                          {c.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            ) : null}
+
+            {/* ═══ 4. FEATURED "COUP DE CŒUR" SPOTLIGHT ═══ */}
+            {featured && !search && cuisineFilter === 'all' ? (
               <View style={styles.spotlightWrap}>
                 <Pressable
                   onPress={() => router.push(`/(client)/restaurant/${featured.slug}`)}
@@ -212,12 +263,14 @@ export default function ClientHome() {
               </View>
             ) : null}
 
-            {/* Section Title */}
+            {/* Section Header */}
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>
-                {cuisine ? `Restaurants ${CUISINES.find((c) => c.key === cuisine)?.label}` : 'Tous les Restaurants'}
+                {cuisineFilter !== 'all'
+                  ? `Restos ${CUISINE_CATEGORIES.find((c) => c.id === cuisineFilter)?.label}`
+                  : 'Tous les Partenaires'}
               </Text>
-              <Text style={styles.sectionCount}>{restaurants.length} trouvés</Text>
+              <Text style={styles.sectionCount}>{restaurants.length} disponibles</Text>
             </View>
 
             {loading && (
@@ -269,7 +322,7 @@ function RestaurantCardItem({ restaurant: r, index, onPress }: { restaurant: Res
           contentFit="cover"
           transition={300}
         />
-        <LinearGradient colors={['transparent', 'rgba(15,23,42,0.75)']} style={styles.cardImageOverlay} />
+        <LinearGradient colors={['transparent', 'rgba(15,23,42,0.85)']} style={styles.cardImageOverlay} />
 
         {/* Cuisine Badge Top Left */}
         <View style={styles.cardCuisineBadge}>
@@ -422,43 +475,125 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: 12,
-    paddingTop: 12,
+    paddingTop: 10,
+  },
+  serviceTabsWrap: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+    marginBottom: 12,
+  },
+  serviceTabsScroll: {
+    paddingHorizontal: 4,
+    gap: 16,
+  },
+  serviceTabBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 4,
+    position: 'relative',
+  },
+  serviceTabBtnActive: {},
+  serviceTabLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: ink[500],
+  },
+  serviceTabLabelActive: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: brand[600],
+  },
+  serviceTabIndicator: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: brand[500],
+  },
+  promoScroll: {
+    paddingHorizontal: 4,
+    paddingBottom: 14,
+    gap: 10,
+  },
+  promoCard: {
+    width: 220,
+    height: 80,
+    borderRadius: 18,
+    padding: 14,
+    justifyContent: 'center',
+    shadowColor: '#f97316',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  promoTitle: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#ffffff',
+  },
+  promoSubtitle: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginTop: 2,
+  },
+  cuisineSection: {
+    marginBottom: 14,
+  },
+  subSectionTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0f172a',
+    paddingHorizontal: 4,
+    marginBottom: 10,
   },
   cuisineScroll: {
     paddingHorizontal: 4,
-    paddingBottom: 14,
-    gap: 8,
+    gap: 12,
   },
-  chip: {
-    flexDirection: 'row',
+  cuisineCircleBtn: {
     alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 9,
-    borderRadius: 22,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
+    width: 64,
+  },
+  cuisineImageWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 20,
     overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#e2e8f0',
+    position: 'relative',
+    marginBottom: 6,
     shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 2,
   },
-  chipActive: {
+  cuisineImageWrapActive: {
     borderColor: brand[500],
+    borderWidth: 3,
   },
-  chipEmoji: {
-    fontSize: 14,
-    marginRight: 6,
+  cuisineImage: {
+    width: '100%',
+    height: '100%',
   },
-  chipLabel: {
-    fontSize: 13,
+  cuisineOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+  },
+
+  cuisineCircleLabel: {
+    fontSize: 11,
     fontWeight: '800',
     color: ink[700],
+    textAlign: 'center',
   },
-  chipLabelActive: {
-    color: '#ffffff',
+  cuisineCircleLabelActive: {
+    color: brand[600],
+    fontWeight: '900',
   },
   spotlightWrap: {
     marginBottom: 16,
@@ -476,7 +611,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-
   spotlightBody: {
     padding: 16,
   },
@@ -691,6 +825,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#f1f5f9',
   },
+
   cardFee: {
     fontSize: 11,
     color: brand[600],

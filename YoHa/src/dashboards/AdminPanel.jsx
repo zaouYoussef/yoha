@@ -22,6 +22,14 @@ import { useOrders, useToast } from '../contexts/AppContexts.jsx';
 import { apiFetch, ordersApi, userRequestsApi } from '../lib/api.js';
 import { AdminAnalytics } from './AdminAnalytics.jsx';
 import { AdminClients } from './AdminClients.jsx';
+import AdminOverviewEnhanced from './AdminOverviewEnhanced.jsx';
+import AdminOrdersEnhanced from './AdminOrdersEnhanced.jsx';
+import AdminRestaurantsEnhanced from './AdminRestaurantsEnhanced.jsx';
+import AdminCouriersEnhanced from './AdminCouriersEnhanced.jsx';
+import AdminRevenueEnhanced from './AdminRevenueEnhanced.jsx';
+import AdminReviewsEnhanced from './AdminReviewsEnhanced.jsx';
+import AdminAnalyticsEnhanced from './AdminAnalyticsEnhanced.jsx';
+import AdminClientsEnhanced from './AdminClientsEnhanced.jsx';
 import { CancelOrderButton, CancelPhaseBadge, OrderCancellationNote } from '../components/ui/CancelOrderButton.jsx';
 import {
   DashLayout,
@@ -322,15 +330,15 @@ export function AdminDashboard({ goto, dark, setDark }) {
   return (
     <DashLayout kind="admin" current={current} setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
       title={titles[current]} subtitle="Vue d'ensemble de la plateforme YoHa">
-      {current === 'overview' && <AdminOverview orders={orders} restaurantCount={restaurantPartnersCount} />}
-      {current === 'analytics' && <AdminAnalytics />}
-      {current === 'clients' && <AdminClients />}
-      {current === 'orders' && <AdminOrders orders={orders} />}
-      {current === 'restaurants' && <AdminRestaurants />}
-      {current === 'couriers' && <AdminCouriers />}
-      {current === 'revenue' && <AdminRevenue orders={orders} />}
+      {current === 'overview' && <AdminOverviewEnhanced orders={orders} restaurantCount={restaurantPartnersCount} />}
+      {current === 'analytics' && <AdminAnalyticsEnhanced />}
+      {current === 'clients' && <AdminClientsEnhanced />}
+      {current === 'orders' && <AdminOrdersEnhanced orders={orders} />}
+      {current === 'restaurants' && <AdminRestaurantsEnhanced />}
+      {current === 'couriers' && <AdminCouriersEnhanced />}
+      {current === 'revenue' && <AdminRevenueEnhanced orders={orders} />}
       {current === 'promos' && <AdminPromos />}
-      {current === 'reviews' && <AdminReviews />}
+      {current === 'reviews' && <AdminReviewsEnhanced />}
       {current === 'requests' && <AdminRequests />}
     </DashLayout>
   );

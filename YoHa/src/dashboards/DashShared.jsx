@@ -812,6 +812,61 @@ export function RecentOrdersTable({ orders, title, full, gainMad, hideCourier = 
 
 import { CancelPhaseBadge, OrderCancellationNote } from '../components/ui/CancelOrderButton.jsx';
 
+/* ─── formatOrderDateTime ─── */
+export function formatOrderDateTime(ts) {
+  if (!ts) return '—';
+  try {
+    const d = typeof ts === 'number' ? new Date(ts) : new Date(ts);
+    if (isNaN(d.getTime())) return '—';
+    const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    return `${dateStr} ${timeStr}`;
+  } catch {
+    return '—';
+  }
+}
+
+/* ─── DateRangeSelector ─── */
+export function DateRangeSelector({ dateRange, setDateRange, startDate, setStartDate, endDate, setEndDate }) {
+  return (
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 flex-wrap">
+      <div className="inline-flex items-center rounded-2xl bg-ink-100 dark:bg-ink-800 p-1 border border-ink-200/60 dark:border-ink-700/60 shadow-xs">
+        <button type="button" onClick={() => setDateRange('today')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${dateRange === 'today' ? 'bg-white text-ink-900 shadow-sm dark:bg-ink-900 dark:text-white' : 'text-ink-500 hover:text-ink-900 dark:hover:text-white'}`}>
+          Aujourd&apos;hui
+        </button>
+        <button type="button" onClick={() => setDateRange('custom')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${dateRange === 'custom' ? 'bg-white text-ink-900 shadow-sm dark:bg-ink-900 dark:text-white' : 'text-ink-500 hover:text-ink-900 dark:hover:text-white'}`}>
+          <span>📅 Plage de dates</span>
+        </button>
+        <button type="button" onClick={() => setDateRange('all')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${dateRange === 'all' ? 'bg-white text-ink-900 shadow-sm dark:bg-ink-900 dark:text-white' : 'text-ink-500 hover:text-ink-900 dark:hover:text-white'}`}>
+          Tout
+        </button>
+      </div>
+      {dateRange === 'custom' && (
+        <div className="flex items-center gap-2 bg-white dark:bg-ink-900 p-1.5 rounded-2xl border border-ink-200/80 dark:border-ink-800 shadow-xs text-xs animate-fade-in">
+          <div className="flex items-center gap-1.5">
+            <span className="text-ink-400 font-semibold text-[11px] pl-1">Du:</span>
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+              className="bg-ink-50 dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl px-2.5 py-1 text-xs text-ink-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer" />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-ink-400 font-semibold text-[11px]">Au:</span>
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+              className="bg-ink-50 dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl px-2.5 py-1 text-xs text-ink-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer" />
+          </div>
+          {(startDate || endDate) && (
+            <button type="button" onClick={() => { setStartDate(''); setEndDate(''); }}
+              className="px-2 py-1 text-[11px] font-bold text-rose-500 hover:text-rose-600"
+              title="Réinitialiser">✕ Effacer</button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── Horizontal Bar (percentage) ─── */
 export function HorizontalBar({ value, max = 100, label, color = 'from-brand-500 to-pink-500', height = 8, showLabel = true }) {
   const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;

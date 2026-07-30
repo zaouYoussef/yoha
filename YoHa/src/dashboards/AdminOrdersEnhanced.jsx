@@ -6,10 +6,9 @@ import {
   GlassCard, StatCard, SectionHeader, StatusPill, SearchBar, EmptyState,
   GradientHeader, FilterChip, DonutChart, HorizontalBarChart,
   TimeDistribution, DayComparison, InsightCard, DataRow, ComparisonBadge,
-  GlassTable, DateRangeSelector, LegendRow,
+  GlassTable, LegendRow, DateRangeSelector, formatOrderDateTime,
 } from './DashShared.jsx';
 import { isActiveOrderStatus, ORDER_STATES } from '../data/index.js';
-import { formatOrderDateTime } from './AdminPanel.jsx';
 
 function formatMAD(v) {
   return Number(v || 0).toLocaleString('fr-FR', { maximumFractionDigits: 0 }) + ' DH';
