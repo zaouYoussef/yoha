@@ -11,13 +11,13 @@ const gerantPhoto = '/logo.webp';
 const DASH_LINKS = {
   admin: [
     { id: 'overview', label: 'Vue d\'ensemble', icon: <I.Sparkle size={18} /> },
+    { id: 'requests', label: 'Requêtes', icon: <I.Bell size={18} /> },
     { id: 'orders', label: 'Commandes', icon: <I.Bag size={18} /> },
     { id: 'restaurants', label: 'Restaurants', icon: <I.Chef size={18} /> },
     { id: 'couriers', label: 'Livreurs', icon: <I.Bike size={18} /> },
     { id: 'revenue', label: 'Revenus', icon: <I.Star size={18} /> },
     { id: 'promos', label: 'Promos', icon: <I.Zap size={18} /> },
     { id: 'reviews', label: 'Avis & Notes', icon: <I.Star size={18} /> },
-    { id: 'requests', label: 'Requêtes', icon: <I.Bell size={18} /> },
   ],
   delivery: [
     { id: 'available', label: 'Disponibles', icon: <I.Bell size={18} />, badge: true },
