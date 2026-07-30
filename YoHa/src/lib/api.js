@@ -270,14 +270,14 @@ export const authApi = {
       } catch {}
 
       const foundCourier = localCouriers.find(c => c.email && c.email.toLowerCase().trim() === id);
-      const isCourierEmail = !!foundCourier || id.includes('livreur') || id.includes('courier') || id.endsWith('@yoha.ma');
       const isAdminEmail = id.includes('admin') || id.includes('youssef') || id === 'youssef@yoha.ma';
-      const isRestoEmail = id.includes('resto') || id.includes('snack') || id.includes('roma');
+      const isRestoEmail = id.includes('resto') || id.includes('snack') || id.includes('roma') || id.startsWith('roma');
+      const isCourierEmail = !!foundCourier || id.includes('livreur') || id.includes('courier');
 
       let role = 'client';
-      if (foundCourier || isCourierEmail) role = 'courier';
-      else if (isAdminEmail) role = 'admin';
+      if (isAdminEmail) role = 'admin';
       else if (isRestoEmail) role = 'restaurant';
+      else if (foundCourier || isCourierEmail) role = 'courier';
 
       const displayName = foundCourier?.name || foundCourier?.displayName || (id.split('@')[0].toUpperCase());
 
