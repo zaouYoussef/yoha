@@ -1324,9 +1324,35 @@ export function CampusHospitalsSection({ onStart }) {
               </div>
             </div>
 
-            <div className="mt-6">
-              <InteractiveCampusMap />
+            <div className="mt-4 sm:mt-8 grid sm:grid-cols-2 gap-3 sm:gap-4">
+              {CAMPUS_HOSPITALS.map((place, idx) => (
+                <Reveal key={place.name} delay={idx * 70}>
+                  <article className="group relative flex gap-0 sm:block h-full rounded-2xl overflow-hidden border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-300 hover:border-white/20">
+                    <div className="relative w-28 sm:w-full shrink-0 sm:shrink sm:h-40 overflow-hidden">
+                      <img
+                        src={place.img}
+                        alt={place.name}
+                        loading="lazy"
+                        className="w-full h-full min-h-[7rem] sm:min-h-0 object-cover transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r sm:bg-gradient-to-t from-black/50 to-transparent" />
+                    </div>
+                    <div className="p-4 sm:p-5 flex flex-col justify-center flex-1 min-w-0">
+                      <div className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        Disponible
+                      </div>
+                      <h4 className="font-display font-bold text-base sm:text-lg leading-snug line-clamp-2">{place.name}</h4>
+                      <p className="mt-1.5 text-xs sm:text-sm text-white/60 line-clamp-2">{place.subtitle}</p>
+                      <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-300">
+                        <I.Bike size={14} /> Livraison prioritaire
+                      </div>
+                    </div>
+                  </article>
+                </Reveal>
+              ))}
             </div>
+
 
           </div>
         </div>
