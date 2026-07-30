@@ -17,6 +17,28 @@ import { MenuItemImage, restaurantCover, restaurantLogo } from '../components/ui
 import { MenuItemDetailModal } from '../components/ui/MenuItemDetailModal.jsx';
 import { CustomOrderModal } from '../components/ui/CustomOrderModal.jsx';
 
+function shuffleWithSeed(array, seed) {
+  if (!array || !array.length) return [];
+  const arr = [...array];
+  let m = arr.length;
+  let t, i;
+  let s = seed;
+
+  function random() {
+    const x = Math.sin(s++) * 10000;
+    return x - Math.floor(x);
+  }
+
+  while (m) {
+    i = Math.floor(random() * m--);
+    t = arr[m];
+    arr[m] = arr[i];
+    arr[i] = t;
+  }
+  return arr;
+}
+
+
 function greetingName(user) {
   const raw = user?.displayName?.trim();
   if (!raw) return 'toi';
@@ -290,14 +312,16 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     });
   }, [catalog]);
 
-  const promoRestaurants = useMemo(() => foodRestaurants.filter(r => r.promo && isRestaurantOpen(r)), [foodRestaurants]);
-  const popularRestaurants = useMemo(() => {
-    const open = foodRestaurants.filter(r => isRestaurantOpen(r));
-    return open.sort((a, b) => (b.rating ?? 4.8) - (a.rating ?? 4.8));
-  }, [foodRestaurants]);
-  const fastDelivery = useMemo(() => foodRestaurants.filter(r => isRestaurantOpen(r)), [foodRestaurants]);
-  const topRatedList = useMemo(() => foodRestaurants.filter(r => (r.rating ?? 4.8) >= 4.7).sort((a, b) => (b.rating ?? 4.8) - (a.rating ?? 4.8)), [foodRestaurants]);
-  const favoritesList = useMemo(() => foodRestaurants.slice().reverse(), [foodRestaurants]);
+  const seedRef = useRef(Date.now() + Math.random());
+
+  const freeDeliveryList = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 101), [foodRestaurants]);
+  const featuredList = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 202), [foodRestaurants]);
+  const popularRestaurants = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 303), [foodRestaurants]);
+  const fastDelivery = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 404), [foodRestaurants]);
+  const promoRestaurants = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 505), [foodRestaurants]);
+  const topRatedList = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 606), [foodRestaurants]);
+  const favoritesList = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 707), [foodRestaurants]);
+
   const burgerList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'burger' || r.tags?.includes('Burgers') || r.name.toLowerCase().includes('burger')), [foodRestaurants]);
   const pizzaList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'pizza' || r.tags?.includes('Pizza') || r.name.toLowerCase().includes('pizza')), [foodRestaurants]);
   const asianList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'sushi' || r.cuisine === 'asian' || r.tags?.includes('Sushi') || r.name.toLowerCase().includes('sushi') || r.name.toLowerCase().includes('wok')), [foodRestaurants]);
@@ -566,10 +590,10 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               <HorizontalRow
                 title="Frais de livraison offerts"
                 subtitle="Livraison 0 MAD sur tout l'Alliance & CHU"
-                count={foodRestaurants.length}
+                count={freeDeliveryList.length}
                 onSeeAll={() => setFilter('free_delivery')}
               >
-                {foodRestaurants.map((r) => (
+                {freeDeliveryList.map((r) => (
                   <RestaurantCardHorizontal key={`free-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
                 ))}
               </HorizontalRow>
@@ -581,11 +605,12 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   <p className="text-xs text-ink-500 dark:text-ink-400 font-medium mt-0.5">Annonces payantes de nos partenaires</p>
                 </div>
                 <div className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
-                  {foodRestaurants.slice(0, 8).map((r) => (
+                  {featuredList.map((r) => (
                     <RestaurantCardHorizontal key={`featured-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
                   ))}
                 </div>
               </section>
+
 
               {/* 4. Marques populaires */}
               <DeliverooPopularBrandsSection restaurants={foodRestaurants} onPick={onPickRestaurant} />

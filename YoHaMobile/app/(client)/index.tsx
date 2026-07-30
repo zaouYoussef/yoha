@@ -22,7 +22,29 @@ import { FadeInView } from '../../src/components/animations/FadeInView';
 
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+function shuffleWithSeed<T>(array: T[], seed: number): T[] {
+  if (!array || !array.length) return [];
+  const arr = [...array];
+  let m = arr.length;
+  let t: T, i: number;
+  let s = seed;
+
+  function random() {
+    const x = Math.sin(s++) * 10000;
+    return x - Math.floor(x);
+  }
+
+  while (m) {
+    i = Math.floor(random() * m--);
+    t = arr[m];
+    arr[m] = arr[i];
+    arr[i] = t;
+  }
+  return arr;
+}
+
 const CARD_WIDTH = (SCREEN_WIDTH - 36) / 2;
+
 const HORIZONTAL_CARD_W = 250;
 
 const CATEGORY_GLOW: Record<string, string> = {
@@ -513,11 +535,16 @@ export default function ClientHome() {
     return openList.find((r) => r.promo) || openList[0] || foodRestaurants[0] || null;
   }, [foodRestaurants]);
 
-  const promoRestaurants = useMemo(() => foodRestaurants.filter(r => r.promo && isRestaurantOpen(r)), [foodRestaurants]);
-  const popularRestaurants = useMemo(() => {
-    return [...foodRestaurants].filter(r => isRestaurantOpen(r)).sort((a, b) => ((b as any).rating ?? 4.8) - ((a as any).rating ?? 4.8));
-  }, [foodRestaurants]);
-  const topRatedList = useMemo(() => foodRestaurants.filter(r => ((r as any).rating ?? 4.8) >= 4.7), [foodRestaurants]);
+  const seedRef = useRef(Date.now() + Math.random());
+
+  const freeDeliveryList = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 101), [foodRestaurants, refreshing]);
+  const featuredList = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 202), [foodRestaurants, refreshing]);
+  const popularRestaurants = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 303), [foodRestaurants, refreshing]);
+  const fastDeliveryList = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 404), [foodRestaurants, refreshing]);
+  const promoRestaurants = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 505), [foodRestaurants, refreshing]);
+  const topRatedList = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 606), [foodRestaurants, refreshing]);
+  const favoritesList = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 707), [foodRestaurants, refreshing]);
+
   const burgerList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'burger'), [foodRestaurants]);
   const pizzaList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'pizza'), [foodRestaurants]);
   const asianList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'sushi' || r.cuisine === 'asian'), [foodRestaurants]);
@@ -667,10 +694,10 @@ export default function ClientHome() {
                 <HorizontalRow
                   title="Frais de livraison offerts"
                   subtitle="Livraison 0 MAD sur tout l'Alliance & CHU"
-                  count={foodRestaurants.length}
+                  count={freeDeliveryList.length}
                   onSeeAll={() => {}}
                 >
-                  {foodRestaurants.slice(0, 8).map((r) => (
+                  {freeDeliveryList.map((r) => (
                     <RestaurantCardHorizontal
                       key={`free-${r.id}`}
                       restaurant={r}
@@ -683,8 +710,9 @@ export default function ClientHome() {
                 <HorizontalRow
                   title="À la une"
                   subtitle="Annonces payantes de nos partenaires"
+                  count={featuredList.length}
                 >
-                  {foodRestaurants.slice(0, 6).map((r) => (
+                  {featuredList.map((r) => (
                     <RestaurantCardHorizontal
                       key={`featured-${r.id}`}
                       restaurant={r}
@@ -699,7 +727,7 @@ export default function ClientHome() {
                   subtitle="Établissements très prisés au campus & hôpitaux"
                   count={popularRestaurants.length}
                 >
-                  {popularRestaurants.slice(0, 8).map((r) => (
+                  {popularRestaurants.map((r) => (
                     <RestaurantCardHorizontal
                       key={`pop-${r.id}`}
                       restaurant={r}
@@ -711,9 +739,9 @@ export default function ClientHome() {
                 <HorizontalRow
                   title="⚡ Frais de livraison tout doux"
                   subtitle="Livraison ultra rapide en moins de 30 min"
-                  count={fastDelivery.length}
+                  count={fastDeliveryList.length}
                 >
-                  {fastDelivery.slice(0, 8).map((r) => (
+                  {fastDeliveryList.map((r) => (
                     <RestaurantCardHorizontal
                       key={`fast-${r.id}`}
                       restaurant={r}
@@ -728,7 +756,7 @@ export default function ClientHome() {
                     subtitle="Promotions actives et menus avantageux"
                     count={promoRestaurants.length}
                   >
-                    {promoRestaurants.slice(0, 8).map((r) => (
+                    {promoRestaurants.map((r) => (
                       <RestaurantCardHorizontal
                         key={`promo-${r.id}`}
                         restaurant={r}
@@ -744,7 +772,7 @@ export default function ClientHome() {
                   subtitle="Les meilleures adresses notées 4.8 et plus"
                   count={topRatedList.length}
                 >
-                  {topRatedList.slice(0, 8).map((r) => (
+                  {topRatedList.map((r) => (
                     <RestaurantCardHorizontal
                       key={`top-${r.id}`}
                       restaurant={r}
@@ -752,6 +780,21 @@ export default function ClientHome() {
                     />
                   ))}
                 </HorizontalRow>
+
+                <HorizontalRow
+                  title="❤️ Favoris les plus populaires"
+                  subtitle="Adresses fréquemment ajoutées en coup de cœur"
+                  count={favoritesList.length}
+                >
+                  {favoritesList.map((r) => (
+                    <RestaurantCardHorizontal
+                      key={`fav-${r.id}`}
+                      restaurant={r}
+                      onPress={() => router.push(`/(client)/restaurant/${r.slug}`)}
+                    />
+                  ))}
+                </HorizontalRow>
+
 
                 {burgerList.length > 0 && (
                   <HorizontalRow title="🍔 Burgers" subtitle="Smash burgers, double cheese et frites dorées" count={burgerList.length}>
