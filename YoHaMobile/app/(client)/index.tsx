@@ -14,6 +14,10 @@ import { hapticLight, hapticSelection, hapticSuccess } from '../../src/lib/hapti
 import { CraveRoulette } from '../../src/components/CraveRoulette';
 import { ReorderBanner } from '../../src/components/ReorderBanner';
 import { LoyaltyStreakCard } from '../../src/components/LoyaltyStreakCard';
+import { AuroraHero } from '../../src/components/animations/AuroraHero';
+import { FloatingOrbs } from '../../src/components/animations/FloatingOrbs';
+import { FadeInView } from '../../src/components/animations/FadeInView';
+
 
 
 
@@ -558,36 +562,46 @@ export default function ClientHome() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand[500]} />}
         ListHeaderComponent={
           <>
-            {/* ═══ HERO SECTION ═══ */}
+            {/* ═══ HERO SECTION WITH NATIVE 60FPS REANIMATED AURORA ═══ */}
             <LinearGradient colors={['#fff7ed', '#ffffff', '#fff7ed']} style={styles.heroWrap}>
-              <View style={styles.heroOrb1} />
-              <View style={styles.heroOrb2} />
+              <AuroraHero />
+              <FloatingOrbs />
 
               {/* Location + Open Count */}
-              <View style={styles.heroTop}>
-                <View style={styles.locationPill}>
-                  <Text style={styles.locationPin}>📍</Text>
-                  <Text style={styles.locationText}>CHU-Tanger</Text>
+              <FadeInView delay={50}>
+                <View style={styles.heroTop}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Image source={require('../../assets/images/logo.png')} style={{ width: 34, height: 34, borderRadius: 8 }} contentFit="contain" />
+                    <View style={styles.locationPill}>
+                      <Text style={styles.locationPin}>📍</Text>
+                      <Text style={styles.locationText}>CHU-Tanger</Text>
+                    </View>
+                  </View>
+                  <View style={styles.openBadge}>
+                    <View style={styles.openDot} />
+                    <Text style={styles.openBadgeText}>{openCount || 4} ouverts</Text>
+                  </View>
                 </View>
-                <View style={styles.openBadge}>
-                  <View style={styles.openDot} />
-                  <Text style={styles.openBadgeText}>{openCount || 4} ouverts</Text>
-                </View>
-              </View>
+              </FadeInView>
 
               {/* Greeting */}
-              <View style={styles.greetingWrap}>
-                <Text style={styles.greetingText}>
-                  {timeGreeting()},{' '}
-                  <Text style={styles.greetingName}>YoHa Client</Text>
-                  <Text style={styles.greetingWave}> 👋</Text>
-                </Text>
-                <Text style={styles.subtitleText}>Livraison · Maintenant · 🏍️ Frais offerts</Text>
-              </View>
+              <FadeInView delay={120}>
+                <View style={styles.greetingWrap}>
+                  <Text style={styles.greetingText}>
+                    {timeGreeting()},{' '}
+                    <Text style={styles.greetingName}>YoHa Client</Text>
+                    <Text style={styles.greetingWave}> 👋</Text>
+                  </Text>
+                  <Text style={styles.subtitleText}>Livraison · Maintenant · 🏍️ Frais offerts</Text>
+                </View>
+              </FadeInView>
 
               {/* Search Bar */}
-              <SearchBar value={search} onChange={setSearch} />
+              <FadeInView delay={180}>
+                <SearchBar value={search} onChange={setSearch} />
+              </FadeInView>
             </LinearGradient>
+
 
             {/* ═══ SMART REORDER BANNER ═══ */}
             {!search && <SmartReorderBanner />}
