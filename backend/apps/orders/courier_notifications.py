@@ -258,51 +258,22 @@ def _abs_url(path: str) -> str:
 
 
 def notify_couriers_new_order(order: Order) -> int:
-    """Envoie l'alerte à tous les livreurs configurés. Retourne le nombre d'e-mails envoyés."""
-    recipients = get_courier_notify_emails()
-    if not recipients:
-        logger.warning("courier_notify_skip no_recipients public_id=%s", order.public_id)
-        return 0
-
-    subject, text_body, html_body = _build_courier_email(order)
-    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "YoHa <no-reply@yoha.ma>")
-
-    try:
-        msg = EmailMultiAlternatives(
-            subject=subject,
-            body=text_body,
-            from_email=from_email,
-            to=recipients,
-        )
-        msg.attach_alternative(html_body, "text/html")
-        msg.send(fail_silently=True)
-
-        logger.info(
-            "courier_notify_sent public_id=%s count=%s to=%s",
-            order.public_id,
-            len(recipients),
-            ",".join(recipients[:3]),
-        )
-    except Exception:
-        logger.exception("courier_notify_failed public_id=%s", order.public_id)
+    """Alerte livreurs : les e-mails aux livreurs sont désactivés à 100%. Seuls les WebPushes/WebSockets/Pushs mobiles restent actifs."""
+    logger.info("courier_email_notifications_disabled public_id=%s", order.public_id)
 
     # Web Push aux livreurs connectes
     try:
         from .web_push_sender import send_courier_new_order_web_push
         wp_count = send_courier_new_order_web_push(order)
-        if wp_count:
-            logger.info("courier_web_push_sent public_id=%s count=%s", order.public_id, wp_count)
+        logger.info("courier_web_push_sent public_id=%s count=%s", order.public_id, wp_count)
     except Exception:
-        logger.exception("courier_web_push_error public_id=%s", order.public_id)
+        logger.exception("courier_web_push_failed public_id=%s", order.public_id)
 
     # Push Mobile Expo aux livreurs
     try:
-        from .push_notifications import notify_couriers_mobile_push
-        mp_count = notify_couriers_mobile_push(order)
-        if mp_count:
-            logger.info("courier_mobile_push_sent public_id=%s count=%s", order.public_id, mp_count)
+        from .push_notifications import send_courier_new_order_push
+        send_courier_new_order_push(order)
     except Exception:
-        logger.exception("courier_mobile_push_error public_id=%s", order.public_id)
+        logger.exception("courier_expo_push_failed public_id=%s", order.public_id)
 
-    return len(recipients)
-
+    return 0
