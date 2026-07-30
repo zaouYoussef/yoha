@@ -15,6 +15,8 @@ class IsRole(BasePermission):
 
 class IsAdmin(IsRole):
     def has_permission(self, request, view):
+        if request.user.is_superuser:
+            return True
         view.allowed_roles = ("admin",)
         return super().has_permission(request, view)
 

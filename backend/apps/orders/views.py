@@ -1,7 +1,7 @@
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
@@ -446,6 +446,8 @@ class CourierLocationView(APIView):
 
 
 class ReviewView(APIView):
+    permission_classes = []
+
     def post(self, request):
         ser = ReviewCreateSerializer(data=request.data, context={"request": request})
         ser.is_valid(raise_exception=True)

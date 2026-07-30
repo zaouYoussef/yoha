@@ -172,7 +172,7 @@ class OrderLineSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "price", "qty", "img", "restaurantId", "restaurantName")
 
     def get_id(self, obj):
-        if obj.menu_item_id:
+        if obj.menu_item_id and obj.menu_item:
             return obj.menu_item.external_id
         return f"line-{obj.pk}"
 
@@ -278,18 +278,30 @@ class CourierSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    order_id = serializers.CharField(source="order.pk", read_only=True)
+
     class Meta:
         model = Review
         fields = ("id", "order_id", "customer_name", "restaurant_name", "courier_name", "rating", "comment", "created_at")
 
 
-class ReviewCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Review
-        fields = ("order_id", "customer_name", "restaurant_name", "courier_name", "rating", "comment")
+class ReviewCreateSerializer(serializers.Serializer):
+    order_id = serializers.CharField()
+    customer_name = serializers.CharField(max_length=120, required=False, allow_blank=True)
+    restaurant_name = serializers.CharField(max_length=200)
+    courier_name = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    rating = serializers.IntegerField(min_value=1, max_value=5)
+    comment = serializers.CharField(required=False, allow_blank=True)
 
     def create(self, validated_data):
+        order_id = validated_data.pop("order_id")
+        from .models import Order
+        order = Order.objects.filter(public_id=order_id).first()
+        if not order:
+            order = Order.objects.filter(pk=order_id).first()
+        if order:
+            validated_data["order"] = order
         request = self.context.get("request")
         if request and request.user.is_authenticated:
             validated_data["user"] = request.user
-        return super().create(validated_data)
+        return Review.objects.create(**validated_data)

@@ -27,6 +27,7 @@ urlpatterns = [
     path("", OrderListView.as_view(), name="order-list"),
     path("couriers/", CourierListView.as_view(), name="courier-list"),
     path("couriers/<int:pk>/", AdminCourierDeleteView.as_view(), name="admin-courier-delete"),
+    path("reviews/", ReviewView.as_view(), name="order-reviews"),
     path("<str:public_id>/", OrderDetailView.as_view(), name="order-detail"),
     path("<str:public_id>/status/", OrderStatusView.as_view(), name="order-status"),
     path("<str:public_id>/dispatch/", AutoDispatchView.as_view(), name="order-dispatch"),
@@ -35,5 +36,4 @@ urlpatterns = [
     path("<str:public_id>/assign-courier/", AssignCourierView.as_view(), name="order-assign"),
     path("<str:public_id>/send-to-restaurant/", SendToRestaurantView.as_view(), name="order-send-to-restaurant"),
     path("<str:public_id>/location/", CourierLocationView.as_view(), name="order-location"),
-    path("reviews/", ReviewView.as_view(), name="order-reviews"),
 ]

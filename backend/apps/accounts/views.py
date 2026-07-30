@@ -139,6 +139,14 @@ class AdminUserDetailView(APIView):
         except User.DoesNotExist:
             return None
 
+    def get(self, request, pk):
+        if request.user.role != "admin" and not request.user.is_superuser:
+            return Response({"detail": "Accès refusé."}, status=status.HTTP_403_FORBIDDEN)
+        user = self.get_object(pk)
+        if not user:
+            return Response({"detail": "Utilisateur introuvable."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(AdminUserListSerializer(user).data)
+
     def delete(self, request, pk):
         if request.user.role != "admin":
             return Response({"detail": "Accès refusé."}, status=status.HTTP_403_FORBIDDEN)
