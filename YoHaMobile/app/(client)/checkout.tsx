@@ -11,6 +11,9 @@ import { router } from 'expo-router';
 import { useCart } from '../../src/contexts/CartContext';
 import { ordersApi } from '../../src/lib/api';
 import { brand, gradients, ink, radius, shadows } from '../../src/theme';
+import { hapticSuccess } from '../../src/lib/haptics';
+import { ConfettiBurst } from '../../src/components/ConfettiBurst';
+
 
 const ADDRESS_PRESETS = [
   { id: 'chu', label: 'CHU-Tanger', emoji: '📍', detail: 'Centre Hospitalier Universitaire Tanger' },
@@ -63,6 +66,7 @@ export default function ClientCheckout() {
     }
 
     setSubmitting(true);
+    hapticSuccess();
     try {
       const order = await ordersApi.checkout({
         restaurant_id: restaurantId,
@@ -84,7 +88,9 @@ export default function ClientCheckout() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ConfettiBurst active={submitting} />
       <View style={[styles.container, { paddingTop: insets.top }]}>
+
         {/* Top Header */}
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>

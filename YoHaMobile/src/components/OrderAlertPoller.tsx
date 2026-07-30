@@ -22,13 +22,13 @@ export function ClientOrderAlertPoller() {
       setOrders(list);
 
       for (const o of list) {
-        if (wsSubs.current.includes(o.public_id || o.id)) continue;
-        const pid = o.public_id || o.id;
+        const pid = String(o.public_id || o.id);
+        if (wsSubs.current.includes(pid)) continue;
         subscribeOrder(pid, {
           onState: (data) => {
             setOrders((prev) =>
               prev.map((p) =>
-                (p.public_id || p.id) === pid
+                String(p.public_id || p.id) === pid
                   ? { ...p, status: data.status, eta_minutes: data.eta_minutes }
                   : p,
               ),
@@ -37,6 +37,7 @@ export function ClientOrderAlertPoller() {
         });
         wsSubs.current.push(pid);
       }
+
 
       const currentIds = new Set(list.map((o) => o.public_id || o.id));
       for (const subId of wsSubs.current) {
@@ -87,13 +88,13 @@ export function RestaurantOrderAlertPoller() {
       setOrders(list);
 
       for (const o of list) {
-        if (wsSubs.current.includes(o.public_id || o.id)) continue;
-        const pid = o.public_id || o.id;
+        const pid = String(o.public_id || o.id);
+        if (wsSubs.current.includes(pid)) continue;
         subscribeOrder(pid, {
           onState: (data) => {
             setOrders((prev) =>
               prev.map((p) =>
-                (p.public_id || p.id) === pid
+                String(p.public_id || p.id) === pid
                   ? { ...p, status: data.status, eta_minutes: data.eta_minutes }
                   : p,
               ),
@@ -102,6 +103,7 @@ export function RestaurantOrderAlertPoller() {
         });
         wsSubs.current.push(pid);
       }
+
 
       const currentIds = new Set(list.map((o) => o.public_id || o.id));
       for (const subId of wsSubs.current) {
