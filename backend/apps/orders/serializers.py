@@ -296,9 +296,14 @@ class ReviewCreateSerializer(serializers.Serializer):
     def create(self, validated_data):
         order_id = validated_data.pop("order_id")
         from .models import Order
+        import uuid
         order = Order.objects.filter(public_id=order_id).first()
         if not order:
-            order = Order.objects.filter(pk=order_id).first()
+            try:
+                uuid.UUID(str(order_id))
+                order = Order.objects.filter(pk=order_id).first()
+            except (ValueError, TypeError):
+                pass
         if order:
             validated_data["order"] = order
         request = self.context.get("request")
