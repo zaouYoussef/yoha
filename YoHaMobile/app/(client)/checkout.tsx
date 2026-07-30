@@ -36,16 +36,10 @@ export default function ClientCheckout() {
   const [tip, setTip] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
-  const deliveryFee = useMemo(() => {
-    if (subtotal >= 200) return 0;
-    if (subtotal >= 120) return 4.99;
-    return 7.99;
-  }, [subtotal]);
+  const deliveryFee: number = 0;
+  const serviceFee: number = 9.99;
 
-  const serviceFee = useMemo(() => {
-    if (subtotal >= 200) return 0;
-    return 3.99;
-  }, [subtotal]);
+
 
   const total = useMemo(() => subtotal + deliveryFee + serviceFee + tip, [subtotal, deliveryFee, serviceFee, tip]);
 

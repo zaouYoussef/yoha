@@ -30,14 +30,12 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   const customItems = cart.filter(i => i.isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes(i.restaurantCuisine));
   const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
   
-  // Smart Win-Win Fee Structure:
-  // - Total >= 200 MAD (Group Order): 0 MAD delivery + 0 MAD service fee!
-  // - Total >= 120 MAD: 4.99 MAD delivery + 3.99 MAD service fee.
-  // - Total < 120 MAD: 7.99 MAD delivery + 3.99 MAD service fee.
-  const isGroupOrder = total >= 200;
-  const isEcoDelivery = total >= 120 && total < 200;
-  const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : (isGroupOrder ? 0 : (isEcoDelivery ? 4.99 : 7.99));
-  const serviceFee = isCustom ? 0 : (isGroupOrder ? 0 : 3.99);
+  // Structure tarifaire 100% livraison offerte partout :
+  // - Frais de livraison : 0.00 MAD (Offerts partout)
+  // - Frais de service : 9.99 MAD
+  const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
+  const serviceFee = isCustom ? 0 : 9.99;
+
 
   const cartSection = useMemo(() => {
     const cuisines = cart.map(i => i.restaurantCuisine).filter(Boolean);

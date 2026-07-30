@@ -20,20 +20,13 @@ export default function ClientCart() {
   const [discount, setDiscount] = useState(0);
   const [promoErr, setPromoErr] = useState('');
 
-  // Smart Fee Structure:
-  // - Subtotal >= 200 MAD: 0 MAD delivery + 0 MAD service fee
-  // - Subtotal >= 120 MAD: 4.99 MAD delivery + 3.99 MAD service fee
-  // - Subtotal < 120 MAD: 7.99 MAD delivery + 3.99 MAD service fee
-  const deliveryFee = useMemo(() => {
-    if (subtotal >= 200) return 0;
-    if (subtotal >= 120) return 4.99;
-    return 7.99;
-  }, [subtotal]);
+  // Structure tarifaire 100% livraison offerte partout :
+  // - Livraison : 0.00 MAD (OFFERTE)
+  // - Frais de service : 9.99 MAD
+  const deliveryFee: number = 0;
+  const serviceFee: number = 9.99;
 
-  const serviceFee = useMemo(() => {
-    if (subtotal >= 200) return 0;
-    return 3.99;
-  }, [subtotal]);
+
 
   const applyPromo = useCallback(() => {
     setPromoErr('');
