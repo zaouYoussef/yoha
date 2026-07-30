@@ -24,6 +24,60 @@ const MAIN_SERVICE_TABS = [
   { id: 'shop', label: 'Magasins', emoji: '🛍️' },
 ];
 
+const SUB_CATEGORIES: Record<string, { id: string; label: string; emoji: string; image: string }[]> = {
+  pharmacy: [
+    { id: 'pharm-meds', label: 'Médicaments', emoji: '💊', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=80' },
+    { id: 'pharm-hygiene', label: 'Hygiène', emoji: '🧼', image: 'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=500&auto=format&fit=crop&q=80' },
+    { id: 'pharm-bebe', label: 'Bébé', emoji: '👶', image: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=500&auto=format&fit=crop&q=80' },
+    { id: 'pharm-vit', label: 'Vitamines', emoji: '💪', image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=500&auto=format&fit=crop&q=80' },
+  ],
+  parapharmacy: [
+    { id: 'para-beaute', label: 'Beauté', emoji: '💄', image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500&auto=format&fit=crop&q=80' },
+    { id: 'para-soin', label: 'Soin Visage', emoji: '🧴', image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=80' },
+    { id: 'para-cheveux', label: 'Cheveux', emoji: '💆', image: 'https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=500&auto=format&fit=crop&q=80' },
+  ],
+  dessert: [
+    { id: 'des-patisserie', label: 'Pâtisseries', emoji: '🥐', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&auto=format&fit=crop&q=80' },
+    { id: 'des-gateau', label: 'Gâteaux', emoji: '🍰', image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500&auto=format&fit=crop&q=80' },
+    { id: 'des-glace', label: 'Glaces', emoji: '🍨', image: 'https://images.unsplash.com/photo-1560008511-11c63416e52d?w=500&auto=format&fit=crop&q=80' },
+  ],
+  supermarket: [
+    { id: 'sup-fruits', label: 'Fruits', emoji: '🍎', image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=500&auto=format&fit=crop&q=80' },
+    { id: 'sup-legumes', label: 'Légumes', emoji: '🥬', image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500&auto=format&fit=crop&q=80' },
+    { id: 'sup-lait', label: 'Laitiers', emoji: '🥛', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500&auto=format&fit=crop&q=80' },
+    { id: 'sup-boissons', label: 'Boissons', emoji: '🥤', image: 'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=500&auto=format&fit=crop&q=80' },
+  ],
+  shop: [
+    { id: 'shop-vet', label: 'Vêtements', emoji: '👕', image: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=500&auto=format&fit=crop&q=80' },
+    { id: 'shop-elec', label: 'Électronique', emoji: '📱', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=80' },
+  ],
+};
+
+const STATIC_SERVICE_STORES: Record<string, Restaurant[]> = {
+  pharmacy: [
+    { id: 'custom-pharmacy', slug: 'pharmacie-sur-mesure', name: 'Pharmacie sur-mesure 💊', cuisine: 'pharmacy', distance: '0.1 km', isOpen: true, fee: '20 DH', promo: 'Prescription & Urgences', cover: 'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=800&auto=format&fit=crop&q=85' },
+    { id: 'pharmacie-provence', slug: 'pharmacie-provence', name: 'Pharmacie Provence', cuisine: 'pharmacy', distance: '1.7 km', isOpen: true, fee: '20 DH', cover: 'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=800&auto=format&fit=crop&q=85' },
+    { id: 'pharmacie-cervantes', slug: 'pharmacie-cervantes', name: 'Pharmacie Cervantes', cuisine: 'pharmacy', distance: '1.6 km', isOpen: true, fee: '20 DH', cover: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=800&auto=format&fit=crop&q=85' },
+    { id: 'pharmacie-gibraltar', slug: 'pharmacie-gibraltar', name: 'Pharmacie Gibraltar', cuisine: 'pharmacy', distance: '1.1 km', isOpen: true, fee: '20 DH', cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=800&auto=format&fit=crop&q=85' },
+    { id: 'pharmacie-city-center', slug: 'pharmacie-city-center', name: 'Pharmacie City Center', cuisine: 'pharmacy', distance: '0.8 km', isOpen: true, fee: '20 DH', cover: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=800&auto=format&fit=crop&q=85' },
+  ],
+  parapharmacy: [
+    { id: 'para-beautyshop', slug: 'parapharma-beauty', name: 'Parapharma Beauty Care 🌿', cuisine: 'parapharmacy', distance: '1.2 km', isOpen: true, fee: '15 DH', promo: '-15% Soins', cover: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&auto=format&fit=crop&q=85' },
+    { id: 'para-tanger-centre', slug: 'parapharma-tanger', name: 'Para Tanger Centre', cuisine: 'parapharmacy', distance: '2.1 km', isOpen: true, fee: '15 DH', cover: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&auto=format&fit=crop&q=85' },
+  ],
+  dessert: [
+    { id: 'patisserie-rahal', slug: 'patisserie-rahal', name: 'Pâtisserie Rahal Tanger 🥐', cuisine: 'dessert', distance: '0.9 km', isOpen: true, fee: '15 DH', promo: 'Croissants Frais', cover: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=85' },
+    { id: 'maison-du-chocolat', slug: 'maison-chocolat', name: 'Maison du Chocolat 🍰', cuisine: 'dessert', distance: '1.4 km', isOpen: true, fee: '15 DH', cover: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&auto=format&fit=crop&q=85' },
+  ],
+  supermarket: [
+    { id: 'marjane-market', slug: 'marjane-market', name: 'Marjane Market CHU 🛒', cuisine: 'supermarket', distance: '1.0 km', isOpen: true, fee: '20 DH', promo: 'Courses Rapides', cover: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=800&auto=format&fit=crop&q=85' },
+    { id: 'carrefour-express', slug: 'carrefour-express', name: 'Carrefour Express Tanger', cuisine: 'supermarket', distance: '1.8 km', isOpen: true, fee: '20 DH', cover: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&auto=format&fit=crop&q=85' },
+  ],
+  shop: [
+    { id: 'tech-shop-tanger', slug: 'tech-shop-tanger', name: 'Tech & High-Tech Tanger 📱', cuisine: 'shop', distance: '1.5 km', isOpen: true, fee: '25 DH', cover: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=85' },
+  ],
+};
+
 const CUISINE_CATEGORIES = [
   { id: 'all', label: 'Tout', emoji: '🔥', image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80' },
   { id: 'pizza', label: 'Pizza', emoji: '🍕', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80' },
@@ -73,7 +127,7 @@ const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 export default function ClientHome() {
   const insets = useSafeAreaInsets();
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [catalog, setCatalog] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
@@ -83,15 +137,12 @@ export default function ClientHome() {
 
   const fetchData = useCallback(async () => {
     try {
-      const params: { cuisine?: string; q?: string } = {};
-      if (cuisineFilter && cuisineFilter !== 'all') params.cuisine = cuisineFilter;
-      if (search.trim()) params.q = search.trim();
-      const list = await restaurantsApi.list(params);
-      setRestaurants(list);
+      const list = await restaurantsApi.list();
+      setCatalog(list);
     } catch {
-      setRestaurants([]);
+      setCatalog([]);
     }
-  }, [cuisineFilter, search]);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -104,12 +155,32 @@ export default function ClientHome() {
     setRefreshing(false);
   }, [fetchData]);
 
-  const openCount = useMemo(() => restaurants.filter((r) => r.isOpen).length, [restaurants]);
-  const featured = useMemo(() => restaurants.find((r) => r.promo || r.isOpen) || restaurants[0], [restaurants]);
+  const displayList = useMemo(() => {
+    let list: Restaurant[] = [];
+    if (serviceTab !== 'all') {
+      const staticItems = STATIC_SERVICE_STORES[serviceTab] || [];
+      const catalogItems = catalog.filter((r) => r.cuisine === serviceTab);
+      list = [...staticItems, ...catalogItems];
+    } else {
+      list = catalog;
+    }
 
-  const freeDeliveryRestos = useMemo(() => restaurants.filter((r) => r.isOpen), [restaurants]);
-  const popularRestos = useMemo(() => restaurants.slice().sort((a, b) => (b.isOpen ? 1 : 0) - (a.isOpen ? 1 : 0)), [restaurants]);
-  const promoRestos = useMemo(() => restaurants.filter((r) => !!r.promo), [restaurants]);
+    if (cuisineFilter !== 'all') {
+      list = list.filter((r) => r.cuisine === cuisineFilter);
+    }
+
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter((r) => r.name?.toLowerCase().includes(q) || r.cuisine?.toLowerCase().includes(q));
+    }
+
+    return list;
+  }, [catalog, serviceTab, cuisineFilter, search]);
+
+  const openCount = useMemo(() => displayList.filter((r) => r.isOpen).length, [displayList]);
+  const featured = useMemo(() => displayList.find((r) => r.promo || r.isOpen) || displayList[0], [displayList]);
+
+  const subItems = SUB_CATEGORIES[serviceTab] || [];
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -153,7 +224,7 @@ export default function ClientHome() {
       </View>
 
       <AnimatedFlatList
-        data={restaurants}
+        data={displayList}
         keyExtractor={(r: any) => String(r.slug || r.id || Math.random())}
         numColumns={2}
         contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 100 }]}
@@ -170,7 +241,10 @@ export default function ClientHome() {
                   return (
                     <Pressable
                       key={tab.id}
-                      onPress={() => setServiceTab(tab.id)}
+                      onPress={() => {
+                        setServiceTab(tab.id);
+                        setCuisineFilter('all');
+                      }}
                       style={[styles.serviceTabBtn, active && styles.serviceTabBtnActive]}
                     >
                       <Text style={[styles.serviceTabLabel, active && styles.serviceTabLabelActive]}>
@@ -183,8 +257,24 @@ export default function ClientHome() {
               </ScrollView>
             </View>
 
+            {/* ═══ SUB-CATEGORY CAROUSEL WHEN A SERVICE IS SELECTED ═══ */}
+            {subItems.length > 0 && !search ? (
+              <View style={styles.subCatSection}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.subCatScroll}>
+                  {subItems.map((sub) => (
+                    <Pressable key={sub.id} style={styles.subCatBtn}>
+                      <View style={styles.subCatImageWrap}>
+                        <Image source={{ uri: sub.image }} style={styles.subCatImage} contentFit="cover" />
+                      </View>
+                      <Text style={styles.subCatLabel}>{sub.emoji} {sub.label}</Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            ) : null}
+
             {/* ═══ 2. PROMO BANNERS CAROUSEL ═══ */}
-            {!search ? (
+            {!search && serviceTab === 'all' ? (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.promoScroll}>
                 {PROMO_BANNERS.map((p) => (
                   <LinearGradient
@@ -202,7 +292,7 @@ export default function ClientHome() {
             ) : null}
 
             {/* ═══ 3. FOOD CUISINE IMAGE CAROUSEL (Circles with Photos) ═══ */}
-            {!search ? (
+            {!search && serviceTab === 'all' ? (
               <View style={styles.cuisineSection}>
                 <Text style={styles.subSectionTitle}>Catégories Gourmandes</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cuisineScroll}>
@@ -228,33 +318,7 @@ export default function ClientHome() {
               </View>
             ) : null}
 
-            {/* ═══ 4. MARQUES POPULAIRES LOGO BUBBLES ═══ */}
-            {!search && restaurants.length > 0 ? (
-              <View style={styles.brandsSection}>
-                <Text style={styles.subSectionTitle}>🏷️ Marques Populaires à Tanger</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.brandsScroll}>
-                  {restaurants.map((r) => (
-                    <Pressable
-                      key={`brand-${r.slug}`}
-                      onPress={() => router.push(`/(client)/restaurant/${r.slug}`)}
-                      style={styles.brandCircleBtn}
-                    >
-                      <View style={styles.brandLogoWrap}>
-                        <Image
-                          source={{ uri: resolveImageUrl(r.logo || r.cover, r.cuisine) }}
-                          style={styles.brandLogo}
-                          contentFit="cover"
-                          transition={300}
-                        />
-                      </View>
-                      <Text style={styles.brandName} numberOfLines={1}>{r.name}</Text>
-                    </Pressable>
-                  ))}
-                </ScrollView>
-              </View>
-            ) : null}
-
-            {/* ═══ 5. FEATURED "COUP DE CŒUR" SPOTLIGHT ═══ */}
+            {/* ═══ 4. FEATURED "COUP DE CŒUR" SPOTLIGHT ═══ */}
             {featured && !search && cuisineFilter === 'all' ? (
               <View style={styles.spotlightWrap}>
                 <Pressable
@@ -294,64 +358,16 @@ export default function ClientHome() {
               </View>
             ) : null}
 
-            {/* ═══ 6. HORIZONTAL ROW: FRAIS DE LIVRAISON OFFERTS ═══ */}
-            {!search && freeDeliveryRestos.length > 0 ? (
-              <View style={styles.hSectionWrap}>
-                <View style={styles.hSectionTitleRow}>
-                  <Text style={styles.hSectionTitle}>🛵 Frais de livraison offerts</Text>
-                  <Text style={styles.hSectionSub}>Livraison 0 MAD CHU & Campus</Text>
-                </View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
-                  {freeDeliveryRestos.map((r) => (
-                    <Pressable
-                      key={`free-${r.slug}`}
-                      onPress={() => router.push(`/(client)/restaurant/${r.slug}`)}
-                      style={({ pressed }) => [styles.hCard, { transform: [{ scale: pressed ? 0.97 : 1 }] }]}
-                    >
-                      <Image source={{ uri: resolveImageUrl(r.cover, r.cuisine) }} style={styles.hCardImg} contentFit="cover" />
-                      <View style={styles.hCardBody}>
-                        <Text style={styles.hCardName} numberOfLines={1}>{r.name}</Text>
-                        <Text style={styles.hCardFee}>🏍️ Livraison Gratuite</Text>
-                      </View>
-                    </Pressable>
-                  ))}
-                </ScrollView>
-              </View>
-            ) : null}
-
-            {/* ═══ 7. HORIZONTAL ROW: POPULAIRES DANS VOTRE QUARTIER ═══ */}
-            {!search && popularRestos.length > 0 ? (
-              <View style={styles.hSectionWrap}>
-                <View style={styles.hSectionTitleRow}>
-                  <Text style={styles.hSectionTitle}>🔥 Populaires dans votre quartier</Text>
-                  <Text style={styles.hSectionSub}>Établissements très prisés au campus</Text>
-                </View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
-                  {popularRestos.map((r) => (
-                    <Pressable
-                      key={`pop-${r.slug}`}
-                      onPress={() => router.push(`/(client)/restaurant/${r.slug}`)}
-                      style={({ pressed }) => [styles.hCard, { transform: [{ scale: pressed ? 0.97 : 1 }] }]}
-                    >
-                      <Image source={{ uri: resolveImageUrl(r.cover, r.cuisine) }} style={styles.hCardImg} contentFit="cover" />
-                      <View style={styles.hCardBody}>
-                        <Text style={styles.hCardName} numberOfLines={1}>{r.name}</Text>
-                        <Text style={styles.hCardStar}>★ 4.9 · {formatDistance(r.distance)}</Text>
-                      </View>
-                    </Pressable>
-                  ))}
-                </ScrollView>
-              </View>
-            ) : null}
-
             {/* Section Header */}
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>
-                {cuisineFilter !== 'all'
+                {serviceTab !== 'all'
+                  ? MAIN_SERVICE_TABS.find((s) => s.id === serviceTab)?.label
+                  : cuisineFilter !== 'all'
                   ? `Restos ${CUISINE_CATEGORIES.find((c) => c.id === cuisineFilter)?.label}`
                   : 'Tous les Partenaires'}
               </Text>
-              <Text style={styles.sectionCount}>{restaurants.length} disponibles</Text>
+              <Text style={styles.sectionCount}>{displayList.length} disponibles</Text>
             </View>
 
             {loading && (
@@ -372,7 +388,7 @@ export default function ClientHome() {
           !loading ? (
             <View style={styles.empty}>
               <Text style={styles.emptyEmoji}>🍽️</Text>
-              <Text style={styles.emptyTitle}>Aucun restaurant disponible</Text>
+              <Text style={styles.emptyTitle}>Aucun établissement disponible</Text>
               <Text style={styles.emptyDesc}>Essayez de modifier votre recherche ou vos filtres</Text>
             </View>
           ) : null
@@ -383,7 +399,7 @@ export default function ClientHome() {
 }
 
 function RestaurantCardItem({ restaurant: r, index, onPress }: { restaurant: Restaurant; index: number; onPress: () => void }) {
-  const emoji = { pizza: '🍕', tacos: '🌮', kebab: '🥙', sushi: '🍣', burger: '🍔', healthy: '🥗', medical: '🏥', pharmacy: '💊' }[r.cuisine || ''] || '🍽️';
+  const emoji = { pizza: '🍕', tacos: '🌮', kebab: '🥙', sushi: '🍣', burger: '🍔', healthy: '🥗', medical: '🏥', pharmacy: '💊', parapharmacy: '🌿', dessert: '🥐', supermarket: '🛒', shop: '🛍️' }[r.cuisine || ''] || '🍽️';
   const hasPromo = !!r.promo;
   const coverUri = resolveImageUrl(r.cover, r.cuisine);
 
@@ -592,6 +608,36 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: brand[500],
   },
+  subCatSection: {
+    marginBottom: 14,
+  },
+  subCatScroll: {
+    paddingHorizontal: 4,
+    gap: 10,
+  },
+  subCatBtn: {
+    alignItems: 'center',
+    width: 72,
+  },
+  subCatImageWrap: {
+    width: 60,
+    height: 60,
+    borderRadius: 18,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    marginBottom: 4,
+  },
+  subCatImage: {
+    width: '100%',
+    height: '100%',
+  },
+  subCatLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#0f172a',
+    textAlign: 'center',
+  },
   promoScroll: {
     paddingHorizontal: 4,
     paddingBottom: 14,
@@ -675,42 +721,6 @@ const styles = StyleSheet.create({
     color: brand[600],
     fontWeight: '900',
   },
-  brandsSection: {
-    marginBottom: 16,
-  },
-  brandsScroll: {
-    paddingHorizontal: 4,
-    gap: 12,
-  },
-  brandCircleBtn: {
-    alignItems: 'center',
-    width: 68,
-  },
-  brandLogoWrap: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#e2e8f0',
-    backgroundColor: '#ffffff',
-    marginBottom: 6,
-    shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  brandLogo: {
-    width: '100%',
-    height: '100%',
-  },
-  brandName: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#0f172a',
-    textAlign: 'center',
-  },
   spotlightWrap: {
     marginBottom: 16,
     paddingHorizontal: 4,
@@ -788,64 +798,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '800',
     color: '#ffffff',
-  },
-  hSectionWrap: {
-    marginBottom: 16,
-  },
-  hSectionTitleRow: {
-    paddingHorizontal: 4,
-    marginBottom: 10,
-  },
-  hSectionTitle: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: '#0f172a',
-  },
-  hSectionSub: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: ink[400],
-    marginTop: 2,
-  },
-  hScroll: {
-    paddingHorizontal: 4,
-    gap: 12,
-  },
-  hCard: {
-    width: HORIZONTAL_CARD_WIDTH,
-    borderRadius: 20,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    overflow: 'hidden',
-    shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 3,
-  },
-  hCardImg: {
-    width: '100%',
-    height: 110,
-  },
-  hCardBody: {
-    padding: 10,
-  },
-  hCardName: {
-    fontSize: 14,
-    fontWeight: '900',
-    color: '#0f172a',
-    marginBottom: 2,
-  },
-  hCardFee: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: brand[600],
-  },
-  hCardStar: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#f59e0b',
   },
   sectionHeader: {
     flexDirection: 'row',
