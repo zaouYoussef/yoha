@@ -1,64 +1,5 @@
-'use client';
-
-import React, { useState } from 'react';
-import { userRequestsApi } from '@/lib/api.js';
-
-function RequestForm() {
-  const [form, setForm] = useState({ request_type: 'deletion', email: '', display_name: '', message: '' });
-  const [sent, setSent] = useState(false);
-  const [busy, setBusy] = useState(false);
-
-  const submit = async (e) => {
-    e.preventDefault();
-    setBusy(true);
-    try {
-      await userRequestsApi.create(form);
-      setSent(true);
-    } catch { alert('Erreur lors de l\'envoi.'); }
-    setBusy(false);
-  };
-
-  if (sent) return (
-    <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4 text-center">
-      <span className="text-2xl">✅</span>
-      <p className="font-bold text-emerald-700 dark:text-emerald-300 mt-1">Demande envoyée</p>
-      <p className="text-sm text-emerald-600 dark:text-emerald-400">Nous vous répondrons dans les plus brefs délais.</p>
-    </div>
-  );
-
-  return (
-    <form onSubmit={submit} className="space-y-3">
-      <div>
-        <label className="text-xs font-bold text-ink-400 uppercase tracking-wider">Type</label>
-        <select value={form.request_type} onChange={(e) => setForm({ ...form, request_type: e.target.value })}
-          className="mt-1 w-full px-3 py-2 rounded-xl border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-900 text-sm">
-          <option value="deletion">Suppression de mon compte</option>
-          <option value="complaint">Réclamation</option>
-          <option value="other">Autre demande</option>
-        </select>
-      </div>
-      <div>
-        <label className="text-xs font-bold text-ink-400 uppercase tracking-wider">Email *</label>
-        <input required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-          className="mt-1 w-full px-3 py-2 rounded-xl border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-900 text-sm" />
-      </div>
-      <div>
-        <label className="text-xs font-bold text-ink-400 uppercase tracking-wider">Nom (optionnel)</label>
-        <input value={form.display_name} onChange={(e) => setForm({ ...form, display_name: e.target.value })}
-          className="mt-1 w-full px-3 py-2 rounded-xl border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-900 text-sm" />
-      </div>
-      <div>
-        <label className="text-xs font-bold text-ink-400 uppercase tracking-wider">Message</label>
-        <textarea rows={3} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })}
-          className="mt-1 w-full px-3 py-2 rounded-xl border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-900 text-sm resize-none" />
-      </div>
-      <button type="submit" disabled={busy}
-        className="w-full py-2.5 rounded-xl bg-brand-500 text-white font-black text-sm hover:bg-brand-600 transition-colors disabled:opacity-50">
-        {busy ? 'Envoi…' : 'Envoyer la demande'}
-      </button>
-    </form>
-  );
-}
+import React from 'react';
+import { RequestForm } from '@/components/ui/RequestForm.jsx';
 
 export default function PrivacyPage() {
   return (
@@ -140,9 +81,13 @@ export default function PrivacyPage() {
       </div>
 
       <div className="rounded-3xl bg-white dark:bg-ink-900/80 border border-ink-200/60 dark:border-ink-800/50 shadow-lg p-6 sm:p-10">
-        <h2 className="text-xl font-display font-extrabold text-ink-900 dark:text-white mb-1">Supprimer mon compte / Réclamation</h2>
-        <p className="text-sm text-ink-400 mb-5">Remplissez ce formulaire pour demander la suppression de vos données ou nous faire part d&apos;un problème.</p>
-        <RequestForm />
+        <h2 className="text-xl font-display font-extrabold text-ink-900 dark:text-white mb-1">Supprimer mon compte</h2>
+        <p className="text-sm text-ink-400 mb-5">Remplissez ce formulaire pour demander la suppression de vos données personnelles.</p>
+        <RequestForm defaultType="deletion" />
+        <p className="text-xs text-ink-400 mt-4 text-center">
+          Vous avez une réclamation&nbsp;?{' '}
+          <a href="/reclamation" className="text-brand-600 hover:underline font-bold">Aller sur la page Réclamation →</a>
+        </p>
       </div>
     </div>
   );
