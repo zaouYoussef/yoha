@@ -231,7 +231,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
           restaurantName: storeName,
           restaurantId: cart[0]?.restaurantId,
           items: cart,
-          total: grand,
+          total: Math.round(grand * 100) / 100,
           date: new Date().toISOString(),
         }));
 

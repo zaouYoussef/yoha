@@ -845,25 +845,27 @@ export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
   const { orders = [] } = useOrders() || {};
   const [lastOrder, setLastOrder] = useState(null);
 
+  const { user } = useAuth() || {};
+
   useEffect(() => {
-    let order = null;
     if (orders && orders.length > 0) {
-      order = orders[0];
-    } else {
+      setLastOrder(orders[0]);
+    } else if (!user) {
       try {
         const stored = localStorage.getItem('yoha_last_order');
-        if (stored) order = JSON.parse(stored);
+        if (stored) setLastOrder(JSON.parse(stored));
       } catch {}
+    } else {
+      setLastOrder(null);
     }
-    setLastOrder(order);
-  }, [orders]);
+  }, [orders, user]);
 
   if (!lastOrder) return null;
 
   const storeName = lastOrder.restaurantName || lastOrder.restaurant_name || lastOrder.storeName || 'votre restaurant favori';
   const items = lastOrder.items || [];
   const itemsSummary = items.map(i => `${i.name || i.title} (x${i.qty || 1})`).join(', ') || 'Menu sélectionné';
-  const totalAmount = lastOrder.total || lastOrder.total_amount || 0;
+  const totalAmount = Math.round((lastOrder.total || lastOrder.total_amount || 0) * 100) / 100;
 
   const handleReorderCheckout = () => {
     if (items.length > 0) {
@@ -915,7 +917,7 @@ export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
               onClick={handleReorderCheckout}
               className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 text-white font-extrabold text-xs shadow-glow hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
             >
-              <span>⚡ Recommander {totalAmount > 0 ? `(${totalAmount} MAD)` : ''}</span>
+              <span>⚡ Recommander {totalAmount > 0 ? `(${totalAmount.toFixed(2)} MAD)` : ''}</span>
             </button>
 
             <button

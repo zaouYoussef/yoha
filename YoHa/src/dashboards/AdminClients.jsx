@@ -9,7 +9,7 @@ import {
 } from './DashShared.jsx';
 
 function formatMAD(v) {
-  try { return new Intl.NumberFormat('fr-MA', { style: 'decimal', maximumFractionDigits: 0 }).format(Number(v) || 0) + ' DA'; } catch { return '0 DA'; }
+  try { return new Intl.NumberFormat('fr-MA', { style: 'decimal', maximumFractionDigits: 0 }).format(Number(v) || 0) + ' DH'; } catch { return '0 DH'; }
 }
 
 function formatDate(iso) {

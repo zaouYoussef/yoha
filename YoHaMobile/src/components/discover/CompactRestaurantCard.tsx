@@ -7,6 +7,7 @@ import { DEFAULT_ETA } from '../../lib/constants';
 import { hapticLight } from '../../lib/haptics';
 import { brand, ink, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
+import { resolveImageUrl } from '../../lib/resolveImageUrl';
 
 export const CompactRestaurantCard = React.memo(function CompactRestaurantCard({
   restaurant,
@@ -28,7 +29,7 @@ export const CompactRestaurantCard = React.memo(function CompactRestaurantCard({
         pressed && { opacity: 0.94 },
       ]}
     >
-      <Image source={{ uri: restaurant.cover }} style={StyleSheet.absoluteFill} contentFit="cover" transition={0} />
+      <Image source={{ uri: resolveImageUrl(restaurant.cover, restaurant.cuisine) }} style={StyleSheet.absoluteFill} contentFit="cover" transition={0} />
       <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']} style={StyleSheet.absoluteFill} />
       {rank ? (
         <View style={styles.rank}>
@@ -43,7 +44,7 @@ export const CompactRestaurantCard = React.memo(function CompactRestaurantCard({
       <View style={styles.footer}>
         <View style={styles.footerTopRow}>
           {restaurant.logo ? (
-            <Image source={{ uri: restaurant.logo }} style={styles.logoRow} contentFit="cover" />
+            <Image source={{ uri: resolveImageUrl(restaurant.logo, restaurant.cuisine) }} style={styles.logoRow} contentFit="cover" />
           ) : null}
           <View style={{ flex: 1 }}>
             <Text style={styles.name} numberOfLines={1}>{restaurant.name}</Text>

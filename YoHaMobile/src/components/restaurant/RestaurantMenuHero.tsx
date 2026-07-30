@@ -8,6 +8,7 @@ import { DEFAULT_ETA } from '../../lib/constants';
 import { restaurantOpenStatus } from '../../lib/openingHours';
 import { brand, gradients, ink, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
+import { resolveImageUrl } from '../../lib/resolveImageUrl';
 
 const CUISINE_EMOJI: Record<string, string> = {
   pizza: '🍕', tacos: '🌮', kebab: '🥙', sushi: '🍣', burger: '🍔',
@@ -40,7 +41,7 @@ export function RestaurantMenuHero({ restaurant, scrollY, topInset, onBack }: Pr
   return (
     <View style={styles.wrap}>
       <Animated.View style={[styles.imageWrap, imageAnim]}>
-        <Image source={{ uri: restaurant.cover }} style={styles.cover} contentFit="cover" transition={400} />
+        <Image source={{ uri: resolveImageUrl(restaurant.cover, restaurant.cuisine) }} style={styles.cover} contentFit="cover" transition={400} />
       </Animated.View>
 
       <Animated.View style={[StyleSheet.absoluteFill, fadeAnim]}>
@@ -57,7 +58,7 @@ export function RestaurantMenuHero({ restaurant, scrollY, topInset, onBack }: Pr
       <View style={[styles.heroContent, { paddingTop: topInset + 56 }]}>
         <View style={styles.logoRow}>
           {restaurant.logo ? (
-            <Image source={{ uri: restaurant.logo }} style={styles.logo} contentFit="cover" />
+            <Image source={{ uri: resolveImageUrl(restaurant.logo, restaurant.cuisine) }} style={styles.logo} contentFit="cover" />
           ) : (
             <LinearGradient colors={[...gradients.cta]} style={styles.logoFallback} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
               <Text style={styles.logoEmoji}>{emoji}</Text>

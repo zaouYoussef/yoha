@@ -13,6 +13,7 @@ import {
 import { Restaurant } from '../../lib/api';
 import { brand, gradients, ink, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
+import { resolveImageUrl } from '../../lib/resolveImageUrl';
 
 const { width } = Dimensions.get('window');
 
@@ -94,7 +95,7 @@ export function RestaurantCarousel({ restaurants }: { restaurants: Restaurant[] 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carousel}>
         {restaurants.map((r) => (
           <View key={r.slug} style={[styles.carouselCard, shadows.float]}>
-            <Image source={{ uri: r.cover }} style={StyleSheet.absoluteFill} contentFit="cover" />
+            <Image source={{ uri: resolveImageUrl(r.cover, r.cuisine) }} style={StyleSheet.absoluteFill} contentFit="cover" />
             <LinearGradient colors={['transparent', 'rgba(0,0,0,0.85)']} style={StyleSheet.absoluteFill} />
             <Text style={styles.carouselTag}>{r.cuisine || 'Restaurant'}</Text>
             <Text style={styles.carouselName}>{r.name}</Text>

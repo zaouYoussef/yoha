@@ -113,6 +113,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     authApi.logout();
     setUser(null);
+    try { localStorage.removeItem('yoha_last_order'); } catch {}
   }, []);
 
   const value = useMemo(

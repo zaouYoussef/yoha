@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { restaurantsApi, type Restaurant } from '../../src/lib/api';
 import { brand, gradients, ink, radius, shadows, typography } from '../../src/theme';
+import { resolveImageUrl } from '../../src/lib/resolveImageUrl';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = (SCREEN_WIDTH - 40) / 2;
@@ -170,6 +171,7 @@ export default function ClientHome() {
 function RestaurantCardItem({ restaurant: r, index, onPress }: { restaurant: Restaurant; index: number; onPress: () => void }) {
   const emoji = { pizza: '🍕', tacos: '🌮', kebab: '🥙', sushi: '🍣', burger: '🍔', healthy: '🥗', medical: '🏥', pharmacy: '💊' }[r.cuisine || ''] || '🍽️';
   const hasPromo = !!r.promo;
+  const coverUri = resolveImageUrl(r.cover, r.cuisine);
   return (
     <Pressable
       onPress={onPress}
@@ -182,7 +184,7 @@ function RestaurantCardItem({ restaurant: r, index, onPress }: { restaurant: Res
       <LinearGradient colors={['#ffffff', '#fff7ed']} style={StyleSheet.absoluteFill} />
       <View style={styles.cardImageWrap}>
         <Image
-          source={{ uri: r.cover }}
+          source={{ uri: coverUri }}
           style={styles.cardImage}
           contentFit="cover"
           transition={300}

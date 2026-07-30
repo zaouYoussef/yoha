@@ -2,7 +2,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.core.cache import cache
 from django.db import connection
-from django.db.models import Count, Avg, Sum, Q
+from django.db.models import Count, Avg, Sum, Q, F
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 from rest_framework import status
@@ -203,7 +203,8 @@ class ClientsAnalyticsView(APIView):
             total_spent = orders_qs.aggregate(s=Sum("total_mad"))["s"] or Decimal("0")
             last_order = orders_qs.order_by("-created_at").first()
             restaurant_counts = list(
-                orders_qs.values("restaurant_name")
+                orders_qs.annotate(restaurant_name=F("restaurant__name"))
+                .values("restaurant_name")
                 .annotate(cnt=Count("id"))
                 .order_by("-cnt")[:5]
             )
@@ -255,7 +256,9 @@ class ClientDetailAnalyticsView(APIView):
             return Response({"error": "Client non trouvé"}, status=404)
 
         orders_qs = Order.objects.filter(client=client).order_by("-created_at")
-        orders_list = list(orders_qs.values(
+        orders_list = list(orders_qs.annotate(
+            restaurant_name=F("restaurant__name")
+        ).values(
             "public_id", "restaurant_name", "status", "total_mad",
             "customer_name", "customer_address", "delivery_instructions",
             "created_at", "eta_minutes",
