@@ -13,11 +13,15 @@ from .models import Order
 logger = logging.getLogger(__name__)
 
 
+from apps.core.email_checker import is_valid_real_email
+
+
 def send_order_status_email(order: Order, status: str) -> bool:
     email = order.get_notification_email()
-    if not email or email.strip().lower().endswith('@yoha.ma'):
-        logger.warning("order_email_skip no_recipient_or_test public_id=%s", order.public_id)
+    if not is_valid_real_email(email):
+        logger.warning("order_email_skip invalid_or_fake_email public_id=%s email=%s", order.public_id, email)
         return False
+
 
 
     if status not in STATUS_COPY:
