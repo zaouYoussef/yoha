@@ -39,7 +39,7 @@ def send_order_status_email(order: Order, status: str) -> bool:
     subject = ctx["subject"]
     text_body = render_order_email_text(ctx)
     html_body = render_order_email_html(ctx)
-    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "YoHa <no-reply@yoha.ma>")
+    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "yohadelivery@gmail.com")
 
     try:
         msg = EmailMultiAlternatives(
@@ -47,7 +47,9 @@ def send_order_status_email(order: Order, status: str) -> bool:
             body=text_body,
             from_email=from_email,
             to=[email],
+            reply_to=["yohadelivery@gmail.com"],
         )
+
         msg.attach_alternative(html_body, "text/html")
         msg.send(fail_silently=True)
 

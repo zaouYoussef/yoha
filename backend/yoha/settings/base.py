@@ -297,11 +297,12 @@ if EMAIL_HOST:
     EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="").replace(" ", "")
     EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
     EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
-    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="YoHa <no-reply@yoha.ma>")
-    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="yohadelivery@gmail.com")
+    EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="YoHa <no-reply@localhost>")
+    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="yohadelivery@gmail.com")
+
 
 # ——— Campagnes promo e-mail (2× / semaine) ———
 PROMO_SCHEDULER_ENABLED = env.bool("PROMO_SCHEDULER_ENABLED", default=True)
