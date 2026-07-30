@@ -15,11 +15,13 @@ if (-not (Test-Path $androidDir)) {
     Set-Location $buildRoot
     npx expo prebuild --platform android
 }
+Set-AndroidBuildEnv -Root $buildRoot
 
 Stop-AndroidBuildProcesses -AndroidDir $androidDir
 Clear-AndroidBuildLocks -Root $buildRoot
 
 Set-Location $androidDir
+
 
 Write-Host ">> gradle assembleDebug (5-10 min si deja compile une fois)..." -ForegroundColor Cyan
 Write-Host "   Fermez Android Studio. Un seul terminal de build." -ForegroundColor DarkGray
