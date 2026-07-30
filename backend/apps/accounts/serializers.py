@@ -19,13 +19,14 @@ class RegisterSerializer(serializers.Serializer):
     display_name = serializers.CharField(max_length=120, required=False, allow_blank=True)
 
     def validate_email(self, value):
-        from apps.core.email_checker import is_valid_real_email
-        email = value.strip().lower()
+        from apps.core.email_checker import autocorrect_email, is_valid_real_email
+        email = autocorrect_email(value.strip().lower())
         if not is_valid_real_email(email):
             raise serializers.ValidationError("Adresse e-mail invalide ou domaine inexistant. Veuillez utiliser un e-mail réel (ex: @gmail.com).")
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError("Cette adresse e-mail est déjà utilisée.")
         return email
+
 
 
     def create(self, validated_data):

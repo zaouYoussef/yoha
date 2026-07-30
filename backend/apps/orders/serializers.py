@@ -42,14 +42,15 @@ class CheckoutSerializer(serializers.Serializer):
         return items
 
     def validate(self, attrs):
-        from apps.core.email_checker import is_valid_real_email
+        from apps.core.email_checker import autocorrect_email, is_valid_real_email
         request = self.context["request"]
-        email = (attrs.get("customer_email") or "").strip().lower()
+        raw_email = (attrs.get("customer_email") or "").strip().lower()
+        email = autocorrect_email(raw_email) if raw_email else ""
         user = request.user
         is_client = user.is_authenticated and user.role == User.Role.CLIENT
 
         if is_client:
-            target_email = email or user.email.strip().lower()
+            target_email = email or autocorrect_email(user.email.strip().lower())
             if target_email and not is_valid_real_email(target_email):
                 raise serializers.ValidationError({"customer_email": "Veuillez renseigner une adresse e-mail valide et existante."})
             attrs["customer_email"] = target_email
@@ -62,6 +63,7 @@ class CheckoutSerializer(serializers.Serializer):
                 raise serializers.ValidationError({"customer_email": "L'adresse e-mail renseignée n'existe pas ou le domaine est invalide."})
             attrs["customer_email"] = email
         return attrs
+
 
     def create(self, validated_data):
         request = self.context["request"]
