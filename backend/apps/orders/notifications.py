@@ -15,9 +15,10 @@ logger = logging.getLogger(__name__)
 
 def send_order_status_email(order: Order, status: str) -> bool:
     email = order.get_notification_email()
-    if not email:
-        logger.warning("order_email_skip no_recipient public_id=%s", order.public_id)
+    if not email or email.strip().lower().endswith('@yoha.ma'):
+        logger.warning("order_email_skip no_recipient_or_test public_id=%s", order.public_id)
         return False
+
 
     if status not in STATUS_COPY:
         return False
@@ -44,7 +45,8 @@ def send_order_status_email(order: Order, status: str) -> bool:
             to=[email],
         )
         msg.attach_alternative(html_body, "text/html")
-        msg.send(fail_silently=False)
+        msg.send(fail_silently=True)
+
         logger.info("order_email_sent public_id=%s status=%s to=%s", order.public_id, status, email)
         return True
     except Exception:

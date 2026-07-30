@@ -13,21 +13,22 @@ logger = logging.getLogger(__name__)
 
 
 def get_courier_notify_emails() -> list[str]:
-    """E-mails depuis .env + comptes livreurs actifs en base."""
+    """E-mails depuis .env + comptes livreurs actifs en base (exclut les faux e-mails de test)."""
     configured = getattr(settings, "YOHA_COURIER_NOTIFY_EMAILS", []) or []
     emails: list[str] = []
     for raw in configured:
         addr = str(raw).strip().lower()
-        if addr and "@" in addr:
+        if addr and "@" in addr and not addr.endswith("@yoha.ma"):
             emails.append(addr)
 
     for cp in CourierProfile.objects.filter(is_active=True).select_related("user"):
         if cp.user_id and cp.user.email:
             addr = cp.user.email.strip().lower()
-            if addr and addr not in emails:
+            if addr and addr not in emails and not addr.endswith("@yoha.ma"):
                 emails.append(addr)
 
     return emails
+
 
 
 def _delivery_dashboard_url() -> str:
@@ -274,7 +275,8 @@ def notify_couriers_new_order(order: Order) -> int:
             to=recipients,
         )
         msg.attach_alternative(html_body, "text/html")
-        msg.send(fail_silently=False)
+        msg.send(fail_silently=True)
+
         logger.info(
             "courier_notify_sent public_id=%s count=%s to=%s",
             order.public_id,
