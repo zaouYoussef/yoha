@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Restaurant } from '../../lib/api';
 import { brand, gradients, ink, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
+import { resolveImageUrl } from '../../lib/resolveImageUrl';
 
 export function LandingBento({ restaurants }: { restaurants: Restaurant[] }) {
   const [idx, setIdx] = useState(0);
@@ -14,7 +15,7 @@ export function LandingBento({ restaurants }: { restaurants: Restaurant[] }) {
     <View style={styles.grid}>
       {spot ? (
         <View style={[styles.spotlight, shadows.glow]}>
-          <Image source={{ uri: spot.cover }} style={StyleSheet.absoluteFill} contentFit="cover" transition={0} />
+          <Image source={{ uri: resolveImageUrl(spot.cover, spot.cuisine) }} style={StyleSheet.absoluteFill} contentFit="cover" transition={0} />
           <LinearGradient colors={['transparent', 'rgba(15,23,42,0.9)']} style={StyleSheet.absoluteFill} />
           <View style={styles.spotBadge}>
             <Text style={styles.spotBadgeText}>🔥 {(spot.tags?.[0] ?? spot.cuisine) || 'Partenaire'}</Text>
