@@ -558,9 +558,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               pharmacy: [
                 { label: 'Médicaments', image: '/pizza-img/section_4_04.webp', emoji: '💊', id: 'pharmacy' },
                 { label: 'Hygiène', image: '/pizza-img/section_2_07.webp', emoji: '🧼', id: 'hygiene' },
-                { label: 'Bébé', image: '/pizza-img/section_2_01.webp', emoji: '👶', id: 'bebe' },
                 { label: 'Vitamines', image: '/pizza-img/section_1_05.webp', emoji: '💪', id: 'vitamines' },
-                { label: 'Douleur', image: '/pizza-img/section_2_05.webp', emoji: '🩹', id: 'douleur' },
               ],
               parapharmacy: [
                 { label: 'Beauté', image: '/pizza-img/section_1_06.webp', emoji: '💄', id: 'beaute' },
