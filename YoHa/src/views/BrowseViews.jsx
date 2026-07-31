@@ -642,39 +642,27 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             </section>
           )}
 
-          {/* ═══ SUB-CAROUSEL per filter ═══ */}
+          {/* ═══ SUB-CAROUSEL per filter (décoratif, non cliquable) ═══ */}
           {!isDefault && !search.trim() && (() => {
             const items = SUB_CATEGORIES[filter];
             if (!items || items.length === 0) return null;
             return (
               <section className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
-                {items.map((c) => {
-                  const active = filter === c.id;
-                  return (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => applyFilter(active ? 'all' : c.id)}
-                      className="cursor-pointer shrink-0 flex flex-col items-center gap-2 w-[4.6rem] sm:w-[5rem] group"
-                    >
-                      <div className={`relative w-[4.4rem] h-[4.4rem] sm:w-[4.8rem] sm:h-[4.8rem] rounded-[1.25rem] overflow-hidden transition-all duration-300 shadow-md ${
-                        active
-                          ? 'ring-3 ring-brand-500 scale-105 shadow-xl border-2 border-white'
-                          : 'border-2 border-slate-100 dark:border-ink-800 group-hover:border-brand-400 group-hover:shadow-lg group-hover:scale-105'
-                      }`}>
-                        <img src={c.image} alt={c.label} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                        <div className={`absolute inset-0 transition-colors duration-300 ${
-                          active ? 'bg-brand-500/10' : 'bg-gradient-to-t from-black/40 via-transparent to-transparent group-hover:from-black/10'
-                        }`} />
-                      </div>
-                      <span className={`text-[11px] font-bold text-center leading-tight truncate w-full tracking-tight ${
-                        active ? 'text-brand-600 dark:text-brand-400' : 'text-slate-900 dark:text-white'
-                      }`}>
-                        {c.label}
-                      </span>
-                    </button>
-                  );
-                })}
+                {items.map((c, i) => (
+                  <div
+                    key={c.id}
+                    className="shrink-0 flex flex-col items-center gap-2 w-[4.6rem] sm:w-[5rem] group select-none animate-fade-up"
+                    style={{ animationDelay: `${Math.min(i, 8) * 50}ms` }}
+                  >
+                    <div className="relative w-[4.4rem] h-[4.4rem] sm:w-[4.8rem] sm:h-[4.8rem] rounded-[1.25rem] overflow-hidden shadow-md border-2 border-slate-100 dark:border-ink-800 group-hover:border-brand-400 transition-colors duration-300">
+                      <img src={c.image} alt={c.label} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                    </div>
+                    <span className="text-[11px] font-bold text-center leading-tight truncate w-full tracking-tight text-slate-900 dark:text-white">
+                      {c.label}
+                    </span>
+                  </div>
+                ))}
               </section>
             );
           })()}
