@@ -1030,22 +1030,7 @@ export const STATIC_STORES = [
     isOpen: true,
     isStatic: true
   },
-  {
-    id: 'kazyon-tanger',
-    name: 'Kazyon',
-    cuisine: 'supermarket',
-    rating: 4.1,
-    reviewsCount: 72,
-    distance: '2,8 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1534723328310-e82dad3ee43f?w=1000&auto=format&fit=crop&q=85',
-    logo: '🛒',
-    description: 'Kazyon — situé zones populaires de Tanger. Nouvelle enseigne discount en pleine expansion, produits de première nécessité à bas prix.',
-    tags: ['Discount', 'Épicerie', 'Bas prix', 'Tanger'],
-    isOpen: true,
-    isStatic: true
-  },
+
   {
     id: 'atacadao-tanger',
     name: 'Atacadão',
@@ -1059,54 +1044,6 @@ export const STATIC_STORES = [
     logo: '🛒',
     description: 'Atacadão — situé Route nationale N1 (Route de Rabat, zone industrielle), Tanger. Cash and carry et vente en gros.',
     tags: ['Cash & Carry', 'Gros', 'Route de Rabat', 'Industriel'],
-    isOpen: true,
-    isStatic: true
-  },
-  {
-    id: 'label-vie-iberia',
-    name: 'Label\'Vie',
-    cuisine: 'supermarket',
-    rating: 4.4,
-    reviewsCount: 112,
-    distance: '1,8 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: '/chain-img/market-labelvie.png',
-    logo: '🟢',
-    description: 'Label\'Vie — situé centre-ville / Iberia / Val Fleuri, Tanger. Supermarché de proximité avec produits frais et bio.',
-    tags: ['Proximité', 'Frais', 'Bio', 'Val Fleuri'],
-    isOpen: true,
-    isStatic: true
-  },
-  {
-    id: 'sabrine-supermarket',
-    name: 'Sabrine Supermarket',
-    cuisine: 'supermarket',
-    rating: 4.2,
-    reviewsCount: 63,
-    distance: '1 km',
-    eta: '30-45 min',
-    fee: '18 DH',
-    cover: 'https://images.unsplash.com/photo-1534723328310-e82dad3ee43f?w=1000&auto=format&fit=crop&q=85',
-    logo: '🛒',
-    description: 'Sabrine Supermarket — situé Boulevard Mohammed V, Tanger. Supérette de quartier avec produits alimentaires et d\'entretien.',
-    tags: ['Supérette', 'Quartier', 'Mohammed V', 'Alimentaire'],
-    isOpen: true,
-    isStatic: true
-  },
-  {
-    id: 'centro-supermarket',
-    name: 'Centro Supermarket',
-    cuisine: 'supermarket',
-    rating: 4.1,
-    reviewsCount: 47,
-    distance: '1,2 km',
-    eta: '30-45 min',
-    fee: '18 DH',
-    cover: 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=1000&auto=format&fit=crop&q=85',
-    logo: '🏪',
-    description: 'Centro Supermarket — situé Avenue Mohammed V, Tanger. Supérette proposant épicerie, boissons et produits de première nécessité.',
-    tags: ['Supérette', 'Épicerie', 'Mohammed V', 'Proximité'],
     isOpen: true,
     isStatic: true
   },
@@ -1268,22 +1205,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'zara-home-tanger',
-    name: 'Zara Home',
-    cuisine: 'shop',
-    rating: 4.7,
-    reviewsCount: 63,
-    distance: '0,6 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: '/chain-img/shop-zara-home.jpg',
-    logo: '🏠',
-    description: 'Zara Home — situé Marina Shopping Center, Tanger. Décoration intérieure, linge de maison, vaisselle et articles cadeaux.',
-    tags: ['Maison', 'Décoration', 'Linge', 'Cadeaux'],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'adidas-tanger',
@@ -1336,107 +1258,14 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'ca-tanger',
-    name: 'C&A',
-    cuisine: 'shop',
-    rating: 4.3,
-    reviewsCount: 89,
-    distance: '0,5 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: '/chain-img/shop-ca.png',
-    logo: '👕',
-    description: 'C&A — situé Marina Shopping Center, Tanger. Mode accessible pour toute la famille, qualité et style au meilleur prix.',
-    tags: ['Mode', 'Famille', 'Accessible', 'Marina'],
-    isOpen: true,
-    isStatic: true
-  },
 
-  {
-    id: 'switcher-tanger',
-    name: 'Switcher',
-    cuisine: 'shop',
-    rating: 4.5,
-    reviewsCount: 67,
-    distance: '1,2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: '/chain-img/shop-switcher.svg',
-    logo: '👜',
-    description: 'Switcher — situé Rue de la Liberté, Tanger. Marque suisse de vêtements éco-responsables, coton bio et commerce équitable.',
-    tags: ['Mode', 'Éco', 'Bio', 'Liberté'],
-    isOpen: true,
-    isStatic: true
-  },
 
-  {
-    id: 'cotton-club-tanger',
-    name: 'Cotton Club',
-    cuisine: 'shop',
-    rating: 4.4,
-    reviewsCount: 72,
-    distance: '0,9 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: '/chain-img/shop-cotton-club.svg',
-    logo: '👚',
-    description: 'Cotton Club — situé Boulevard Mohamed VI, Tanger. Vêtements en coton de qualité, mode décontractée et lingerie.',
-    tags: ['Mode', 'Coton', 'Décontracté', 'Lingerie'],
-    isOpen: true,
-    isStatic: true
-  },
 
-  {
-    id: 'home-center-tanger',
-    name: 'Home Center',
-    cuisine: 'shop',
-    rating: 4.5,
-    reviewsCount: 98,
-    distance: '2,5 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: '/chain-img/shop-home-center.svg',
-    logo: '🏪',
-    description: 'Home Center — situé Route de Rabat, Tanger. Meubles, décoration, literie, rangement et articles pour la maison.',
-    tags: ['Maison', 'Meubles', 'Décoration', 'Route de Rabat'],
-    isOpen: true,
-    isStatic: true
-  },
 
-  {
-    id: 'electroplanet-tanger',
-    name: 'Electroplanet',
-    cuisine: 'shop',
-    rating: 4.3,
-    reviewsCount: 159,
-    distance: '2,2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: '/chain-img/shop-electroplanet.svg',
-    logo: '💻',
-    description: 'Electroplanet — situé Route de Rabat, Tanger. Électroménager, électronique, TV, informatique et gros électroménager.',
-    tags: ['Électronique', 'Électroménager', 'TV', 'Route de Rabat'],
-    isOpen: true,
-    isStatic: true
-  },
 
-  {
-    id: 'bricomarche-tanger',
-    name: 'Bricomarché',
-    cuisine: 'shop',
-    rating: 4.2,
-    reviewsCount: 83,
-    distance: '3,2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: '/chain-img/shop-bricomarche.jpg',
-    logo: '🔧',
-    description: 'Bricomarché — situé Route de Rabat, Tanger. Bricolage, jardinage, quincaillerie, outillage et matériaux de construction.',
-    tags: ['Bricolage', 'Jardinage', 'Outil', 'Route de Rabat'],
-    isOpen: true,
-    isStatic: true
-  },
+
+
+
 
   {
     id: 'kiko-tanger',
@@ -1455,73 +1284,11 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'puma-tanger',
-    name: 'Puma',
-    cuisine: 'shop',
-    rating: 4.4,
-    reviewsCount: 67,
-    distance: '1 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: '/chain-img/shop-puma.png',
-    logo: '🐆',
-    description: 'Puma — situé Boulevard Mohamed VI, Tanger. Équipement sportif, chaussures et vêtements de sport lifestyle.',
-    tags: ['Sport', 'Chaussures', 'Lifestyle', 'Boulevard'],
-    isOpen: true,
-    isStatic: true
-  },
 
-  {
-    id: 'benetton-tanger',
-    name: 'Benetton',
-    cuisine: 'shop',
-    rating: 4.3,
-    reviewsCount: 54,
-    distance: '0,8 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: '/chain-img/shop-benetton.jpg',
-    logo: '🧥',
-    description: 'Benetton — situé Boulevard Mohamed VI, Tanger. Mode colorée italienne, vêtements femme, homme et enfant de qualité.',
-    tags: ['Mode', 'Italien', 'Coloré', 'Boulevard'],
-    isOpen: true,
-    isStatic: true
-  },
 
-  {
-    id: 'lefties-tanger',
-    name: 'Lefties',
-    cuisine: 'shop',
-    rating: 4.2,
-    reviewsCount: 108,
-    distance: '0,5 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: '/chain-img/shop-lefties.png',
-    logo: '👕',
-    description: 'Lefties — situé Marina Shopping Center, Tanger. Mode tendance à petits prix, vêtements femme, homme et accessoires.',
-    tags: ['Mode', 'Petits prix', 'Tendance', 'Marina'],
-    isOpen: true,
-    isStatic: true
-  },
 
-  {
-    id: 'massimo-dutti-tanger',
-    name: 'Massimo Dutti',
-    cuisine: 'shop',
-    rating: 4.7,
-    reviewsCount: 71,
-    distance: '0,6 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: '/chain-img/shop-massimo-dutti.jpg',
-    logo: '👔',
-    description: 'Massimo Dutti — situé Marina Shopping Center, Tanger. Mode élégante et sophistiquée pour femme et homme, qualité premium.',
-    tags: ['Mode', 'Élégant', 'Premium', 'Marina'],
-    isOpen: true,
-    isStatic: true
-  },
+
+
 
   {
     id: 'socco-alto-mall',
