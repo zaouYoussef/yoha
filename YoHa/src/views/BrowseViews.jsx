@@ -1664,99 +1664,76 @@ const MEDICAL_CROSS_PATTERN = `url("data:image/svg+xml,${encodeURIComponent(
 )}")`;
 
 export function DutyPharmacyCard({ pharmacy }) {
-  const mapsUrl =
-    pharmacy.lat && pharmacy.lng
-      ? `https://www.google.com/maps?q=${pharmacy.lat},${pharmacy.lng}`
-      : null;
-  const tel = pharmacy.phone ? `tel:${pharmacy.phone.replace(/[^\d+]/g, '')}` : null;
   const hoursFr = (pharmacy.hoursLabel || '').split('حراسة')[0].trim();
+  const guardLabel = hoursFr || `Garde ${pharmacy.guard === '24h' ? '24h' : pharmacy.guard}`;
 
   return (
-    <div className="relative overflow-hidden rounded-[32px] bg-white dark:bg-ink-900 ring-1 ring-ink-100 dark:ring-white/10 shadow-[0_25px_60px_rgba(15,23,42,0.08)] hover:shadow-[0_35px_80px_rgba(22,163,74,0.18)] transition-shadow duration-500 flex flex-col">
-      {/* Texture croix médicales */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.05] dark:opacity-[0.03]"
-        style={{ backgroundImage: MEDICAL_CROSS_PATTERN, backgroundSize: '56px 56px' }}
-      />
+    <div className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-ink-950 via-slate-900 to-ink-950 text-white shadow-xl border border-emerald-500/30 hover:border-emerald-400/50 hover:shadow-[0_25px_60px_rgba(16,185,129,0.18)] hover:-translate-y-1 transition-all duration-500 flex flex-col h-full">
 
-      {/* En-tête : image pharmacie + badge */}
-      <div className="relative flex items-start justify-between gap-3 p-6 pb-3">
-        <img
-          src={restaurantCover(pharmacy.cover)}
-          alt={pharmacy.name}
-          loading="lazy"
-          className="h-16 w-16 rounded-full object-cover ring-4 ring-white dark:ring-ink-800 shadow-[0_15px_30px_rgba(15,23,42,0.12)]"
-        />
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-100 dark:bg-green-500/15 text-green-700 dark:text-green-400 text-[10px] font-black uppercase tracking-wider">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-          Pharmacie de garde
+      {/* Glows décoratifs */}
+      <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -left-10 -bottom-10 w-36 h-36 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Bandeau horaires de garde — en haut, pour toutes les pharmacies */}
+      <div className="relative flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-emerald-500/[0.12] border-b border-emerald-500/20 backdrop-blur-sm">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+        <I.Clock size={12} className="text-emerald-400 shrink-0" />
+        <span className="text-[10.5px] sm:text-xs font-bold text-emerald-300 leading-tight truncate">
+          {guardLabel}
         </span>
       </div>
 
-      {/* Nom + arabe */}
-      <div className="relative px-6">
-        <h3 className="font-display font-extrabold text-2xl text-slate-900 dark:text-white leading-tight">
+      <div className="relative p-5 sm:p-6 flex-1 flex flex-col">
+        {/* Header : image + statut */}
+        <div className="flex items-start justify-between gap-3">
+          <img
+            src={restaurantCover(pharmacy.cover)}
+            alt={pharmacy.name}
+            loading="lazy"
+            className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl object-cover ring-2 ring-white/10 shadow-lg shrink-0 group-hover:scale-105 transition-transform duration-500"
+          />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 text-[10px] font-black uppercase tracking-wider border border-emerald-500/20 shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Ouvert
+          </span>
+        </div>
+
+        {/* Nom */}
+        <h3 className="mt-3.5 font-display font-black text-lg sm:text-xl text-white leading-tight truncate">
           {pharmacy.name}
         </h3>
         {pharmacy.nameAr && (
-          <p className="mt-0.5 text-sm font-semibold text-slate-400 dark:text-slate-500" dir="rtl">
+          <p className="mt-0.5 text-xs font-semibold text-white/40 truncate" dir="rtl">
             {pharmacy.nameAr}
           </p>
         )}
-      </div>
 
-      {/* Adresse */}
-      <div className="relative mx-6 mt-4 rounded-2xl border-l-4 border-green-600 bg-slate-50 dark:bg-ink-800/60 px-4 py-3">
-        <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">{pharmacy.address}</p>
+        {/* Adresse */}
+        <div className="mt-3.5 flex items-start gap-2">
+          <I.MapPin size={13} className="text-white/40 shrink-0 mt-0.5" />
+          <p className="text-xs text-white/60 leading-relaxed line-clamp-2">{pharmacy.address}</p>
+        </div>
         {pharmacy.addressAr && (
-          <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed" dir="rtl">
+          <p className="mt-1 pl-5 text-[10.5px] text-white/30 leading-relaxed line-clamp-1" dir="rtl">
             {pharmacy.addressAr}
           </p>
         )}
-      </div>
 
-      {/* Horaires */}
-      {hoursFr && (
-        <div className="relative mx-6 mt-3 flex items-center gap-2 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
-          <I.Clock size={13} />
-          <span className="truncate">{hoursFr}</span>
+        {/* Téléphone — texte simple, plus petit, sans bouton */}
+        {pharmacy.phone && (
+          <div className="mt-2.5 flex items-center gap-2">
+            <I.Phone size={11} className="text-white/35 shrink-0" />
+            <span className="text-[11px] text-white/45 font-medium">{pharmacy.phone}</span>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="mt-auto pt-4">
+          <div className="h-px bg-white/[0.06] mb-3.5" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.06] text-white/70 text-[10px] font-bold border border-white/10">
+            🕐 {pharmacy.guard === '24h' ? 'Garde 24H' : 'Pharmacie de garde'}
+          </span>
         </div>
-      )}
-
-      {/* Téléphone */}
-      <div className="relative px-6 mt-5 mb-4">
-        {tel && (
-          <a
-            href={tel}
-            className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-green-600 to-green-500 px-5 py-3.5 text-white font-extrabold text-sm shadow-[0_10px_25px_rgba(22,163,74,0.35)] hover:scale-[1.02] active:scale-95 transition-transform"
-          >
-            <I.Phone size={16} /> {pharmacy.phone}
-          </a>
-        )}
-        {mapsUrl && (
-          <a
-            href={mapsUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-2 block text-center text-xs font-bold text-slate-400 hover:text-green-600 transition-colors"
-          >
-            Itinéraire 🧭
-          </a>
-        )}
-      </div>
-
-      {/* Pied : dispo + garde + marque */}
-      <div className="relative mt-auto flex items-center gap-3 px-6 pb-6 pt-4 border-t border-slate-100 dark:border-white/[0.06] text-[11px] font-bold text-slate-500 dark:text-slate-400">
-        <span className="inline-flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          Disponible aujourd'hui
-        </span>
-        <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-orange-100 dark:bg-orange-500/15 px-2.5 py-1 text-[10px] font-black text-orange-600 dark:text-orange-400">
-          🕐 {pharmacy.guard === '24h' ? '24H' : 'GARDE'}
-        </span>
-        <span className="font-display font-black text-sm text-green-600 dark:text-green-400 tracking-tight">
-          YOHA
-        </span>
       </div>
     </div>
   );
