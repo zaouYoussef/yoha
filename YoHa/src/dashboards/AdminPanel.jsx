@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { I } from '../icons/Icons.jsx';
-import { deleteReview, fetchReviewsFromApi } from '../utils/reviews.js';
+import { deleteReview, fetchReviewsFromApi, getStoredReviews } from '../utils/reviews.js';
 import { getCourierGps, calculateHaversineDistance, resolveDestinationCoords } from '../utils/courierGps.js';
 import { LiveMapTracker } from '../components/ui/LiveMapTracker.jsx';
 import {
@@ -20,15 +20,11 @@ import {
 } from '../data/index.js';
 import { useOrders, useToast } from '../contexts/AppContexts.jsx';
 import { apiFetch, ordersApi, userRequestsApi } from '../lib/api.js';
-import { AdminAnalytics } from './AdminAnalytics.jsx';
 import { AdminClients } from './AdminClients.jsx';
 import AdminOverviewEnhanced from './AdminOverviewEnhanced.jsx';
 import AdminOrdersEnhanced from './AdminOrdersEnhanced.jsx';
-import AdminRestaurantsEnhanced from './AdminRestaurantsEnhanced.jsx';
-import AdminCouriersEnhanced from './AdminCouriersEnhanced.jsx';
 import AdminRevenueEnhanced from './AdminRevenueEnhanced.jsx';
 import AdminReviewsEnhanced from './AdminReviewsEnhanced.jsx';
-import AdminAnalyticsEnhanced from './AdminAnalyticsEnhanced.jsx';
 import AdminClientsEnhanced from './AdminClientsEnhanced.jsx';
 import { CancelOrderButton, CancelPhaseBadge, OrderCancellationNote } from '../components/ui/CancelOrderButton.jsx';
 import {
@@ -316,7 +312,6 @@ export function AdminDashboard({ goto, dark, setDark }) {
 
   const titles = {
     overview: 'Tableau de bord',
-    analytics: 'Analytics trafic',
     clients: 'Clients',
     orders: 'Toutes les commandes',
     restaurants: 'Restaurants',
@@ -331,11 +326,10 @@ export function AdminDashboard({ goto, dark, setDark }) {
     <DashLayout kind="admin" current={current} setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
       title={titles[current]} subtitle="Vue d'ensemble de la plateforme YoHa">
       {current === 'overview' && <AdminOverviewEnhanced orders={orders} restaurantCount={restaurantPartnersCount} />}
-      {current === 'analytics' && <AdminAnalyticsEnhanced />}
       {current === 'clients' && <AdminClientsEnhanced />}
       {current === 'orders' && <AdminOrdersEnhanced orders={orders} />}
-      {current === 'restaurants' && <AdminRestaurantsEnhanced />}
-      {current === 'couriers' && <AdminCouriersEnhanced />}
+      {current === 'restaurants' && <AdminRestaurants />}
+      {current === 'couriers' && <AdminCouriers />}
       {current === 'revenue' && <AdminRevenueEnhanced orders={orders} />}
       {current === 'promos' && <AdminPromos />}
       {current === 'reviews' && <AdminReviewsEnhanced />}

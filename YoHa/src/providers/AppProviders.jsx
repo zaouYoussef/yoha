@@ -460,6 +460,27 @@ function triggerClientNotification(title, body, orderId) {
         };
       }
 
+      if (order?.items) {
+        order = {
+          ...order,
+          items: order.items.map((line, i) => {
+            const src = cartItems[i] || {};
+            const enriched = {
+              ...line,
+              img: line.img || src.img,
+              restaurantId: line.restaurantId || src.restaurantId,
+              restaurantName: line.restaurantName || src.restaurantName,
+            };
+            if (src.isCustom || src.restaurantCuisine) {
+              enriched.isCustom = true;
+              enriched.restaurantCuisine = src.restaurantCuisine;
+              enriched.customDetails = src.customDetails;
+            }
+            return enriched;
+          }),
+        };
+      }
+
       const isLoggedInClient = !!getTokens()?.access && user?.role === 'client';
       if (!isLoggedInClient && order?.id) {
         addGuestOrderId(order.id);
