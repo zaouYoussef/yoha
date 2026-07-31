@@ -1163,12 +1163,18 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
         </h3>
 
         <div className="flex items-center gap-1.5 text-xs text-white/75 font-medium truncate">
-          <span className="text-teal-400 font-extrabold">★</span>
-          <span className="font-bold text-white">{(restaurant.rating ?? 4.4).toString().replace('.', ',')}</span>
-          <span>·</span>
-          <span>{restaurant.distance || '1.5 km'}</span>
-          <span>·</span>
-          <span className="text-teal-400 font-bold">⚡ Rapide</span>
+          {restaurant.isChain ? (
+            <span className="text-teal-400 font-bold">⚡ Rapide</span>
+          ) : (
+            <>
+              <span className="text-teal-400 font-extrabold">★</span>
+              <span className="font-bold text-white">{(restaurant.rating ?? 4.4).toString().replace('.', ',')}</span>
+              <span>·</span>
+              <span>{restaurant.distance || '1.5 km'}</span>
+              <span>·</span>
+              <span className="text-teal-400 font-bold">⚡ Rapide</span>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-1.5 text-xs mt-0.5 font-bold">
@@ -1342,21 +1348,25 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 ))}
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-ink-500 dark:text-ink-400">
-                <span className="flex items-center gap-1">
-                  <I.MapPin size={12} className="text-ink-400" /> {r.distance || 'Tanger'}
-                </span>
+                {!isChain && (
+                  <span className="flex items-center gap-1">
+                    <I.MapPin size={12} className="text-ink-400" /> {r.distance || 'Tanger'}
+                  </span>
+                )}
                 <span>·</span>
                 <span>{isOpen ? (openLabel || 'Ouvert') : (openLabel || 'Fermé')}</span>
                 <span>·</span>
                 <span>Min. {formatMad(40, { decimals: 0 })}</span>
               </div>
               <div className="mt-2 flex items-center gap-3">
-                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
-                  <I.Star size={12} className="fill-emerald-500 text-emerald-500" />
-                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
-                    {(r.rating ?? 4.5).toString().replace('.', ',')}
-                  </span>
-                </div>
+                {!isChain && (
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
+                    <I.Star size={12} className="fill-emerald-500 text-emerald-500" />
+                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                      {(r.rating ?? 4.5).toString().replace('.', ',')}
+                    </span>
+                  </div>
+                )}
                 <span className="text-xs text-ink-500">Livraison {r.fee ? (r.fee.includes('DH') ? r.fee : `${r.fee} MAD`) : '0,00 MAD'}</span>
                 {isDuty && r.phone && (
                   <a
