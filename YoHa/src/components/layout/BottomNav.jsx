@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { I } from '../../icons/Icons.jsx';
 
 export function BottomNav({ active, onHome, onSearch, onCart, onProfile, cartCount }) {
@@ -24,10 +25,16 @@ export function BottomNav({ active, onHome, onSearch, onCart, onProfile, cartCou
 export function BNBtn({ active, onClick, icon, label }) {
   return (
     <button onClick={onClick} className={`cursor-grow relative flex flex-col items-center justify-center gap-0.5 text-xs font-semibold transition-all duration-300 ${active ? 'text-brand-600 dark:text-brand-400' : 'text-ink-500 dark:text-ink-400 hover:text-ink-900 dark:hover:text-white'}`}>
-      <span className={`transition-transform duration-300 ${active ? 'scale-110' : 'scale-100'}`}>{icon}</span>
-      <span>{label}</span>
-      {/* Repris de hiho/yoha-web (BNBtn) : point discret sous l'onglet actif */}
-      {active ? <span className="absolute bottom-1 h-1 w-1 rounded-full bg-brand-500" /> : null}
+      {/* Pastille active animée (reprend le slider bottom-nav de hiho/yoha-web) */}
+      {active && (
+        <motion.span
+          layoutId="bottom-nav-active"
+          className="absolute inset-x-2.5 top-1 bottom-1 rounded-2xl bg-brand-500/12 dark:bg-brand-500/20 border border-brand-500/15 dark:border-brand-500/25"
+          transition={{ type: 'spring', stiffness: 480, damping: 38 }}
+        />
+      )}
+      <span className={`relative transition-transform duration-300 ${active ? 'scale-110' : 'scale-100'}`}>{icon}</span>
+      <span className="relative">{label}</span>
     </button>
   );
 }

@@ -142,7 +142,7 @@ export function AuthPage({ redirect, goto, goHome }) {
           <I.Left size={18}/> Retour
         </button>
 
-        <div className="rounded-3xl border border-ink-200/70 bg-white/90 dark:bg-ink-900/80 dark:border-ink-800 shadow-card backdrop-blur-xl p-6 sm:p-8">
+        <div className="rounded-3xl border border-ink-200/70 bg-white/90 dark:bg-ink-900/80 dark:border-ink-800 shadow-card backdrop-blur-xl p-6 sm:p-8 animate-fade-up">
           <h1 className="font-display font-extrabold text-2xl sm:text-3xl tracking-tight text-center">
             {tab === 'login' ? 'Connexion' : 'Créer un compte client'}
           </h1>
@@ -216,7 +216,7 @@ export function AuthPage({ redirect, goto, goHome }) {
           </div>
 
           {tab === 'login' ? (
-            <form onSubmit={handleLogin} className="mt-6 space-y-4">
+            <form key="login" onSubmit={handleLogin} className="mt-6 space-y-4 animate-fade-in">
               <label className="block">
                 <span className="text-xs font-semibold text-ink-500 uppercase tracking-wider">Identifiant</span>
                 <input
@@ -247,7 +247,7 @@ export function AuthPage({ redirect, goto, goHome }) {
               </Button>
             </form>
           ) : (
-            <form onSubmit={handleRegister} className="mt-6 space-y-4">
+            <form key="register" onSubmit={handleRegister} className="mt-6 space-y-4 animate-fade-in">
               <label className="block">
                 <span className="text-xs font-semibold text-ink-500 uppercase tracking-wider">Nom affiché</span>
                 <input

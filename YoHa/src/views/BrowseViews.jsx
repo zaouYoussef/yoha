@@ -6,11 +6,10 @@ import { I } from '../icons/Icons.jsx';
 import { CUISINES, CATEGORIES_BANNERS, CATEGORY_GROUPS, CUISINE_CATEGORIES, STATIC_STORES } from '../data/index.js';
 import { useOrders, useCart } from '../contexts/AppContexts.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
+import { motion } from 'framer-motion';
 import { Reveal } from '../components/ui/Reveal.jsx';
 import { Tilt } from '../components/ui/Tilt.jsx';
-import { Magnetic } from '../components/ui/Magnetic.jsx';
 
-import { CategoryCarousel } from '../components/effects/CategoryCarousel.jsx';
 import { useYohaNav } from '../contexts/YohaNavContext.jsx';
 import { spotlightHandler } from '../utils/spotlight.js';
 import { formatMad, restaurantOpenStatus } from '../data/index.js';
@@ -217,7 +216,7 @@ function BrowseHero({ name, search, onSearchChange, openCount, totalCount }) {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-5 pb-4">
         {/* Top bar: Delivery mode + location */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 animate-fade-up">
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-ink-900 border border-ink-100 dark:border-ink-800 shadow-sm">
               <I.MapPin size={14} className="text-brand-500" />
@@ -231,7 +230,7 @@ function BrowseHero({ name, search, onSearchChange, openCount, totalCount }) {
         </div>
 
         {/* Greeting */}
-        <div className="mb-4">
+        <div className="mb-4 animate-fade-up" style={{ animationDelay: '100ms' }}>
           <h1 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl tracking-tight text-ink-900 dark:text-white">
             {timeGreeting()},{' '}
             <span className="bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 bg-clip-text text-transparent">{name}</span>
@@ -243,7 +242,9 @@ function BrowseHero({ name, search, onSearchChange, openCount, totalCount }) {
         </div>
 
         {/* Search */}
-        <SearchBar value={search} onChange={onSearchChange} variant="hero" />
+        <div className="animate-fade-up" style={{ animationDelay: '200ms' }}>
+          <SearchBar value={search} onChange={onSearchChange} variant="hero" />
+        </div>
       </div>
     </section>
   );
@@ -582,7 +583,11 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                     >
                       <span>{tab.label}</span>
                       {active && (
-                        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-600 dark:bg-teal-400 rounded-full" />
+                        <motion.span
+                          layoutId="browse-tab-underline"
+                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-600 dark:bg-teal-400 rounded-full"
+                          transition={{ type: 'spring', stiffness: 520, damping: 40 }}
+                        />
                       )}
                     </button>
                   );
@@ -727,8 +732,10 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 <EmptyState catalogEmpty={catalog.length === 0} filter={filter || search} onShowAll={() => { applyFilter('all'); setSearch(''); }} />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                  {displayedList.map((r) => (
-                    <RestaurantCard key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                  {displayedList.map((r, i) => (
+                    <div key={r.id} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 9) * 55}ms` }}>
+                      <RestaurantCard restaurant={r} onClick={() => onPickRestaurant(r)} />
+                    </div>
                   ))}
                 </div>
               )}
@@ -1049,29 +1056,31 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
 function HorizontalRow({ title, subtitle, count, children, onSeeAll }) {
   return (
-    <section className="px-4 sm:px-0">
-      <div className="flex items-center justify-between mb-3.5">
-        <div>
-          <h2 className="font-display font-extrabold text-base sm:text-lg text-ink-900 dark:text-white">{title}</h2>
-          {subtitle && (
-            <p className="text-xs text-ink-500 dark:text-ink-400 mt-0.5 font-medium">{subtitle}</p>
+    <Reveal>
+      <section className="px-4 sm:px-0">
+        <div className="flex items-center justify-between mb-3.5">
+          <div>
+            <h2 className="font-display font-extrabold text-base sm:text-lg text-ink-900 dark:text-white">{title}</h2>
+            {subtitle && (
+              <p className="text-xs text-ink-500 dark:text-ink-400 mt-0.5 font-medium">{subtitle}</p>
+            )}
+          </div>
+          {count > 0 && onSeeAll && (
+            <button
+              type="button"
+              onClick={onSeeAll}
+              className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-brand-500 hover:underline cursor-pointer flex items-center gap-1 active:scale-95 transition-transform shrink-0"
+            >
+              <span>Tout voir ({count})</span>
+              <span>→</span>
+            </button>
           )}
         </div>
-        {count > 0 && onSeeAll && (
-          <button
-            type="button"
-            onClick={onSeeAll}
-            className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-brand-500 hover:underline cursor-pointer flex items-center gap-1 active:scale-95 transition-transform shrink-0"
-          >
-            <span>Tout voir ({count})</span>
-            <span>→</span>
-          </button>
-        )}
-      </div>
-      <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 snap-x snap-mandatory">
-        {children}
-      </div>
-    </section>
+        <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 snap-x snap-mandatory">
+          {children}
+        </div>
+      </section>
+    </Reveal>
   );
 }
 
@@ -1141,9 +1150,10 @@ export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
   };
 
   return (
-    <div className="w-full mb-3">
+    <div className="w-full mb-3 animate-fade-up">
       <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-ink-950 via-slate-900 to-ink-950 text-white p-3.5 sm:p-5 shadow-xl border border-brand-500/40">
         <div className="absolute -right-10 -bottom-10 w-44 h-44 bg-brand-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -left-12 -top-12 w-32 h-32 bg-pink-500/10 rounded-full blur-2xl pointer-events-none" />
         
         <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4">
           <div className="flex items-center gap-3 min-w-0">
@@ -1196,7 +1206,7 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      className="cursor-grow card-glow-hover group relative shrink-0 w-[240px] sm:w-[270px] lg:w-[290px] h-[210px] sm:h-[230px] snap-start overflow-hidden rounded-2xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-sm hover:shadow-cardhover hover:-translate-y-1 transition-all duration-500"
+      className="cursor-grow card-glow-hover group relative shrink-0 w-[240px] sm:w-[270px] lg:w-[290px] h-[210px] sm:h-[230px] snap-start overflow-hidden rounded-2xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-sm hover:shadow-cardhover hover:-translate-y-1 transition-all duration-500 active:scale-[0.97] active:brightness-95"
     >
       <img
         src={restaurantCover(restaurant.cover)}
@@ -1882,7 +1892,7 @@ export function RestaurantCard({ restaurant, onClick }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      className="cursor-grow card-glow-hover group relative block h-[300px] w-full overflow-hidden rounded-3xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-sm hover:shadow-cardhover transition-shadow duration-500"
+      className="cursor-grow card-glow-hover group relative block h-[300px] w-full overflow-hidden rounded-3xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-sm hover:shadow-cardhover transition-all duration-500 active:scale-[0.98] active:brightness-95"
     >
       {/* Image plein cadre : plus de bandeau blanc séparé, tout vit sur la photo. */}
       <img
@@ -1981,7 +1991,7 @@ export function RestaurantCard({ restaurant, onClick }) {
                 🛍️ 20 MAD de livraison
               </span>
               <span className="flex-1" />
-              <span className="hidden sm:inline-flex items-center gap-0.5 font-bold text-brand-400 shrink-0">
+              <span className="inline-flex items-center gap-0.5 font-bold text-brand-400 shrink-0">
                 Commander <I.Right size={12} />
               </span>
             </>
@@ -1999,14 +2009,15 @@ export function RestaurantCard({ restaurant, onClick }) {
             </>
           ) : (
             <>
-              <span className="flex items-center gap-1 text-white/70">
-                <I.MapPin size={12} className="text-white/50" /> {restaurant.distance}
+              <span className="flex items-center gap-1 text-white/70 min-w-0">
+                <I.MapPin size={12} className="text-white/50 shrink-0" />
+                <span className="truncate">{restaurant.distance}</span>
               </span>
-              <span className="text-white/20">|</span>
-              <span className="line-through text-white/40">19,99 MAD</span>
-              <span className="font-bold text-emerald-400">0,00 MAD livraison</span>
+              <span className="text-white/20 shrink-0">|</span>
+              <span className="hidden sm:inline line-through text-white/40 shrink-0">19,99 MAD</span>
+              <span className="font-bold text-emerald-400 shrink-0">0,00 MAD livraison</span>
               <span className="flex-1" />
-              <span className="hidden sm:inline-flex items-center gap-0.5 font-bold text-brand-400 shrink-0">
+              <span className="inline-flex items-center gap-0.5 font-bold text-brand-400 shrink-0">
                 Voir le menu <I.Right size={12} />
               </span>
             </>

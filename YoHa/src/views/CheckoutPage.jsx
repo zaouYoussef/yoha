@@ -300,7 +300,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
       </div>
 
       {/* Main Title & Subtitle */}
-      <div className="mb-6">
+      <div className="mb-6 animate-fade-up">
         <h1 className="font-display font-black text-2xl sm:text-4xl tracking-tight text-ink-900 dark:text-white">
           Finalisation de commande
         </h1>
@@ -650,7 +650,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
       </div>
 
       {/* Mobile Floating Sticky Checkout Bar */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 p-3 bg-white/95 dark:bg-ink-950/95 backdrop-blur-xl border-t border-ink-200/80 dark:border-ink-800 shadow-2xl pb-[calc(10px+env(safe-area-inset-bottom))]">
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 p-3 bg-white/95 dark:bg-ink-950/95 backdrop-blur-xl border-t border-ink-200/80 dark:border-ink-800 shadow-2xl pb-[calc(10px+env(safe-area-inset-bottom))] animate-slide-up">
         <div className="max-w-lg mx-auto flex items-center justify-between gap-3">
           <div className="shrink-0 pl-1">
             <div className="text-[10px] font-extrabold uppercase tracking-wider text-ink-400">Total</div>

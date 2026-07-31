@@ -395,7 +395,7 @@ export function BentoHero() {
             <div className="text-xs font-semibold text-ink-500 uppercase tracking-wider">Communauté</div>
             <div className="mt-2 flex items-center gap-2">
               <span className="animate-pulse-slow">
-                <span className="font-display font-black text-3xl sm:text-4xl text-gradient">12 000+</span>
+                <span className="font-display font-black text-3xl sm:text-4xl text-gradient">200+</span>
               </span>
               <span className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20 animate-pulse-slow">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span> En ligne

@@ -8,8 +8,8 @@ export const TESTIMONIALS = [
   },
   {
     name: 'Dr. Lina · CHU Tanger',
-    text: 'Le menu MedEat est pratique et vraiment adapté à notre rythme à l\'hôpital.',
-    avatar: 'https://images.unsplash.com/photo-1594824813566-82823d5afe4a?w=150&auto=format&fit=crop&q=80',
+    text: 'Le site est pratique et vraiment adapté à notre rythme à l\'hôpital.',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
     rating: 5,
     color: 'from-sky-500 to-indigo-500',
   },
@@ -21,7 +21,7 @@ export const TESTIMONIALS = [
     color: 'from-orange-500 to-amber-500',
   },
   {
-    name: 'Dr. Maryam · CHU Tanger',
+    name: 'Dr. Ali · CHU Tanger',
     text: 'Service rapide, propre et fiable même pendant les périodes de forte demande. La livraison est toujours efficace.',
     avatar: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=150&auto=format&fit=crop&q=80',
     rating: 5,

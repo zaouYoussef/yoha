@@ -515,8 +515,8 @@ export function MyOrdersPage({ onBack, onOpenOrder, onReorder, onLogin, onBrowse
             <section>
               <SectionTitle icon="🔴" title="En cours" count={listActive.length} live />
               <ul className="space-y-4">
-                {listActive.map((o) => (
-                  <li key={o.id}>
+                {listActive.map((o, i) => (
+                  <li key={o.id} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 6) * 60}ms` }}>
                     <OrderCard order={o} onOpenOrder={onOpenOrder} onReorder={handleReorder} />
                   </li>
                 ))}
@@ -528,8 +528,8 @@ export function MyOrdersPage({ onBack, onOpenOrder, onReorder, onLogin, onBrowse
             <section>
               <SectionTitle icon="📋" title="Historique" count={listPast.length} />
               <ul className="space-y-3">
-                {listPast.map((o) => (
-                  <li key={o.id}>
+                {listPast.map((o, i) => (
+                  <li key={o.id} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 6) * 60}ms` }}>
                     <OrderCard order={o} onOpenOrder={onOpenOrder} onReorder={handleReorder} />
                   </li>
                 ))}
