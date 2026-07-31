@@ -18,6 +18,7 @@ whitenoise>=6.8,<7
 Pillow>=11.0,<12
 django-storages>=1.14,<2
 boto3>=1.35,<2
+beautifulsoup4>=4.12,<5
 APScheduler>=3.10,<4
 channels>=4.2,<5
 channels-redis>=4.2,<5

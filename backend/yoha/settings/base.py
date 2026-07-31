@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "apps.audit",
     "apps.marketing",
     "apps.locations",
+    "apps.pharmacy",
 ]
 
 

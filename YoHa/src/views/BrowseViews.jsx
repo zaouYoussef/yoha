@@ -15,7 +15,7 @@ import { spotlightHandler } from '../utils/spotlight.js';
 import { formatMad, restaurantOpenStatus } from '../data/index.js';
 import { MenuItemImage, restaurantCover, restaurantLogo } from '../components/ui/MenuItemImage.jsx';
 import { MenuItemDetailModal } from '../components/ui/MenuItemDetailModal.jsx';
-import { CustomOrderModal } from '../components/ui/CustomOrderModal.jsx';
+import { pharmaciesApi } from '../lib/api.js';
 
 function shuffleWithSeed(array, seed) {
   if (!array || !array.length) return [];
@@ -68,6 +68,59 @@ export function formatTags(tags, separator = ' • ') {
   if (!tags) return '';
   const list = Array.isArray(tags) ? tags : [tags];
   return list.map(formatTag).filter(Boolean).join(separator);
+}
+
+/** Store sur-mesure ouvert par la bannière « Commande sur-mesure », selon la catégorie active. */
+const CUSTOM_STORE_BY_FILTER = {
+  all: 'custom-restaurant',
+  restaurants: 'custom-restaurant',
+  pharmacy: 'custom-pharmacy',
+  parapharmacy: 'custom-parapharmacy',
+  dessert: 'custom-patisserie',
+  patisserie: 'custom-patisserie',
+  supermarket: 'custom-supermarket',
+  shop: 'custom-shop',
+};
+
+/** Visuels génériques des pharmacies de garde (la source n'a pas de photos par pharmacie). */
+const PHARMACY_COVER_POOL = [
+  'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=1000&auto=format&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=1000&auto=format&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=1000&auto=format&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1000&auto=format&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=1000&auto=format&fit=crop&q=85',
+];
+
+function pharmacyCoverFor(key) {
+  let h = 0;
+  for (const ch of String(key)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return PHARMACY_COVER_POOL[h % PHARMACY_COVER_POOL.length];
+}
+
+/** Transforme une pharmacie de garde (API) en objet affichable comme une carte. */
+function toDutyPharmacyItem(p) {
+  const guard = p.guard === '24h' ? '24h' : p.guard || '24h';
+  return {
+    id: `duty-${p.slug || p.id}`,
+    name: p.name,
+    nameAr: p.name_ar || '',
+    addressAr: p.address_ar || '',
+    cuisine: 'pharmacy',
+    isStatic: true,
+    isDutyPharmacy: true,
+    isOpen: true,
+    rating: 4.9,
+    cover: pharmacyCoverFor(p.slug || String(p.id)),
+    tags: [`Garde ${guard}`],
+    distance: p.address || '',
+    address: p.address || '',
+    phone: p.phone || '',
+    lat: p.lat,
+    lng: p.lng,
+    guard,
+    hoursLabel: p.hours_label || '',
+    fee: '20 DH',
+  };
 }
 
 const CATEGORY_GLOW = {
@@ -191,11 +244,26 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   const { restaurants: catalog, loadingRestaurants, restaurantsError, refreshRestaurants } = useOrders();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState(initialFilter);
-  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [dutyPharmacies, setDutyPharmacies] = useState([]);
 
   useEffect(() => {
     setFilter(initialFilter);
   }, [initialFilter]);
+
+  useEffect(() => {
+    let cancelled = false;
+    pharmaciesApi
+      .duty()
+      .then((list) => {
+        if (!cancelled) setDutyPharmacies(Array.isArray(list) ? list : []);
+      })
+      .catch(() => {
+        if (!cancelled) setDutyPharmacies([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const restaurants = useMemo(() => {
     let list = [...catalog];
@@ -332,7 +400,11 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   const chickenList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'chicken' || r.tags?.includes('Chicken') || r.name.toLowerCase().includes('chicken') || r.name.toLowerCase().includes('poulet')), [foodRestaurants]);
 
   const dessertItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'dessert' || s.cuisine === 'patisserie'), []);
-  const pharmacyItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'pharmacy'), []);
+  const customPharmacy = useMemo(() => STATIC_STORES.find((s) => s.id === 'custom-pharmacy'), []);
+  const pharmacyItems = useMemo(
+    () => [customPharmacy, ...dutyPharmacies.map(toDutyPharmacyItem)].filter(Boolean),
+    [customPharmacy, dutyPharmacies],
+  );
   const paraItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'parapharmacy'), []);
   const marketItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'supermarket'), []);
   const shopItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'shop'), []);
@@ -383,8 +455,6 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   return (
     <div className="page-enter">
       <BrowseHero name={name} search={search} onSearchChange={setSearch} openCount={openCount} totalCount={catalog.length} />
-
-      <CustomOrderModal isOpen={isCustomModalOpen} onClose={() => setIsCustomModalOpen(false)} category={filter} />
 
       <div className="bg-white dark:bg-ink-950 overflow-x-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-6 sm:space-y-7">
@@ -575,9 +645,13 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 <EmptyState catalogEmpty={catalog.length === 0} filter={filter || search} onShowAll={() => { setFilter('all'); setSearch(''); }} />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                  {displayedList.map((r) => (
-                    <RestaurantCard key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                  ))}
+                  {displayedList.map((r) =>
+                    r.isDutyPharmacy ? (
+                      <DutyPharmacyCard key={r.id} pharmacy={r} />
+                    ) : (
+                      <RestaurantCard key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                    ),
+                  )}
                 </div>
               )}
             </section>
@@ -811,7 +885,11 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setIsCustomModalOpen(true)}
+                  onClick={() => {
+                    const customId = CUSTOM_STORE_BY_FILTER[filter] || 'custom-restaurant';
+                    const customStore = STATIC_STORES.find((s) => s.id === customId);
+                    if (customStore) onPickRestaurant(customStore);
+                  }}
                   className="shrink-0 px-5 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 text-white font-extrabold text-sm shadow-glow hover:scale-[1.02] active:scale-95 transition-all"
                 >
                   Décrire ma demande
@@ -1577,6 +1655,110 @@ export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = f
         </div>
       </div>
     </Tilt>
+  );
+}
+
+/** Texture discrète de croix médicales (5 % d'opacité) pour les cartes de garde. */
+const MEDICAL_CROSS_PATTERN = `url("data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56'><path d='M28 18v20M18 28h20' stroke='#16a34a' stroke-width='2' fill='none'/></svg>`,
+)}")`;
+
+export function DutyPharmacyCard({ pharmacy }) {
+  const mapsUrl =
+    pharmacy.lat && pharmacy.lng
+      ? `https://www.google.com/maps?q=${pharmacy.lat},${pharmacy.lng}`
+      : null;
+  const tel = pharmacy.phone ? `tel:${pharmacy.phone.replace(/[^\d+]/g, '')}` : null;
+  const hoursFr = (pharmacy.hoursLabel || '').split('حراسة')[0].trim();
+
+  return (
+    <div className="relative overflow-hidden rounded-[32px] bg-white dark:bg-ink-900 ring-1 ring-ink-100 dark:ring-white/10 shadow-[0_25px_60px_rgba(15,23,42,0.08)] hover:shadow-[0_35px_80px_rgba(22,163,74,0.18)] transition-shadow duration-500 flex flex-col">
+      {/* Texture croix médicales */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.05] dark:opacity-[0.03]"
+        style={{ backgroundImage: MEDICAL_CROSS_PATTERN, backgroundSize: '56px 56px' }}
+      />
+
+      {/* En-tête : image pharmacie + badge */}
+      <div className="relative flex items-start justify-between gap-3 p-6 pb-3">
+        <img
+          src={restaurantCover(pharmacy.cover)}
+          alt={pharmacy.name}
+          loading="lazy"
+          className="h-16 w-16 rounded-full object-cover ring-4 ring-white dark:ring-ink-800 shadow-[0_15px_30px_rgba(15,23,42,0.12)]"
+        />
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-100 dark:bg-green-500/15 text-green-700 dark:text-green-400 text-[10px] font-black uppercase tracking-wider">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+          Pharmacie de garde
+        </span>
+      </div>
+
+      {/* Nom + arabe */}
+      <div className="relative px-6">
+        <h3 className="font-display font-extrabold text-2xl text-slate-900 dark:text-white leading-tight">
+          {pharmacy.name}
+        </h3>
+        {pharmacy.nameAr && (
+          <p className="mt-0.5 text-sm font-semibold text-slate-400 dark:text-slate-500" dir="rtl">
+            {pharmacy.nameAr}
+          </p>
+        )}
+      </div>
+
+      {/* Adresse */}
+      <div className="relative mx-6 mt-4 rounded-2xl border-l-4 border-green-600 bg-slate-50 dark:bg-ink-800/60 px-4 py-3">
+        <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">{pharmacy.address}</p>
+        {pharmacy.addressAr && (
+          <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed" dir="rtl">
+            {pharmacy.addressAr}
+          </p>
+        )}
+      </div>
+
+      {/* Horaires */}
+      {hoursFr && (
+        <div className="relative mx-6 mt-3 flex items-center gap-2 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+          <I.Clock size={13} />
+          <span className="truncate">{hoursFr}</span>
+        </div>
+      )}
+
+      {/* Téléphone */}
+      <div className="relative px-6 mt-5 mb-4">
+        {tel && (
+          <a
+            href={tel}
+            className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-green-600 to-green-500 px-5 py-3.5 text-white font-extrabold text-sm shadow-[0_10px_25px_rgba(22,163,74,0.35)] hover:scale-[1.02] active:scale-95 transition-transform"
+          >
+            <I.Phone size={16} /> {pharmacy.phone}
+          </a>
+        )}
+        {mapsUrl && (
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 block text-center text-xs font-bold text-slate-400 hover:text-green-600 transition-colors"
+          >
+            Itinéraire 🧭
+          </a>
+        )}
+      </div>
+
+      {/* Pied : dispo + garde + marque */}
+      <div className="relative mt-auto flex items-center gap-3 px-6 pb-6 pt-4 border-t border-slate-100 dark:border-white/[0.06] text-[11px] font-bold text-slate-500 dark:text-slate-400">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          Disponible aujourd'hui
+        </span>
+        <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-orange-100 dark:bg-orange-500/15 px-2.5 py-1 text-[10px] font-black text-orange-600 dark:text-orange-400">
+          🕐 {pharmacy.guard === '24h' ? '24H' : 'GARDE'}
+        </span>
+        <span className="font-display font-black text-sm text-green-600 dark:text-green-400 tracking-tight">
+          YOHA
+        </span>
+      </div>
+    </div>
   );
 }
 

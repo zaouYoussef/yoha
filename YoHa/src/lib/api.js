@@ -354,6 +354,27 @@ export const authApi = {
   },
 };
 
+/** Pharmacies de garde (infopoint.ma → Django, API publique). */
+export const pharmaciesApi = {
+  async duty(date) {
+    const q = date ? `?date=${date}` : '';
+    const data = await apiFetch(`/pharmacies/duty/${q}`, { auth: false, networkRetries: 2 });
+    const list = unwrapList(data);
+    return Array.isArray(list) ? list : [];
+  },
+
+  async search(q) {
+    if (!q) return [];
+    const data = await apiFetch(`/pharmacies/search/?q=${encodeURIComponent(q)}`, { auth: false });
+    const list = unwrapList(data);
+    return Array.isArray(list) ? list : [];
+  },
+
+  async get(slug) {
+    return apiFetch(`/pharmacies/${slug}/`, { auth: false });
+  },
+};
+
 export const restaurantsApi = {
   async list(params = {}) {
     const q = new URLSearchParams();
