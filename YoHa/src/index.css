@@ -622,6 +622,38 @@
   }
 }
 
+/* Keyframes déclarées dans tailwind.config.js mais référencées par des classes
+   CSS pures d'index.css. Tailwind ne les émet que si les utilitaires animate-*
+   correspondants sont utilisés dans le markup — ce n'est jamais le cas ici —
+   donc sans ces déclarations les animations (reflet des boutons, gradient
+   animé, emojis flottants) restent figées. */
+@keyframes sweep {
+  0% {
+    transform: translateX(-130%);
+  }
+  55%, 100% {
+    transform: translateX(230%);
+  }
+}
+
+@keyframes gradient-x {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  50% {
+    transform: translateY(-22px) translateX(8px);
+  }
+}
+
 /* Exploded Burger Steam & Drips */
 @keyframes steam {
   0% {
@@ -684,11 +716,18 @@
   height: 100%;
   background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.55), transparent);
   transform: translateX(-140%);
+  animation: sweep 2.8s ease-in-out infinite;
   pointer-events: none;
 }
 
 .btn-shimmer:hover::after {
   animation: auto-shimmer 0.6s ease-in-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-shimmer::after {
+    animation: none;
+  }
 }
 
 @keyframes auto-shimmer {
