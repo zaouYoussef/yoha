@@ -404,6 +404,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
   const dessertItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'dessert' || s.cuisine === 'patisserie'), []);
   const customPharmacy = useMemo(() => STATIC_STORES.find((s) => s.id === 'custom-pharmacy'), []);
+  const chainsList = useMemo(() => STATIC_STORES.filter((s) => s.isChain), []);
   const pharmacyItems = useMemo(
     () => [customPharmacy, ...dutyPharmacies.map(toDutyPharmacyItem)].filter(Boolean),
     [customPharmacy, dutyPharmacies],
@@ -701,7 +702,20 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 </section>
               )}
 
-              {/* 1. Frais de livraison offerts */}
+              {/* 1. Les grandes enseignes */}
+              {chainsList.length > 0 && (
+                <HorizontalRow
+                  title="🍟 Les grandes enseignes"
+                  subtitle="McDonald's, KFC, Pizza Hut… on achète pour vous"
+                  count={chainsList.length}
+                >
+                  {chainsList.map((r) => (
+                    <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                  ))}
+                </HorizontalRow>
+              )}
+
+              {/* 2. Frais de livraison offerts */}
               <HorizontalRow
                 title="Frais de livraison offerts"
                 subtitle="Livraison 0 MAD sur tout l'Alliance & CHU"
@@ -975,7 +989,7 @@ function HorizontalRow({ title, subtitle, count, children, onSeeAll }) {
             <p className="text-xs text-ink-500 dark:text-ink-400 mt-0.5 font-medium">{subtitle}</p>
           )}
         </div>
-        {count > 0 && (
+        {count > 0 && onSeeAll && (
           <button
             type="button"
             onClick={onSeeAll}
@@ -1247,6 +1261,8 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
   const tags = Array.isArray(r.tags) ? r.tags : [];
   const totalItems = (r.menu || []).reduce((s, c) => s + (c.items?.length || 0), 0);
   const isDuty = r.isDutyPharmacy;
+  const isChain = r.isChain;
+  const needsCustomStoreInfo = r.isCustomRequest && !isChain;
   const dutyHoursFr = (r.hoursLabel || '').split('حراسة')[0].trim();
 
   const scrollToCat = (cat) => {
@@ -1341,7 +1357,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                     {(r.rating ?? 4.5).toString().replace('.', ',')}
                   </span>
                 </div>
-                <span className="text-xs text-ink-500">Livraison {r.fee || '0,00'} MAD</span>
+                <span className="text-xs text-ink-500">Livraison {r.fee ? (r.fee.includes('DH') ? r.fee : `${r.fee} MAD`) : '0,00 MAD'}</span>
                 {isDuty && r.phone && (
                   <a
                     href={`tel:${r.phone.replace(/\s/g, '')}`}
@@ -1494,7 +1510,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
 
             <form onSubmit={(e) => {
               e.preventDefault();
-              if (r.isCustomRequest && (!storeName.trim() || !storeAddress.trim())) {
+              if (needsCustomStoreInfo && (!storeName.trim() || !storeAddress.trim())) {
                 alert('Veuillez renseigner le nom et l\'adresse de l\'établissement.');
                 return;
               }
@@ -1503,8 +1519,8 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 return;
               }
 
-              const targetStoreName = r.isCustomRequest ? storeName.trim() : r.name;
-              const targetStoreAddress = r.isCustomRequest ? storeAddress.trim() : (isDuty ? r.address : r.distance);
+              const targetStoreName = isChain ? r.name : (r.isCustomRequest ? storeName.trim() : r.name);
+              const targetStoreAddress = isChain ? (r.address || 'Tanger') : (r.isCustomRequest ? storeAddress.trim() : (isDuty ? r.address : r.distance));
 
               const customItem = {
                 id: `custom-${r.id}-${Date.now()}`,
@@ -1512,7 +1528,8 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                   ? `[${targetStoreName}] ${orderDetails.trim()}`
                   : `${r.name} - ${orderDetails.trim()}`,
                 price: 0,
-                img: r.cuisine === 'pharmacy' ? '/media/restaurants/custom-pharmacy.webp' :
+                img: r.isChain && r.cover ? r.cover :
+                     r.cuisine === 'pharmacy' ? '/media/restaurants/custom-pharmacy.webp' :
                      r.cuisine === 'parapharmacy' ? '/media/restaurants/custom-parapharmacy.webp' :
                      r.cuisine === 'supermarket' ? '/media/restaurants/custom-supermarket.webp' :
                      r.cuisine === 'shop' ? '/media/restaurants/custom-shop.webp' :
@@ -1537,7 +1554,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
               setIsAdded(true);
               setTimeout(() => setIsAdded(false), 2000);
             }} className="space-y-4">
-              {r.isCustomRequest && (
+              {needsCustomStoreInfo && (
                 <>
                   <label className="block space-y-1">
                     <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">Nom de l&apos;établissement *</span>
@@ -1553,12 +1570,25 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                   </label>
                 </>
               )}
+              {isChain && (
+                <div className="rounded-xl bg-teal-500/10 border border-teal-500/20 p-3 text-xs text-teal-800 dark:text-teal-300">
+                  <p className="font-bold mb-0.5">🏪 {r.name}</p>
+                  <p>Le livreur se rendra à la succursale la plus proche à Tanger et achètera votre commande.</p>
+                </div>
+              )}
               <label className="block space-y-1">
                 <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">Détaillez votre commande *</span>
                 <textarea required value={orderDetails} onChange={(e) => setOrderDetails(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-ink-900 dark:text-white resize-none"
                   rows={4}
-                  placeholder="Ex: 2 boîtes de Doliprane 1000mg, 1 boîte de Spasfon..." />
+                  placeholder={isChain
+                    ? 'Ex: 2 Big Mac, 1 grande frite, 2 boissons…'
+                    : r.cuisine === 'pharmacy' || r.cuisine === 'parapharmacy'
+                      ? 'Ex: 2 boîtes de Doliprane 1000mg, 1 boîte de Spasfon…'
+                      : 'Ex: 1 plat de couscous, 2 brochettes, 1 thé…'} />
+                <p className="text-xs text-ink-500 dark:text-ink-400 leading-relaxed">
+                  Écrivez exactement ce que vous souhaitez commander. YoHa achètera votre commande auprès du restaurant sélectionné et vous la livrera. Les prix sont ceux pratiqués par le restaurant.
+                </p>
               </label>
               <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs text-amber-800 dark:text-amber-300">
                 <p className="font-bold mb-0.5">💵 Frais de livraison fixes : 20 MAD</p>
