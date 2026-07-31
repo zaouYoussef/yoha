@@ -41,6 +41,66 @@ function shuffleWithSeed(array, seed) {
 }
 
 
+const norm = (s) => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+
+const SUB_CATEGORIES = {
+  dessert: [
+    { id: 'gateaux', label: 'Gâteaux', emoji: '🎂', image: '/chain-img/sub-gateaux.jpg', match: ['gateau', 'cake', 'gourmand', 'creation', 'creatif', 'art', 'diamant', 'cadeaux'] },
+    { id: 'macarons', label: 'Macarons', emoji: '🍬', image: '/chain-img/sub-macarons.jpg', match: ['macaron'] },
+    { id: 'croissant', label: 'Croissants', emoji: '🥐', image: '/chain-img/sub-croissant.jpg', match: ['croissant', 'viennoiserie', 'pain', 'baguette', 'boulangerie'] },
+    { id: 'glaces', label: 'Glaces', emoji: '🍦', image: '/chain-img/sub-glaces.jpg', match: ['glacier', 'glace', 'cream', 'banquise'] },
+    { id: 'cupcakes', label: 'Cupcakes', emoji: '🧁', image: '/chain-img/sub-cupcakes.jpg', match: ['muffin', 'cupcake', 'tiramisu', 'italien', 'pasteis', 'nata'] },
+    { id: 'traditionnel', label: 'Traiteur', emoji: '🇲🇦', image: '/chain-img/sub-traditionnel.jpg', match: ['traiteur', 'traditionnel', 'marocain', 'marrakech', 'artisanal', 'kasbah'] },
+    { id: 'douceurs', label: 'Douceurs', emoji: '🍮', image: '/chain-img/sub-douceurs.jpg', match: ['douceurs', 'dessert', 'royal', 'luxe', 'signature'] },
+    { id: 'petit-dej', label: 'Petit-déj', emoji: '☕', image: '/chain-img/sub-croissant.jpg', match: ['petit', 'breakfast', 'francilien', 'parisien'] },
+  ],
+  patisserie: [
+    { id: 'gateaux', label: 'Gâteaux', emoji: '🎂', image: '/chain-img/sub-gateaux.jpg', match: ['gateau', 'cake', 'gourmand', 'creation', 'creatif', 'art', 'diamant', 'cadeaux'] },
+    { id: 'macarons', label: 'Macarons', emoji: '🍬', image: '/chain-img/sub-macarons.jpg', match: ['macaron'] },
+    { id: 'croissant', label: 'Croissants', emoji: '🥐', image: '/chain-img/sub-croissant.jpg', match: ['croissant', 'viennoiserie', 'pain', 'baguette', 'boulangerie'] },
+    { id: 'glaces', label: 'Glaces', emoji: '🍦', image: '/chain-img/sub-glaces.jpg', match: ['glacier', 'glace', 'cream', 'banquise'] },
+    { id: 'cupcakes', label: 'Cupcakes', emoji: '🧁', image: '/chain-img/sub-cupcakes.jpg', match: ['muffin', 'cupcake', 'tiramisu', 'italien', 'pasteis', 'nata'] },
+    { id: 'traditionnel', label: 'Traiteur', emoji: '🇲🇦', image: '/chain-img/sub-traditionnel.jpg', match: ['traiteur', 'traditionnel', 'marocain', 'marrakech', 'artisanal', 'kasbah'] },
+    { id: 'douceurs', label: 'Douceurs', emoji: '🍮', image: '/chain-img/sub-douceurs.jpg', match: ['douceurs', 'dessert', 'royal', 'luxe', 'signature'] },
+    { id: 'petit-dej', label: 'Petit-déj', emoji: '☕', image: '/chain-img/sub-croissant.jpg', match: ['petit', 'breakfast', 'francilien', 'parisien'] },
+  ],
+  parapharmacy: [
+    { id: 'beaute', label: 'Beauté', emoji: '💄', image: '/chain-img/sub-beaute.jpg', match: ['beaute', 'cosmetique', 'beauty', 'maquillage', 'parfumerie'] },
+    { id: 'visage', label: 'Soin visage', emoji: '🧴', image: '/chain-img/sub-visage.jpg', match: ['soin', 'visage', 'dermato', 'creme', 'cosmetique'] },
+    { id: 'complement', label: 'Compléments', emoji: '💊', image: '/chain-img/sub-complement.jpg', match: ['complement', 'vitamine'] },
+    { id: 'cheveux', label: 'Cheveux', emoji: '💆', image: '/chain-img/sub-cheveux.jpg', match: ['cheveux', 'hair', 'coiffure'] },
+    { id: 'solaire', label: 'Solaire', emoji: '☀️', image: '/chain-img/sub-solaire.jpg', match: ['solaire', 'soleil', 'sun'] },
+    { id: 'hygiene', label: 'Hygiène', emoji: '🧼', image: '/chain-img/sub-hygiene.jpg', match: ['hygiene', 'propre', 'savon'] },
+    { id: 'bebe', label: 'Bébé', emoji: '👶', image: '/chain-img/sub-bebe.jpg', match: ['bebe', 'baby', 'puericulture', 'enfant'] },
+    { id: 'bio', label: 'Bio', emoji: '🌿', image: '/chain-img/sub-bio.jpg', match: ['bio', 'nature'] },
+  ],
+  supermarket: [
+    { id: 'fruits', label: 'Fruits', emoji: '🍎', image: '/chain-img/sub-fruits.jpg', match: ['fruit', 'frais', 'alimentaire', 'produit'] },
+    { id: 'legumes', label: 'Légumes', emoji: '🥦', image: '/chain-img/sub-legumes.jpg', match: ['legume', 'frais', 'bio'] },
+    { id: 'epicerie', label: 'Épicerie', emoji: '🛒', image: '/chain-img/sub-epicerie.jpg', match: ['epicerie', 'alimentaire', 'proximite', 'hypermarche', 'supermarch'] },
+    { id: 'fraisbio', label: 'Frais & Bio', emoji: '🥑', image: '/chain-img/sub-fraisbio.jpg', match: ['bio', 'frais'] },
+    { id: 'boissons', label: 'Boissons', emoji: '🥤', image: '/chain-img/sub-boissons.jpg', match: ['boisson', 'drink', 'sucrerie'] },
+    { id: 'surgeles', label: 'Surgelés', emoji: '🧊', image: '/chain-img/sub-surgeles.jpg', match: ['surgel', 'congele'] },
+    { id: 'bazar', label: 'Maison & Bazar', emoji: '🏠', image: '/chain-img/sub-bazar.jpg', match: ['bazar', 'maison', 'deco', 'hygiene'] },
+    { id: 'textile', label: 'Textile', emoji: '👕', image: '/chain-img/sub-textile.jpg', match: ['textile', 'mode', 'vetement'] },
+  ],
+  shop: [
+    { id: 'mode', label: 'Mode', emoji: '👗', image: '/chain-img/sub-mode.jpg', match: ['mode', 'femme', 'homme', 'vetement', 'textile'] },
+    { id: 'chaussures', label: 'Chaussures', emoji: '👟', image: '/chain-img/sub-chaussures.jpg', match: ['chaussure', 'sneaker'] },
+    { id: 'electronique', label: 'Électronique', emoji: '📱', image: '/chain-img/sub-electronique.jpg', match: ['electronique', 'tech', 'telephonie', 'electromenager'] },
+    { id: 'maison', label: 'Maison', emoji: '🏠', image: '/chain-img/sub-maison.jpg', match: ['maison', 'deco', 'meuble', 'bricolage'] },
+    { id: 'sport', label: 'Sport', emoji: '⚽', image: '/chain-img/sub-sport.jpg', match: ['sport'] },
+    { id: 'accessoires', label: 'Accessoires', emoji: '🕶️', image: '/chain-img/sub-accessoires.jpg', match: ['accessoire'] },
+    { id: 'bijoux', label: 'Bijoux', emoji: '💎', image: '/chain-img/sub-bijoux.jpg', match: ['bijou', 'montre'] },
+    { id: 'cadeaux', label: 'Cadeaux', emoji: '🎁', image: '/chain-img/sub-cadeaux.jpg', match: ['cadeau', 'parfumerie', 'boutique'] },
+  ],
+};
+
+const SUB_BY_ID = {};
+Object.entries(SUB_CATEGORIES).forEach(([group, list]) => {
+  list.forEach((s) => { SUB_BY_ID[s.id] = { ...s, group }; });
+});
+
 function greetingName(user) {
   const raw = user?.displayName?.trim();
   if (!raw) return 'toi';
@@ -442,6 +502,18 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     if (filter === 'parapharmacy') return paraItems;
     if (filter === 'supermarket') return marketItems;
     if (filter === 'shop') return shopItems;
+    if (SUB_BY_ID[filter]) {
+      const sub = SUB_BY_ID[filter];
+      const pool = sub.group === 'dessert' || sub.group === 'patisserie'
+        ? dessertItems
+        : sub.group === 'parapharmacy'
+          ? paraItems
+          : sub.group === 'supermarket'
+            ? marketItems
+            : shopItems;
+      const matched = pool.filter(r => Array.isArray(r.tags) && r.tags.some(t => sub.match.some(k => norm(t).includes(k))));
+      return matched.length ? matched : pool;
+    }
     if (['pizza', 'tacos', 'kebab', 'healthy', 'burger', 'sushi', 'asian', 'sandwich', 'grillades', 'breakfast', 'snacks', 'moroccan', 'shawarma', 'bakery', 'chicken', 'italian', 'sweets'].includes(filter)) {
       return foodRestaurants.filter(r =>
         r.cuisine === filter ||
@@ -556,51 +628,37 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
           {/* ═══ SUB-CAROUSEL per filter ═══ */}
           {!isDefault && !search.trim() && (() => {
-            const subItems = {
-              restaurants: CATEGORY_GROUPS.filter(g => g.id !== 'services_group').flatMap(g => g.items),
-              dessert: CATEGORY_GROUPS.find(g => g.id === 'sweet')?.items || [],
-              pharmacy: [],
-              parapharmacy: [
-                { label: 'Beauté', image: '/pizza-img/section_1_06.webp', emoji: '💄', id: 'beaute' },
-                { label: 'Soin visage', image: '/pizza-img/section_2_05.webp', emoji: '🧴', id: 'soin' },
-                { label: 'Compléments', image: '/pizza-img/section_1_05.webp', emoji: '🌿', id: 'complement' },
-                { label: 'Cheveux', image: '/pizza-img/section_2_07.webp', emoji: '💆', id: 'cheveux' },
-              ],
-              supermarket: [
-                { label: 'Fruits', image: '/pizza-img/section_1_05.webp', emoji: '🍎', id: 'fruits' },
-                { label: 'Légumes', image: '/pizza-img/section_1_06.webp', emoji: '🥬', id: 'legumes' },
-                { label: 'Laitiers', image: '/pizza-img/section_2_01.webp', emoji: '🥛', id: 'laitiers' },
-                { label: 'Boulangerie', image: '/pizza-img/section_2_02.webp', emoji: '🍞', id: 'boulangerie' },
-                { label: 'Surgelés', image: '/pizza-img/section_2_06.webp', emoji: '🧊', id: 'surgeles' },
-                { label: 'Boissons', image: '/pizza-img/section_2_07.webp', emoji: '🥤', id: 'drinks' },
-              ],
-              shop: [
-                { label: 'Vêtements', image: '/pizza-img/section_1_09.webp', emoji: '👕', id: 'vetements' },
-                { label: 'Électronique', image: '/pizza-img/section_1_08.webp', emoji: '📱', id: 'electronique' },
-                { label: 'Accessoires', image: '/pizza-img/section_1_04.webp', emoji: '👟', id: 'accessoires' },
-                { label: 'Maison', image: '/pizza-img/section_1_02.webp', emoji: '🏠', id: 'maison' },
-              ],
-            };
-            const items = subItems[filter];
+            const items = SUB_CATEGORIES[filter];
             if (!items || items.length === 0) return null;
             return (
-              <section className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
-                {items.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => applyFilter(c.id === filter ? 'all' : c.id)}
-                    className="cursor-grow shrink-0 flex flex-col items-center gap-2.5 w-[4.5rem]"
-                  >
-                    <div className="relative w-[4.5rem] h-[4.5rem] rounded-[1.25rem] overflow-hidden transition-all duration-300 group border border-ink-100 dark:border-ink-800">
-                      <img src={c.image} alt={c.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                      <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors duration-300" />
-                    </div>
-                    <span className="text-[11px] font-bold text-center leading-tight text-ink-600 dark:text-ink-400">
-                      {c.label}
-                    </span>
-                  </button>
-                ))}
+              <section className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
+                {items.map((c) => {
+                  const active = filter === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => applyFilter(active ? 'all' : c.id)}
+                      className="cursor-pointer shrink-0 flex flex-col items-center gap-2 w-[4.6rem] sm:w-[5rem] group"
+                    >
+                      <div className={`relative w-[4.4rem] h-[4.4rem] sm:w-[4.8rem] sm:h-[4.8rem] rounded-[1.25rem] overflow-hidden transition-all duration-300 shadow-md ${
+                        active
+                          ? 'ring-3 ring-brand-500 scale-105 shadow-xl border-2 border-white'
+                          : 'border-2 border-slate-100 dark:border-ink-800 group-hover:border-brand-400 group-hover:shadow-lg group-hover:scale-105'
+                      }`}>
+                        <img src={c.image} alt={c.label} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        <div className={`absolute inset-0 transition-colors duration-300 ${
+                          active ? 'bg-brand-500/10' : 'bg-gradient-to-t from-black/40 via-transparent to-transparent group-hover:from-black/10'
+                        }`} />
+                      </div>
+                      <span className={`text-[11px] font-bold text-center leading-tight truncate w-full tracking-tight ${
+                        active ? 'text-brand-600 dark:text-brand-400' : 'text-slate-900 dark:text-white'
+                      }`}>
+                        {c.label}
+                      </span>
+                    </button>
+                  );
+                })}
               </section>
             );
           })()}
@@ -627,6 +685,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                        filter === 'parapharmacy' ? '🌿 Parapharmacies' :
                        filter === 'supermarket' ? '🛒 Supermarchés' :
                        filter === 'shop' ? '🛍️ Magasins' :
+                       SUB_BY_ID[filter] ? `${SUB_BY_ID[filter].emoji} ${SUB_BY_ID[filter].label}` :
                        `Résultats pour « ${search} »`}
                     </span>
                   </h2>
