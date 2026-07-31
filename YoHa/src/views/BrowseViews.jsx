@@ -73,7 +73,7 @@ const SUB_CATEGORIES = {
     { id: 'solaire', label: 'Solaire', emoji: '☀️', image: '/chain-img/sub-solaire.jpg', match: ['solaire', 'soleil', 'sun'] },
     { id: 'hygiene', label: 'Hygiène', emoji: '🧼', image: '/chain-img/sub-hygiene.jpg', match: ['hygiene', 'propre', 'savon'] },
     { id: 'bebe', label: 'Bébé', emoji: '👶', image: '/chain-img/sub-bebe.jpg', match: ['bebe', 'baby', 'puericulture', 'enfant'] },
-    { id: 'bio', label: 'Bio', emoji: '🌿', image: '/chain-img/sub-bio.jpg', match: ['bio', 'nature'] },
+    { id: 'bio', label: 'Bio', emoji: '🌿', image: '/chain-img/sub-bio.png', match: ['bio', 'nature'] },
   ],
   supermarket: [
     { id: 'fruits', label: 'Fruits', emoji: '🍎', image: '/chain-img/sub-fruits.jpg', match: ['fruit', 'frais', 'alimentaire', 'produit'] },
