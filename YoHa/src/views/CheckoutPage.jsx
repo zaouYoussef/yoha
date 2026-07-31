@@ -35,6 +35,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   // - Frais de service : 9.99 MAD
   const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
   const serviceFee = isCustom ? 0 : 9.99;
+  const isGroupOrder = !isCustom && total >= 200;
 
 
   const cartSection = useMemo(() => {
