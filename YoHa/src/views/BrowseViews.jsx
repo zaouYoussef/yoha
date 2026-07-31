@@ -82,14 +82,8 @@ const CUSTOM_STORE_BY_FILTER = {
   shop: 'custom-shop',
 };
 
-/** Visuels génériques des pharmacies de garde (la source n'a pas de photos par pharmacie). */
-const PHARMACY_COVER_POOL = [
-  'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=1000&auto=format&fit=crop&q=85',
-  'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=1000&auto=format&fit=crop&q=85',
-  'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=1000&auto=format&fit=crop&q=85',
-  'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1000&auto=format&fit=crop&q=85',
-  'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=1000&auto=format&fit=crop&q=85',
-];
+/** Visuels des pharmacies : photo unique en local. */
+const PHARMACY_COVER_POOL = ['/chain-img/pharmacie.jpg'];
 
 function pharmacyCoverFor(key) {
   let h = 0;
@@ -1833,10 +1827,12 @@ export function RestaurantCard({ restaurant, onClick }) {
           </span>
         ) : <span />}
 
-        <span className="shrink-0 inline-flex items-center gap-0.5 px-2 py-1 rounded-lg bg-white/95 text-emerald-600 text-[10px] sm:text-xs font-bold shadow-sm">
-          <I.Star size={11} className="fill-emerald-500 text-emerald-500 sm:w-3 sm:h-3" />{' '}
-          {(restaurant.rating ?? 4.8).toString().replace('.', ',')}
-        </span>
+        {!restaurant.isCustomRequest && !restaurant.isDutyPharmacy && (
+          <span className="shrink-0 inline-flex items-center gap-0.5 px-2 py-1 rounded-lg bg-white/95 text-emerald-600 text-[10px] sm:text-xs font-bold shadow-sm">
+            <I.Star size={11} className="fill-emerald-500 text-emerald-500 sm:w-3 sm:h-3" />{' '}
+            {(restaurant.rating ?? 4.8).toString().replace('.', ',')}
+          </span>
+        )}
       </div>
 
       {/* Contenu, ancré en bas sur le voile — repris de hiho/yoha-web (RestaurantCard) */}
@@ -1879,6 +1875,16 @@ export function RestaurantCard({ restaurant, onClick }) {
               <span className="flex-1" />
               <span className="inline-flex items-center gap-0.5 font-bold text-emerald-400 shrink-0">
                 Commander <I.Right size={12} />
+              </span>
+            </>
+          ) : restaurant.isCustomRequest ? (
+            <>
+              <span className="inline-flex items-center gap-1.5 font-bold text-amber-400 shrink-0">
+                🛍️ 20 MAD de livraison
+              </span>
+              <span className="flex-1" />
+              <span className="hidden sm:inline-flex items-center gap-0.5 font-bold text-brand-400 shrink-0">
+                Voir le menu <I.Right size={12} />
               </span>
             </>
           ) : (
