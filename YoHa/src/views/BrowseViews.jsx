@@ -16,6 +16,7 @@ import { spotlightHandler } from '../utils/spotlight.js';
 import { formatMad, restaurantOpenStatus } from '../data/index.js';
 import { MenuItemImage, restaurantCover, restaurantLogo } from '../components/ui/MenuItemImage.jsx';
 import { MenuItemDetailModal } from '../components/ui/MenuItemDetailModal.jsx';
+import PlaceAutocomplete from '../components/ui/PlaceAutocomplete.jsx';
 import { pharmaciesApi } from '../lib/api.js';
 import { browsePathForFilter } from '../data/browseSlugs.js';
 
@@ -100,6 +101,18 @@ const SUB_BY_ID = {};
 Object.entries(SUB_CATEGORIES).forEach(([group, list]) => {
   list.forEach((s) => { SUB_BY_ID[s.id] = { ...s, group }; });
 });
+
+const PLACE_CATEGORY = {
+  restaurant: 'restaurant',
+  pharmacy: 'pharmacy',
+  parapharmacy: 'parapharmacie',
+  dessert: 'patisserie',
+  patisserie: 'patisserie',
+  supermarket: 'supermarche',
+  shop: 'magasin',
+};
+
+const AUTOCOMPLETE_INPUT_CLASS = 'w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-ink-900 dark:text-white';
 
 function greetingName(user) {
   const raw = user?.displayName?.trim();
@@ -1625,15 +1638,27 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 <>
                   <label className="block space-y-1">
                     <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">Nom de l&apos;établissement *</span>
-                    <input type="text" required value={storeName} onChange={(e) => setStoreName(e.target.value)}
+                    <PlaceAutocomplete
+                      value={storeName}
+                      onChange={setStoreName}
+                      onPick={(place) => {
+                        if (place.address) setStoreAddress(place.address);
+                      }}
+                      mode="name"
+                      category={PLACE_CATEGORY[r.cuisine]}
                       placeholder="Ex: Pharmacie du Progrès"
-                      className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-ink-900 dark:text-white" />
+                      className={AUTOCOMPLETE_INPUT_CLASS}
+                    />
                   </label>
                   <label className="block space-y-1">
                     <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">Adresse *</span>
-                    <input type="text" required value={storeAddress} onChange={(e) => setStoreAddress(e.target.value)}
+                    <PlaceAutocomplete
+                      value={storeAddress}
+                      onChange={setStoreAddress}
+                      mode="address"
                       placeholder="Ex: Boulevard Mohammed V, Tanger"
-                      className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-ink-900 dark:text-white" />
+                      className={AUTOCOMPLETE_INPUT_CLASS}
+                    />
                   </label>
                 </>
               )}
