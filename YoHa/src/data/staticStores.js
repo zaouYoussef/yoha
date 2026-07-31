@@ -27,6 +27,7 @@ export const STATIC_STORES = [
   {
     id: 'custom-pharmacy',
     name: 'Pharmacie sur-mesure 💊',
+    subtitle: 'Et si vous voulez, vous choisissez la pharmacie que vous voulez.',
     cuisine: 'pharmacy',
     rating: 5.0,
     reviewsCount: 1,

@@ -407,6 +407,11 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     () => [customPharmacy, ...dutyPharmacies.map(toDutyPharmacyItem)].filter(Boolean),
     [customPharmacy, dutyPharmacies],
   );
+  const dutyGuardLabel = useMemo(() => {
+    const p = dutyPharmacies[0];
+    if (!p) return '';
+    return (p.hours_label || '').split('حراسة')[0].trim() || `Garde ${p.guard === '24h' ? '24h' : p.guard}`;
+  }, [dutyPharmacies]);
   const paraItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'parapharmacy'), []);
   const marketItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'supermarket'), []);
   const shopItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'shop'), []);
@@ -628,6 +633,11 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   <p className="text-xs sm:text-sm text-ink-500 dark:text-ink-400 mt-1">
                     {displayedList.length} établissement{displayedList.length > 1 ? 's' : ''} disponible{displayedList.length > 1 ? 's' : ''}
                   </p>
+                  {filter === 'pharmacy' && dutyGuardLabel && (
+                    <p className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold px-2.5 py-1">
+                      🕐 {dutyGuardLabel}
+                    </p>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -1766,6 +1776,11 @@ export function RestaurantCard({ restaurant, onClick }) {
         {isDuty && restaurant.nameAr && (
           <p className="mt-0.5 text-[11px] sm:text-xs font-semibold text-white/55 truncate" dir="rtl">
             {restaurant.nameAr}
+          </p>
+        )}
+        {restaurant.subtitle && (
+          <p className="mt-0.5 text-[11px] sm:text-xs font-medium text-white/55 truncate">
+            {restaurant.subtitle}
           </p>
         )}
         <div className="mt-1 flex items-center gap-1.5 text-[11px] sm:text-xs text-white/70 truncate">
