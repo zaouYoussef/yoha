@@ -1861,17 +1861,19 @@ export function RestaurantCard({ restaurant, onClick }) {
           </p>
         )}
         <div className="mt-1 flex items-center gap-1.5 text-[11px] sm:text-xs text-white/70 truncate">
-          <span className="truncate">{formatTags(restaurant.tags, ' • ')}</span>
-          {isDuty && restaurant.phone && (
-            <>
-              <span className="text-white/25 shrink-0">·</span>
+          {isDuty ? (
+            restaurant.phone && (
               <span className="truncate shrink-0">{restaurant.phone}</span>
+            )
+          ) : (
+            <>
+              <span className="truncate">{formatTags(restaurant.tags, ' • ')}</span>
+              {!restaurant.isCustomRequest && (
+                <span className="shrink-0 px-1.5 py-0.5 rounded bg-white/10 text-white/70 text-[10px] font-bold">
+                  Sponsorisé
+                </span>
+              )}
             </>
-          )}
-          {!isDuty && (
-            <span className="shrink-0 px-1.5 py-0.5 rounded bg-white/10 text-white/70 text-[10px] font-bold">
-              Sponsorisé
-            </span>
           )}
         </div>
 
