@@ -47,17 +47,17 @@ def render_order_email_html(ctx: dict) -> str:
     tracking_url = _esc(_tracking_url(order_id))
     is_cancelled = ctx.get("status") == "cancelled" or "annul" in headline.lower()
 
-    # ── Progress steps ──
+    # ── Progress steps (Glassmorphism) ──
     if is_cancelled:
         progress_section_html = """
         <tr><td style="padding:0 32px 32px;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff1f2;
-            border-radius:16px;border:1px solid #fecdd3;">
-            <tr><td style="padding:16px 20px;text-align:center;">
-              <div style="font-size:14px;font-weight:800;color:#e11d48;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(255,228,230,0.6);
+            border-radius:20px;border:1px solid rgba(255,255,255,0.8);box-shadow:0 8px 24px rgba(225,29,72,0.06);">
+            <tr><td style="padding:20px 20px;text-align:center;">
+              <div style="font-size:14px;font-weight:900;color:#e11d48;letter-spacing:-0.01em;">
                 ❌ Statut : Commande annulée
               </div>
-              <div style="font-size:12px;color:#9f1239;margin-top:4px;">
+              <div style="font-size:13px;color:#9f1239;margin-top:6px;font-weight:600;">
                 Cette commande ne donnera lieu à aucun débit.
               </div>
             </td></tr>
@@ -69,46 +69,46 @@ def render_order_email_html(ctx: dict) -> str:
             active = i <= step_index
             current = i == step_index
             if current:
-                dot_bg = f"background:linear-gradient(135deg,{accent},#ec4899);box-shadow:0 0 0 4px {accent}33;"
+                dot_bg = f"background:linear-gradient(135deg,{accent},#ffffff);box-shadow:0 0 0 4px {accent}33, 0 4px 12px {accent}40;"
                 dot_color = "#ffffff"
                 label_color = "#0f172a"
-                label_weight = "800"
+                label_weight = "900"
             elif active:
-                dot_bg = "background:linear-gradient(135deg,#10b981,#059669);"
+                dot_bg = f"background:linear-gradient(135deg,{accent},{accent});opacity:0.8;"
                 dot_color = "#ffffff"
                 label_color = "#475569"
-                label_weight = "600"
+                label_weight = "700"
             else:
-                dot_bg = "background:#e2e8f0;"
+                dot_bg = "background:rgba(255,255,255,0.8);border:1px solid #cbd5e1;"
                 dot_color = "#94a3b8"
                 label_color = "#94a3b8"
-                label_weight = "500"
+                label_weight = "600"
             steps_html += f"""
             <td align="center" style="padding:0 1px;vertical-align:top;width:25%;">
               <div style="width:32px;height:32px;border-radius:999px;{dot_bg}color:{dot_color};
-                font-size:12px;font-weight:700;line-height:32px;text-align:center;margin:0 auto;
+                font-size:12px;font-weight:800;line-height:32px;text-align:center;margin:0 auto;
                 transition:all .3s;">{i + 1}</div>
-              <div style="font-size:10px;color:{label_color};margin-top:8px;font-weight:{label_weight};
-                letter-spacing:0.01em;">{_esc(label)}</div>
+              <div style="font-size:10px;color:{label_color};margin-top:10px;font-weight:{label_weight};
+                letter-spacing:0.02em;">{_esc(label)}</div>
             </td>"""
 
         progress_pct = int(((step_index + 1) / len(ctx["steps"])) * 100)
         progress_section_html = f"""
-        <tr><td style="padding:0 32px 32px;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;
-            border-radius:16px;border:1px solid #f1f5f9;">
-            <tr><td style="padding:20px 20px 8px;">
-              <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
-                <span style="font-size:10px;font-weight:700;text-transform:uppercase;
-                  letter-spacing:0.08em;color:#94a3b8;">Progression</span>
-                <span style="font-size:10px;font-weight:800;color:{accent};">{progress_pct}%</span>
+        <tr><td style="padding:0 24px 32px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(255,255,255,0.5);
+            border-radius:24px;border:1px solid rgba(255,255,255,0.8);box-shadow:0 8px 24px rgba(15,23,42,0.03);">
+            <tr><td style="padding:24px 24px 12px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:14px;">
+                <span style="font-size:11px;font-weight:800;text-transform:uppercase;
+                  letter-spacing:0.1em;color:#64748b;">Progression</span>
+                <span style="font-size:12px;font-weight:900;color:{accent};text-shadow:0 2px 8px {accent}40;">{progress_pct}%</span>
               </div>
-              <div style="background:#e2e8f0;border-radius:999px;height:8px;overflow:hidden;">
-                <div style="width:{progress_pct}%;height:8px;background:linear-gradient(90deg,{accent},#ec4899);
-                  border-radius:999px;box-shadow:0 0 12px {accent}40;"></div>
+              <div style="background:rgba(226,232,240,0.6);border-radius:999px;height:10px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="width:{progress_pct}%;height:10px;background:linear-gradient(90deg,{accent},#ffffff);
+                  border-radius:999px;box-shadow:0 0 16px {accent}60;"></div>
               </div>
             </td></tr>
-            <tr><td style="padding:16px 12px 20px;">
+            <tr><td style="padding:16px 12px 24px;">
               <table width="100%" cellpadding="0" cellspacing="0"><tr>{steps_html}</tr></table>
             </td></tr>
           </table>
@@ -119,15 +119,15 @@ def render_order_email_html(ctx: dict) -> str:
     for line in ctx.get("line_preview", []):
         lines_html += f"""
         <tr>
-          <td style="padding:10px 0;border-bottom:1px solid #f1f5f920;font-size:13px;color:#334155;">
-            <span style="display:inline-block;background:linear-gradient(135deg,{accent}18,{accent}08);
-              color:{accent};font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;
-              margin-right:8px;">{line.quantity}×</span>
+          <td style="padding:12px 0;border-bottom:1px solid rgba(15,23,42,0.05);font-size:14px;color:#334155;font-weight:600;">
+            <span style="display:inline-block;background:linear-gradient(135deg,#ffffff,{accent}15);
+              color:{accent};font-size:12px;font-weight:900;padding:4px 10px;border-radius:8px;
+              margin-right:10px;border:1px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px {accent}20;">{line.quantity}×</span>
             {_esc(line.item_name)}
           </td>
-          <td align="right" style="padding:10px 0;border-bottom:1px solid #f1f5f920;font-size:13px;
-            color:#334155;font-weight:700;font-variant-numeric:tabular-nums;">
-            {line.line_total_mad:.2f} <span style="color:#94a3b8;font-weight:500;">MAD</span>
+          <td align="right" style="padding:12px 0;border-bottom:1px solid rgba(15,23,42,0.05);font-size:14px;
+            color:#0f172a;font-weight:800;font-variant-numeric:tabular-nums;">
+            {line.line_total_mad:.2f} <span style="color:#64748b;font-weight:600;font-size:12px;">MAD</span>
           </td>
         </tr>"""
 
@@ -138,40 +138,42 @@ def render_order_email_html(ctx: dict) -> str:
         offers_html += f"""
         <td style="padding:8px;vertical-align:top;width:33.33%;">
           <a href="{_esc(_browse_url(offer.get('slug', '')))}" style="text-decoration:none;display:block;">
-            <div style="height:100px;border-radius:14px;overflow:hidden;background:#f8fafc;
-              position:relative;margin-bottom:8px;">
+            <div style="height:110px;border-radius:18px;overflow:hidden;background:rgba(255,255,255,0.5);
+              position:relative;margin-bottom:10px;box-shadow:0 4px 12px rgba(15,23,42,0.04);border:1px solid rgba(255,255,255,0.8);">
               {'<img src="' + _esc(cover) + '" style="width:100%;height:100%;object-fit:cover;display:block;"/>' if cover else '<div style="height:100%;background:#e2e8f0;"></div>'}
             </div>
-            <div style="font-size:12px;font-weight:800;color:#0f172a;margin-bottom:2px;
-              overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{_esc(offer['name'])}</div>
-            <div style="font-size:10px;color:#f97316;font-weight:700;">{_esc(offer.get('promo', ''))}</div>
-            <div style="font-size:10px;color:#94a3b8;margin-top:2px;">⚡ {_esc(offer.get('eta', ''))}</div>
+            <div style="font-size:13px;font-weight:900;color:#0f172a;margin-bottom:4px;
+              overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-0.01em;">{_esc(offer['name'])}</div>
+            <div style="font-size:11px;color:#f43f5e;font-weight:800;">{_esc(offer.get('promo', ''))}</div>
+            <div style="font-size:11px;color:#64748b;margin-top:4px;font-weight:600;">⚡ {_esc(offer.get('eta', ''))}</div>
           </a>
         </td>"""
 
     if not offers_html:
         offers_html = """
-        <td colspan="3" style="padding:16px;text-align:center;color:#94a3b8;font-size:13px;">
+        <td colspan="3" style="padding:20px;text-align:center;color:#64748b;font-size:14px;font-weight:500;">
           Découvrez nos restaurants partenaires sur YoHa.
         </td>"""
 
     courier_row = f"""
     <tr>
-      <td style="font-size:12px;color:#94a3b8;padding-top:4px;">Livreur</td>
-      <td align="right" style="font-size:12px;font-weight:700;color:#0f172a;padding-top:4px;">{courier}</td>
+      <td style="font-size:13px;color:#64748b;padding-top:10px;font-weight:600;">Livreur assigné</td>
+      <td align="right" style="font-size:13px;font-weight:800;color:#0f172a;padding-top:10px;">{courier}</td>
     </tr>""" if courier else ""
 
     cta_button_html = f"""
     <a href="{_esc(browse_url)}" style="display:inline-block;
-      background:linear-gradient(135deg,#f97316,#ec4899);color:#ffffff;
-      font-size:15px;font-weight:800;text-decoration:none;padding:16px 40px;
-      border-radius:16px;box-shadow:0 8px 24px rgba(249,115,22,0.3);letter-spacing:0.01em;">
+      background:linear-gradient(135deg,#f43f5e,#e11d48);color:#ffffff;
+      font-size:16px;font-weight:900;text-decoration:none;padding:18px 48px;
+      border-radius:20px;box-shadow:0 12px 32px rgba(244,63,94,0.3);letter-spacing:0.02em;
+      border:1px solid rgba(255,255,255,0.2);">
       <span style="mso-text-raise:14pt;">🛒 Découvrir d'autres restaurants</span>
     </a>""" if is_cancelled else f"""
     <a href="{tracking_url}" style="display:inline-block;
-      background:linear-gradient(135deg,{accent},#ec4899);color:#ffffff;
-      font-size:15px;font-weight:800;text-decoration:none;padding:16px 40px;
-      border-radius:16px;box-shadow:0 8px 24px {accent}35;letter-spacing:0.01em;">
+      background:linear-gradient(135deg,{accent},#1e293b);color:#ffffff;
+      font-size:16px;font-weight:900;text-decoration:none;padding:18px 48px;
+      border-radius:20px;box-shadow:0 12px 32px {accent}40;letter-spacing:0.02em;
+      border:1px solid rgba(255,255,255,0.2);">
       <span style="mso-text-raise:14pt;">📱 Suivre ma commande en direct</span>
     </a>"""
 
@@ -189,116 +191,118 @@ def render_order_email_html(ctx: dict) -> str:
   <style>table,td,div,a {{font-family:Arial,sans-serif!important;}}</style>
   <![endif]-->
 </head>
-<body style="margin:0;padding:0;background:#faf8f5;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-  -webkit-font-smoothing:antialiased;color:#0f172a;">
+<body style="margin:0;padding:0;background-color:#fdfbfb;background-image:linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%, #ffdde1 100%);
+  background: radial-gradient(at 0% 0%, #ffe4e6 0px, transparent 50%), radial-gradient(at 100% 0%, #e0e7ff 0px, transparent 50%), radial-gradient(at 100% 100%, #fbcfe8 0px, transparent 50%), radial-gradient(at 0% 100%, #fce7f3 0px, transparent 50%);
+  font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#0f172a;">
 
 <!-- Preheader -->
-<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#faf8f5;">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#fdfbfb;">
   {emoji} {headline} — Commande #{order_id} · {total} MAD
 </div>
 
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#faf8f5;padding:32px 16px;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px;">
   <tr><td align="center">
 
     <!-- Outer wrapper -->
     <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
 
       <!-- ═══ LOGO ═══ -->
-      <tr><td style="padding:8px 0 28px;">
+      <tr><td style="padding:8px 0 32px;">
         <table cellpadding="0" cellspacing="0" align="center"><tr>
-          <td style="width:48px;height:48px;vertical-align:middle;">
-            <img src="{logo_url}" width="48" height="48" alt="YoHa"
-              style="display:block;border-radius:14px;object-fit:contain;background:#ffffff;
-              box-shadow:0 4px 12px rgba(0,0,0,0.08);" />
+          <td style="width:56px;height:56px;vertical-align:middle;">
+            <img src="{logo_url}" width="56" height="56" alt="YoHa"
+              style="display:block;border-radius:18px;object-fit:contain;background:#ffffff;
+              box-shadow:0 8px 24px rgba(244,63,94,0.15);" />
           </td>
-          <td style="padding-left:14px;">
-            <div style="font-size:24px;font-weight:900;letter-spacing:-0.03em;
-              background:linear-gradient(135deg,#f97316,#ec4899);-webkit-background-clip:text;
+          <td style="padding-left:16px;">
+            <div style="font-size:28px;font-weight:900;letter-spacing:-0.04em;
+              background:linear-gradient(135deg,#f43f5e,#ec4899);-webkit-background-clip:text;
               -webkit-text-fill-color:transparent;background-clip:text;">YoHa</div>
-            <div style="font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:0.04em;
+            <div style="font-size:11px;color:#64748b;font-weight:800;letter-spacing:0.08em;
               text-transform:uppercase;">Campus &amp; CHU · Tanger</div>
           </td>
         </tr></table>
       </td></tr>
 
-      <!-- ═══ HERO CARD ═══ -->
-      <tr><td style="background:#ffffff;border-radius:28px;border:1px solid #f1f5f9;
-        overflow:hidden;box-shadow:0 20px 60px rgba(15,23,42,0.06),0 1px 3px rgba(15,23,42,0.04);">
+      <!-- ═══ HERO CARD (GLASSMORPHISM) ═══ -->
+      <tr><td style="background:rgba(255,255,255,0.7);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+        border-radius:36px;border-top:1px solid rgba(255,255,255,0.9);border-left:1px solid rgba(255,255,255,0.9);
+        border-right:1px solid rgba(255,255,255,0.3);border-bottom:1px solid rgba(255,255,255,0.3);
+        overflow:hidden;box-shadow:0 24px 48px rgba(15,23,42,0.08), 0 1px 3px rgba(15,23,42,0.04);">
 
-        <!-- Gradient accent bar -->
-        <div style="height:5px;background:linear-gradient(90deg,{accent},#ec4899,#8b5cf6,#10b981);
-          font-size:0;line-height:0;">&nbsp;</div>
         <table width="100%" cellpadding="0" cellspacing="0">
-
           <!-- Hero section -->
-          <tr><td style="padding:36px 32px 24px;text-align:center;position:relative;">
+          <tr><td style="padding:48px 32px 32px;text-align:center;position:relative;">
 
-            <!-- Decorative dots -->
-            <div style="position:absolute;top:20px;right:24px;width:60px;height:60px;
-              background:radial-gradient(circle,{accent}12 1px,transparent 1px);
-              background-size:8px 8px;opacity:0.6;"></div>
+            <!-- Floating Glow Orbs based on status accent -->
+            <div style="position:absolute;top:-20px;left:-20px;width:140px;height:140px;background:{accent};
+              filter:blur(80px);-webkit-filter:blur(80px);opacity:0.15;border-radius:50%;"></div>
+            <div style="position:absolute;bottom:-20px;right:-20px;width:140px;height:140px;background:#ffffff;
+              filter:blur(80px);-webkit-filter:blur(80px);opacity:0.5;border-radius:50%;"></div>
 
             <!-- Emoji badge -->
-            <div style="display:inline-block;width:72px;height:72px;border-radius:22px;
-              background:linear-gradient(135deg,{accent}15,#ec489910);line-height:72px;
-              font-size:36px;text-align:center;margin-bottom:16px;
-              box-shadow:0 8px 24px {accent}15;">{emoji}</div>
+            <div style="display:inline-block;width:88px;height:88px;border-radius:28px;
+              background:linear-gradient(135deg,#ffffff,{accent}15);line-height:88px;
+              font-size:42px;text-align:center;margin-bottom:24px;border:1px solid rgba(255,255,255,0.8);
+              box-shadow:0 12px 32px {accent}20;text-shadow:0 4px 12px rgba(0,0,0,0.1);">{emoji}</div>
 
-            <h1 style="margin:0 0 10px;font-size:28px;font-weight:900;letter-spacing:-0.03em;
-              color:#0f172a;line-height:1.15;">{headline}</h1>
-            <p style="margin:0;font-size:15px;line-height:1.65;color:#64748b;max-width:420px;
-              margin-left:auto;margin-right:auto;">Bonjour <strong style="color:#0f172a;">{name}</strong>,
+            <h1 style="margin:0 0 12px;font-size:32px;font-weight:900;letter-spacing:-0.04em;
+              color:#0f172a;line-height:1.15;text-shadow:0 2px 10px rgba(255,255,255,0.8);">{headline}</h1>
+            <p style="margin:0;font-size:16px;line-height:1.65;color:#475569;max-width:440px;font-weight:500;
+              margin-left:auto;margin-right:auto;">Bonjour <strong style="color:#0f172a;font-weight:800;">{name}</strong>,<br/>
               {body}</p>
           </td></tr>
 
           <!-- ═══ PROGRESS / STATUS BAR ═══ -->
           {progress_section_html}
-
         </table>
       </td></tr>
 
-      <!-- ═══ ORDER RECAP ═══ -->
-      <tr><td style="padding:20px 0 8px;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;
-          border-radius:22px;border:1px solid #f1f5f9;overflow:hidden;
-          box-shadow:0 8px 24px rgba(15,23,42,0.04);">
-          <tr><td style="padding:24px 24px 8px;">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
-              <div style="display:inline-block;width:8px;height:8px;border-radius:4px;
-                background:linear-gradient(135deg,{accent},#ec4899);"></div>
-              <div style="font-size:11px;font-weight:700;text-transform:uppercase;
-                letter-spacing:0.1em;color:#94a3b8;">Récapitulatif</div>
-              <div style="font-size:12px;font-weight:800;color:#0f172a;margin-left:4px;">#{order_id}</div>
+      <!-- ═══ ORDER RECAP (GLASS) ═══ -->
+      <tr><td style="padding:24px 0 16px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(255,255,255,0.65);
+          backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+          border-radius:32px;border-top:1px solid rgba(255,255,255,0.9);border-left:1px solid rgba(255,255,255,0.9);
+          border-right:1px solid rgba(255,255,255,0.3);border-bottom:1px solid rgba(255,255,255,0.3);
+          overflow:hidden;box-shadow:0 16px 40px rgba(15,23,42,0.06);">
+          <tr><td style="padding:32px 32px 16px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;">
+              <div style="display:inline-block;width:12px;height:12px;border-radius:6px;
+                background:linear-gradient(135deg,{accent},#ffffff);box-shadow:0 2px 8px {accent}60;"></div>
+              <div style="font-size:13px;font-weight:900;text-transform:uppercase;
+                letter-spacing:0.15em;color:#475569;">Récapitulatif</div>
+              <div style="font-size:14px;font-weight:900;color:#0f172a;margin-left:auto;
+                background:rgba(255,255,255,0.8);padding:4px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.9);">#{order_id}</div>
             </div>
 
             <!-- Info rows -->
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
-                <td style="font-size:13px;color:#94a3b8;padding-bottom:6px;">Restaurant</td>
-                <td align="right" style="font-size:13px;font-weight:700;color:#0f172a;padding-bottom:6px;">{restaurant}</td>
+                <td style="font-size:14px;color:#64748b;font-weight:600;padding-bottom:8px;">Restaurant</td>
+                <td align="right" style="font-size:14px;font-weight:900;color:#0f172a;padding-bottom:8px;">{restaurant}</td>
               </tr>
               <tr>
-                <td style="font-size:13px;color:#94a3b8;padding-bottom:12px;">Articles</td>
-                <td align="right" style="font-size:13px;font-weight:700;color:#0f172a;padding-bottom:12px;">{items_count}</td>
+                <td style="font-size:14px;color:#64748b;font-weight:600;padding-bottom:16px;">Articles</td>
+                <td align="right" style="font-size:14px;font-weight:900;color:#0f172a;padding-bottom:16px;">{items_count}</td>
               </tr>
             </table>
 
             <!-- Divider -->
-            <div style="height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent);
-              margin:0 0 12px;"></div>
+            <div style="height:2px;background:linear-gradient(90deg,transparent,rgba(15,23,42,0.05),transparent);
+              margin:0 0 16px;"></div>
 
             <!-- Items -->
             <table width="100%" cellpadding="0" cellspacing="0">{lines_html}</table>
 
             <!-- Total -->
-            <div style="height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent);
-              margin:12px 0;"></div>
+            <div style="height:2px;background:linear-gradient(90deg,transparent,rgba(15,23,42,0.05),transparent);
+              margin:16px 0;"></div>
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
-                <td style="font-size:15px;font-weight:800;color:#0f172a;">Total</td>
-                <td align="right" style="font-size:22px;font-weight:900;
-                  background:linear-gradient(135deg,{accent},#ec4899);-webkit-background-clip:text;
-                  -webkit-text-fill-color:transparent;background-clip:text;">{total} <span style="font-size:14px;font-weight:600;">MAD</span></td>
+                <td style="font-size:16px;font-weight:900;color:#0f172a;">Total</td>
+                <td align="right" style="font-size:26px;font-weight:900;
+                  background:linear-gradient(135deg,{accent},#0f172a);-webkit-background-clip:text;
+                  -webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.02em;">{total} <span style="font-size:16px;font-weight:800;-webkit-text-fill-color:#64748b;">MAD</span></td>
               </tr>
               {courier_row}
             </table>
@@ -307,47 +311,49 @@ def render_order_email_html(ctx: dict) -> str:
       </td></tr>
 
       <!-- ═══ CTA BUTTON ═══ -->
-      <tr><td style="padding:24px 0 8px;text-align:center;">
+      <tr><td style="padding:24px 0 16px;text-align:center;">
         {cta_button_html}
       </td></tr>
 
-      <!-- ═══ OFFERS ═══ -->
+      <!-- ═══ OFFERS (GLASS) ═══ -->
       <tr><td style="padding:16px 0 8px;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;
-          border-radius:22px;border:1px solid #f1f5f9;overflow:hidden;
-          box-shadow:0 8px 24px rgba(15,23,42,0.04);">
-          <tr><td style="padding:28px 24px 8px;">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-              <span style="font-size:20px;">🔥</span>
-              <div style="font-size:18px;font-weight:900;color:#0f172a;letter-spacing:-0.01em;">Offres du moment</div>
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(255,255,255,0.55);
+          backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+          border-radius:32px;border-top:1px solid rgba(255,255,255,0.9);border-left:1px solid rgba(255,255,255,0.9);
+          border-right:1px solid rgba(255,255,255,0.3);border-bottom:1px solid rgba(255,255,255,0.3);
+          overflow:hidden;box-shadow:0 16px 32px rgba(15,23,42,0.06);">
+          <tr><td style="padding:32px 28px 12px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+              <span style="font-size:22px;text-shadow:0 4px 12px rgba(0,0,0,0.1);">✨</span>
+              <div style="font-size:20px;font-weight:900;color:#0f172a;letter-spacing:-0.02em;">Offres du moment</div>
             </div>
-            <div style="font-size:12px;color:#94a3b8;margin-top:4px;">{offers_subtitle}</div>
+            <div style="font-size:13px;color:#64748b;margin-top:4px;font-weight:500;">{offers_subtitle}</div>
           </td></tr>
-          <tr><td style="padding:12px 12px 24px;">
+          <tr><td style="padding:12px 16px 28px;">
             <table width="100%" cellpadding="0" cellspacing="0"><tr>{offers_html}</tr></table>
           </td></tr>
-          <tr><td style="padding:0 24px 28px;text-align:center;">
+          <tr><td style="padding:0 28px 32px;text-align:center;">
             <a href="{_esc(browse_url)}" style="display:inline-block;
-              border:2px solid #f1f5f9;color:#64748b;font-size:13px;font-weight:700;
-              text-decoration:none;padding:12px 28px;border-radius:12px;
-              transition:all .2s;">Voir tous les restaurants →</a>
+              background:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.9);
+              color:#475569;font-size:14px;font-weight:800;text-decoration:none;
+              padding:14px 32px;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,0.04);">Voir tous les restaurants →</a>
           </td></tr>
         </table>
       </td></tr>
 
       <!-- ═══ FOOTER ═══ -->
-      <tr><td style="padding:40px 16px 24px;text-align:center;">
+      <tr><td style="padding:48px 16px 32px;text-align:center;">
         <!-- Divider -->
-        <div style="height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent);
-          margin:0 auto 24px;max-width:200px;"></div>
+        <div style="height:2px;background:linear-gradient(90deg,transparent,rgba(15,23,42,0.1),transparent);
+          margin:0 auto 28px;max-width:240px;"></div>
 
-        <p style="margin:0 0 6px;font-size:12px;color:#94a3b8;line-height:1.6;font-weight:500;">
+        <p style="margin:0 0 10px;font-size:12px;color:#64748b;line-height:1.6;font-weight:600;">
           YoHa · Livraison intelligente pour les résidences universitaires et les hôpitaux.
         </p>
-        <p style="margin:0 0 16px;font-size:11px;color:#cbd5e1;">
+        <p style="margin:0 0 16px;font-size:12px;color:#94a3b8;font-weight:500;">
           Conçu sur le campus, livré chez vous. 🎓
         </p>
-        <p style="margin:0;font-size:10px;color:#cbd5e1;letter-spacing:0.02em;">
+        <p style="margin:0;font-size:11px;color:#cbd5e1;letter-spacing:0.02em;font-weight:500;">
           © 2026 YoHa · Fait avec ❤️ à Tanger
         </p>
       </td></tr>
@@ -363,12 +369,12 @@ def render_order_email_text(ctx: dict) -> str:
     is_cancelled = ctx.get("status") == "cancelled" or "annul" in ctx.get("headline", "").lower()
     browse = _browse_url()
     lines = [
-        f"{ctx.get('headline', 'YoHa')} {ctx.get('emoji', '')}",
+        f"{ctx.get('headline', 'YoHa')} {ctx.get('emoji', '')} ✨",
         "",
         f"Bonjour {ctx['name']},",
         ctx["body"],
         "",
-        f"Commande : {ctx['id']}",
+        f"Commande : #{ctx['id']}",
         f"Restaurant : {ctx['restaurant']}",
         f"Total : {ctx['total']} MAD",
         "",
@@ -377,11 +383,11 @@ def render_order_email_text(ctx: dict) -> str:
         lines.append(f"Découvrir d'autres restaurants : {browse}")
     else:
         track = _tracking_url(ctx["id"])
-        lines.append(f"Suivre en direct : {track}")
+        lines.append(f"📱 Suivre ma commande en direct : {track}")
 
     lines.extend([
         "",
-        "— Offres du moment —",
+        "— ✨ Offres du moment —",
     ])
     for offer in ctx.get("offers", []):
         lines.append(f"• {offer['name']} — {offer.get('promo', '')} ({offer.get('eta', '')})")
