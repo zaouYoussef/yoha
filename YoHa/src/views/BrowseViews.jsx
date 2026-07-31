@@ -1867,9 +1867,16 @@ export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = f
   );
 }
 
+const SERVICE_CUISINES = ['pharmacy', 'parapharmacy', 'dessert', 'patisserie', 'supermarket', 'shop'];
+
+function isServiceStore(r) {
+  return SERVICE_CUISINES.includes(r.cuisine) && !r.isCustomRequest;
+}
+
 export function RestaurantCard({ restaurant, onClick }) {
   const open = isRestaurantOpen(restaurant);
   const isDuty = restaurant.isDutyPharmacy;
+  const isService = isServiceStore(restaurant);
 
   return (
     <div
@@ -1948,7 +1955,7 @@ export function RestaurantCard({ restaurant, onClick }) {
           ) : (
             <>
               <span className="truncate">{formatTags(restaurant.tags, ' • ')}</span>
-              {!restaurant.isCustomRequest && (
+              {!restaurant.isCustomRequest && !isDuty && !isService && (
                 <span className="shrink-0 px-1.5 py-0.5 rounded bg-white/10 text-white/70 text-[10px] font-bold">
                   Sponsorisé
                 </span>
@@ -1977,6 +1984,18 @@ export function RestaurantCard({ restaurant, onClick }) {
               </span>
               <span className="flex-1" />
               <span className="hidden sm:inline-flex items-center gap-0.5 font-bold text-brand-400 shrink-0">
+                Commander <I.Right size={12} />
+              </span>
+            </>
+          ) : isService ? (
+            <>
+              <span className="flex items-center gap-1 text-white/70 min-w-0">
+                <I.MapPin size={12} className="text-white/50 shrink-0" />
+                <span className="truncate">{restaurant.distance}</span>
+              </span>
+              <span className="font-bold text-amber-400 shrink-0">20 MAD de livraison</span>
+              <span className="flex-1" />
+              <span className="inline-flex items-center gap-0.5 font-bold text-emerald-400 shrink-0">
                 Commander <I.Right size={12} />
               </span>
             </>
