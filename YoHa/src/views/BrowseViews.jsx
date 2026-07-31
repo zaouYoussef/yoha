@@ -98,7 +98,7 @@ function pharmacyCoverFor(key) {
 }
 
 /** Transforme une pharmacie de garde (API) en objet affichable comme une carte. */
-function toDutyPharmacyItem(p) {
+export function toDutyPharmacyItem(p) {
   const guard = p.guard === '24h' ? '24h' : p.guard || '24h';
   return {
     id: `duty-${p.slug || p.id}`,
@@ -110,7 +110,9 @@ function toDutyPharmacyItem(p) {
     isDutyPharmacy: true,
     isOpen: true,
     rating: 4.9,
+    logo: '💊',
     cover: pharmacyCoverFor(p.slug || String(p.id)),
+    description: 'Pharmacie de garde. Dites-nous ce que vous cherchez, notre livreur s\u2019occupe de tout !',
     tags: [`Garde ${guard}`],
     distance: p.address || '',
     address: p.address || '',
@@ -645,13 +647,9 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 <EmptyState catalogEmpty={catalog.length === 0} filter={filter || search} onShowAll={() => { setFilter('all'); setSearch(''); }} />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                  {displayedList.map((r) =>
-                    r.isDutyPharmacy ? (
-                      <DutyPharmacyCard key={r.id} pharmacy={r} />
-                    ) : (
-                      <RestaurantCard key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                    ),
-                  )}
+                  {displayedList.map((r) => (
+                    <RestaurantCard key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
+                  ))}
                 </div>
               )}
             </section>
@@ -1205,6 +1203,8 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
 
   const tags = Array.isArray(r.tags) ? r.tags : [];
   const totalItems = (r.menu || []).reduce((s, c) => s + (c.items?.length || 0), 0);
+  const isDuty = r.isDutyPharmacy;
+  const dutyHoursFr = (r.hoursLabel || '').split('حراسة')[0].trim();
 
   const scrollToCat = (cat) => {
     setActiveCat(cat);
@@ -1299,12 +1299,22 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                   </span>
                 </div>
                 <span className="text-xs text-ink-500">Livraison {r.fee || '0,00'} MAD</span>
+                {isDuty && r.phone && (
+                  <a
+                    href={`tel:${r.phone.replace(/\s/g, '')}`}
+                    className="ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500 text-white text-xs font-bold shadow-md hover:bg-emerald-600 transition-colors"
+                  >
+                    <I.Phone size={12} /> {r.phone}
+                  </a>
+                )}
               </div>
             </div>
           </div>
           {r.description && (
             <p className="mt-3 text-sm text-ink-500 dark:text-ink-400 leading-relaxed">
-              {r.name}, disponible en livraison directement chez vous ! {CUISINE_ICONS[r.cuisine] || '🍽️'} 🚴‍♂️
+              {isDuty && dutyHoursFr
+                ? dutyHoursFr
+                : `${r.name}, disponible en livraison directement chez vous ! ${CUISINE_ICONS[r.cuisine] || '🍽️'} 🚴‍♂️`}
             </p>
           )}
         </div>
@@ -1401,12 +1411,43 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
               📝 Commander sur-mesure
             </h2>
             <p className="text-sm text-ink-500 leading-relaxed mb-6">
-              {r.cuisine === 'pharmacy' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
-               r.cuisine === 'parapharmacy' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
-               r.cuisine === 'supermarket' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
-               r.cuisine === 'shop' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
-               "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !"}
+              {isDuty
+                ? "Commandez vos médicaments depuis cette pharmacie de garde, notre livreur s'occupe de tout !"
+                : r.cuisine === 'pharmacy' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
+                   r.cuisine === 'parapharmacy' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
+                   r.cuisine === 'supermarket' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
+                   r.cuisine === 'shop' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
+                   "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !"}
             </p>
+
+            {isDuty && (
+              <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-500/25 bg-emerald-50 dark:bg-emerald-500/5 p-4 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-green-600 text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
+                    🕐 {r.guard === '24h' ? 'Garde 24H' : 'Pharmacie de garde'}
+                  </span>
+                  {r.phone && (
+                    <a href={`tel:${r.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                      <I.Phone size={12} /> {r.phone}
+                    </a>
+                  )}
+                </div>
+                <div className="flex items-start gap-2">
+                  <I.MapPin size={13} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                  <p className="text-xs text-ink-700 dark:text-ink-200 leading-relaxed">{r.address}</p>
+                </div>
+                {r.addressAr && (
+                  <p className="text-[11px] text-ink-500 dark:text-ink-400 leading-relaxed" dir="rtl">
+                    {r.addressAr}
+                  </p>
+                )}
+                {dutyHoursFr && (
+                  <p className="text-[11px] text-ink-500 dark:text-ink-400 leading-relaxed border-t border-emerald-100 dark:border-emerald-500/15 pt-2">
+                    🕐 {dutyHoursFr}
+                  </p>
+                )}
+              </div>
+            )}
 
             <form onSubmit={(e) => {
               e.preventDefault();
@@ -1419,10 +1460,13 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 return;
               }
 
+              const targetStoreName = r.isCustomRequest ? storeName.trim() : r.name;
+              const targetStoreAddress = r.isCustomRequest ? storeAddress.trim() : (isDuty ? r.address : r.distance);
+
               const customItem = {
                 id: `custom-${r.id}-${Date.now()}`,
-                name: r.isCustomRequest
-                  ? `[${storeName.trim()}] ${orderDetails.trim()}`
+                name: r.isCustomRequest || isDuty
+                  ? `[${targetStoreName}] ${orderDetails.trim()}`
                   : `${r.name} - ${orderDetails.trim()}`,
                 price: 0,
                 img: r.cuisine === 'pharmacy' ? '/media/restaurants/custom-pharmacy.webp' :
@@ -1431,17 +1475,17 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                      r.cuisine === 'shop' ? '/media/restaurants/custom-shop.webp' :
                      '/media/restaurants/custom-patisserie.webp',
                 restaurantId: r.id,
-                restaurantName: r.isCustomRequest ? storeName.trim() : r.name,
+                restaurantName: targetStoreName,
                 restaurantCuisine: r.cuisine,
                 isCustom: true,
                 customDetails: {
-                  storeName: r.isCustomRequest ? storeName.trim() : r.name,
-                  storeAddress: r.isCustomRequest ? storeAddress.trim() : r.distance,
+                  storeName: targetStoreName,
+                  storeAddress: targetStoreAddress,
                   details: orderDetails.trim()
                 }
               };
 
-              onAdd(customItem, { id: r.id, name: r.isCustomRequest ? storeName.trim() : r.name });
+              onAdd(customItem, { id: r.id, name: targetStoreName });
               setOrderDetails('');
               if (r.isCustomRequest) {
                 setStoreName('');
@@ -1658,89 +1702,9 @@ export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = f
   );
 }
 
-/** Texture discrète de croix médicales (5 % d'opacité) pour les cartes de garde. */
-const MEDICAL_CROSS_PATTERN = `url("data:image/svg+xml,${encodeURIComponent(
-  `<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56'><path d='M28 18v20M18 28h20' stroke='#16a34a' stroke-width='2' fill='none'/></svg>`,
-)}")`;
-
-export function DutyPharmacyCard({ pharmacy }) {
-  const hoursFr = (pharmacy.hoursLabel || '').split('حراسة')[0].trim();
-  const guardLabel = hoursFr || `Garde ${pharmacy.guard === '24h' ? '24h' : pharmacy.guard}`;
-
-  return (
-    <div className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-ink-950 via-slate-900 to-ink-950 text-white shadow-xl border border-emerald-500/30 hover:border-emerald-400/50 hover:shadow-[0_25px_60px_rgba(16,185,129,0.18)] hover:-translate-y-1 transition-all duration-500 flex flex-col h-full">
-
-      {/* Glows décoratifs */}
-      <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -left-10 -bottom-10 w-36 h-36 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-
-      {/* Bandeau horaires de garde — en haut, pour toutes les pharmacies */}
-      <div className="relative flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-emerald-500/[0.12] border-b border-emerald-500/20 backdrop-blur-sm">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-        <I.Clock size={12} className="text-emerald-400 shrink-0" />
-        <span className="text-[10.5px] sm:text-xs font-bold text-emerald-300 leading-tight truncate">
-          {guardLabel}
-        </span>
-      </div>
-
-      <div className="relative p-5 sm:p-6 flex-1 flex flex-col">
-        {/* Header : image + statut */}
-        <div className="flex items-start justify-between gap-3">
-          <img
-            src={restaurantCover(pharmacy.cover)}
-            alt={pharmacy.name}
-            loading="lazy"
-            className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl object-cover ring-2 ring-white/10 shadow-lg shrink-0 group-hover:scale-105 transition-transform duration-500"
-          />
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 text-[10px] font-black uppercase tracking-wider border border-emerald-500/20 shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Ouvert
-          </span>
-        </div>
-
-        {/* Nom */}
-        <h3 className="mt-3.5 font-display font-black text-lg sm:text-xl text-white leading-tight truncate">
-          {pharmacy.name}
-        </h3>
-        {pharmacy.nameAr && (
-          <p className="mt-0.5 text-xs font-semibold text-white/40 truncate" dir="rtl">
-            {pharmacy.nameAr}
-          </p>
-        )}
-
-        {/* Adresse */}
-        <div className="mt-3.5 flex items-start gap-2">
-          <I.MapPin size={13} className="text-white/40 shrink-0 mt-0.5" />
-          <p className="text-xs text-white/60 leading-relaxed line-clamp-2">{pharmacy.address}</p>
-        </div>
-        {pharmacy.addressAr && (
-          <p className="mt-1 pl-5 text-[10.5px] text-white/30 leading-relaxed line-clamp-1" dir="rtl">
-            {pharmacy.addressAr}
-          </p>
-        )}
-
-        {/* Téléphone — texte simple, plus petit, sans bouton */}
-        {pharmacy.phone && (
-          <div className="mt-2.5 flex items-center gap-2">
-            <I.Phone size={11} className="text-white/35 shrink-0" />
-            <span className="text-[11px] text-white/45 font-medium">{pharmacy.phone}</span>
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="mt-auto pt-4">
-          <div className="h-px bg-white/[0.06] mb-3.5" />
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.06] text-white/70 text-[10px] font-bold border border-white/10">
-            🕐 {pharmacy.guard === '24h' ? 'Garde 24H' : 'Pharmacie de garde'}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function RestaurantCard({ restaurant, onClick }) {
   const open = isRestaurantOpen(restaurant);
+  const isDuty = restaurant.isDutyPharmacy;
 
   return (
     <div
@@ -1774,7 +1738,11 @@ export function RestaurantCard({ restaurant, onClick }) {
 
       {/* Pastilles en haut */}
       <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-4 z-10">
-        {restaurant.isCustomRequest ? (
+        {restaurant.isDutyPharmacy ? (
+          <span className="px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-md animate-pulse-slow">
+            🕐 GARDE {restaurant.guard === '24h' ? '24H' : 'DE GARDE'}
+          </span>
+        ) : restaurant.isCustomRequest ? (
           <span className="px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-md animate-pulse">
             ✨ SUR-MESURE (+20 MAD)
           </span>
@@ -1795,24 +1763,52 @@ export function RestaurantCard({ restaurant, onClick }) {
         <h3 className="font-display font-extrabold text-lg sm:text-xl truncate transition-colors group-hover:text-brand-400">
           {restaurant.name}
         </h3>
+        {isDuty && restaurant.nameAr && (
+          <p className="mt-0.5 text-[11px] sm:text-xs font-semibold text-white/55 truncate" dir="rtl">
+            {restaurant.nameAr}
+          </p>
+        )}
         <div className="mt-1 flex items-center gap-1.5 text-[11px] sm:text-xs text-white/70 truncate">
           <span className="truncate">{formatTags(restaurant.tags, ' • ')}</span>
-          <span className="shrink-0 px-1.5 py-0.5 rounded bg-white/10 text-white/70 text-[10px] font-bold">
-            Sponsorisé
-          </span>
+          {isDuty && restaurant.phone && (
+            <>
+              <span className="text-white/25 shrink-0">·</span>
+              <span className="truncate shrink-0">{restaurant.phone}</span>
+            </>
+          )}
+          {!isDuty && (
+            <span className="shrink-0 px-1.5 py-0.5 rounded bg-white/10 text-white/70 text-[10px] font-bold">
+              Sponsorisé
+            </span>
+          )}
         </div>
 
         <div className="mt-3 sm:mt-4 flex items-center gap-3 border-t border-white/[0.12] pt-3 text-[11px] sm:text-xs">
-          <span className="flex items-center gap-1 text-white/70">
-            <I.MapPin size={12} className="text-white/50" /> {restaurant.distance}
-          </span>
-          <span className="text-white/20">|</span>
-          <span className="line-through text-white/40">19,99 MAD</span>
-          <span className="font-bold text-emerald-400">0,00 MAD livraison</span>
-          <span className="flex-1" />
-          <span className="hidden sm:inline-flex items-center gap-0.5 font-bold text-brand-400 shrink-0">
-            Voir le menu <I.Right size={12} />
-          </span>
+          {isDuty ? (
+            <>
+              <span className="flex items-center gap-1 text-white/70 min-w-0">
+                <I.MapPin size={12} className="text-white/50 shrink-0" />
+                <span className="truncate">{restaurant.address || restaurant.distance}</span>
+              </span>
+              <span className="flex-1" />
+              <span className="inline-flex items-center gap-0.5 font-bold text-emerald-400 shrink-0">
+                Commander <I.Right size={12} />
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="flex items-center gap-1 text-white/70">
+                <I.MapPin size={12} className="text-white/50" /> {restaurant.distance}
+              </span>
+              <span className="text-white/20">|</span>
+              <span className="line-through text-white/40">19,99 MAD</span>
+              <span className="font-bold text-emerald-400">0,00 MAD livraison</span>
+              <span className="flex-1" />
+              <span className="hidden sm:inline-flex items-center gap-0.5 font-bold text-brand-400 shrink-0">
+                Voir le menu <I.Right size={12} />
+              </span>
+            </>
+          )}
         </div>
       </div>
     </div>

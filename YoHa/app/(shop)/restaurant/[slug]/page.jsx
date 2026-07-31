@@ -2,10 +2,10 @@
 
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { RestaurantPage } from '@/views/BrowseViews.jsx';
+import { RestaurantPage, toDutyPharmacyItem } from '@/views/BrowseViews.jsx';
 import { useYohaNav } from '@/contexts/YohaNavContext.jsx';
 import { useCart } from '@/contexts/AppContexts.jsx';
-import { restaurantsApi } from '@/lib/api';
+import { restaurantsApi, pharmaciesApi } from '@/lib/api';
 import { STATIC_STORES } from '@/data/index.js';
 
 export default function RestaurantRoutePage() {
@@ -26,6 +26,35 @@ export default function RestaurantRoutePage() {
     if (staticStore) {
       setRestaurant(staticStore);
       return;
+    }
+
+    // Pharmacy de garde (id = duty-<slug>)
+    if (decodedSlug.startsWith('duty-')) {
+      const pharmacySlug = decodedSlug.replace(/^duty-/, '');
+      pharmaciesApi
+        .duty()
+        .then((list) => {
+          if (cancelled) return;
+          const found = (Array.isArray(list) ? list : []).find((p) => String(p.slug) === pharmacySlug);
+          if (found) {
+            setRestaurant(toDutyPharmacyItem(found));
+            return;
+          }
+          return pharmaciesApi
+            .get(pharmacySlug)
+            .then((p) => {
+              if (!cancelled) setRestaurant(toDutyPharmacyItem(p));
+            })
+            .catch(() => {
+              if (!cancelled) setError('Pharmacie introuvable.');
+            });
+        })
+        .catch(() => {
+          if (!cancelled) setError('Pharmacie introuvable.');
+        });
+      return () => {
+        cancelled = true;
+      };
     }
 
     restaurantsApi
