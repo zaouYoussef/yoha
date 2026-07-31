@@ -8,13 +8,16 @@ import { useAuth } from '../../src/contexts/AuthContext';
 import { useRestaurantMe } from '../../src/hooks/useRestaurantMe';
 import { useLayoutChrome } from '../../src/lib/layoutChrome';
 import { resolveImageUrl } from '../../src/lib/resolveImageUrl';
+import { normalizeOpeningHours, type OpeningHoursMap } from '../../src/lib/openingHours';
 import { accent, line, radius, surface, text as palette } from '../../src/theme';
 import { Screen } from '../../src/components/yoha/Screen';
 import { Body, Display, Label } from '../../src/components/yoha/Type';
 import { Hairline, Pill } from '../../src/components/yoha/Atoms';
 import { LivePulse } from '../../src/components/yoha/Motion';
-import { OutlineButton } from '../../src/components/yoha/EmberButton';
+import { EmberButton, OutlineButton } from '../../src/components/yoha/EmberButton';
 import { OpsAction, OpsCard, OpsField, OpsHeader } from '../../src/components/yoha/Ops';
+import { Sheet } from '../../src/components/yoha/Sheet';
+import { RestoOpeningHoursEditor } from '../../src/components/restaurant-dash/RestoOpeningHoursEditor';
 
 export default function RestaurantProfile() {
   const { logout } = useAuth();
@@ -25,8 +28,18 @@ export default function RestaurantProfile() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  const [showHours, setShowHours] = useState(false);
+  const [hours, setHours] = useState<OpeningHoursMap | null>(null);
+  const [savingHours, setSavingHours] = useState(false);
+
   useEffect(() => {
     if (restaurant) setOpen(restaurant.isOpen !== false);
+  }, [restaurant]);
+
+  useEffect(() => {
+    if (restaurant?.openingHours) {
+      setHours(normalizeOpeningHours(restaurant.openingHours));
+    }
   }, [restaurant]);
 
   /* Le seul réglage vraiment urgent en cuisine : couper les commandes. */
@@ -47,6 +60,19 @@ export default function RestaurantProfile() {
     },
     [refresh],
   );
+
+  const saveHours = useCallback(async () => {
+    if (!hours) return;
+    setSavingHours(true);
+    try {
+      await restaurantsApi.updateMe({ opening_hours: hours });
+      setShowHours(false);
+      await refresh();
+    } catch {
+    } finally {
+      setSavingHours(false);
+    }
+  }, [hours, refresh]);
 
   return (
     <Screen>
@@ -119,18 +145,12 @@ export default function RestaurantProfile() {
           </OpsCard>
 
           <OpsCard>
-            <Label tone="dim">Gestion de la carte</Label>
+            <Label tone="dim">Horaires d'ouverture</Label>
             <Body size="small" tone="fog" style={{ marginTop: 8 }}>
-              Les plats, les photos et les prix se modifient depuis le dashboard web — l'écran y est
-              plus large et les images se téléversent mieux.
+              Définis les plages horaires pour chaque jour de la semaine.
             </Body>
-            <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
-              <OpsAction
-                label="Ouvrir le dashboard"
-                glyph="forward"
-                tone="ember"
-                onPress={() => void Linking.openURL('https://yoha-ten.vercel.app/dashboard')}
-              />
+            <View style={{ marginTop: 14 }}>
+              <OpsAction label="Modifier les horaires" glyph="clock" onPress={() => setShowHours(true)} />
             </View>
           </OpsCard>
 
@@ -167,6 +187,31 @@ export default function RestaurantProfile() {
           />
         </View>
       </ScrollView>
+
+      <Sheet visible={showHours} onClose={() => setShowHours(false)} maxHeightRatio={0.95}>
+        <View style={{ paddingHorizontal: 18, gap: 14 }}>
+          <Display size="h2">Horaires</Display>
+          <Body size="small" tone="fog">
+            Modifie les plages horaires pour chaque jour. Les clients ne peuvent commander que
+            pendant ces créneaux.
+          </Body>
+          {hours ? (
+            <RestoOpeningHoursEditor
+              value={hours}
+              onChange={setHours}
+              disabled={savingHours}
+            />
+          ) : null}
+          <View style={{ marginTop: 10 }}>
+            <EmberButton
+              label={savingHours ? 'Enregistrement…' : 'Enregistrer'}
+              loading={savingHours}
+              disabled={savingHours}
+              onPress={() => void saveHours()}
+            />
+          </View>
+        </View>
+      </Sheet>
     </Screen>
   );
 }

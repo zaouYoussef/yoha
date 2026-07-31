@@ -1,68 +1,95 @@
-import { router } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { PrimaryButton } from '../../src/components/PrimaryButton';
-import { PremiumBackground } from '../../src/components/PremiumBackground';
+import { Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { useAuth } from '../../src/contexts/AuthContext';
-import { brand, ink, radius, shadows } from '../../src/theme';
-import { fonts } from '../../src/theme/fonts';
+import { useLayoutChrome } from '../../src/lib/layoutChrome';
+import { line, radius, surface } from '../../src/theme';
+import { Screen } from '../../src/components/yoha/Screen';
+import { Body, Display, Label, Money } from '../../src/components/yoha/Type';
+import { Hairline } from '../../src/components/yoha/Atoms';
+import { OutlineButton } from '../../src/components/yoha/EmberButton';
+import { OpsAction, OpsCard, OpsField, OpsHeader } from '../../src/components/yoha/Ops';
 
-/** Écran profil livreur (hors tab bar, comme sur le web). */
 export default function CourierProfile() {
-  const insets = useSafeAreaInsets();
   const { user, logout } = useAuth();
+  const { scrollBottomPadding } = useLayoutChrome();
 
   return (
-    <PremiumBackground variant="cream">
-      <View style={[styles.wrap, { paddingTop: insets.top + 24 }]}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>🛵</Text>
-        </View>
-        <Text style={styles.name}>{user?.displayName}</Text>
-        <Text style={styles.email}>{user?.email}</Text>
+    <Screen>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
+      >
+        <OpsHeader kicker="Compte" title="Profil" tone="violet" />
 
-        <View style={[styles.card, shadows.card]}>
-          <Text style={styles.cardTitle}>Dashboard livreur YoHa</Text>
-          <Text style={styles.cardLine}>Confirmez les courses, récupérez, livrez.</Text>
-        </View>
+        <View style={{ paddingHorizontal: 18, marginTop: 20, gap: 12 }}>
+          <OpsCard accented tone="violet">
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+              <View
+                style={{
+                  width: 58,
+                  height: 58,
+                  borderRadius: radius.md,
+                  backgroundColor: surface.smoke,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Display size="h2">🛵</Display>
+              </View>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Display size="h3" numberOfLines={1}>
+                  {user?.displayName ?? 'Livreur'}
+                </Display>
+                <Body size="caption" tone="dim" numberOfLines={1} style={{ marginTop: 3 }}>
+                  {user?.email ?? '—'}
+                </Body>
+              </View>
+            </View>
+          </OpsCard>
 
-        <PrimaryButton
-          title="Se déconnecter"
-          onPress={async () => {
-            await logout();
-            router.replace('/auth/login' as never);
-          }}
-          variant="ghost"
-          style={{ marginTop: 24, alignSelf: 'stretch' }}
-        />
-      </View>
-    </PremiumBackground>
+          <OpsCard>
+            <Label tone="dim">Dashboard livreur</Label>
+            <Body size="small" tone="fog" style={{ marginTop: 8 }}>
+              Confirme les courses, récupère les commandes, livre. Ton historique et tes gains sont
+              visibles dans l'onglet précédent.
+            </Body>
+          </OpsCard>
+
+          <View
+            style={{
+              padding: 14,
+              borderRadius: radius.xl,
+              backgroundColor: surface.soot,
+              borderWidth: StyleSheet.hairlineWidth,
+              borderColor: line.hair,
+            }}
+          >
+            <Label tone="dim">Support YoHa</Label>
+            <Hairline style={{ marginVertical: 12 }} />
+            <Body size="small" tone="fog">
+              Un problème avec une course, un client injoignable, une urgence : appelle le support.
+            </Body>
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
+              <OpsAction
+                label="Appeler le support"
+                glyph="phone"
+                onPress={() => void Linking.openURL('tel:+212600000000')}
+              />
+            </View>
+          </View>
+
+          <OutlineButton
+            label="Se déconnecter"
+            tone="violet"
+            onPress={() => {
+              void logout();
+              router.replace('/landing');
+            }}
+          />
+        </View>
+      </ScrollView>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: { flex: 1, paddingHorizontal: 24, alignItems: 'center' },
-  avatar: {
-    width: 88,
-    height: 88,
-    borderRadius: 28,
-    backgroundColor: '#8b5cf6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: { fontSize: 40 },
-  name: { marginTop: 16, fontSize: 24, fontFamily: fonts.extrabold, color: ink[900] },
-  email: { marginTop: 4, fontSize: 15, fontFamily: fonts.medium, color: ink[500] },
-  card: {
-    marginTop: 32,
-    width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: radius.lg,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: ink[100],
-  },
-  cardTitle: { fontSize: 16, fontFamily: fonts.extrabold, color: ink[900], marginBottom: 8 },
-  cardLine: { fontSize: 14, fontFamily: fonts.medium, color: ink[600] },
-});

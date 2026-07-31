@@ -40,7 +40,7 @@ export default function CourierHistory() {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            tintColor={accent.ember}
+            tintColor={accent.violet}
             onRefresh={async () => {
               setRefreshing(true);
               await refresh();
@@ -49,12 +49,12 @@ export default function CourierHistory() {
           />
         }
       >
-        <OpsHeader kicker={courier?.name ?? 'Livreur'} title="Historique" />
+        <OpsHeader kicker={courier?.name ?? 'Livreur'} title="Historique" tone="violet" />
 
         <StatStrip
           items={[
             { label: "Aujourd'hui", value: String(today.count) },
-            { label: 'Gagné ce jour', value: '', money: today.totalMad, tone: 'ember' },
+            { label: 'Gagné ce jour', value: '', money: today.totalMad, tone: 'violet' },
             { label: 'Total courses', value: String(delivered.length) },
           ]}
         />
@@ -91,7 +91,7 @@ export default function CourierHistory() {
           />
         ) : (
           <>
-            <SectionHeader kicker="Terminé" title="Courses livrées" />
+            <SectionHeader kicker="Terminé" title="Courses livrées" tone="violet" />
             <View style={{ paddingHorizontal: 18 }}>
               {delivered.map((o, i) => (
                 <Rise key={o.id} delay={Math.min(i, 8) * 35}>

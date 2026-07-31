@@ -9,6 +9,7 @@ export default function RestaurantLayout() {
     <RestaurantOrderAlertPoller />
     <Tabs tabBar={(props) => <YohaTabBar {...props} />} screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="index" options={{ title: 'Commandes' }} />
+      <Tabs.Screen name="menu" options={{ title: 'Carte' }} />
       <Tabs.Screen name="stats" options={{ title: 'Stats' }} />
       <Tabs.Screen name="profile" options={{ title: 'Profil' }} />
     </Tabs>

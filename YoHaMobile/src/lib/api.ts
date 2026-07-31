@@ -513,6 +513,20 @@ export const restaurantsApi = {
   },
 };
 
+export const reviewsApi = {
+  async create(data: { order_id: string; rating: number; comment?: string }) {
+    return apiFetch('/orders/reviews/', { method: 'POST', body: data, auth: false });
+  },
+
+  async list(params: { search?: string; rating?: string } = {}) {
+    const q = new URLSearchParams();
+    if (params.search) q.set('search', params.search);
+    if (params.rating) q.set('rating', params.rating);
+    const query = q.toString();
+    return apiFetch(`/orders/reviews/${query ? `?${query}` : ''}`, { auth: false });
+  },
+};
+
 export const ordersApi = {
   async list() {
     const raw = unwrapList(await apiFetch('/orders/'));

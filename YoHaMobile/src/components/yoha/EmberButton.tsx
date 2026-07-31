@@ -22,6 +22,7 @@ export function EmberButton({
   loading,
   style,
   sweep = true,
+  tone = 'ember',
 }: {
   label: string;
   price?: number;
@@ -31,6 +32,7 @@ export function EmberButton({
   loading?: boolean;
   style?: ViewStyle;
   sweep?: boolean;
+  tone?: 'ember' | 'violet';
 }) {
   const s = useRef(new Animated.Value(1)).current;
 
@@ -40,7 +42,9 @@ export function EmberButton({
   const inert = disabled || loading;
 
   return (
-    <Animated.View style={[{ transform: [{ scale: s }] }, !inert && shadows.emberGlow, style]}>
+    <Animated.View
+      style={[{ transform: [{ scale: s }] }, !inert && (tone === 'violet' ? shadows.violetGlow : shadows.emberGlow), style]}
+    >
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ disabled: !!inert }}
@@ -54,7 +58,7 @@ export function EmberButton({
         style={{ borderRadius: radius.lg, overflow: 'hidden', opacity: disabled ? 0.4 : 1 }}
       >
         <LinearGradient
-          colors={gradients.cta}
+          colors={tone === 'violet' ? gradients.violetCta : gradients.cta}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{
@@ -94,10 +98,12 @@ export function OutlineButton({
   label,
   onPress,
   style,
+  tone = 'ember',
 }: {
   label: string;
   onPress: () => void;
   style?: ViewStyle;
+  tone?: 'ember' | 'violet';
 }) {
   return (
     <Pressable
@@ -107,7 +113,7 @@ export function OutlineButton({
         {
           borderRadius: radius.lg,
           borderWidth: StyleSheet.hairlineWidth * 2,
-          borderColor: pressed ? accent.ember : line.soft,
+          borderColor: pressed ? accent[tone] : line.soft,
           paddingVertical: 16,
           alignItems: 'center',
         },

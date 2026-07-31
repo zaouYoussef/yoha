@@ -16,15 +16,17 @@ export function OpsHeader({
   kicker,
   title,
   live,
+  tone = 'ember',
 }: {
   kicker: string;
   title: string;
   live?: string;
+  tone?: 'ember' | 'violet';
 }) {
   return (
     <View style={{ paddingHorizontal: 18, paddingTop: 8 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <Label tone="ember">{kicker}</Label>
+        <Label tone={tone}>{kicker}</Label>
         {live ? (
           <>
             <View style={{ flex: 1 }} />
@@ -44,7 +46,7 @@ export function OpsHeader({
 export function StatStrip({
   items,
 }: {
-  items: Array<{ label: string; value: string; money?: number; tone?: 'ember' | 'mint' }>;
+  items: Array<{ label: string; value: string; money?: number; tone?: 'ember' | 'mint' | 'violet' }>;
 }) {
   return (
     <View style={{ flexDirection: 'row', gap: 10, paddingHorizontal: 18, marginTop: 18 }}>
@@ -57,7 +59,8 @@ export function StatStrip({
             borderRadius: radius.lg,
             backgroundColor: surface.ash,
             borderWidth: StyleSheet.hairlineWidth,
-            borderColor: it.tone === 'ember' ? line.ember : line.hair,
+            borderColor:
+              it.tone === 'ember' ? line.ember : it.tone === 'violet' ? line.violet : line.hair,
           }}
         >
           {typeof it.money === 'number' ? (
@@ -79,10 +82,12 @@ export function StatStrip({
 export function OpsCard({
   children,
   accented,
+  tone = 'ember',
   style,
 }: {
   children: React.ReactNode;
   accented?: boolean;
+  tone?: 'ember' | 'violet';
   style?: ViewStyle;
 }) {
   return (
@@ -93,7 +98,7 @@ export function OpsCard({
           borderRadius: radius.xl,
           backgroundColor: surface.soot,
           borderWidth: StyleSheet.hairlineWidth,
-          borderColor: accented ? line.ember : line.hair,
+          borderColor: accented ? (tone === 'violet' ? line.violet : line.ember) : line.hair,
         },
         style,
       ]}
@@ -129,10 +134,11 @@ export function OpsAction({
   label: string;
   glyph?: React.ComponentProps<typeof Glyph>['name'];
   onPress: () => void;
-  tone?: 'neutral' | 'ember' | 'mint';
+  tone?: 'neutral' | 'ember' | 'mint' | 'violet';
   disabled?: boolean;
 }) {
-  const color = tone === 'ember' ? accent.ember : tone === 'mint' ? accent.mint : undefined;
+  const color =
+    tone === 'ember' ? accent.ember : tone === 'mint' ? accent.mint : tone === 'violet' ? accent.violet : undefined;
   return (
     <Pressable
       accessibilityRole="button"
@@ -155,7 +161,15 @@ export function OpsAction({
       <Body
         size="caption"
         weight="semibold"
-        tone={tone === 'ember' ? 'ember' : tone === 'mint' ? 'mint' : 'bone'}
+        tone={
+          tone === 'ember'
+            ? 'ember'
+            : tone === 'mint'
+              ? 'mint'
+              : tone === 'violet'
+                ? 'violet'
+                : 'bone'
+        }
       >
         {label}
       </Body>

@@ -103,7 +103,7 @@ export default function CourierMine() {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            tintColor={accent.ember}
+            tintColor={accent.violet}
             onRefresh={async () => {
               setRefreshing(true);
               await refresh();
@@ -116,6 +116,7 @@ export default function CourierMine() {
           kicker="En main"
           title="Mes courses"
           live={mine.length ? `${mine.length} active` : undefined}
+          tone="violet"
         />
 
         {loading && !orders.length ? (
@@ -164,7 +165,7 @@ function ActiveMission({
   const wa = whatsAppUrl(order.customer?.phone, buildOrderCopyText(order));
 
   return (
-    <OpsCard accented>
+    <OpsCard accented tone="violet">
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <Pill tone="mint">{`#${order.id}`}</Pill>
         <View style={{ flex: 1 }} />
@@ -176,7 +177,7 @@ function ActiveMission({
       </Display>
 
       <View style={{ marginTop: 12, width: 120 }}>
-        <StepBar total={3} current={next?.step ?? 2} />
+        <StepBar total={3} current={next?.step ?? 2} tone="violet" />
       </View>
 
       <Body size="caption" tone="dim" style={{ marginTop: 8 }}>
@@ -209,9 +210,10 @@ function ActiveMission({
       {next ? (
         <View style={{ marginTop: 10 }}>
           <EmberButton
-            label={busy ? 'Envoi…' : next.label}
+            label={busy ? 'Envoi.' : next.label}
             loading={busy}
             disabled={busy}
+            tone="violet"
             onPress={onAdvance}
           />
         </View>

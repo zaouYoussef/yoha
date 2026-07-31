@@ -3,7 +3,7 @@ import { StyleSheet, Text, type TextProps, type TextStyle } from 'react-native';
 import { text as palette, typography } from '../../theme';
 import { fonts } from '../../theme/fonts';
 
-type Tone = 'bone' | 'fog' | 'dim' | 'ember' | 'mint' | 'saffron' | 'void';
+type Tone = 'bone' | 'fog' | 'dim' | 'ember' | 'mint' | 'saffron' | 'violet' | 'void';
 
 const TONES: Record<Tone, string> = {
   bone: palette.bone,
@@ -12,6 +12,7 @@ const TONES: Record<Tone, string> = {
   ember: '#ff5a1f',
   mint: '#4ade9b',
   saffron: '#f5c451',
+  violet: '#8b5cf6',
   void: palette.onEmber,
 };
 

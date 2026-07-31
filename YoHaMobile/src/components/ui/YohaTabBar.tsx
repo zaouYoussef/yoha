@@ -39,11 +39,12 @@ function resolveGroup(segments: string[]): 'client' | 'courier' | 'restaurant' |
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function YohaTabBar({ state, navigation }: any) {
+export function YohaTabBar({ state, navigation, tone = 'ember' }: any) {
   const insets = useSafeAreaInsets();
   const segments = useSegments() as string[];
   const group = resolveGroup(segments) ?? 'client';
   const { count } = useCart();
+  const accentColor = (accent as Record<string, string>)[tone] ?? accent.ember;
 
   const visible =
     group === 'courier'
@@ -100,7 +101,7 @@ export function YohaTabBar({ state, navigation }: any) {
               <Text
                 style={{
                   fontSize: 19,
-                  color: focused ? accent.ember : palette.dim,
+                  color: focused ? accentColor : palette.dim,
                 }}
               >
                 {GLYPHS[group][route.name]}
@@ -150,7 +151,7 @@ export function YohaTabBar({ state, navigation }: any) {
                 width: 4,
                 height: 4,
                 borderRadius: 4,
-                backgroundColor: focused ? accent.ember : 'transparent',
+                backgroundColor: focused ? accentColor : 'transparent',
               }}
             />
           </Pressable>

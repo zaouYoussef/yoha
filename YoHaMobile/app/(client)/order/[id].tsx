@@ -1,18 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Animated, Easing, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 
-import { ordersApi, type Order } from '../../../src/lib/api';
+import { ordersApi, reviewsApi, type Order } from '../../../src/lib/api';
 import { resolveImageUrl } from '../../../src/lib/resolveImageUrl';
 import { useLayoutChrome } from '../../../src/lib/layoutChrome';
 import { accent, line, radius, surface, text as palette } from '../../../src/theme';
 import { fonts } from '../../../src/theme/fonts';
 import { Screen } from '../../../src/components/yoha/Screen';
 import { Body, Display, Label, Money } from '../../../src/components/yoha/Type';
-import { GhostButton, Glyph, Hairline, Skeleton, StepBar } from '../../../src/components/yoha/Atoms';
+import { Chip, GhostButton, Glyph, Hairline, Skeleton, StepBar } from '../../../src/components/yoha/Atoms';
 import { EmberField, LiveCount, LivePulse } from '../../../src/components/yoha/Motion';
 import { EmberButton, OutlineButton } from '../../../src/components/yoha/EmberButton';
+import { Sheet } from '../../../src/components/yoha/Sheet';
 
 /**
  * Les statuts backend, traduits en langage client.
@@ -38,6 +39,11 @@ export default function OrderTracking() {
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [rated, setRated] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -49,6 +55,29 @@ export default function OrderTracking() {
       setLoading(false);
     }
   }, [id]);
+
+  const doCancel = useCallback(async () => {
+    if (!cancelReason.trim()) { Alert.alert('Indique une raison'); return; }
+    setBusy(true);
+    try {
+      await ordersApi.cancelOrder(String(id), cancelReason.trim());
+      setCancelling(false);
+      await load();
+    } finally {
+      setBusy(false);
+    }
+  }, [id, cancelReason, load]);
+
+  const doRate = useCallback(async (stars: number) => {
+    if (rated) return;
+    setRating(stars);
+    setRated(true);
+    try {
+      await reviewsApi.create({ order_id: String(id), rating: stars });
+    } catch {
+      setRated(false);
+    }
+  }, [id, rated]);
 
   /* Rafraîchissement léger : suffisant sans WebSocket, invisible pour le client. */
   useEffect(() => {
@@ -239,12 +268,66 @@ export default function OrderTracking() {
           gap: 10,
         }}
       >
-        {done || cancelled ? (
+        {done ? (
+          <>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Chip
+                key={star}
+                label={rated && rating >= star ? '★' : '☆'}
+                active={rated && rating >= star}
+                onPress={() => void doRate(star)}
+              />
+            ))}
+          </View>
+          {rated ? (
+            <Body size="caption" tone="mint" style={{ textAlign: 'center' }}>
+              Merci pour ta note !
+            </Body>
+          ) : null}
+          <EmberButton label="Re-commander" onPress={() => router.replace('/(client)')} />
+          </>
+        ) : cancelled ? (
           <EmberButton label="Re-commander" onPress={() => router.replace('/(client)')} />
         ) : (
+          <>
           <OutlineButton label="Continuer à explorer" onPress={() => router.replace('/(client)')} />
+          <OutlineButton label="Annuler la commande" onPress={() => setCancelling(true)} />
+          </>
         )}
       </View>
+
+      {/* Annulation */}
+      <Sheet visible={cancelling} onClose={() => { setCancelling(false); setCancelReason(''); }}>
+        <View style={{ paddingHorizontal: 18, gap: 14 }}>
+          <Display size="h2">Annuler la commande ?</Display>
+          <Body size="small" tone="fog">
+            Explique pourquoi pour aider la cuisine à s'améliorer.
+          </Body>
+          <TextInput
+            value={cancelReason}
+            onChangeText={setCancelReason}
+            placeholder="Ex: changement de plan, délai trop long…"
+            placeholderTextColor={line.strong}
+            multiline
+            numberOfLines={3}
+            style={{
+              padding: 14, borderRadius: radius.lg, backgroundColor: surface.ash,
+              color: '#fff', fontSize: 16, borderWidth: 1, borderColor: line.soft,
+            }}
+          />
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <View style={{ flex: 1 }}>
+              <EmberButton
+                label={busy ? 'Annulation…' : "Confirmer l'annulation"}
+                loading={busy}
+                disabled={busy || !cancelReason.trim()}
+                onPress={() => void doCancel()}
+              />
+            </View>
+          </View>
+        </View>
+      </Sheet>
     </Screen>
   );
 }

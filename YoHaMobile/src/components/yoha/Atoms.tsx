@@ -63,12 +63,14 @@ export function GhostButton({
   onPress,
   size = 42,
   label,
+  tone = 'ember',
   style,
 }: {
   glyph: string;
   onPress: () => void;
   size?: number;
   label?: string;
+  tone?: 'ember' | 'violet';
   style?: ViewStyle;
 }) {
   return (
@@ -88,7 +90,7 @@ export function GhostButton({
           justifyContent: 'center',
           backgroundColor: 'rgba(10,8,6,0.55)',
           borderWidth: StyleSheet.hairlineWidth * 2,
-          borderColor: pressed ? accent.ember : line.soft,
+          borderColor: pressed ? accent[tone] : line.soft,
         },
         style,
       ]}
@@ -104,11 +106,24 @@ export function Pill({
   tone = 'dark',
 }: {
   children: React.ReactNode;
-  tone?: 'dark' | 'ember' | 'mint';
+  tone?: 'dark' | 'ember' | 'mint' | 'violet';
 }) {
   const bg =
-    tone === 'ember' ? accent.ember : tone === 'mint' ? 'rgba(74,222,155,0.14)' : 'rgba(10,8,6,0.78)';
-  const fg = tone === 'ember' ? palette.onEmber : tone === 'mint' ? accent.mint : palette.bone;
+    tone === 'ember'
+      ? accent.ember
+      : tone === 'mint'
+        ? 'rgba(74,222,155,0.14)'
+        : tone === 'violet'
+          ? 'rgba(139,92,246,0.16)'
+          : 'rgba(10,8,6,0.78)';
+  const fg =
+    tone === 'ember'
+      ? palette.onEmber
+      : tone === 'mint'
+        ? accent.mint
+        : tone === 'violet'
+          ? accent.violet
+          : palette.bone;
 
   return (
     <View
@@ -131,11 +146,13 @@ export function Chip({
   emoji,
   active,
   onPress,
+  tone = 'ember',
 }: {
   label: string;
   emoji?: string;
   active?: boolean;
   onPress: () => void;
+  tone?: 'ember' | 'violet';
 }) {
   return (
     <Pressable
@@ -153,8 +170,8 @@ export function Chip({
         paddingVertical: 9,
         borderRadius: radius.full,
         borderWidth: StyleSheet.hairlineWidth * 2,
-        borderColor: active ? accent.ember : line.soft,
-        backgroundColor: active ? accent.ember : surface.ash,
+        borderColor: active ? accent[tone] : line.soft,
+        backgroundColor: active ? accent[tone] : surface.ash,
       }}
     >
       {emoji ? <Text style={{ fontSize: 14 }}>{emoji}</Text> : null}
@@ -186,7 +203,15 @@ export function Hairline({ style }: { style?: ViewStyle }) {
 }
 
 /** En-tête de section : kicker en mono, titre display, filet qui file à droite. */
-export function SectionHeader({ kicker, title }: { kicker: string; title: string }) {
+export function SectionHeader({
+  kicker,
+  title,
+  tone = 'ember',
+}: {
+  kicker: string;
+  title: string;
+  tone?: 'ember' | 'violet';
+}) {
   return (
     <View
       style={{
@@ -199,7 +224,7 @@ export function SectionHeader({ kicker, title }: { kicker: string; title: string
       }}
     >
       <View>
-        <Label tone="ember">{kicker}</Label>
+        <Label tone={tone}>{kicker}</Label>
         <Text
           style={[
             typography.h2,
@@ -311,7 +336,15 @@ export function Skeleton({
 }
 
 /** Compteur segmenté : étapes d'une commande, progression d'un formulaire. */
-export function StepBar({ total, current }: { total: number; current: number }) {
+export function StepBar({
+  total,
+  current,
+  tone = 'ember',
+}: {
+  total: number;
+  current: number;
+  tone?: 'ember' | 'violet';
+}) {
   return (
     <View style={{ flexDirection: 'row', gap: 6, width: '100%' }}>
       {Array.from({ length: total }, (_, i) => (
@@ -321,7 +354,7 @@ export function StepBar({ total, current }: { total: number; current: number }) 
             flex: 1,
             height: 3,
             borderRadius: 3,
-            backgroundColor: i <= current ? accent.ember : line.soft,
+            backgroundColor: i <= current ? accent[tone] : line.soft,
           }}
         />
       ))}

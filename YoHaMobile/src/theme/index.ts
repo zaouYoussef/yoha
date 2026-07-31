@@ -55,9 +55,10 @@ export const accent = {
   emberHot: '#ff8a3d',
   mint: '#4ade9b',
   saffron: '#f5c451',
+  /** Le violet des livreurs, comme le DeliveryPanel du site. */
+  violet: '#8b5cf6',
   /* alias historiques */
   pink: '#ff5a1f',
-  violet: '#ff8a3d',
   sky: '#4ade9b',
   emerald: '#4ade9b',
 };
@@ -67,6 +68,7 @@ export const line = {
   soft: 'rgba(244,239,233,0.14)',
   strong: 'rgba(244,239,233,0.24)',
   ember: 'rgba(255,90,31,0.32)',
+  violet: 'rgba(139,92,246,0.32)',
 };
 
 /**
@@ -85,6 +87,8 @@ export const gradients = {
   fadeUp: ['#0a0806', 'transparent'] as const,
   /** Le CTA : deux braises, pas un arc-en-ciel. */
   cta: ['#ff6a2b', '#ff5a1f', '#e63f06'] as const,
+  /** Le CTA livreur : deux violets. */
+  violetCta: ['#a78bfa', '#8b5cf6', '#6d28d9'] as const,
   /* alias historiques */
   primary: ['#ff6a2b', '#e63f06'] as const,
   warm: ['#141010', '#0a0806'] as const,
@@ -127,6 +131,13 @@ export const shadows = {
     shadowColor: '#ff5a1f',
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.55,
+    shadowRadius: 26,
+    elevation: 14,
+  },
+  violetGlow: {
+    shadowColor: '#8b5cf6',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.5,
     shadowRadius: 26,
     elevation: 14,
   },

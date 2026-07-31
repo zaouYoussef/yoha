@@ -4,7 +4,7 @@ import { YohaTabBar } from '../../src/components/ui/YohaTabBar';
 
 export default function CourierLayout() {
   return (
-    <Tabs tabBar={(props) => <YohaTabBar {...props} />} screenOptions={{ headerShown: false }}>
+    <Tabs tabBar={(props) => <YohaTabBar {...props} tone="violet" />} screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="index" options={{ title: 'Disponibles' }} />
       <Tabs.Screen name="mine" options={{ title: 'Mes courses' }} />
       <Tabs.Screen name="history" options={{ title: 'Historique' }} />
