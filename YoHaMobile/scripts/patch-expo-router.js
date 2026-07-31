@@ -12,8 +12,8 @@ let src = fs.readFileSync(file, 'utf8');
 // Add mountedRef if not already patched
 if (!src.includes('mountedRef')) {
   src = src.replace(
-    'function useLinking(ref, { enabled = true, prefixes, filter, config, getInitialURL = () => getInitialURLWithTimeout(), subscribe = (listener) => {',
-    `function useLinking(ref, { enabled = true, prefixes, filter, config, getInitialURL = () => getInitialURLWithTimeout(), subscribe = (listener) => {
+    ', getStateFromPath = native_1.getStateFromPath, getActionFromState = native_1.getActionFromState, }, onUnhandledLinking) {',
+    `, getStateFromPath = native_1.getStateFromPath, getActionFromState = native_1.getActionFromState, }, onUnhandledLinking) {
     const mountedRef = (0, react_1.useRef)(false);
     (0, react_1.useEffect)(() => {
         mountedRef.current = true;
