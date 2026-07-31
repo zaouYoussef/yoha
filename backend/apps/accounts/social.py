@@ -14,6 +14,7 @@ from google.oauth2 import id_token as google_id_token
 from jwt import PyJWKClient
 
 from .models import UserOAuthProvider
+from .welcome_email import send_welcome_email
 
 logger = logging.getLogger(__name__)
 
@@ -236,6 +237,7 @@ def get_or_create_oauth_user(
             )
             user.set_unusable_password()
             user.save(update_fields=["password"])
+            send_welcome_email(user)
 
     UserOAuthProvider.objects.get_or_create(
         provider=provider,

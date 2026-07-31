@@ -25,6 +25,7 @@ from .serializers import (
 )
 from . import social as social_auth
 from .push_models import PushDevice
+from .welcome_email import send_welcome_email
 
 User = get_user_model()
 
@@ -39,6 +40,7 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        send_welcome_email(user)
         log_audit(
             actor=None,
             action="user.register",
