@@ -247,7 +247,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   const router = useRouter();
   const applyFilter = useCallback(
     (f) => {
-      applyFilter(f);
+      setFilter(f);
       const url = browsePathForFilter(f);
       if (typeof window !== 'undefined' && url !== window.location.pathname + window.location.search) {
         router.push(url);
