@@ -267,9 +267,10 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     };
   }, []);
 
+  const customResto = useMemo(() => STATIC_STORES.find((s) => s.id === 'custom-restaurant'), []);
+
   const restaurants = useMemo(() => {
     let list = [...catalog];
-    const customResto = STATIC_STORES.find((s) => s.id === 'custom-restaurant');
 
     if (['dessert', 'pharmacy', 'parapharmacy', 'supermarket', 'shop', 'patisserie'].includes(filter)) {
       list = STATIC_STORES.filter((s) => 
@@ -668,6 +669,38 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
           {/* ═══ DEFAULT HOME SECTIONS (DELIVEROO STRUCTURE) ═══ */}
           {filter === 'all' && !search.trim() && (
             <>
+              {/* 0. Restaurant sur-mesure (case dédiée, visible dès le haut) */}
+              {customResto && (
+                <section className="px-4 sm:px-0">
+                  <button
+                    type="button"
+                    onClick={() => onPickRestaurant(customResto)}
+                    className="cursor-pointer w-full text-left group"
+                  >
+                    <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-lg border border-brand-500/30 group-hover:border-brand-500/60 group-hover:shadow-xl transition-all">
+                      <img
+                        src={restaurantCover(customResto.cover)}
+                        alt={customResto.name}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-ink-950/95 via-ink-950/75 to-ink-950/30" />
+                      <div className="relative p-6 sm:p-8 text-white">
+                        <span className="inline-flex items-center rounded-full bg-brand-500/20 border border-brand-400/40 text-brand-300 text-[11px] font-bold px-2.5 py-1 uppercase tracking-wide">
+                          ✨ Sur-mesure
+                        </span>
+                        <h2 className="font-display font-black text-2xl sm:text-3xl mt-3">Restaurant sur-mesure</h2>
+                        <p className="mt-2 max-w-md text-sm text-ink-200 leading-relaxed">
+                          Un resto, un snack ou un plat bien précis en tête ? Dites-nous tout, le livreur y va et vous livre.
+                        </p>
+                        <span className="mt-4 inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 text-white font-extrabold text-sm shadow-glow group-hover:scale-[1.02] active:scale-95 transition-all">
+                          Décrire ma demande <I.Right size={16} />
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                </section>
+              )}
+
               {/* 1. Frais de livraison offerts */}
               <HorizontalRow
                 title="Frais de livraison offerts"
