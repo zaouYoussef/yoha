@@ -6,7 +6,76 @@ import { useOrders, useToast } from '../../contexts/AppContexts.jsx';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { useYohaNav } from '../../contexts/YohaNavContext.jsx';
 
-export function CustomOrderModal({ isOpen, onClose }) {
+const CATEGORY_META = {
+  all: {
+    label: 'Restaurant',
+    badge: '🍽️ Restaurant ou Pâtisserie non listé ?',
+    title: 'Commande Sur-Mesure',
+    subtitle: 'Pâtisserie, snack quartier, boulangerie... Indiquez le lieu et ce que vous désirez !',
+    nameLabel: 'Nom du restaurant ou de la pâtisserie *',
+    namePlaceholder: 'ex: Pâtisserie Rahmouni, Snack Al Medina, Boulangerie Paris...',
+    addrPlaceholder: 'ex: Iberia, Boulevard Mohammed V, City Center...',
+    detailsPlaceholder: 'ex: 2 Millefeuilles, 1 Tarte aux fraises, 1 Boîte de cornes de gazelle...',
+    restaurantId: 'custom-restaurant',
+  },
+  pharmacy: {
+    label: 'Pharmacie',
+    badge: '💊 Pharmacie non listée ?',
+    title: 'Pharmacie Sur-Mesure',
+    subtitle: 'Médicaments, ordonnance, produits de santé... Indiquez la pharmacie et ce que vous désirez !',
+    nameLabel: 'Nom de la pharmacie *',
+    namePlaceholder: 'ex: Pharmacie du Progrès, Pharmacie de la Gare...',
+    addrPlaceholder: 'ex: Boulevard Pasteur, rue des Far...',
+    detailsPlaceholder: 'ex: 2 boîtes de Doliprane 1000mg, 1 boîte de Spasfon...',
+    restaurantId: 'custom-pharmacy',
+  },
+  parapharmacy: {
+    label: 'Parapharmacie',
+    badge: '🌿 Parapharmacie non listée ?',
+    title: 'Parapharmacie Sur-Mesure',
+    subtitle: 'Soins, cosmétiques, compléments... Indiquez la parapharmacie et ce que vous désirez !',
+    nameLabel: 'Nom de la parapharmacie *',
+    namePlaceholder: 'ex: Pôle Para, Para Tanger, Hypernaturel...',
+    addrPlaceholder: 'ex: Tanger Boulevard, Ibn Batouta Mall...',
+    detailsPlaceholder: 'ex: Crème hydratante, sérum Vitamine C, complément Oméga 3...',
+    restaurantId: 'custom-parapharmacy',
+  },
+  patisserie: {
+    label: 'Pâtisserie',
+    badge: '🥐 Pâtisserie non listée ?',
+    title: 'Pâtisserie Sur-Mesure',
+    subtitle: 'Gâteaux, pâtisseries orientales, pain frais... Indiquez la pâtisserie et ce que vous désirez !',
+    nameLabel: 'Nom de la pâtisserie *',
+    namePlaceholder: 'ex: Pâtisserie Rahmouni, La Banquise, Pâtisserie Matisse...',
+    addrPlaceholder: 'ex: Médina, rue de la Liberté...',
+    detailsPlaceholder: 'ex: 1 Millefeuille, 6 cornes de gazelle, 1 tarte aux fraises...',
+    restaurantId: 'custom-patisserie',
+  },
+  supermarket: {
+    label: 'Supermarché',
+    badge: '🛒 Supermarché non listé ?',
+    title: 'Supermarché Sur-Mesure',
+    subtitle: 'Courses, épicerie, produits frais... Indiquez le supermarché et ce que vous désirez !',
+    nameLabel: 'Nom du supermarché *',
+    namePlaceholder: 'ex: Marjane, Carrefour Market, BIM...',
+    addrPlaceholder: 'ex: Boulevard Yacoub El Mansour, Centre-ville...',
+    detailsPlaceholder: 'ex: 1L de lait, pain complet, 6 bouteilles d’eau 1.5L...',
+    restaurantId: 'custom-supermarket',
+  },
+  shop: {
+    label: 'Magasin',
+    badge: '🛍️ Magasin non listé ?',
+    title: 'Magasin Sur-Mesure',
+    subtitle: 'Vêtements, accessoires, électronique... Indiquez le magasin et ce que vous désirez !',
+    nameLabel: 'Nom du magasin *',
+    namePlaceholder: 'ex: Zara, Adidas, Electroplanet...',
+    addrPlaceholder: 'ex: Ibn Batouta Mall, Boulevard Mohammed V...',
+    detailsPlaceholder: 'ex: 1 jean taille 34, 1 paire de baskets pointure 42...',
+    restaurantId: 'custom-shop',
+  },
+};
+
+export function CustomOrderModal({ isOpen, onClose, category = 'all' }) {
   const { addOrder, syncOrder } = useOrders() || {};
   const { user } = useAuth() || {};
   const toast = useToast();
@@ -19,6 +88,12 @@ export function CustomOrderModal({ isOpen, onClose }) {
   const [phone, setPhone] = useState(user?.phone || '');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const metaKey =
+    category === 'dessert' || category === 'patisserie'
+      ? 'patisserie'
+      : CATEGORY_META[category] ? category : 'all';
+  const meta = CATEGORY_META[metaKey];
 
   if (!isOpen) return null;
 
@@ -37,11 +112,11 @@ export function CustomOrderModal({ isOpen, onClose }) {
 
     try {
       const customItem = {
-        id: `custom-${Date.now()}`,
-        name: `Commande sur-mesure: ${orderDetails.slice(0, 45)}...`,
+        id: `custom-${meta.restaurantId}-${Date.now()}`,
+        name: `${meta.label} sur-mesure: ${orderDetails.slice(0, 45)}...`,
         price: 20, // 20 MAD custom delivery fee
         qty: 1,
-        restaurantId: 'custom-place',
+        restaurantId: meta.restaurantId,
         restaurantName: placeName.trim(),
       };
 
@@ -49,7 +124,7 @@ export function CustomOrderModal({ isOpen, onClose }) {
         name: user?.displayName || 'Client Alliance',
         phone: phone.trim(),
         address: deliveryAddress.trim(),
-        restaurantNotes: `[RESTAURANT NON LISTÉ] Nom: ${placeName.trim()} | Adresse lieu: ${placeAddress.trim()} | Commande: ${orderDetails.trim()} | Note: ${notes.trim()} | FRAIS COURSIER: 20 MAD (à ajouter au reçu)`,
+        restaurantNotes: `[${meta.label.toUpperCase()} NON LISTÉ] Nom: ${placeName.trim()} | Adresse lieu: ${placeAddress.trim()} | Commande: ${orderDetails.trim()} | Note: ${notes.trim()} | FRAIS COURSIER: 20 MAD (à ajouter au reçu)`,
       };
 
       let orderId;
@@ -88,13 +163,13 @@ export function CustomOrderModal({ isOpen, onClose }) {
         <div className="flex items-start justify-between gap-4 pb-4 border-b border-ink-100 dark:border-ink-800">
           <div>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-wider border border-amber-500/20">
-              🛍️ Restaurant ou Pâtisserie non listé ?
+              {meta.badge}
             </span>
             <h2 className="mt-2 font-display font-black text-2xl sm:text-3xl text-ink-900 dark:text-white leading-tight">
-              Commande Sur-Mesure
+              {meta.title}
             </h2>
             <p className="text-xs sm:text-sm text-ink-500 dark:text-ink-400 mt-1">
-              Pâtisserie, snack quartier, boulangerie... Indiquez le lieu et ce que vous désirez !
+              {meta.subtitle}
             </p>
           </div>
           <button
@@ -122,12 +197,12 @@ export function CustomOrderModal({ isOpen, onClose }) {
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-ink-700 dark:text-ink-300 mb-1.5">
-              1. Nom du restaurant ou de la pâtisserie *
+              1. {meta.nameLabel}
             </label>
             <input
               type="text"
               required
-              placeholder="ex: Pâtisserie Rahmouni, Snack Al Medina, Boulangerie Paris..."
+              placeholder={meta.namePlaceholder}
               value={placeName}
               onChange={(e) => setPlaceName(e.target.value)}
               className="w-full h-11 px-4 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 text-sm text-ink-900 dark:text-white focus:outline-none focus:border-brand-500 transition-colors"
@@ -140,7 +215,7 @@ export function CustomOrderModal({ isOpen, onClose }) {
             </label>
             <input
               type="text"
-              placeholder="ex: Iberia, Boulevard Mohammed V, City Center..."
+              placeholder={meta.addrPlaceholder}
               value={placeAddress}
               onChange={(e) => setPlaceAddress(e.target.value)}
               className="w-full h-11 px-4 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 text-sm text-ink-900 dark:text-white focus:outline-none focus:border-brand-500 transition-colors"
@@ -154,7 +229,7 @@ export function CustomOrderModal({ isOpen, onClose }) {
             <textarea
               required
               rows={3}
-              placeholder="ex: 2 Millefeuilles, 1 Tarte aux fraises, 1 Boîte de cornes de gazelle..."
+              placeholder={meta.detailsPlaceholder}
               value={orderDetails}
               onChange={(e) => setOrderDetails(e.target.value)}
               className="w-full p-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 text-sm text-ink-900 dark:text-white focus:outline-none focus:border-brand-500 transition-colors resize-none"

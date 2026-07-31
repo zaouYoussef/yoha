@@ -384,7 +384,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     <div className="page-enter">
       <BrowseHero name={name} search={search} onSearchChange={setSearch} openCount={openCount} totalCount={catalog.length} />
 
-      <CustomOrderModal isOpen={isCustomModalOpen} onClose={() => setIsCustomModalOpen(false)} />
+      <CustomOrderModal isOpen={isCustomModalOpen} onClose={() => setIsCustomModalOpen(false)} category={filter} />
 
       <div className="bg-white dark:bg-ink-950 overflow-x-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-6 sm:space-y-7">
@@ -792,6 +792,32 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               {/* Search results error */}
               {restaurantsError && <ApiErrorState message={restaurantsError} onRetry={refreshRestaurants} />}
             </>
+          )}
+
+          {/* ═══ COMMANDE SUR-MESURE ═══ */}
+          {!search.trim() && (
+            <section className="px-4 sm:px-0">
+              <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-ink-950 via-slate-900 to-ink-950 text-white p-6 sm:p-8 shadow-xl border border-brand-500/40 flex flex-col sm:flex-row sm:items-center gap-5">
+                <div className="flex-1">
+                  <span className="font-extrabold text-xs sm:text-sm tracking-wide uppercase text-brand-400 block">
+                    Tu ne trouves pas ?
+                  </span>
+                  <h3 className="font-display font-black text-2xl sm:text-3xl text-white mt-2">
+                    Commande sur-mesure
+                  </h3>
+                  <p className="mt-3 max-w-md text-sm text-ink-300">
+                    Dis-nous le commerce et ce que tu veux. Le livreur y va, achète, et te livre. +20 DH.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsCustomModalOpen(true)}
+                  className="shrink-0 px-5 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 text-white font-extrabold text-sm shadow-glow hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  Décrire ma demande
+                </button>
+              </div>
+            </section>
           )}
 
           {/* ═══ SEARCH RESULTS ═══ */}

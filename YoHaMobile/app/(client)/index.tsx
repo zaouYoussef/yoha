@@ -7,6 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { restaurantsApi, type Restaurant } from '../../src/lib/api';
 import { resolveImageUrl } from '../../src/lib/resolveImageUrl';
+import { STATIC_STORES } from '../../src/data/staticStores';
+import { storeEtaMin, storeHook, storeToRestaurant } from '../../src/lib/staticStore';
 import { useLayoutChrome } from '../../src/lib/layoutChrome';
 import { useLastOrder } from '../../src/hooks/useLastOrder';
 import { hapticLight } from '../../src/lib/haptics';
@@ -28,7 +30,15 @@ const CRAVINGS = [
   { id: 'pizza', label: 'Pizza', emoji: '🍕' },
   { id: 'poisson', label: 'Poisson', emoji: '🐟' },
   { id: 'dessert', label: 'Sucré', emoji: '🥐' },
-  { id: 'pharmacy', label: 'Pharmacie', emoji: '💊' },
+];
+
+/** Services commandables (stores statiques) — chaque chip ouvre son listing. */
+const SERVICES = [
+  { id: 'pharmacy', label: 'Pharmacies', emoji: '💊' },
+  { id: 'parapharmacy', label: 'Parapharma', emoji: '🌿' },
+  { id: 'dessert', label: 'Pâtisseries', emoji: '🥐' },
+  { id: 'supermarket', label: 'Supermarché', emoji: '🛒' },
+  { id: 'shop', label: 'Magasins', emoji: '🛍️' },
 ];
 
 /** Rotation d'accroches. Une phrase concrète vaut mieux qu'un slogan. */
@@ -82,8 +92,11 @@ export default function ClientDiscover() {
   const hero = open[0] ?? restaurants[0] ?? null;
 
   const filtered = useMemo(() => {
+    const customResto = STATIC_STORES.find((s) => s.id === 'custom-restaurant');
     const rest = restaurants.filter((r) => r.id !== hero?.id);
-    if (crave === 'all') return rest;
+    if (crave === 'all') {
+      return customResto ? [storeToRestaurant(customResto), ...rest] : rest;
+    }
     return rest.filter((r) =>
       String(r.cuisine ?? '').toLowerCase().includes(crave.toLowerCase()),
     );
@@ -295,6 +308,27 @@ export default function ClientDiscover() {
           ))}
         </ScrollView>
 
+        {/* ── Services commandables ─────────────────────────────────── */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: 8, paddingHorizontal: 18, paddingTop: 10 }}
+        >
+          {SERVICES.map((c) => (
+            <Chip
+              key={c.id}
+              label={c.label}
+              emoji={c.emoji}
+              onPress={() =>
+                router.push({
+                  pathname: '/(client)/stores/[cuisine]',
+                  params: { cuisine: c.id },
+                })
+              }
+            />
+          ))}
+        </ScrollView>
+
         <SectionHeader kicker="Braise allumée" title="Ouvert maintenant" />
 
         <View style={{ paddingHorizontal: 18, gap: 14 }}>
@@ -308,9 +342,16 @@ export default function ClientDiscover() {
               <Rise key={r.id} delay={i * 60}>
                 <VendorCard
                   restaurant={r}
-                  eta={etaFor(r, i)}
-                  hook={r.promo ?? HOOKS[i % HOOKS.length]}
-                  onPress={() => router.push(`/(client)/restaurant/${r.slug}`)}
+                  eta={r.isCustomRequest ? storeEtaMin(STATIC_STORES.find((s) => s.id === r.id)!) : etaFor(r, i)}
+                  hook={r.isCustomRequest ? storeHook(STATIC_STORES.find((s) => s.id === r.id)!) : r.promo ?? HOOKS[i % HOOKS.length]}
+                  onPress={() =>
+                    r.isCustomRequest
+                      ? router.push({
+                          pathname: '/(client)/store/[id]',
+                          params: { id: r.id },
+                        })
+                      : router.push(`/(client)/restaurant/${r.slug}`)
+                  }
                 />
               </Rise>
             ))

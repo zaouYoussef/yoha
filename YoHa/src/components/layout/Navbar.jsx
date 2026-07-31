@@ -42,6 +42,12 @@ export function Navbar({
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [menuOpen]);
+
   return (
     <header className="fixed top-0 inset-x-0 z-40 transition-all duration-500 pointer-events-none">
       <div className={`mx-auto flex h-14 sm:h-16 min-w-0 items-center justify-between gap-1 sm:gap-2 transition-all duration-500 pointer-events-auto ${
@@ -239,8 +245,71 @@ export function Navbar({
               </button>
             </Magnetic>
           )}
+
+          {/* Burger (mobile uniquement) */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Ouvrir le menu"
+            className="cursor-grow md:hidden w-10 h-10 rounded-xl flex items-center justify-center border border-ink-200/60 dark:border-ink-700/60"
+          >
+            <span className="flex flex-col gap-[5px]">
+              <span className="block h-px w-4 bg-ink-900 dark:bg-white" />
+              <span className="block h-px w-4 bg-ink-900 dark:bg-white" />
+            </span>
+          </button>
         </div>
       </div>
+
+      {/* Menu plein écran (mobile uniquement) */}
+      {menuOpen && (
+        <div className="pointer-events-auto fixed inset-0 z-50 flex flex-col bg-white/98 dark:bg-ink-950/98 backdrop-blur-xl md:hidden">
+          <div className="flex h-16 items-center px-5">
+            <Logo />
+            <div className="flex-1" />
+            <button
+              type="button"
+              onClick={() => setMenuOpen(false)}
+              aria-label="Fermer"
+              className="grid h-10 w-10 place-items-center rounded-full border border-ink-200 dark:border-ink-700"
+            >
+              <I.X size={18} />
+            </button>
+          </div>
+
+          <nav className="flex flex-1 flex-col justify-center gap-1 px-5 pb-24">
+            {[
+              { label: 'Restaurants', emoji: '🍔', fn: onHome },
+              { label: 'Pharmacie', emoji: '💊', fn: onPharmacy },
+              { label: 'Parapharmacie', emoji: '🌿', fn: onParapharmacy },
+              { label: 'Pâtisserie', emoji: '🥐', fn: onPastry },
+              { label: 'Supermarché', emoji: '🛒', fn: onSupermarket },
+              { label: 'Magasins', emoji: '🛍️', fn: onShop },
+            ].map((c, i) => (
+              <button
+                key={c.label}
+                type="button"
+                onClick={() => { setMenuOpen(false); c.fn?.(); }}
+                className="group flex items-baseline gap-4 border-b border-ink-200/60 dark:border-ink-700/60 py-4 text-left"
+                style={{ animation: `fade-up .5s cubic-bezier(.16,1,.3,1) ${i * 0.05}s both` }}
+              >
+                <span className="text-xl">{c.emoji}</span>
+                <span className="text-4xl font-bold tracking-tight transition-colors group-hover:text-brand-500">
+                  {c.label}
+                </span>
+              </button>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => { setMenuOpen(false); goto?.(user ? 'my-orders' : 'auth'); }}
+              className="mt-8 text-left text-brand-500 font-semibold uppercase text-sm tracking-wide"
+            >
+              {user ? 'Mes commandes' : 'Se connecter'}
+            </button>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

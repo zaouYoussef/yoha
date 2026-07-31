@@ -12,6 +12,8 @@ import { router } from 'expo-router';
 
 import { ordersApi } from '../../src/lib/api';
 import { useCart } from '../../src/contexts/CartContext';
+import { useAuth } from '../../src/contexts/AuthContext';
+import { STATIC_STORES } from '../../src/data/staticStores';
 import { useLayoutChrome } from '../../src/lib/layoutChrome';
 import { addGuestOrderId } from '../../src/lib/guestOrders';
 import { hapticSuccess } from '../../src/lib/haptics';
@@ -30,8 +32,7 @@ const ADDRESSES = [
   { id: 'other', label: 'Autre adresse', detail: 'Je précise ci-dessous' },
 ];
 
-const FREE_DELIVERY_FROM = 200;
-const BASE_FEE = 15;
+const STATIC_SERVICE_FEE = 20;
 
 /** Créneau d'arrivée annoncé. Une promesse chiffrée rassure plus qu'un « rapide ». */
 function arrivalLabel(minutes: number) {
@@ -41,8 +42,11 @@ function arrivalLabel(minutes: number) {
 
 export default function ClientCheckout() {
   const { items, subtotal, restaurantId, clear } = useCart();
+  const { user } = useAuth();
   const { footerBottomPadding } = useLayoutChrome();
 
+  const [name, setName] = useState(user?.displayName ?? '');
+  const [email, setEmail] = useState(user?.email ?? '');
   const [addressId, setAddressId] = useState('chu');
   const [custom, setCustom] = useState('');
   const [phone, setPhone] = useState('+212 6 ');
@@ -51,7 +55,9 @@ export default function ClientCheckout() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fee = subtotal >= FREE_DELIVERY_FROM ? 0 : BASE_FEE;
+  const staticIds = useMemo(() => new Set(STATIC_STORES.map((s) => s.id)), []);
+  const isStatic = !!restaurantId && staticIds.has(restaurantId);
+  const fee = isStatic ? STATIC_SERVICE_FEE : 0;
   const total = subtotal + fee;
   const eta = useMemo(() => arrivalLabel(28), []);
 
@@ -61,8 +67,10 @@ export default function ClientCheckout() {
     return found ? `${found.label} — ${found.detail}` : '';
   }, [addressId, custom]);
 
+  const nameOk = name.trim().length >= 2;
   const phoneOk = phone.replace(/\D/g, '').length >= 9;
-  const ready = !!address && phoneOk && !!items.length;
+  const emailOk = !!user || /^\S+@\S+\.\S+$/.test(email.trim());
+  const ready = nameOk && !!address && phoneOk && emailOk && !!items.length;
 
   const submit = useCallback(async () => {
     if (!ready || submitting) return;
@@ -70,20 +78,20 @@ export default function ClientCheckout() {
     setError(null);
     try {
       const order = await ordersApi.checkout({
-        restaurant_id: restaurantId,
         items: items.map((i) => ({
-          id: i.id,
-          name: i.name,
-          qty: i.qty,
-          price: i.price,
-          img: i.img,
+          menu_item_id: i.id,
+          restaurant_slug: i.restaurantId,
+          quantity: i.qty,
+          item_name: i.name,
+          item_price: i.price,
+          restaurant_name: i.restaurantName,
         })),
-        address,
-        city: 'Tanger',
-        phone: phone.trim(),
-        notes: notes.trim(),
-        payment_method: payment,
-        total: String(total.toFixed(2)),
+        customer_name: name.trim(),
+        customer_email: email.trim() || undefined,
+        customer_address: address,
+        customer_phone: phone.trim(),
+        delivery_instructions: notes.trim(),
+        scheduled_delivery_at: null,
       });
       await addGuestOrderId(order.id);
       void hapticSuccess();
@@ -93,7 +101,7 @@ export default function ClientCheckout() {
       setError(e instanceof Error ? e.message : 'La commande n’a pas pu être envoyée.');
       setSubmitting(false);
     }
-  }, [ready, submitting, restaurantId, items, address, phone, notes, payment, total, clear]);
+  }, [ready, submitting, items, name, email, address, phone, notes, clear]);
 
   return (
     <Screen>
@@ -108,8 +116,20 @@ export default function ClientCheckout() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 28 }}
         >
+          {/* ── Qui reçoit ─────────────────────────────────────────── */}
+          <Label tone="ember">Ton nom</Label>
+          <Field
+            placeholder="Prénom et nom"
+            value={name}
+            onChangeText={setName}
+            autoCapitalize="words"
+            style={{ marginTop: 10 }}
+          />
+
           {/* ── Adresse ─────────────────────────────────────────────── */}
-          <Label tone="ember">Livrer à</Label>
+          <Label tone="ember" style={{ marginTop: 26 }}>
+            Livrer à
+          </Label>
           <View style={{ gap: 8, marginTop: 10 }}>
             {ADDRESSES.map((a) => (
               <Option
@@ -144,6 +164,22 @@ export default function ClientCheckout() {
           />
           <Body size="caption" tone="dim" style={{ marginTop: 7 }}>
             Le livreur t’appelle uniquement à l’arrivée.
+          </Body>
+
+          <Label tone="ember" style={{ marginTop: 26 }}>
+            Email
+          </Label>
+          <Field
+            placeholder="adresse@email.com"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            style={{ marginTop: 10 }}
+          />
+          <Body size="caption" tone="dim" style={{ marginTop: 7 }}>
+            {user ? 'Réservé au suivi de ta commande.' : 'Requis pour suivre ta commande.'}
           </Body>
 
           <Field
@@ -201,8 +237,11 @@ export default function ClientCheckout() {
           <Hairline style={{ marginVertical: 22 }} />
 
           <TotalRow label="Sous-total" value={subtotal} />
-          <TotalRow label="Livraison" value={BASE_FEE} />
-          {fee === 0 ? <TotalRow label="Livraison offerte" value={BASE_FEE} tone="discount" /> : null}
+          {isStatic ? (
+            <TotalRow label="Frais de service" value={fee} />
+          ) : (
+            <TotalRow label="Livraison offerte" value={0} tone="discount" />
+          )}
           <TotalRow label="Total" value={total} tone="total" />
 
           {error ? (
@@ -231,7 +270,13 @@ export default function ClientCheckout() {
           />
           {!ready && !submitting ? (
             <Body size="caption" tone="dim" style={{ textAlign: 'center', marginTop: 9 }}>
-              {!phoneOk ? 'Ajoute ton numéro pour continuer' : 'Choisis une adresse'}
+              {!nameOk
+                ? 'Indique ton nom pour continuer'
+                : !emailOk
+                  ? 'Ajoute un email valide'
+                  : !phoneOk
+                    ? 'Ajoute ton numéro pour continuer'
+                    : 'Choisis une adresse'}
             </Body>
           ) : null}
         </View>

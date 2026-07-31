@@ -27,6 +27,8 @@ export default function ClientLayout() {
         <Tabs.Screen name="profile" options={{ title: 'Profil' }} />
         {/* Écrans plein cadre : ils ne méritent pas d'onglet. */}
         <Tabs.Screen name="restaurant/[slug]" options={{ href: null }} />
+        <Tabs.Screen name="store/[id]" options={{ href: null }} />
+        <Tabs.Screen name="stores/[cuisine]" options={{ href: null }} />
         <Tabs.Screen name="checkout" options={{ href: null }} />
         <Tabs.Screen name="order/[id]" options={{ href: null }} />
       </Tabs>

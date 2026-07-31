@@ -18,6 +18,26 @@
 
 export const STATIC_STORES: StaticStore[] = [
   // ==========================================
+  // RESTAURANT SUR-MESURE
+  // ==========================================
+  {
+    id: 'custom-restaurant',
+    name: 'Restaurant sur-mesure 🍽️',
+    cuisine: 'all',
+    rating: 5.0,
+    reviewsCount: 1,
+    distance: '0,1 km',
+    eta: '30-45 min',
+    fee: '20 DH',
+    cover: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1000&auto=format&fit=crop&q=85',
+    logo: '🍽️',
+    description: 'Un restaurant ou snack spécifique en tête ? Indiquez-nous son nom, son adresse et ce dont vous avez besoin. Notre coursier l’achète pour vous !',
+    tags: ['Sur-mesure', 'Restaurants', 'Snack', 'Non listé'],
+    isOpen: true,
+    isStatic: true,
+    isCustomRequest: true
+  },
+
   // ==========================================
   // PHARMACIES
   // ==========================================
