@@ -31,7 +31,7 @@ export function Navbar({
   const [isBrowsePage, setIsBrowsePage] = useState(false);
   useEffect(() => {
     const p = pathname || (typeof window !== 'undefined' ? window.location.pathname : '');
-    setIsBrowsePage(p === '/browse' || p === '/browse/' || p.startsWith('/browse?'));
+    setIsBrowsePage(p === '/browse' || p === '/browse/' || p.startsWith('/browse?') || p.startsWith('/browse/'));
   }, [pathname]);
   const cartIconRef = useContext(CartIconRefCtx);
   const { user, logout } = useAuth();

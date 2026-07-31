@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { I } from '../icons/Icons.jsx';
 import { CUISINES, CATEGORIES_BANNERS, CATEGORY_GROUPS, CUISINE_CATEGORIES, STATIC_STORES } from '../data/index.js';
 import { useOrders, useCart } from '../contexts/AppContexts.jsx';
@@ -16,6 +17,7 @@ import { formatMad, restaurantOpenStatus } from '../data/index.js';
 import { MenuItemImage, restaurantCover, restaurantLogo } from '../components/ui/MenuItemImage.jsx';
 import { MenuItemDetailModal } from '../components/ui/MenuItemDetailModal.jsx';
 import { pharmaciesApi } from '../lib/api.js';
+import { browsePathForFilter } from '../data/browseSlugs.js';
 
 function shuffleWithSeed(array, seed) {
   if (!array || !array.length) return [];
@@ -242,9 +244,17 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   const [filter, setFilter] = useState(initialFilter);
   const [dutyPharmacies, setDutyPharmacies] = useState([]);
 
-  useEffect(() => {
-    setFilter(initialFilter);
-  }, [initialFilter]);
+  const router = useRouter();
+  const applyFilter = useCallback(
+    (f) => {
+      applyFilter(f);
+      const url = browsePathForFilter(f);
+      if (typeof window !== 'undefined' && url !== window.location.pathname + window.location.search) {
+        router.push(url);
+      }
+    },
+    [router]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -482,7 +492,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                     <button
                       key={tab.id}
                       type="button"
-                      onClick={() => setFilter(tab.id)}
+                      onClick={() => applyFilter(tab.id)}
                       className={`py-3 relative transition-colors ${
                         active ? 'text-teal-600 dark:text-teal-400 font-extrabold' : 'hover:text-ink-900 dark:hover:text-white'
                       }`}
@@ -500,7 +510,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
           {/* ═══ 🔥 OFFRES — IMAGE PROMO BANNERS CAROUSEL ═══ */}
           {!search && (
-            <DeliverooPromoBannersCarousel onSelectFilter={setFilter} />
+            <DeliverooPromoBannersCarousel onSelectFilter={applyFilter} />
           )}
 
           {/* ═══ CUISINE CATEGORIES CAROUSEL (High Quality AI Food Imagery) ═══ */}
@@ -513,7 +523,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                     <button
                       key={c.id}
                       type="button"
-                      onClick={() => setFilter(active ? 'all' : c.id)}
+                      onClick={() => applyFilter(active ? 'all' : c.id)}
                       className="cursor-pointer shrink-0 flex flex-col items-center gap-2 w-[4.8rem] sm:w-[5.2rem] group"
                     >
                       <div
@@ -583,7 +593,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   <button
                     key={c.id}
                     type="button"
-                    onClick={() => setFilter(c.id === filter ? 'all' : c.id)}
+                    onClick={() => applyFilter(c.id === filter ? 'all' : c.id)}
                     className="cursor-grow shrink-0 flex flex-col items-center gap-2.5 w-[4.5rem]"
                   >
                     <div className="relative w-[4.5rem] h-[4.5rem] rounded-[1.25rem] overflow-hidden transition-all duration-300 group border border-ink-100 dark:border-ink-800">
@@ -635,7 +645,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 </div>
                 <button
                   type="button"
-                  onClick={() => { setFilter('all'); setSearch(''); }}
+                  onClick={() => { applyFilter('all'); setSearch(''); }}
                   className="cursor-grow px-3.5 py-2 rounded-xl bg-ink-100 dark:bg-ink-800 text-ink-900 dark:text-white font-bold text-xs hover:bg-brand-500 hover:text-white active:scale-95 transition-all shadow-sm flex items-center gap-1.5"
                 >
                   <span>Toutes les catégories</span>
@@ -648,7 +658,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   {Array.from({ length: 6 }).map((_, i) => <RestaurantSkeleton key={i} />)}
                 </div>
               ) : displayedList.length === 0 ? (
-                <EmptyState catalogEmpty={catalog.length === 0} filter={filter || search} onShowAll={() => { setFilter('all'); setSearch(''); }} />
+                <EmptyState catalogEmpty={catalog.length === 0} filter={filter || search} onShowAll={() => { applyFilter('all'); setSearch(''); }} />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                   {displayedList.map((r) => (
@@ -712,7 +722,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 title="Frais de livraison offerts"
                 subtitle="Livraison 0 MAD sur tout l'Alliance & CHU"
                 count={freeDeliveryList.length}
-                onSeeAll={() => setFilter('free_delivery')}
+                onSeeAll={() => applyFilter('free_delivery')}
               >
                 {freeDeliveryList.map((r) => (
                   <RestaurantCardHorizontal key={`free-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
@@ -741,7 +751,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 title="🔥 Populaires dans votre quartier"
                 subtitle="Établissements très prisés au campus & hôpitaux"
                 count={popularRestaurants.length}
-                onSeeAll={() => setFilter('popular')}
+                onSeeAll={() => applyFilter('popular')}
               >
                 {popularRestaurants.map((r) => (
                   <RestaurantCardHorizontal key={`pop-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
@@ -753,7 +763,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 title="⚡ Frais de livraison tout doux"
                 subtitle="Livraison ultra rapide en moins de 30 min"
                 count={fastDelivery.length}
-                onSeeAll={() => setFilter('fast')}
+                onSeeAll={() => applyFilter('fast')}
               >
                 {fastDelivery.map((r) => (
                   <RestaurantCardHorizontal key={`fast-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
@@ -766,7 +776,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   title="🎁 Offres près de chez vous"
                   subtitle="Promotions actives et menus avantageux"
                   count={promoRestaurants.length}
-                  onSeeAll={() => setFilter('offers')}
+                  onSeeAll={() => applyFilter('offers')}
                 >
                   {promoRestaurants.map((r) => (
                     <RestaurantCardHorizontal key={`promo-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
@@ -779,7 +789,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 title="🌟 Mieux notés"
                 subtitle="Les meilleures adresses notées 4.8 et plus"
                 count={topRatedList.length}
-                onSeeAll={() => setFilter('top_rated')}
+                onSeeAll={() => applyFilter('top_rated')}
               >
                 {topRatedList.map((r) => (
                   <RestaurantCardHorizontal key={`top-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
@@ -791,7 +801,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 title="❤️ Favoris les plus populaires"
                 subtitle="Adresses fréquemment ajoutées en coup de cœur"
                 count={favoritesList.length}
-                onSeeAll={() => setFilter('favorites')}
+                onSeeAll={() => applyFilter('favorites')}
               >
                 {favoritesList.map((r) => (
                   <RestaurantCardHorizontal key={`fav-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
@@ -804,7 +814,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   title="🍔 Burgers"
                   subtitle="Smash burgers, double cheese et frites dorées"
                   count={burgerList.length}
-                  onSeeAll={() => setFilter('burgers_sec')}
+                  onSeeAll={() => applyFilter('burgers_sec')}
                 >
                   {burgerList.map((r) => (
                     <RestaurantCardHorizontal key={`burger-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
@@ -818,7 +828,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   title="🍕 Pizzas"
                   subtitle="Pizzas napolitaines et recettes italiennes"
                   count={pizzaList.length}
-                  onSeeAll={() => setFilter('pizzas_sec')}
+                  onSeeAll={() => applyFilter('pizzas_sec')}
                 >
                   {pizzaList.map((r) => (
                     <RestaurantCardHorizontal key={`pizza-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
@@ -832,7 +842,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   title="🍣 Asian & Sushi"
                   subtitle="Maki, nigiri, pad thaï et ramen chaud"
                   count={asianList.length}
-                  onSeeAll={() => setFilter('asian_sec')}
+                  onSeeAll={() => applyFilter('asian_sec')}
                 >
                   {asianList.map((r) => (
                     <RestaurantCardHorizontal key={`asian-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
@@ -846,7 +856,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   title="🥙 Shawarma & Kebab"
                   subtitle="Kebab grillé au feu de bois, shawarma libanais & sauces maison"
                   count={kebabList.length}
-                  onSeeAll={() => setFilter('kebab_sec')}
+                  onSeeAll={() => applyFilter('kebab_sec')}
                 >
                   {kebabList.map((r) => (
                     <RestaurantCardHorizontal key={`kebab-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
@@ -860,7 +870,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   title="🌮 Tacos & Wraps"
                   subtitle="French tacos généreux, gratinés au fromage & wraps gourmands"
                   count={tacosList.length}
-                  onSeeAll={() => setFilter('tacos_sec')}
+                  onSeeAll={() => applyFilter('tacos_sec')}
                 >
                   {tacosList.map((r) => (
                     <RestaurantCardHorizontal key={`tacos-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
@@ -874,7 +884,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   title="🥪 Sandwichs & Snacks"
                   subtitle="Sandwichs chauds, paninis croustillants & snacks de quartier"
                   count={sandwichList.length}
-                  onSeeAll={() => setFilter('sandwich_sec')}
+                  onSeeAll={() => applyFilter('sandwich_sec')}
                 >
                   {sandwichList.map((r) => (
                     <RestaurantCardHorizontal key={`snack-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
@@ -888,7 +898,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   title="🥗 Bowls & Salades Healthy"
                   subtitle="Poke bowls frais, salades composées & menus hôpital MedEat"
                   count={healthyList.length}
-                  onSeeAll={() => setFilter('healthy_sec')}
+                  onSeeAll={() => applyFilter('healthy_sec')}
                 >
                   {healthyList.map((r) => (
                     <RestaurantCardHorizontal key={`healthy-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
@@ -902,7 +912,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   title="🍗 Poulet Rôti & Crispy Chicken"
                   subtitle="Poulet braisé, tenders croustillants & wings épicés"
                   count={chickenList.length}
-                  onSeeAll={() => setFilter('chicken_sec')}
+                  onSeeAll={() => applyFilter('chicken_sec')}
                 >
                   {chickenList.map((r) => (
                     <RestaurantCardHorizontal key={`chicken-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
@@ -954,7 +964,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               {loading
                 ? Array.from({ length: 4 }).map((_, i) => <RestaurantCardSkeletonHorizontal key={i} />)
                 : restaurants.length === 0
-                  ? <EmptyState catalogEmpty={false} filter={search} onShowAll={() => { setSearch(''); setFilter('all'); }} />
+                  ? <EmptyState catalogEmpty={false} filter={search} onShowAll={() => { setSearch(''); applyFilter('all'); }} />
                   : (
                     <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 pb-2">
                       {restaurants.map((r) => (
@@ -1872,6 +1882,7 @@ export function RestaurantCard({ restaurant, onClick }) {
                 <I.MapPin size={12} className="text-white/50 shrink-0" />
                 <span className="truncate">{restaurant.address || restaurant.distance}</span>
               </span>
+              <span className="font-bold text-amber-400 shrink-0">20 MAD de livraison</span>
               <span className="flex-1" />
               <span className="inline-flex items-center gap-0.5 font-bold text-emerald-400 shrink-0">
                 Commander <I.Right size={12} />
@@ -1884,7 +1895,7 @@ export function RestaurantCard({ restaurant, onClick }) {
               </span>
               <span className="flex-1" />
               <span className="hidden sm:inline-flex items-center gap-0.5 font-bold text-brand-400 shrink-0">
-                Voir le menu <I.Right size={12} />
+                Commander <I.Right size={12} />
               </span>
             </>
           ) : (

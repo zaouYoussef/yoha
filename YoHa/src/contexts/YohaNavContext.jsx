@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useMemo, useEffect } from 'reac
 import { useRouter } from 'next/navigation';
 import { useAuth, DASHBOARD_REQUIRED_ROLE, ROLE_LABELS } from './AuthContext';
 import { useToast } from './AppContexts';
+import { browsePathForFilter } from '@/data/browseSlugs.js';
 
 const NavCtx = createContext(null);
 
@@ -11,11 +12,8 @@ function buildPath(name, params = {}) {
   switch (name) {
     case 'landing':
       return '/';
-    case 'home': {
-      const f = params.browseFilter;
-      if (f && f !== 'all') return `/browse?filter=${encodeURIComponent(f)}`;
-      return '/browse';
-    }
+    case 'home':
+      return browsePathForFilter(params.browseFilter);
     case 'restaurant': {
       const id = params.restaurant?.id || params.restaurant;
       return id ? `/restaurant/${id}` : '/browse';
