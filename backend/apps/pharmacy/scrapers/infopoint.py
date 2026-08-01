@@ -1,11 +1,14 @@
 """Scraper des pharmacies de garde d'infopoint.ma.
 
-La page expose chaque pharmacie dans un bloc `.pharm-card` avec toutes les
-données en attributs `data-*` (nom FR/AR, adresse FR/AR, téléphone, lat/lng).
-Aucun géocodage n'est donc nécessaire : les coordonnées viennent de la source.
+La page expose une ou plusieurs sections (garde de jour le week-end, garde 24h,
+nuit) — chaque section ouvre par un `.duty-banner` suivi de ses `.pharm-card`.
+Chaque carte expose les données en attributs `data-*` (nom FR/AR, adresse FR/AR,
+téléphone, lat/lng). Aucun géocodage n'est donc nécessaire.
 """
 from __future__ import annotations
 
+import re
+from datetime import time as dtime
 from decimal import Decimal, InvalidOperation
 
 import requests
@@ -16,9 +19,11 @@ PHARMACIES_DE_GARDE_URL = f"{BASE_URL}/pharmacies-de-garde"
 
 USER_AGENT = "Mozilla/5.0 (compatible; YoHa/1.0 pharmacy sync)"
 
+_TIME_RE = re.compile(r"\b(\d{1,2}:\d{2})\b")
+
 
 class ScrapeError(Exception):
-    """Impossible de récupérer/parsier la page source."""
+    """Impossible de récupérer/parser la page source."""
 
 
 def _to_decimal(raw: str | None) -> Decimal | None:
@@ -28,6 +33,29 @@ def _to_decimal(raw: str | None) -> Decimal | None:
         return Decimal(str(raw).strip())
     except (InvalidOperation, ValueError):
         return None
+
+
+def _parse_times(label: str) -> tuple:
+    times = [t for t in _TIME_RE.findall(label)]
+    parsed = []
+    for t in times:
+        try:
+            h, m = t.split(":")
+            parsed.append(dtime(hour=int(h), minute=int(m)))
+        except ValueError:
+            continue
+    while len(parsed) < 4:
+        parsed.append(None)
+    return parsed[0], parsed[1], parsed[2], parsed[3]
+
+
+def _guard_type(label: str) -> str:
+    lowered = label.lower()
+    if "24" in lowered or "24h" in lowered:
+        return "24h"
+    if "nuit" in lowered or "night" in lowered:
+        return "night"
+    return "day"
 
 
 class InfopointScraper:
@@ -68,47 +96,67 @@ class InfopointScraper:
     def parse(self, html: str) -> dict:
         soup = BeautifulSoup(html, "html.parser")
 
-        hours_label = ""
-        guard_type = "24h"
-        banner = soup.select_one(".duty-banner")
-        if banner:
-            hours_label = " ".join(banner.get_text(" ", strip=True).split())
-            lowered = hours_label.lower()
-            if "24" in lowered or "24h" in lowered:
-                guard_type = "24h"
-            elif "nuit" in lowered or "night" in lowered:
-                guard_type = "night"
-            else:
-                guard_type = "day"
+        sections: list[dict] = []
+        current: dict = {"guard_type": "24h", "hours_label": "", "pharmacies": []}
+        row = soup.select_one(".row.g-2") or soup
 
-        pharmacies: list[dict] = []
-        for card in soup.select(".pharm-card"):
-            slug = (card.get("data-slug") or "").strip()
-            name = (card.get("data-name") or "").strip()
-            if not slug or not name:
+        for el in row.children:
+            if not getattr(el, "name", None):
                 continue
-            pharmacies.append(
-                {
-                    "slug": slug,
-                    "name": name,
-                    "name_ar": (card.get("data-name-ar") or "").strip(),
-                    "address": (card.get("data-address") or "").strip(),
-                    "address_ar": (card.get("data-address-ar") or "").strip(),
-                    "phone": (card.get("data-phone") or "").strip(),
-                    "latitude": _to_decimal(card.get("data-latitude")),
-                    "longitude": _to_decimal(card.get("data-longitude")),
-                    "website": (card.get("data-website") or "").strip(),
+            classes = el.get("class") or []
+            if el.name == "div" and "duty-banner" in classes:
+                if current["pharmacies"]:
+                    sections.append(current)
+                label = " ".join(el.get_text(" ", strip=True).split())
+                current = {
+                    "guard_type": _guard_type(label),
+                    "hours_label": label,
+                    "pharmacies": [],
                 }
-            )
+                continue
+            if el.name != "div":
+                continue
+            card = el.select_one(".pharm-card") if el.select_one(".pharm-card") else None
+            if card is None:
+                continue
+            item = self._extract_card(card)
+            if item:
+                current["pharmacies"].append(item)
 
-        if not pharmacies:
+        if current["pharmacies"]:
+            sections.append(current)
+        sections = [s for s in sections if s["pharmacies"]]
+
+        if not sections:
             raise ScrapeError("Aucune pharmacie trouvée (sélecteurs obsolètes ?).")
 
+        start_1, end_1, start_2, end_2 = _parse_times(sections[0]["hours_label"])
         return {
             "city": self.city,
-            "guard_type": guard_type,
-            "hours_label": hours_label,
-            "pharmacies": pharmacies,
+            "sections": sections,
+            "guard_type": sections[0]["guard_type"],
+            "hours_label": sections[0]["hours_label"],
+            "start_time": start_1,
+            "end_time": end_1,
+            "start_time_2": start_2,
+            "end_time_2": end_2,
+        }
+
+    def _extract_card(self, card) -> dict | None:
+        slug = (card.get("data-slug") or "").strip()
+        name = (card.get("data-name") or "").strip()
+        if not slug or not name:
+            return None
+        return {
+            "slug": slug,
+            "name": name,
+            "name_ar": (card.get("data-name-ar") or "").strip(),
+            "address": (card.get("data-address") or "").strip(),
+            "address_ar": (card.get("data-address-ar") or "").strip(),
+            "phone": (card.get("data-phone") or "").strip(),
+            "latitude": _to_decimal(card.get("data-latitude")),
+            "longitude": _to_decimal(card.get("data-longitude")),
+            "website": (card.get("data-website") or "").strip(),
         }
 
     def scrape(self) -> dict:
