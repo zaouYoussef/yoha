@@ -16,6 +16,7 @@ import { formatMad, restaurantOpenStatus } from '../data/index.js';
 import { MenuItemImage, restaurantCover, restaurantLogo } from '../components/ui/MenuItemImage.jsx';
 import { MenuItemDetailModal } from '../components/ui/MenuItemDetailModal.jsx';
 import PlaceAutocomplete from '../components/ui/PlaceAutocomplete.jsx';
+import { OrdonnanceUpload } from '../components/ui/OrdonnanceUpload.jsx';
 import { pharmaciesApi } from '../lib/api.js';
 import { browsePathForFilter } from '../data/browseSlugs.js';
 
@@ -1392,6 +1393,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
   const [storeName, setStoreName] = useState('');
   const [storeAddress, setStoreAddress] = useState('');
   const [orderDetails, setOrderDetails] = useState('');
+  const [ordonnanceUrl, setOrdonnanceUrl] = useState('');
   const [isAdded, setIsAdded] = useState(false);
 
   const tags = Array.isArray(r.tags) ? r.tags : [];
@@ -1686,12 +1688,14 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 customDetails: {
                   storeName: targetStoreName,
                   storeAddress: targetStoreAddress,
-                  details: orderDetails.trim()
+                  details: orderDetails.trim(),
+                  ordonnanceUrl: r.cuisine === 'pharmacy' ? ordonnanceUrl : ''
                 }
               };
 
               onAdd(customItem, { id: r.id, name: targetStoreName });
               setOrderDetails('');
+              setOrdonnanceUrl('');
               if (r.isCustomRequest) {
                 setStoreName('');
                 setStoreAddress('');
@@ -1751,6 +1755,9 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 <p className="font-bold mb-0.5">💵 Frais de livraison fixes : 20 MAD</p>
                 <p>Le prix d&apos;achat réel sera ajouté à la livraison.</p>
               </div>
+              {r.cuisine === 'pharmacy' && (
+                <OrdonnanceUpload value={ordonnanceUrl} onChange={setOrdonnanceUrl} />
+              )}
               <button type="submit"
                 className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold transition shadow-md active:scale-[0.98]">
                 <I.Bag size={18} />

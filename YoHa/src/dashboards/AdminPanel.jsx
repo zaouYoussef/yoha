@@ -1767,6 +1767,11 @@ export function AdminRevenue({ orders }) {
                               <span className="font-semibold">Remarques :</span> {o.restaurantNotes}
                             </div>
                           )}
+                          {o.ordonnanceUrl && (
+                            <div className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+                              📎 Ordonnance jointe par le client
+                            </div>
+                          )}
                         </div>
                       </td>
                     </tr>

@@ -27,6 +27,8 @@ class CheckoutSerializer(serializers.Serializer):
     customer_address = serializers.CharField(max_length=500)
     customer_phone = serializers.CharField(max_length=40)
     delivery_instructions = serializers.CharField(required=False, allow_blank=True, default="")
+    ordonnance_url = serializers.URLField(required=False, allow_blank=True, default="",
+        help_text="URL de l'image d'ordonnance (commandes pharmacie sur-mesure)")
     scheduled_delivery_at = serializers.DateTimeField(required=False, allow_null=True, default=None,
         help_text="Date/heure ISO choisie par le client (début de la tranche de 30 min)")
     idempotency_key = serializers.CharField(max_length=64, required=False, allow_blank=True)
@@ -163,6 +165,7 @@ class CheckoutSerializer(serializers.Serializer):
             scheduled_delivery_at=validated_data.get("scheduled_delivery_at"),
             idempotency_key=idem,
             custom_delivery_fee=custom_delivery_fee,
+            ordonnance_url=validated_data.get("ordonnance_url", ""),
         )
 
 
@@ -202,6 +205,7 @@ class OrderSerializer(serializers.ModelSerializer):
     courierName = serializers.SerializerMethodField()
     eta = serializers.IntegerField(source="eta_minutes")
     restaurantNotes = serializers.CharField(source="delivery_instructions", allow_blank=True)
+    ordonnanceUrl = serializers.CharField(source="ordonnance_url", allow_blank=True)
     scheduledDeliveryAt = serializers.DateTimeField(source="scheduled_delivery_at", allow_null=True, required=False)
     cancelledPhase = serializers.CharField(source="cancelled_phase", allow_blank=True)
     cancellationReason = serializers.CharField(source="cancellation_reason", allow_blank=True)
@@ -227,6 +231,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "courierName",
             "eta",
             "restaurantNotes",
+            "ordonnanceUrl",
             "scheduledDeliveryAt",
             "cancelledPhase",
             "cancellationReason",

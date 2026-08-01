@@ -563,6 +563,12 @@ export const ordersApi = {
     });
   },
 
+  async uploadOrdonnance(file) {
+    const fd = new FormData();
+    fd.append('file', file);
+    return apiUpload('/orders/ordonnance/upload/', fd);
+  },
+
   async claimGuest(publicIds) {
     if (!publicIds?.length) return { claimed: 0, orders: [] };
     return apiFetch('/orders/claim/', {

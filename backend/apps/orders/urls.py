@@ -11,6 +11,7 @@ from .views import (
     CourierLocationView,
     GuestOrdersView,
     OrderPushSubscribeView,
+    OrdonnanceUploadView,
     OrderDetailView,
     OrderListView,
     OrderReadyView,
@@ -21,6 +22,7 @@ from .views import (
 
 urlpatterns = [
     path("checkout/", CheckoutView.as_view(), name="checkout"),
+    path("ordonnance/upload/", OrdonnanceUploadView.as_view(), name="order-ordonnance-upload"),
     path("claim/", ClaimOrdersView.as_view(), name="order-claim"),
     path("guest/", GuestOrdersView.as_view(), name="order-guest-batch"),
     path("push-subscribe/", OrderPushSubscribeView.as_view(), name="order-push-subscribe"),

@@ -233,7 +233,8 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
       return;
     }
     setSubmitting(true);
-    const customer = { name, address, phone, email: trimmedEmail, restaurantNotes: restaurantNotes.trim(), scheduledTime: scheduledTime || undefined };
+    const ordonnanceUrl = cart.find(i => i.customDetails?.ordonnanceUrl)?.customDetails?.ordonnanceUrl || '';
+    const customer = { name, address, phone, email: trimmedEmail, restaurantNotes: restaurantNotes.trim(), scheduledTime: scheduledTime || undefined, ordonnanceUrl };
     try {
       const orderId = await addOrder(cart, grand, customer);
       try {
@@ -438,6 +439,11 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                           <div className="text-xs text-ink-500 font-semibold">{it.customDetails.storeName}</div>
                         )}
                         <p className="text-xs text-ink-700 dark:text-ink-300 font-medium truncate">{it.customDetails?.details}</p>
+                        {it.customDetails?.ordonnanceUrl && (
+                          <div className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                            📎 Ordonnance jointe
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <>

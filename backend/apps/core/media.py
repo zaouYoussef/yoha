@@ -27,6 +27,7 @@ IMAGE_PROFILES = {
     "cover": {"max_px": 1200, "thumb_px": 480, "quality": 82},
     "logo": {"max_px": 256, "thumb_px": 128, "quality": 85},
     "menu": {"max_px": 800, "thumb_px": 320, "quality": 82},
+    "prescription": {"max_px": 2000, "thumb_px": 640, "quality": 85},
 }
 
 

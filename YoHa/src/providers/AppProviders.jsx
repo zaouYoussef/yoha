@@ -436,6 +436,7 @@ function triggerClientNotification(title, body, orderId) {
         customer_phone: customer.phone,
         delivery_instructions: customer.restaurantNotes || '',
         scheduled_delivery_at: customer.scheduledTime || undefined,
+        ordonnance_url: customer.ordonnanceUrl || undefined,
       };
       let order = null;
       try {
@@ -457,6 +458,7 @@ function triggerClientNotification(title, body, orderId) {
           },
           items: cartItems.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
           restaurantNotes: customer.restaurantNotes,
+          ordonnanceUrl: customer.ordonnanceUrl || '',
         };
       }
 

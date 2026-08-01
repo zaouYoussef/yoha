@@ -1,6 +1,8 @@
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
+from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
@@ -8,6 +10,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from apps.audit.services import log_audit
+from apps.core.media import ImageProcessingError, process_and_store
 from apps.core.permissions import IsAdmin, IsCourier, IsRestaurant
 from apps.payments.services import record_cod_payment
 
@@ -62,6 +65,43 @@ class CheckoutView(APIView):
             },
         )
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+
+
+class OrdonnanceUploadView(APIView):
+    """Upload multipart de l'image d'ordonnance (commandes pharmacie sur-mesure).
+
+    Retourne l'URL publique à joindre au checkout via `ordonnance_url`.
+    """
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "checkout"
+
+    def post(self, request):
+        uploaded = request.FILES.get("file")
+        if not uploaded:
+            raise ValidationError("Fichier image requis (file).")
+
+        try:
+            stored = process_and_store(
+                uploaded,
+                folder="ordonnances",
+                purpose="prescription",
+            )
+        except ImageProcessingError as exc:
+            raise ValidationError(str(exc)) from exc
+
+        return Response(
+            {
+                "url": stored.url,
+                "thumb_url": stored.thumb_url,
+                "width": stored.width,
+                "height": stored.height,
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class ClaimOrdersView(APIView):

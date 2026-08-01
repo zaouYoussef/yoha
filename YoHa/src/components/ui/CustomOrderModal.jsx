@@ -5,6 +5,7 @@ import { I } from '../../icons/Icons.jsx';
 import { useOrders, useToast } from '../../contexts/AppContexts.jsx';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { useYohaNav } from '../../contexts/YohaNavContext.jsx';
+import { OrdonnanceUpload } from './OrdonnanceUpload.jsx';
 
 const CATEGORY_META = {
   all: {
@@ -125,6 +126,7 @@ export function CustomOrderModal({ isOpen, onClose, category = 'all' }) {
   const [deliveryAddress, setDeliveryAddress] = useState(user?.address || 'CHU Tanger — Aile Principale');
   const [phone, setPhone] = useState(user?.phone || '');
   const [notes, setNotes] = useState('');
+  const [ordonnanceUrl, setOrdonnanceUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [places, setPlaces] = useState([]);
   const [focusField, setFocusField] = useState(null);
@@ -191,6 +193,7 @@ export function CustomOrderModal({ isOpen, onClose, category = 'all' }) {
         name: user?.displayName || 'Client Alliance',
         phone: phone.trim(),
         address: deliveryAddress.trim(),
+        ordonnanceUrl: metaKey === 'pharmacy' ? ordonnanceUrl : '',
         restaurantNotes: `[${meta.label.toUpperCase()} NON LISTÉ] Nom: ${placeName.trim()} | Adresse lieu: ${placeAddress.trim()} | Commande: ${orderDetails.trim()} | Note: ${notes.trim()} | FRAIS COURSIER: 20 MAD (à ajouter au reçu)`,
       };
 
@@ -342,6 +345,15 @@ export function CustomOrderModal({ isOpen, onClose, category = 'all' }) {
               className="w-full p-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 text-sm text-ink-900 dark:text-white focus:outline-none focus:border-brand-500 transition-colors resize-none"
             />
           </div>
+
+          {metaKey === 'pharmacy' && (
+            <OrdonnanceUpload
+              value={ordonnanceUrl}
+              onChange={setOrdonnanceUrl}
+              label="Avez-vous une ordonnance ? (Optionnel)"
+              hint="Prenez une photo de votre ordonnance : notre livreur la montrera à la pharmacie avant l’achat."
+            />
+          )}
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>

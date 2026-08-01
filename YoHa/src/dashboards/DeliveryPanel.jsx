@@ -83,6 +83,7 @@ function buildOrderCopyText(order) {
     order.cancellationReason?.trim()
       ? `Annulation : ${order.cancellationReason.trim()}`
       : null,
+    order.ordonnanceUrl ? '📎 Ordonnance jointe (à montrer à la pharmacie)' : null,
     '',
     'Articles :',
     ...(lines.length ? lines : ['• (détail indisponible)']),
@@ -213,6 +214,55 @@ function DeliveryTimerBadge({ assignedAt }) {
   );
 }
 
+function OrdonnanceCard({ url }) {
+  const [open, setOpen] = useState(false);
+  if (!url) return null;
+  return (
+    <>
+      <div className="m-4 mt-0">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="text-sm">🩺</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-ink-600 dark:text-ink-300">
+            Ordonnance du client
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="block w-full overflow-hidden rounded-xl border border-ink-200 bg-ink-50 text-left transition hover:border-brand-500 dark:border-ink-700 dark:bg-ink-900"
+        >
+          <img
+            src={url}
+            alt="Ordonnance"
+            className="max-h-56 w-full object-cover object-top"
+          />
+          <span className="flex items-center justify-center gap-1.5 py-2 text-[11px] font-bold text-brand-600 dark:text-brand-400">
+            🔍 Agrandir l’ordonnance (à montrer à la pharmacie)
+          </span>
+        </button>
+      </div>
+      {open && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
+          onClick={() => setOpen(false)}
+        >
+          <div className="relative w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
+            <img src={url} alt="Ordonnance" className="h-auto w-full rounded-xl shadow-2xl" />
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="absolute -top-3 -right-3 grid h-9 w-9 place-items-center rounded-full bg-white font-bold text-ink-900 shadow-lg"
+              aria-label="Fermer"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function OrderItemsDetail({ order, restaurantPhone }) {
   const [copied, setCopied] = useState(false);
   const items = Array.isArray(order.items) ? order.items : [];
@@ -298,6 +348,7 @@ function OrderItemsDetail({ order, restaurantPhone }) {
       )}
 
       <OrderRestaurantNotes notes={order.restaurantNotes} className="m-4 mt-0" title="Remarques client (restaurant)" />
+      <OrdonnanceCard url={order.ordonnanceUrl} />
     </div>
   );
 }

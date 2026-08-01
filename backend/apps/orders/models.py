@@ -91,6 +91,7 @@ class Order(models.Model):
     customer_address = EncryptedTextField()
     customer_phone = EncryptedTextField()
     delivery_instructions = models.TextField(blank=True, help_text="Remarques client pour le restaurant (ex. sans tomate)")
+    ordonnance_url = models.URLField(max_length=500, blank=True, default="", help_text="URL de l'image d'ordonnance (commandes pharmacie sur-mesure)")
     subtotal_mad = models.DecimalField(max_digits=12, decimal_places=2)
     service_fee_mad = models.DecimalField(max_digits=12, decimal_places=2)
     total_mad = models.DecimalField(max_digits=12, decimal_places=2)
@@ -158,6 +159,7 @@ class Order(models.Model):
         idempotency_key=None,
         scheduled_delivery_at=None,
         custom_delivery_fee=None,
+        ordonnance_url="",
     ):
         if idempotency_key:
             existing = cls.objects.filter(idempotency_key=idempotency_key).first()
@@ -189,6 +191,7 @@ class Order(models.Model):
             customer_address=customer_address,
             customer_phone=customer_phone,
             delivery_instructions=delivery_instructions,
+            ordonnance_url=(ordonnance_url or "").strip(),
             subtotal_mad=subtotal,
             service_fee_mad=fee,
             total_mad=total,
