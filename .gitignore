@@ -1,0 +1,3 @@
+# Données brutes de scraping Google Maps (source pour l'autocomplétion, non déployées)
+dataautocomplete/
+dataset_google-maps-extractor_*.json

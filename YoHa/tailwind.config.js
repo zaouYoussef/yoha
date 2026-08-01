@@ -72,8 +72,8 @@ export default {
         'char-up': 'char-up .9s cubic-bezier(.16,1,.3,1) both',
         'reveal-y': 'reveal-y 1s cubic-bezier(.16,1,.3,1) both',
         orbit: 'orbit 20s linear infinite',
-        /* Repris de hiho/yoha-web : reflet continu sur le bouton principal */
-        sweep: 'sweep 2.8s ease-in-out infinite',
+        /* Repris de YoHaMobile : reflet du CTA principal (balayage 1.4s + pause 2s) */
+        sweep: 'sweep 3.4s ease-in-out infinite',
       },
       keyframes: {
         'gradient-x': {
@@ -159,8 +159,9 @@ export default {
           to: { transform: 'rotate(360deg) translateX(140px) rotate(-360deg)' },
         },
         sweep: {
-          '0%': { transform: 'translateX(-130%)' },
-          '55%, 100%': { transform: 'translateX(230%)' },
+          '0%': { transform: 'translateX(-160%) skewX(-18deg)' },
+          '41%': { transform: 'translateX(320%) skewX(-18deg)' },
+          '100%': { transform: 'translateX(320%) skewX(-18deg)' },
         },
       },
     },

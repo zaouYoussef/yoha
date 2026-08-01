@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { I } from '../../icons/Icons.jsx';
 import { useOrders, useToast } from '../../contexts/AppContexts.jsx';
 import { useAuth } from '../../contexts/AuthContext.jsx';
@@ -75,6 +75,44 @@ const CATEGORY_META = {
   },
 };
 
+/** Cache du référentiel des commerces de Tanger pour l'autocomplétion. */
+let placesCache = null;
+async function getPlaces() {
+  if (placesCache) return placesCache;
+  try {
+    const res = await fetch('/data/autocomplete.json');
+    placesCache = await res.json();
+  } catch {
+    placesCache = [];
+  }
+  return placesCache;
+}
+
+/** Normalise un texte (minuscules, sans accents) pour la recherche. */
+function norm(s = '') {
+  return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+/** Liste déroulante de suggestions. */
+function SuggestionList({ items, onPick, render }) {
+  if (!items.length) return null;
+  return (
+    <div className="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto rounded-xl bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 shadow-2xl">
+      {items.map((it, i) => (
+        <button
+          key={i}
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => onPick(it)}
+          className="w-full text-left px-4 py-2.5 text-sm hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-800 dark:text-ink-100 transition-colors flex items-start justify-between gap-3"
+        >
+          {render(it)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function CustomOrderModal({ isOpen, onClose, category = 'all' }) {
   const { addOrder, syncOrder } = useOrders() || {};
   const { user } = useAuth() || {};
@@ -88,6 +126,35 @@ export function CustomOrderModal({ isOpen, onClose, category = 'all' }) {
   const [phone, setPhone] = useState(user?.phone || '');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [places, setPlaces] = useState([]);
+  const [focusField, setFocusField] = useState(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let active = true;
+    getPlaces().then((list) => { if (active) setPlaces(list); });
+    return () => { active = false; };
+  }, [isOpen]);
+
+  const nameSuggestions = useMemo(() => {
+    const q = norm(placeName);
+    if (q.length < 2) return [];
+    const matches = places.filter((p) => norm(p.n).includes(q));
+    matches.sort((a, b) => Number(!norm(a.n).startsWith(q)) - Number(!norm(b.n).startsWith(q)));
+    return matches.slice(0, 8);
+  }, [places, placeName]);
+
+  const addrList = useMemo(() => {
+    const m = new Map();
+    for (const p of places) if (p.a && !m.has(p.a)) m.set(p.a, p.n);
+    return Array.from(m, ([a, n]) => ({ a, n }));
+  }, [places]);
+
+  const addrSuggestions = useMemo(() => {
+    const q = norm(placeAddress);
+    if (q.length < 2) return [];
+    return addrList.filter((x) => norm(x.a).includes(q)).slice(0, 8);
+  }, [addrList, placeAddress]);
 
   const metaKey =
     category === 'dessert' || category === 'patisserie'
@@ -199,27 +266,67 @@ export function CustomOrderModal({ isOpen, onClose, category = 'all' }) {
             <label className="block text-xs font-bold uppercase tracking-wider text-ink-700 dark:text-ink-300 mb-1.5">
               1. {meta.nameLabel}
             </label>
-            <input
-              type="text"
-              required
-              placeholder={meta.namePlaceholder}
-              value={placeName}
-              onChange={(e) => setPlaceName(e.target.value)}
-              className="w-full h-11 px-4 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 text-sm text-ink-900 dark:text-white focus:outline-none focus:border-brand-500 transition-colors"
-            />
+            <div
+              className="relative"
+              onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setFocusField(null); }}
+            >
+              <input
+                type="text"
+                required
+                placeholder={meta.namePlaceholder}
+                value={placeName}
+                onChange={(e) => setPlaceName(e.target.value)}
+                onFocus={() => setFocusField('name')}
+                className="w-full h-11 px-4 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 text-sm text-ink-900 dark:text-white focus:outline-none focus:border-brand-500 transition-colors"
+              />
+              {focusField === 'name' && nameSuggestions.length > 0 && (
+                <SuggestionList
+                  items={nameSuggestions}
+                  onPick={(p) => {
+                    setPlaceName(p.n);
+                    if (!placeAddress.trim()) setPlaceAddress(p.a);
+                    setFocusField(null);
+                  }}
+                  render={(p) => (
+                    <>
+                      <span className="font-semibold truncate">{p.n}</span>
+                      {p.a && <span className="text-xs text-ink-400 dark:text-ink-500 truncate shrink-0">{p.a}</span>}
+                    </>
+                  )}
+                />
+              )}
+            </div>
           </div>
 
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-ink-700 dark:text-ink-300 mb-1.5">
               2. Adresse / Quartier du commerce (Optionnel)
             </label>
-            <input
-              type="text"
-              placeholder={meta.addrPlaceholder}
-              value={placeAddress}
-              onChange={(e) => setPlaceAddress(e.target.value)}
-              className="w-full h-11 px-4 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 text-sm text-ink-900 dark:text-white focus:outline-none focus:border-brand-500 transition-colors"
-            />
+            <div
+              className="relative"
+              onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setFocusField(null); }}
+            >
+              <input
+                type="text"
+                placeholder={meta.addrPlaceholder}
+                value={placeAddress}
+                onChange={(e) => setPlaceAddress(e.target.value)}
+                onFocus={() => setFocusField('addr')}
+                className="w-full h-11 px-4 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 text-sm text-ink-900 dark:text-white focus:outline-none focus:border-brand-500 transition-colors"
+              />
+              {focusField === 'addr' && addrSuggestions.length > 0 && (
+                <SuggestionList
+                  items={addrSuggestions}
+                  onPick={(x) => { setPlaceAddress(x.a); setFocusField(null); }}
+                  render={(x) => (
+                    <>
+                      <span className="truncate">{x.a}</span>
+                      {x.n && <span className="text-xs text-ink-400 dark:text-ink-500 truncate shrink-0">{x.n}</span>}
+                    </>
+                  )}
+                />
+              )}
+            </div>
           </div>
 
           <div>

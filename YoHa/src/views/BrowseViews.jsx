@@ -179,7 +179,7 @@ export function toDutyPharmacyItem(p) {
     logo: '💊',
     cover: pharmacyCoverFor(p.slug || String(p.id)),
     description: 'Pharmacie de garde. Dites-nous ce que vous cherchez, notre livreur s\u2019occupe de tout !',
-    tags: [`Garde ${guard}`],
+    tags: [`Garde ${guard === '24h' ? '24H' : guard === 'night' ? 'de nuit' : 'de jour'}`],
     distance: p.address || '',
     address: p.address || '',
     phone: p.phone || '',
@@ -189,6 +189,13 @@ export function toDutyPharmacyItem(p) {
     hoursLabel: p.hours_label || '',
     fee: '20 DH',
   };
+}
+
+/** Extrait la partie française des horaires de garde (le label brut contient FR + AR). */
+function frDutyHours(label) {
+  const s = String(label || '');
+  const m = s.match(/^[^\u0600-\u06FF]+/);
+  return (m ? m[0] : s).trim();
 }
 
 const CATEGORY_GLOW = {
@@ -485,10 +492,17 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     () => [customPharmacy, ...dutyPharmacies.map(toDutyPharmacyItem)].filter(Boolean),
     [customPharmacy, dutyPharmacies],
   );
-  const dutyGuardLabel = useMemo(() => {
-    const p = dutyPharmacies[0];
-    if (!p) return '';
-    return (p.hours_label || '').split('حراسة')[0].trim() || `Garde ${p.guard === '24h' ? '24h' : p.guard}`;
+  const dutyGroups = useMemo(() => {
+    const order = ['day', 'night', '24h'];
+    const titles = { day: 'GARDE DE JOUR', night: 'GARDE DE NUIT', '24h': 'GARDE 24H' };
+    const items = dutyPharmacies.map(toDutyPharmacyItem);
+    return order
+      .map((guard) => {
+        const list = items.filter((it) => it.guard === guard);
+        if (!list.length) return null;
+        return { guard, title: titles[guard], hours: frDutyHours(list[0].hoursLabel), items: list };
+      })
+      .filter(Boolean);
   }, [dutyPharmacies]);
   const paraItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'parapharmacy'), []);
   const marketItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'supermarket'), []);
@@ -696,11 +710,6 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   <p className="text-xs sm:text-sm text-ink-500 dark:text-ink-400 mt-1">
                     {displayedList.length} établissement{displayedList.length > 1 ? 's' : ''} disponible{displayedList.length > 1 ? 's' : ''}
                   </p>
-                  {filter === 'pharmacy' && dutyGuardLabel && (
-                    <p className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold px-2.5 py-1">
-                      🕐 {dutyGuardLabel}
-                    </p>
-                  )}
                 </div>
                 <button
                   type="button"
@@ -716,6 +725,41 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {Array.from({ length: 6 }).map((_, i) => <RestaurantSkeleton key={i} />)}
                 </div>
+              ) : filter === 'pharmacy' ? (
+                dutyGroups.length || customPharmacy ? (
+                  <div className="space-y-10">
+                    {customPharmacy && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                        <div className="animate-fade-up">
+                          <RestaurantCard restaurant={customPharmacy} onClick={() => onPickRestaurant(customPharmacy)} />
+                        </div>
+                      </div>
+                    )}
+                    {dutyGroups.map((group) => (
+                      <section key={group.guard}>
+                        <div className="mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-black uppercase tracking-wide px-3 py-1.5">
+                            🕐 {group.title}
+                          </span>
+                          {group.hours && (
+                            <span className="text-xs sm:text-sm font-semibold text-ink-600 dark:text-ink-300">
+                              {group.hours}
+                            </span>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                          {group.items.map((r, i) => (
+                            <div key={r.id} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 9) * 55}ms` }}>
+                              <RestaurantCard restaurant={r} onClick={() => onPickRestaurant(r)} />
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState catalogEmpty={catalog.length === 0} filter={filter || search} onShowAll={() => { applyFilter('all'); setSearch(''); }} />
+                )
               ) : displayedList.length === 0 ? (
                 <EmptyState catalogEmpty={catalog.length === 0} filter={filter || search} onShowAll={() => { applyFilter('all'); setSearch(''); }} />
               ) : (
@@ -1559,7 +1603,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
               <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-500/25 bg-emerald-50 dark:bg-emerald-500/5 p-4 space-y-2">
                 <div className="flex items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-green-600 text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
-                    🕐 {r.guard === '24h' ? 'Garde 24H' : 'Pharmacie de garde'}
+                    🕐 {r.guard === '24h' ? 'Garde 24H' : r.guard === 'night' ? 'Garde de nuit' : 'Garde de jour'}
                   </span>
                   {r.phone && (
                     <a href={`tel:${r.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
@@ -1906,11 +1950,7 @@ export function RestaurantCard({ restaurant, onClick }) {
 
       {/* Pastilles en haut */}
       <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-4 z-10">
-        {restaurant.isDutyPharmacy ? (
-          <span className="px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-md animate-pulse-slow">
-            🕐 GARDE {restaurant.guard === '24h' ? '24H' : 'DE GARDE'}
-          </span>
-        ) : restaurant.isCustomRequest ? (
+        {restaurant.isCustomRequest ? (
           <span className="px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-md animate-pulse">
             ✨ SUR-MESURE (+20 MAD)
           </span>
