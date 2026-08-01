@@ -707,9 +707,6 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                        `Résultats pour « ${search} »`}
                     </span>
                   </h2>
-                  <p className="text-xs sm:text-sm text-ink-500 dark:text-ink-400 mt-1">
-                    {displayedList.length} établissement{displayedList.length > 1 ? 's' : ''} disponible{displayedList.length > 1 ? 's' : ''}
-                  </p>
                 </div>
                 <button
                   type="button"
@@ -1231,6 +1228,7 @@ export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
 function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
   const open = isRestaurantOpen(restaurant);
   const isCustom = restaurant.isCustomRequest;
+  const isService = isServiceStore(restaurant);
 
   return (
     <div
@@ -1275,7 +1273,7 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
         <div className="flex items-center gap-1.5 text-xs text-white/75 font-medium truncate">
           {restaurant.isChain ? (
             <span className="text-teal-400 font-bold">⚡ Rapide</span>
-          ) : (
+          ) : isService || isCustom ? null : (
             <>
               <span className="text-teal-400 font-extrabold">★</span>
               <span className="font-bold text-white">{(restaurant.rating ?? 4.4).toString().replace('.', ',')}</span>
@@ -1378,6 +1376,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
   const totalItems = (r.menu || []).reduce((s, c) => s + (c.items?.length || 0), 0);
   const isDuty = r.isDutyPharmacy;
   const isChain = r.isChain;
+  const isServiceDetail = isServiceStore(r) || r.isCustomRequest;
   const needsCustomStoreInfo = r.isCustomRequest && !isChain;
   const dutyHoursFr = (r.hoursLabel || '').split('حراسة')[0].trim();
 
@@ -1458,7 +1457,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 ))}
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-ink-500 dark:text-ink-400">
-                {!isChain && (
+                {!isChain && !isServiceDetail && (
                   <span className="flex items-center gap-1">
                     <I.MapPin size={12} className="text-ink-400" /> {r.distance || 'Tanger'}
                   </span>
@@ -1469,7 +1468,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 <span>Min. {formatMad(40, { decimals: 0 })}</span>
               </div>
               <div className="mt-2 flex items-center gap-3">
-                {!isChain && (
+                {!isChain && !isServiceDetail && (
                   <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
                     <I.Star size={12} className="fill-emerald-500 text-emerald-500" />
                     <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
@@ -1952,7 +1951,7 @@ export function RestaurantCard({ restaurant, onClick }) {
       <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-4 z-10">
         {restaurant.isCustomRequest ? (
           <span className="px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-md animate-pulse">
-            ✨ SUR-MESURE (+20 MAD)
+            ✨ SUR-MESURE 
           </span>
         ) : restaurant.promo && open ? (
           <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-md animate-pulse-slow">
@@ -1960,7 +1959,7 @@ export function RestaurantCard({ restaurant, onClick }) {
           </span>
         ) : <span />}
 
-        {!restaurant.isCustomRequest && !restaurant.isDutyPharmacy && (
+        {!restaurant.isCustomRequest && !isService && (
           <span className="shrink-0 inline-flex items-center gap-0.5 px-2 py-1 rounded-lg bg-white/95 text-emerald-600 text-[10px] sm:text-xs font-bold shadow-sm">
             <I.Star size={11} className="fill-emerald-500 text-emerald-500 sm:w-3 sm:h-3" />{' '}
             {(restaurant.rating ?? 4.8).toString().replace('.', ',')}
@@ -2025,10 +2024,6 @@ export function RestaurantCard({ restaurant, onClick }) {
             </>
           ) : isService ? (
             <>
-              <span className="flex items-center gap-1 text-white/70 min-w-0">
-                <I.MapPin size={12} className="text-white/50 shrink-0" />
-                <span className="truncate">{restaurant.distance}</span>
-              </span>
               <span className="font-bold text-amber-400 shrink-0">20 MAD de livraison</span>
               <span className="flex-1" />
               <span className="inline-flex items-center gap-0.5 font-bold text-emerald-400 shrink-0">
