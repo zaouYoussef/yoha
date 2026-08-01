@@ -9,7 +9,7 @@ export const UNSPLASH_FALLBACKS = [
   'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=500&auto=format&fit=crop&q=75',
   'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=500&auto=format&fit=crop&q=75',
   'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=75',
-  'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=500&auto=format&fit=crop&q=75',
+  'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=500&auto=format&fit=crop&q=75',
   'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=500&auto=format&fit=crop&q=75',
   'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=500&auto=format&fit=crop&q=75',
 ];
@@ -59,7 +59,7 @@ export function MenuItemImage({ src, alt = '', className = '', loading = 'lazy' 
       return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=75';
     }
     if (text.includes('patisserie') || text.includes('dessert') || text.includes('sweets') || text.includes('bakery')) {
-      return 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=500&auto=format&fit=crop&q=75';
+      return 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=500&auto=format&fit=crop&q=75';
     }
     return FOOD_IMAGE_FALLBACK;
   };

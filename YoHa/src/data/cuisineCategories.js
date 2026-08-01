@@ -10,7 +10,7 @@ export const CUISINE_CATEGORIES = [
   { id: 'breakfast',   label: 'Petit-déj',      emoji: '☕',  image: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=800&auto=format&fit=crop&q=85', color: 'from-amber-400 to-yellow-500' },
   { id: 'snacks',      label: 'Snacks',         emoji: '🍿',  image: 'https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=800&auto=format&fit=crop&q=85', color: 'from-violet-500 to-purple-500' },
   { id: 'healthy',     label: 'Healthy',        emoji: '🥗',  image: '/categories/cat_healthy.jpg', color: 'from-green-500 to-emerald-500' },
-  { id: 'moroccan',    label: 'Marocain',       emoji: '🇲🇦', image: 'https://images.unsplash.com/photo-1541518763669-27fef04b14e8?w=800&auto=format&fit=crop&q=85', color: 'from-red-600 to-green-600' },
+  { id: 'moroccan',    label: 'Marocain',       emoji: '🇲🇦', image: 'https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?w=800&auto=format&fit=crop&q=85', color: 'from-red-600 to-green-600' },
   { id: 'shawarma',    label: 'Shawarma',       emoji: '🌯',  image: 'https://images.unsplash.com/photo-1561651823-34feb02250e4?w=800&auto=format&fit=crop&q=85', color: 'from-amber-600 to-orange-500' },
   { id: 'bakery',      label: 'Boulangerie',    emoji: '🥐',  image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=85', color: 'from-amber-300 to-yellow-400' },
   { id: 'chicken',     label: 'Poulet',         emoji: '🍗',  image: '/categories/cat_chicken.jpg', color: 'from-orange-500 to-yellow-500' },
