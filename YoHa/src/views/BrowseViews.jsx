@@ -1155,8 +1155,25 @@ export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
 
   if (!lastOrder) return null;
 
-  const storeName = lastOrder.restaurantName || lastOrder.restaurant_name || lastOrder.storeName || 'votre restaurant favori';
   const items = lastOrder.items || [];
+  const storeKeys = new Map();
+  for (const it of items) {
+    const n = it.name || it.title || '';
+    const bracketed = n.match(/^\[(.+?)\]/);
+    const dashed = n.match(/^(.+?)\s+-\s+/);
+    let store = '';
+    if (bracketed) store = bracketed[1].trim();
+    else if (dashed) store = dashed[1].trim();
+    else store = it.restaurantName || it.restaurant_name || '';
+    if (!store) continue;
+    storeKeys.set(store.toLowerCase(), store);
+  }
+  const storeNames = [...storeKeys.values()];
+  const storeName = storeNames.length > 0
+    ? (storeNames.length > 2
+      ? `${storeNames.slice(0, 2).join(', ')} & ${storeNames.length - 2} autre${storeNames.length - 2 > 1 ? 's' : ''}`
+      : storeNames.join(' & '))
+    : (lastOrder.restaurantName || lastOrder.restaurant_name || lastOrder.storeName || 'votre restaurant favori');
   const itemsSummary = items.map(i => `${i.name || i.title} (x${i.qty || 1})`).join(', ') || 'Menu sélectionné';
   const totalAmount = Math.round((lastOrder.total || lastOrder.total_amount || 0) * 100) / 100;
 
