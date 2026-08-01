@@ -207,6 +207,17 @@ function CourierCard({ order, status }) {
 
 function ItemsSummary({ order, itemCount }) {
   if (!order?.items?.length) return null;
+  const looksCustom = (it) => it.isCustom || (it.price <= 0 && /^\[(.+?)\]|^(.+?)\s+-\s+/.test(it.name || ''));
+  const customItems = order.items.filter(looksCustom);
+  const customStoreCount = new Set(customItems.map(it => {
+    const n = it.name || '';
+    const b = n.match(/^\[(.+?)\]/);
+    if (b) return b[1].trim().toLowerCase();
+    const d = n.match(/^(.+?)\s+-\s+/);
+    if (d) return d[1].trim().toLowerCase();
+    return it.restaurantId || it.restaurantName?.trim().toLowerCase() || '';
+  }).filter(Boolean)).size;
+  const hasCustom = customItems.length > 0;
   return (
     <div className="animate-card-entrance-3 px-3 pb-3 sm:px-5">
       <div className="rounded-xl bg-white/70 dark:bg-ink-900/70 border border-ink-200/60 dark:border-ink-800/50 backdrop-blur-sm overflow-hidden shadow-sm">
@@ -224,7 +235,13 @@ function ItemsSummary({ order, itemCount }) {
                 {it.name}
               </span>
               <span className="font-bold text-ink-900 dark:text-white shrink-0 tabular-nums">
-                {formatMad(it.price * (it.qty || 1))}
+                {looksCustom(it) ? (
+                  <span className="inline-flex items-center gap-1.5 text-brand-600 dark:text-brand-400">
+                    <span className="px-2 py-0.5 rounded-md bg-brand-500/10 border border-brand-500/20 text-[9px] font-black uppercase tracking-wider">Sur ticket</span>
+                  </span>
+                ) : (
+                  formatMad(it.price * (it.qty || 1))
+                )}
               </span>
             </div>
           ))}
@@ -232,9 +249,19 @@ function ItemsSummary({ order, itemCount }) {
         <div className="px-3 py-2.5 border-t border-dashed border-ink-200 dark:border-ink-700 flex items-center justify-between bg-gradient-to-r from-brand-500/5 to-transparent">
           <span className="text-xs font-bold text-ink-700 dark:text-ink-300">Total</span>
           <span className="text-sm font-black text-brand-600 dark:text-brand-400 tabular-nums animate-count-pulse">
-            {formatMad(order.totalDh || order.total, { decimals: 2 })}
+            {hasCustom ? `${formatMad(order.totalDh || order.total, { decimals: 2 })} + achats` : formatMad(order.totalDh || order.total, { decimals: 2 })}
           </span>
         </div>
+        {hasCustom && (
+          <div className="px-3 py-2.5 border-t border-ink-100/60 dark:border-ink-800/40 bg-brand-500/[0.03]">
+            <div className="flex items-start gap-2 text-[11px] font-medium text-ink-600 dark:text-ink-300 leading-snug">
+              <span className="shrink-0">📝</span>
+              <p>
+                Commande sur-mesure · coursier YoHa · {customStoreCount > 1 ? `${customStoreCount} établissements · ${customStoreCount * 20} MAD de frais de course` : '20 MAD de frais de course'}. Les achats sont réglés à la livraison selon le ticket de caisse réel.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
