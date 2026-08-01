@@ -1402,7 +1402,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
   const isChain = r.isChain;
   const isServiceDetail = isServiceStore(r) || r.isCustomRequest;
   const needsCustomStoreInfo = r.isCustomRequest && !isChain;
-  const dutyHoursFr = (r.hoursLabel || '').split('حراسة')[0].trim();
+  const dutyHoursFr = frDutyHours(r.hoursLabel);
 
   const scrollToCat = (cat) => {
     setActiveCat(cat);
@@ -1495,7 +1495,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 <span>·</span>
                 <span>Min. {formatMad(40, { decimals: 0 })}</span>
               </div>
-              <div className="mt-2 flex items-center gap-3">
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
                 {!isChain && !isServiceDetail && (
                   <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
                     <I.Star size={12} className="fill-emerald-500 text-emerald-500" />
@@ -1508,7 +1508,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 {isDuty && r.phone && (
                   <a
                     href={`tel:${r.phone.replace(/\s/g, '')}`}
-                    className="ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500 text-white text-xs font-bold shadow-md hover:bg-emerald-600 transition-colors"
+                    className="sm:ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500 text-white text-xs font-bold shadow-md hover:bg-emerald-600 transition-colors whitespace-nowrap"
                   >
                     <I.Phone size={12} /> {r.phone}
                   </a>
@@ -1628,12 +1628,12 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
 
             {isDuty && (
               <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-500/25 bg-emerald-50 dark:bg-emerald-500/5 p-4 space-y-2">
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-green-600 text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
                     🕐 {r.guard === '24h' ? 'Garde 24H' : r.guard === 'night' ? 'Garde de nuit' : 'Garde de jour'}
                   </span>
                   {r.phone && (
-                    <a href={`tel:${r.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                    <a href={`tel:${r.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 whitespace-nowrap">
                       <I.Phone size={12} /> {r.phone}
                     </a>
                   )}

@@ -44,7 +44,7 @@ export function OrdonnanceUpload({
       </div>
 
       {value ? (
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-ink-200 dark:border-ink-700 shrink-0 bg-white dark:bg-ink-900">
             <img src={value} alt="Ordonnance" className="w-full h-full object-cover" />
           </div>
@@ -63,7 +63,7 @@ export function OrdonnanceUpload({
             type="button"
             disabled={uploading || disabled}
             onClick={() => inputRef.current?.click()}
-            className="shrink-0 px-3 py-2 rounded-lg bg-ink-900 dark:bg-white text-white dark:text-ink-900 text-xs font-bold disabled:opacity-50"
+            className="shrink-0 sm:ml-auto px-3 py-2 rounded-lg bg-ink-900 dark:bg-white text-white dark:text-ink-900 text-xs font-bold disabled:opacity-50"
           >
             Remplacer
           </button>
