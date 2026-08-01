@@ -408,20 +408,41 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
     return Math.min(98, Math.round(smartProgressPct + smoothOffset));
   }, [status, smartProgressPct, smoothOffset]);
 
+  const storeCount = useMemo(() => {
+    if (!order?.items?.length) return 1;
+    const keys = new Set();
+    for (const it of order.items) {
+      const n = it.name || '';
+      const bracketed = n.match(/^\[(.+?)\]/);
+      const dashed = n.match(/^(.+?)\s+-\s+/);
+      if (bracketed) {
+        keys.add('n:' + bracketed[1].trim().toLowerCase());
+      } else if (dashed) {
+        keys.add('n:' + dashed[1].trim().toLowerCase());
+      } else {
+        const rid = it.restaurantId || it.restaurantName?.trim().toLowerCase();
+        if (rid) keys.add('r:' + rid);
+      }
+    }
+    return Math.max(1, keys.size);
+  }, [order]);
+  const isMultiStore = storeCount > 1;
+
   const liveEtaWindow = useMemo(() => {
     if (status === 'delivered') return null;
     const baseTime = order?.createdAt ? new Date(order.createdAt).getTime() : Date.now();
     if (gpsCalculated) {
-      const remainingMs = gpsCalculated.travelMins * 60 * 1000;
+      const remainingMs = (gpsCalculated.travelMins + (isMultiStore ? 15 : 0)) * 60 * 1000;
       const arrivalTargetMs = nowMs + remainingMs;
       const fmt = (ms) => { const d = new Date(ms); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
       return { start: fmt(Math.max(nowMs, arrivalTargetMs - 3 * 60 * 1000)), end: fmt(arrivalTargetMs + 7 * 60 * 1000) };
     }
-    let startMs = baseTime + 20 * 60 * 1000, endMs = baseTime + 35 * 60 * 1000;
+    const etaMin = isMultiStore ? 45 : 20, etaMax = isMultiStore ? 60 : 35;
+    let startMs = baseTime + etaMin * 60 * 1000, endMs = baseTime + etaMax * 60 * 1000;
     while (nowMs > endMs - 2 * 60 * 1000 && status !== 'delivered') { startMs += 10 * 60 * 1000; endMs += 10 * 60 * 1000; }
     const fmt = (ms) => { const d = new Date(ms); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
     return { start: fmt(startMs), end: fmt(endMs) };
-  }, [order?.createdAt, status, nowMs, gpsCalculated]);
+  }, [order?.createdAt, status, nowMs, gpsCalculated, isMultiStore]);
 
   const restoInfo = useMemo(() => {
     if (!order) return null;
