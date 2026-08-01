@@ -23,6 +23,7 @@ class SyncReport:
     updated: int = 0
     duties_created: int = 0
     duties_updated: int = 0
+    duties_removed: int = 0
     errors: int = 0
     messages: list[str] = field(default_factory=list)
 
@@ -31,7 +32,7 @@ class SyncReport:
             f"[pharmacies] {self.city} — {self.total} pharmacies, "
             f"{self.created} créées, {self.updated} mises à jour, "
             f"{self.duties_created} gardes créées, {self.duties_updated} gardes rafraîchies, "
-            f"{self.errors} erreurs"
+            f"{self.duties_removed} gardes périmées retirées, {self.errors} erreurs"
         )
 
 
@@ -58,6 +59,8 @@ def sync_pharmacies(data: dict, duty_date: date | None = None) -> SyncReport:
                 "pharmacies": data.get("pharmacies", []),
             }
         ]
+
+    duty_ids: set[int] = set()
 
     for section in sections:
         guard_type = section.get("guard_type", "24h")
@@ -103,8 +106,13 @@ def sync_pharmacies(data: dict, duty_date: date | None = None) -> SyncReport:
                     report.duties_created += 1
                 else:
                     report.duties_updated += 1
+                duty_ids.add(duty.pk)
             except Exception as exc:  # noqa: BLE001 — une ligne ne doit pas bloquer le lot
                 report.errors += 1
                 report.messages.append(f"{item.get('name', '?')}: {exc}")
+
+    stale = PharmacyDuty.objects.filter(date=duty_date).exclude(pk__in=duty_ids)
+    report.duties_removed = stale.count()
+    stale.delete()
 
     return report
