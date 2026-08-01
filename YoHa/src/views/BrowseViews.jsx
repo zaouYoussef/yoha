@@ -704,18 +704,21 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                        filter === 'supermarket' ? '🛒 Supermarchés' :
                        filter === 'shop' ? '🛍️ Magasins' :
                        SUB_BY_ID[filter] ? `${SUB_BY_ID[filter].emoji} ${SUB_BY_ID[filter].label}` :
-                       `Résultats pour « ${search} »`}
+                       search ? `Résultats pour « ${search} »` :
+                       `Résultats pour « ${filter.charAt(0).toUpperCase() + filter.slice(1)} »`}
                     </span>
                   </h2>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => { applyFilter('all'); setSearch(''); }}
-                  className="cursor-grow px-3.5 py-2 rounded-xl bg-ink-100 dark:bg-ink-800 text-ink-900 dark:text-white font-bold text-xs hover:bg-brand-500 hover:text-white active:scale-95 transition-all shadow-sm flex items-center gap-1.5"
-                >
-                  <span>Toutes les catégories</span>
-                  <span>✕</span>
-                </button>
+                {!['pharmacy', 'parapharmacy', 'dessert', 'patisserie', 'supermarket', 'shop'].includes(filter) && (
+                  <button
+                    type="button"
+                    onClick={() => { applyFilter('all'); setSearch(''); }}
+                    className="cursor-grow px-3.5 py-2 rounded-xl bg-ink-100 dark:bg-ink-800 text-ink-900 dark:text-white font-bold text-xs hover:bg-brand-500 hover:text-white active:scale-95 transition-all shadow-sm flex items-center gap-1.5"
+                  >
+                    <span>Toutes les catégories</span>
+                    <span>✕</span>
+                  </button>
+                )}
               </div>
 
               {loading ? (
