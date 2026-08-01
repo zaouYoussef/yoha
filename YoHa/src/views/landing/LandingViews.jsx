@@ -214,6 +214,7 @@ export function Hero({ onStart, onHowItWorks }) {
             <div className="text-xs sm:text-sm min-w-0">
               <div className="flex items-center gap-1 text-amber-500">
                 {[1,2,3,4,5].map(i => <I.Star key={i} size={13} stroke={2.4} className="fill-amber-400 sm:w-3.5 sm:h-3.5" />)}
+                <span className="ml-1 font-semibold text-ink-900 dark:text-ink-50">4,9</span>
               </div>
               <div className="text-ink-500 dark:text-ink-400 leading-snug">
                 <span className="sm:hidden"><LiveCount to={200} format={(v) => `${v}+`} /> utilisateurs satisfaits</span>
