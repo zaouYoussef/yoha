@@ -1243,6 +1243,8 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
         alt={restaurant.name}
         loading="lazy"
         className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08] ${
+          restaurant.coverBlend === 'screen' ? 'mix-blend-screen' : ''
+        } ${
           !open ? 'filter blur-[2px] grayscale opacity-50' : ''
         }`}
       />
@@ -1417,11 +1419,15 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
   return (
     <div className="page-enter bg-white dark:bg-ink-950 min-h-screen">
       {/* Cover */}
-      <div className="relative h-[200px] sm:h-[280px] lg:h-[320px] overflow-hidden bg-ink-100 dark:bg-ink-900">
+      <div className={`relative h-[200px] sm:h-[280px] lg:h-[320px] overflow-hidden ${
+        r.coverBlend === 'screen' ? 'bg-ink-950' : 'bg-ink-100 dark:bg-ink-900'
+      }`}>
         <img
           src={restaurantCover(r.cover)}
           alt={r.name || ''}
-          className="w-full h-full object-cover"
+          className={`w-full h-full ${
+            r.coverBlend === 'screen' ? 'object-contain mix-blend-screen' : 'object-cover'
+          }`}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         <button
@@ -1648,11 +1654,11 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                   : `${r.name} - ${orderDetails.trim()}`,
                 price: 0,
                 img: r.isChain && r.cover ? r.cover :
-                     r.cuisine === 'pharmacy' ? '/media/restaurants/custom-pharmacy.webp' :
-                     r.cuisine === 'parapharmacy' ? '/media/restaurants/custom-parapharmacy.webp' :
-                     r.cuisine === 'supermarket' ? '/media/restaurants/custom-supermarket.webp' :
-                     r.cuisine === 'shop' ? '/media/restaurants/custom-shop.webp' :
-                     '/media/restaurants/custom-patisserie.webp',
+                     r.cuisine === 'pharmacy' ? 'https://images.unsplash.com/photo-1576671081837-49000212a370?w=500&auto=format&fit=crop&q=75' :
+                     r.cuisine === 'parapharmacy' ? 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=500&auto=format&fit=crop&q=75' :
+                     r.cuisine === 'supermarket' ? 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&auto=format&fit=crop&q=75' :
+                     r.cuisine === 'shop' ? 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500&auto=format&fit=crop&q=75' :
+                     'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=500&auto=format&fit=crop&q=75',
                 restaurantId: r.id,
                 restaurantName: targetStoreName,
                 restaurantCuisine: r.cuisine,
@@ -1931,6 +1937,8 @@ export function RestaurantCard({ restaurant, onClick }) {
         alt={restaurant.name}
         loading="lazy"
         className={`absolute inset-0 h-full w-full object-cover transition-transform duration-[1.1s] ease-out group-hover:scale-[1.08] ${
+          restaurant.coverBlend === 'screen' ? 'mix-blend-screen' : ''
+        } ${
           !open ? 'filter blur-sm grayscale opacity-70' : ''
         }`}
       />

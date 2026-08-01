@@ -2671,6 +2671,7 @@ export const STATIC_STORES = [
     fee: '20 DH',
     cover: '/chain-img/shop-adidas.png',
     logo: '👟',
+    coverBlend: 'screen',
     description: 'Adidas — situé Boulevard Mohamed VI, Tanger. Équipement sportif, chaussures, vêtements de sport et accessoires originals.',
     tags: ['Sport', 'Chaussures', 'Vêtements', 'Original'],
     isOpen: true,

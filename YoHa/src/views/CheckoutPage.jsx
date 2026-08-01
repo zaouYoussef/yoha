@@ -55,6 +55,18 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
 
   const mainStoreName = cart[0]?.restaurantName || 'YoHa Partner';
 
+  const uniqueStores = cart.reduce((acc, i) => {
+    const key = i.restaurantId || i.restaurantName?.trim().toLowerCase();
+    if (key && !acc.has(key)) acc.set(key, i.restaurantName || key);
+    return acc;
+  }, new Map());
+  const storeNames = [...uniqueStores.values()];
+  const isMultiStore = storeNames.length > 1;
+  const deliveryEta = isMultiStore ? '45 min - 1h' : '30-45 min';
+  const storeLabel = storeNames.length > 2
+    ? `${storeNames.slice(0, 2).join(', ')} & ${storeNames.length - 2} autre${storeNames.length - 2 > 1 ? 's' : ''}`
+    : storeNames.join(' & ');
+
   const { orders = [] } = useOrders() || {};
 
   // Check promo code active status from localStorage / Admin settings
@@ -305,7 +317,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
           Finalisation de commande
         </h1>
         <p className="mt-1 text-xs sm:text-sm text-ink-500 dark:text-ink-400 font-medium">
-          Livraison rapide en <span className="font-bold text-brand-600 dark:text-brand-400">30-45 min</span> à l'Alliance & CHU Tanger 🏍️
+          Livraison rapide en <span className="font-bold text-brand-600 dark:text-brand-400">{deliveryEta}</span> à l'Alliance & CHU Tanger 🏍️
         </p>
       </div>
 
@@ -412,7 +424,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
           <Card className="rounded-3xl shadow-sm border border-ink-100 dark:border-ink-800 overflow-hidden">
             <CardHeader
               icon={<I.Bag size={20} className="text-brand-500" />}
-              title={`Articles sélectionnés (${cart.reduce((s,i)=>s+i.qty,0)}) chez ${mainStoreName}`}
+              title={`Articles sélectionnés (${cart.reduce((s,i)=>s+i.qty,0)}) chez ${storeLabel}`}
             />
             <div className="p-4 sm:p-6 space-y-3.5 divide-y divide-ink-100 dark:divide-ink-800">
               {cart.map(it => (
@@ -457,7 +469,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                   </span>
                 ) : (
                   <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                    {deliveryFee === 0 ? '⚡ 0 MAD livraison' : '⚡ 30-45 min'}
+                    {deliveryFee === 0 ? '⚡ 0 MAD livraison' : `⚡ ${deliveryEta}`}
                   </span>
                 )}
               </h3>
@@ -532,7 +544,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                   value={
                     <b className={`text-2xl sm:text-3xl font-black ${discountAmount > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-brand-600 dark:text-brand-400'}`}>
                       {isCustom 
-                        ? (total > 0 ? `${formatMad(grand)} + achats` : "20,00 MAD + achats")
+                        ? `${formatMad(grand)} + achats`
                         : formatMad(grand)
                       }
                     </b>
@@ -655,7 +667,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
           <div className="shrink-0 pl-1">
             <div className="text-[10px] font-extrabold uppercase tracking-wider text-ink-400">Total</div>
             <div className="font-display font-black text-sm sm:text-base text-brand-600 dark:text-brand-400">
-              {isCustom ? (total > 0 ? `${formatMad(grand)}` : '20 DH') : formatMad(grand)}
+              {formatMad(grand)}
             </div>
           </div>
           <button

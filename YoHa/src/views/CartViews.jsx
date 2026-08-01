@@ -82,6 +82,7 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                 const customItems = items.filter(i => i.isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes(i.restaurantCuisine));
                 const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
                 const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
+                const etaText = uniqueCustomShops.size > 1 ? 'Arrivée estimée dans 45 min - 1h ⚡' : 'Arrivée estimée dans 15-22 min ⚡';
 
                 return (
                   <>
@@ -90,7 +91,7 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                         <span className="w-9 h-9 rounded-xl bg-brand-500/20 text-brand-600 grid place-items-center shrink-0"><I.Bike size={18}/></span>
                         <div>
                           <div className="font-semibold text-sm">Livraison fixe à {deliveryFee} DH</div>
-                          <div className="text-xs text-ink-500 mt-0.5 font-medium">Arrivée estimée dans 15-22 min ⚡</div>
+                          <div className="text-xs text-ink-500 mt-0.5 font-medium">{etaText}</div>
                         </div>
                       </div>
                     ) : (
@@ -135,7 +136,7 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                       value={
                         <b className="text-xl">
                           {isCustom 
-                            ? (total > 0 ? `${formatMad(grandTotal)} + achats` : `${deliveryFee},00 MAD + achats`)
+                            ? `${formatMad(grandTotal)} + achats`
                             : formatMad(grandTotal)
                           }
                         </b>
