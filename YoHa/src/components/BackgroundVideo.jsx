@@ -1,24 +1,11 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export default function BackgroundVideo({ webmSrc, mp4Src, poster, className = '' }) {
-  const [mounted, setMounted] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
   const videoRef = useRef(null);
 
   useEffect(() => {
-    setMounted(true);
-    const checkDesktop = () => {
-      setIsDesktop(window.innerWidth >= 768);
-    };
-    checkDesktop();
-    window.addEventListener('resize', checkDesktop);
-    return () => window.removeEventListener('resize', checkDesktop);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted || !isDesktop) return;
     const video = videoRef.current;
     if (!video) return;
 
@@ -26,47 +13,39 @@ export default function BackgroundVideo({ webmSrc, mp4Src, poster, className = '
     video.defaultMuted = true;
     video.setAttribute('muted', '');
     video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
 
     const tryPlay = () => {
       const promise = video.play();
       if (promise !== undefined) {
-        promise.catch((err) => {
-          console.warn('Autoplay prevented by browser:', err);
+        promise.catch(() => {
+          /* autoplay bloqué par le navigateur : le poster reste affiché */
         });
       }
     };
 
-    video.load();
-    tryPlay();
-  }, [webmSrc, mp4Src, mounted, isDesktop]);
-
-  // On Mobile (<768px), SSR, or before mount: render ultra-lightweight WebP poster image ONLY
-  if (!mounted || !isDesktop) {
-    return (
-      <img
-        src={poster}
-        alt="Background"
-        className={className}
-        loading="eager"
-        fetchPriority="high"
-        decoding="async"
-        aria-hidden="true"
-      />
-    );
-  }
+    if (video.readyState >= 1) {
+      tryPlay();
+    } else {
+      const onCanPlay = () => {
+        tryPlay();
+        video.removeEventListener('canplay', onCanPlay);
+      };
+      video.addEventListener('canplay', onCanPlay);
+    }
+  }, [webmSrc, mp4Src]);
 
   return (
     <video
       ref={videoRef}
-      src={mp4Src}
-      className={className}
       autoPlay
       loop
       muted
       playsInline
-      preload="none"
+      preload="auto"
       poster={poster}
       aria-hidden="true"
+      className={className}
     >
       <source src={webmSrc} type="video/webm" />
       <source src={mp4Src} type="video/mp4" />
