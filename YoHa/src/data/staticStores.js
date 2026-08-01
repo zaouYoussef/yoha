@@ -119,23 +119,6 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'dikra-patisserie',
-    name: 'Dikra Patisserie',
-    cuisine: 'dessert',
-    rating: 5.0,
-    reviewsCount: 1,
-    distance: '2.9 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Dikra Patisserie — P5M7+9RP, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P5M7+9RP',
-    tags: ["Dikra"],
-    isOpen: true,
-    isStatic: true
-  },
 
   {
     id: 'patisserie-5',
@@ -263,41 +246,9 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'patisserie-hajji',
-    name: 'Pâtisserie Hajji',
-    cuisine: 'dessert',
-    rating: 2.0,
-    reviewsCount: 2,
-    distance: '4.9 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie Hajji — Tanger 90000, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Tanger 90000, Maroc',
-    tags: ["Hajji"],
-    isOpen: true,
-    isStatic: true
-  },
 
-  {
-    id: 'patisserie-rahma',
-    name: 'Pâtisserie Rahma',
-    cuisine: 'dessert',
-    rating: 5.0,
-    reviewsCount: 1,
-    distance: '5.2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie Rahma — P4P7+XXR, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P4P7+XXR',
-    tags: ["Rahma"],
-    isOpen: true,
-    isStatic: true
-  },
+
+
 
   {
     id: 'boulangerie-patisserie-al-woroud',
@@ -353,23 +304,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'patisserie-omar',
-    name: 'Pâtisserie Omar',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '5.2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie Omar — P4M9+584, Route secondaire de mosqué, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P4M9+584, Route secondaire de mosqué',
-    tags: ["Omar"],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'deghfel-signature-patisserie-francaise-t',
@@ -749,23 +684,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'boulangerie-patisserie-bahja',
-    name: 'Boulangerie pâtisserie Bahja',
-    cuisine: 'dessert',
-    rating: 5.0,
-    reviewsCount: 2,
-    distance: '5.2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🥐',
-    description: 'Boulangerie pâtisserie Bahja — P4Q7+WQ2, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P4Q7+WQ2',
-    tags: ["Bahja"],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'boulangerie-patisserie-la-meme-douceur',
@@ -803,41 +722,6 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'patisserie-wassim',
-    name: 'Pâtisserie Wassim',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '5.2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie Wassim — P4Q7+9JF, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P4Q7+9JF',
-    tags: ["Wassim"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'patisserie-ahl-fes',
-    name: 'Pâtisserie Ahl Fes',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '5.2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie Ahl Fes — P4Q7+CXP, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P4Q7+CXP',
-    tags: ["Ahl","Fes"],
-    isOpen: true,
-    isStatic: true
-  },
 
   {
     id: 'boulangerie-patisserie-samadi',
@@ -1037,23 +921,6 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'patisserie-imane',
-    name: 'Patisserie Imane',
-    cuisine: 'dessert',
-    rating: 5.0,
-    reviewsCount: 4,
-    distance: '1.9 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Patisserie Imane — Q48W+9H9, Tangier, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Q48W+9H9, Tangier, Maroc',
-    tags: ["Imane"],
-    isOpen: true,
-    isStatic: true
-  },
 
   {
     id: 'global-patiss',
@@ -1091,23 +958,6 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'boulangerie-patisserie-fen',
-    name: 'Boulangerie pâtisserie fen',
-    cuisine: 'dessert',
-    rating: 4.8,
-    reviewsCount: 4,
-    distance: '2.1 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🥐',
-    description: 'Boulangerie pâtisserie fen — Near Rue Gutenberg, Tangier 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Near Rue Gutenberg, Tangier 90060, Maroc',
-    tags: ["Fen"],
-    isOpen: true,
-    isStatic: true
-  },
 
   {
     id: 'patisserie-golden-hands',
@@ -1235,41 +1085,9 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'halawiyat-oum-aicha',
-    name: 'halawiyat.oum.aicha',
-    cuisine: 'dessert',
-    rating: 5.0,
-    reviewsCount: 1,
-    distance: '6.4 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'halawiyat.oum.aicha — P6RM+632, Tanger 90000, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P6RM+632, Tanger 90000, Maroc',
-    tags: ["Halawiyat oum aicha"],
-    isOpen: true,
-    isStatic: true
-  },
 
-  {
-    id: 'boulangerie-patisserie-al-nour',
-    name: 'Boulangerie & Pâtisserie Al Nour',
-    cuisine: 'dessert',
-    rating: 5.0,
-    reviewsCount: 3,
-    distance: '4.1 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🥐',
-    description: 'Boulangerie & Pâtisserie Al Nour — Q666+2FG, Rte Principale, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Q666+2FG, Rte Principale',
-    tags: [" ","Al","Nour"],
-    isOpen: true,
-    isStatic: true
-  },
+
+
 
   {
     id: 'boulangerie-patisserie-gouts-de-tanger',
@@ -1289,23 +1107,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'patisserie',
-    name: 'Pâtisserie',
-    cuisine: 'dessert',
-    rating: 4.5,
-    reviewsCount: 2,
-    distance: '4.6 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie — Q678+HG3, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Q678+HG3',
-    tags: ["Boulangerie"],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'charaf',
@@ -1613,23 +1415,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'patisserie-boulangerie',
-    name: 'Pâtisserie Boulangerie',
-    cuisine: 'dessert',
-    rating: 3.6,
-    reviewsCount: 5,
-    distance: '0.2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🥐',
-    description: 'Pâtisserie Boulangerie — 1 Complex ghita 1 el azzizia magazin 1, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: '1 Complex ghita 1 el azzizia magazin 1',
-    tags: ["Pâtisserie"],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'dar-lalla-moulati',
@@ -1703,23 +1489,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'patisserie-bruxelles',
-    name: 'Patisserie Bruxelles',
-    cuisine: 'dessert',
-    rating: 4.5,
-    reviewsCount: 2,
-    distance: '6.6 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Patisserie Bruxelles — Q68Q+V7J, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Q68Q+V7J',
-    tags: ["Bruxelles"],
-    isOpen: true,
-    isStatic: true
-  },
+ 
 
   {
     id: 'my-delices-tanger',
@@ -1757,23 +1527,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'patisserie-ayoub',
-    name: 'Pâtisserie Ayoub',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '6.3 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie Ayoub — Q67P+F8J, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Q67P+F8J',
-    tags: ["Ayoub"],
-    isOpen: true,
-    isStatic: true
-  },
+  
 
   {
     id: 'patisserie-abdo-baraka',
@@ -1829,42 +1583,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'patisserie-vanilla',
-    name: 'Pâtisserie Vanilla',
-    cuisine: 'dessert',
-    rating: 5.0,
-    reviewsCount: 2,
-    distance: '1.6 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie Vanilla — P5X3+M7R, Rte de Rabat, Tanger 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P5X3+M7R, Rte de Rabat, Tanger 90060, Maroc',
-    tags: ["Vanilla"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'patisserie-amira',
-    name: 'Pâtisserie Amira',
-    cuisine: 'dessert',
-    rating: 4.5,
-    reviewsCount: 2,
-    distance: '1.3 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie Amira — Q5CC+989, Av. Anfa, Tanger 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Q5CC+989, Av. Anfa, Tanger 90060, Maroc',
-    tags: ["Amira"],
-    isOpen: true,
-    isStatic: true
-  },
-
+  
   {
     id: 'patisserie-tarbat-ighodan',
     name: 'Pâtisserie Tarbat Ighodan',
@@ -2099,23 +1818,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'boulangerie-patisserie-bakrim',
-    name: 'Boulangerie & Pâtisserie Bakrim',
-    cuisine: 'dessert',
-    rating: 3.8,
-    reviewsCount: 37,
-    distance: '1.4 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🥐',
-    description: 'Boulangerie & Pâtisserie Bakrim — P5X6+2W5, Av. Arabie Saoudite, Tanger 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P5X6+2W5, Av. Arabie Saoudite, Tanger 90060, Maroc',
-    tags: [" ","Bakrim"],
-    isOpen: true,
-    isStatic: true
-  },
+ 
 
   {
     id: 'patisserie-al-mojahidin',
@@ -2135,24 +1838,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'nass-lcake',
-    name: 'Nass_Lcake',
-    cuisine: 'dessert',
-    rating: 5.0,
-    reviewsCount: 7,
-    distance: '0.3 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🍰',
-    description: 'Nass_Lcake — 9000, Tanger 90000, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: '9000, Tanger 90000, Maroc',
-    tags: ["Nass lcake"],
-    isOpen: true,
-    isStatic: true
-  },
-
+  
   {
     id: 'boulangerie-patisserie-adwaq-tanger',
     name: 'Boulangerie Pâtisserie ADWAQ TANGER أذواق طنجة',
@@ -2225,23 +1911,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'cafe-patisserie-achenad',
-    name: 'Café Pâtisserie Achenad',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 4,
-    distance: '2.3 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Café Pâtisserie Achenad — P5Q9+H99, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P5Q9+H99',
-    tags: ["Cafe","Achenad"],
-    isOpen: true,
-    isStatic: true
-  },
+  
 
   {
     id: 'patisserie-122',
@@ -2351,23 +2021,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'patisserie-anfa',
-    name: 'Pâtisserie Anfa',
-    cuisine: 'dessert',
-    rating: 5.0,
-    reviewsCount: 2,
-    distance: '1.5 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie Anfa — 96 Av. Anfa, Tanger 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: '96 Av. Anfa, Tanger 90060, Maroc',
-    tags: ["Anfa"],
-    isOpen: true,
-    isStatic: true
-  },
+ 
 
   {
     id: 'golden-brownies',
@@ -2585,42 +2239,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'patisserie-dar-draoui',
-    name: 'Pâtisserie Dar Draoui',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '3.4 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie Dar Draoui — Rue 01, Tanger 90000, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Rue 01, Tanger 90000, Maroc',
-    tags: ["Dar","Draoui"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'patisserie-achahd',
-    name: 'PATISSERIE ACHAHD',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 6,
-    distance: '1.3 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'PATISSERIE ACHAHD — à côté de feu rouge, Avenue Anfa, N° 140 Rue du Val Fleuri، Tangier 90000, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'à côté de feu rouge, Avenue Anfa, N° 140 Rue du Val Fleuri، Tangier 90000, Maroc',
-    tags: ["Achahd"],
-    isOpen: true,
-    isStatic: true
-  },
-
+ 
   {
     id: 'artepan-patisserie',
     name: 'Artepan-patisserie',
@@ -2639,59 +2258,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'boulangerie-patisserie-l-epi-d-or',
-    name: 'Boulangerie Pâtisserie l\'Épi d\'Or',
-    cuisine: 'dessert',
-    rating: 3.4,
-    reviewsCount: 9,
-    distance: '2.5 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🥐',
-    description: 'Boulangerie Pâtisserie l\'Épi d\'Or — Q5GP+2FC, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Q5GP+2FC',
-    tags: ["L epi","D or"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'patisserie-boulangerie-dina-2',
-    name: 'Patisserie Boulangerie DINA 2',
-    cuisine: 'dessert',
-    rating: 1.0,
-    reviewsCount: 1,
-    distance: '2.6 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🥐',
-    description: 'Patisserie Boulangerie DINA 2 — P5VP+4M2, Al Arabia Saoudia, Tanger 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P5VP+4M2, Al Arabia Saoudia, Tanger 90060, Maroc',
-    tags: ["Dina"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'boulangerie-patisserie-lahay',
-    name: 'Boulangerie - patisserie Lahay',
-    cuisine: 'dessert',
-    rating: 1.5,
-    reviewsCount: 6,
-    distance: '2.4 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://lh3.googleusercontent.com/gps-cs-s/AHRPTWlLoOs2UDEBnksT7e7MXGGy473oRP_s2x1dN-nm-90y7E_YLUgT2w41Oo6N8mI9lZptJMOx70Eqf7dUCnDQ-tnbroJGEvLH2SLIaKgyVVOSEqwq8ZXV26Ql1sZTguSbV3JFIfbpiQ=w408-h408-k-no',
-    logo: '🥐',
-    description: 'Boulangerie - patisserie Lahay — Q59Q+QPH, Av. abderrahmane el youssfi, Tanger 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Q59Q+QPH, Av. abderrahmane el youssfi, Tanger 90060, Maroc',
-    tags: ["Lahay"],
-    isOpen: true,
-    isStatic: true
-  },
+ 
 
   {
     id: 'boulangerie-et-patisserie-al-aouni',
@@ -2746,43 +2313,6 @@ export const STATIC_STORES = [
     isOpen: true,
     isStatic: true
   },
-
-  {
-    id: 'creme-caramelo-boulangerie-patisserie',
-    name: 'Crème Caramelo : Boulangerie & Pâtisserie',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 2,
-    distance: '5.1 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🥐',
-    description: 'Crème Caramelo : Boulangerie & Pâtisserie — P5CW+67M, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P5CW+67M',
-    tags: ["Creme","Caramelo"," "],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'patisserie-barcelona',
-    name: 'Pâtisserie Barcelona',
-    cuisine: 'dessert',
-    rating: 4.3,
-    reviewsCount: 10,
-    distance: '3.3 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie Barcelona — P5RW+Q64, Av. Arabie Saoudite, Tanger 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P5RW+Q64, Av. Arabie Saoudite, Tanger 90060, Maroc',
-    tags: ["Barcelona"],
-    isOpen: true,
-    isStatic: true
-  },
-
   {
     id: 'patisserie-pino',
     name: 'Pâtisserie Pino',
@@ -2820,24 +2350,6 @@ export const STATIC_STORES = [
   },
 
   {
-    id: 'patisserie-mesnana',
-    name: 'Pâtisserie Mesnana',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '2.2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie Mesnana — Q43V+364, Rue inara, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Q43V+364, Rue inara',
-    tags: ["Mesnana"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
     id: 'boulangerie-al-ossra',
     name: 'boulangerie al ossra الأسرة',
     cuisine: 'dessert',
@@ -2851,294 +2363,6 @@ export const STATIC_STORES = [
     description: 'boulangerie al ossra الأسرة — Q522+XM6, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
     address: 'Q522+XM6',
     tags: ["Al","Ossra","الأسرة"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'cafe-restaurant-patisserie-la-fontaine-b',
-    name: 'Cafe Restaurant Patisserie La Fontaine Bleue',
-    cuisine: 'dessert',
-    rating: 1.0,
-    reviewsCount: 1,
-    distance: '3.2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Cafe Restaurant Patisserie La Fontaine Bleue — 144 Ave Mohammed V, Tangier 90000, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: '144 Ave Mohammed V, Tangier 90000, Maroc',
-    tags: ["Cafe","Restaurant","Fontaine","Bleue"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'patisserie-157',
-    name: 'حلويات حسنى الزعيم',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '1.6 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'حلويات حسنى الزعيم — الزودية شارع الوحدة الوطنية رقم الدار 20, Tangier 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'الزودية شارع الوحدة الوطنية رقم الدار 20, Tangier 90060, Maroc',
-    tags: ["حلويات","حسنى","الزعيم"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'boulangerie-patisserie-kortoba',
-    name: 'Boulangerie pâtisserie KORTOBA',
-    cuisine: 'dessert',
-    rating: 2.3,
-    reviewsCount: 4,
-    distance: '1.9 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🥐',
-    description: 'Boulangerie pâtisserie KORTOBA — Q56P+6XF, Av. Moulay Slimane, Tanger 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Q56P+6XF, Av. Moulay Slimane, Tanger 90060, Maroc',
-    tags: ["Kortoba"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'patisserie-maison',
-    name: 'Pâtisserie maison',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '2.2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie maison — Q5FR+6FM, Av. Abi Al Hassan Achadli, Tanger 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Q5FR+6FM, Av. Abi Al Hassan Achadli, Tanger 90060, Maroc',
-    tags: ["Maison"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'boulangerie-patisserie-a-la-fassian',
-    name: 'Boulangerie Pâtisserie à la Fassian',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '1.3 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🥐',
-    description: 'Boulangerie Pâtisserie à la Fassian — AVENUE D\'ANFA 142, Tanger 90000, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'AVENUE D\'ANFA 142, Tanger 90000, Maroc',
-    tags: ["Fassian"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'intissar-s-cake',
-    name: 'Intissar\'s cake',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '1.8 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🍰',
-    description: 'Intissar\'s cake — رقم 2, السواني, زنقة 10، Tanger 90000, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'رقم 2, السواني, زنقة 10، Tanger 90000, Maroc',
-    tags: ["Intissar s","Cake"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'boulangerie-patisserie-saveur-gourmand',
-    name: 'Boulangerie Pâtisserie Saveur Gourmand',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '2.9 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🥐',
-    description: 'Boulangerie Pâtisserie Saveur Gourmand — Angle rue Ibn Toumert et, rue Téhéran, Tanger 90000, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Angle rue Ibn Toumert et, rue Téhéran, Tanger 90000, Maroc',
-    tags: ["Saveur","Gourmand"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'patisserie-alyazami',
-    name: 'Patisserie alyazami',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '2.4 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Patisserie alyazami — Q56R+XQH Rue Ali Bay, Tanger 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Q56R+XQH Rue Ali Bay, Tanger 90060, Maroc',
-    tags: ["Alyazami"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'mery-baker',
-    name: 'Mery Baker',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '0.9 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://lh3.googleusercontent.com/gps-cs-s/AHRPTWl_5YOKVTopBP9JBwGjj_xcB6jb00WJDOQtREt3x8C5YRNfvBUHRq_FgSaCQ6FuL_pzlZVQ6yugXmlVOqrHnKzpwWYTQ4mFrRTgO86Jf2GyRITx-7VEiNpM6cyD2CYax4dLCc2O=w408-h510-k-no',
-    logo: '🧁',
-    description: 'Mery Baker — Avenue, Rue 19, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Avenue, Rue 19',
-    tags: ["Mery","Baker"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'patisserie-yahya',
-    name: 'Pâtisserie Yahya',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '2.2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie Yahya — P5RF+G44, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P5RF+G44',
-    tags: ["Yahya"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'patisserie-al-khayr',
-    name: 'Pâtisserie Al Khayr',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '1.2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie Al Khayr — Q533+GQM, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Q533+GQM',
-    tags: ["Al","Khayr"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'osc-cooking',
-    name: 'OSC\' cooking',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '2.3 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://lh3.googleusercontent.com/gps-cs-s/AHRPTWkBn40W6imBAcmDWPI8xg-X9Najtvm64GJZycfFhCUzUEgx9bGHjKGtJ9Ov2I6qhxQMn21cXXXHMgPbsnyeUNQlQwZv_fYm_5HydM1w9LKxP_DLQQV6AiczUn8cT4OhmMmvJ1Ay=w408-h408-k-no',
-    logo: '🧁',
-    description: 'OSC\' cooking — Tanger 90000, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Tanger 90000, Maroc',
-    tags: ["Osc ","Cooking"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'delice-maison-amira',
-    name: 'Délice maison Amira',
-    cuisine: 'dessert',
-    rating: 5.0,
-    reviewsCount: 5,
-    distance: '2.2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://lh3.googleusercontent.com/gps-cs-s/AHRPTWkcdYKgmTBECVN-i64XtHS2xq4dMEaW0UV8pC6kMWZnF_YTTIEJUrlT_dzCPJXeJ2n2Qent7gGpnBgkO122MKvG_SE6WozZ1dhMr_051J3zxw0MGB0GRk-N_BAFqbCtvgwT5COG3Qk4Hl0=w408-h287-k-no',
-    logo: '🍦',
-    description: 'Délice maison Amira — Rue Nour Hay Inara, Tanger 90040, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Rue Nour Hay Inara, Tanger 90040, Maroc',
-    tags: ["Delice","Maison","Amira"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'boulangerie-patisserie-tanger-nord',
-    name: 'Boulangerie & Pâtisserie Tanger Nord',
-    cuisine: 'dessert',
-    rating: 4.6,
-    reviewsCount: 16,
-    distance: '1.9 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://lh3.googleusercontent.com/gps-cs-s/AHRPTWlcNVThBm2grFEAwRRV81tmL2nHius_ZGbZ7kkgvwCGwtEJukpyIPzDuFKR2qW473sRLAWJb3YS00YQ0bjVoHdya_EjMp6xCO7yS9AYHBF82Rn93mOkne0aV_IH1Ncpv9V9zJ1A=w408-h306-k-no',
-    logo: '🥐',
-    description: 'Boulangerie & Pâtisserie Tanger Nord — P5V6+86Q, Rue Al Amal, Tanger 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'P5V6+86Q, Rue Al Amal, Tanger 90060, Maroc',
-    tags: [" ","Nord"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'delices-de-fes',
-    name: 'Délices de Fès شهيوات فاس',
-    cuisine: 'dessert',
-    rating: 4.7,
-    reviewsCount: 12,
-    distance: '0.2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://lh3.googleusercontent.com/gps-cs-s/AHRPTWmpMk1obyG_MAoiBYaeFWQM2v5xRBnfrnUNDQOYIGZCBxSjeBoRZOvjtsnFpjDMgyqaVOL1eaP39D6KvLepiKZbUnkE71cGv8QtboqdyENj6-8aZJE4Wiw2MMkkz_hBjNa-Cl0R_Q=w408-h725-k-no',
-    logo: '🍦',
-    description: 'Délices de Fès شهيوات فاس — 2 Rue Les Cèdres, Tanger 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: '2 Rue Les Cèdres, Tanger 90060, Maroc',
-    tags: ["Delices","Fes","شهيوات","فاس"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'patisserie-iman-elamri',
-    name: 'Pâtisserie iman elamri',
-    cuisine: 'dessert',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '0.1 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1558961309-dbdf0f0237fa?w=1000&auto=format&fit=crop&q=85',
-    logo: '🧁',
-    description: 'Pâtisserie iman elamri — Q558+R95, Tangier 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Q558+R95, Tangier 90060, Maroc',
-    tags: ["Iman","Elamri"],
     isOpen: true,
     isStatic: true
   },
@@ -3575,23 +2799,6 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-pharmacie-parapharmacie-zarima',
-    name: 'Pharmacie & Parapharmacie Zarima',
-    cuisine: 'parapharmacy',
-    rating: 4.9,
-    reviewsCount: 12,
-    distance: '3.7 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Pharmacie & Parapharmacie Zarima — P5G4+X9C, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: 'P5G4+X9C',
-    tags: ["Zarima"],
-    isOpen: true,
-    isStatic: true
-  },
 
   {
     id: 'parapharmacy-pharmacie-parapharmacie-17-janvier',
@@ -3611,23 +2818,6 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-pharmacie-parapharmacie-hadir',
-    name: 'Pharmacie & Parapharmacie Hadir',
-    cuisine: 'parapharmacy',
-    rating: 3.7,
-    reviewsCount: 3,
-    distance: '3.8 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Pharmacie & Parapharmacie Hadir — 133 lot el ouaari zarima harraraine, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: '133 lot el ouaari zarima harraraine',
-    tags: ["Hadir"],
-    isOpen: true,
-    isStatic: true
-  },
 
   {
     id: 'parapharmacy-parapharmacie-revivre',
@@ -3647,23 +2837,6 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-para-boukhalef',
-    name: 'Para boukhalef',
-    cuisine: 'parapharmacy',
-    rating: 5.0,
-    reviewsCount: 4,
-    distance: '4.7 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Para boukhalef — n 02, Irfane 1 immeuble 6 mag, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: 'n 02, Irfane 1 immeuble 6 mag',
-    tags: ["Boukhalef"],
-    isOpen: true,
-    isStatic: true
-  },
 
   {
     id: 'parapharmacy-para-pharmacie-jawharat-tanja',
@@ -3719,23 +2892,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-para-ranin',
-    name: 'Para Ranin',
-    cuisine: 'parapharmacy',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '3.4 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Para Ranin — P5J2+HP8 Complexe Bayti Sakane, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: 'P5J2+HP8 Complexe Bayti Sakane',
-    tags: ["Ranin"],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'parapharmacy-parapharmacy-villa-harris',
@@ -4025,41 +3182,8 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-beauty-club-para',
-    name: 'Beauty Club Para',
-    cuisine: 'parapharmacy',
-    rating: 4.3,
-    reviewsCount: 28,
-    distance: '2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '💄',
-    description: 'Beauty Club Para — En face l\'école américaine, Secteur Ain Ktiouet, Rue Mahatma Gandhi, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: 'En face l\'école américaine, Secteur Ain Ktiouet, Rue Mahatma Gandhi',
-    tags: ["Beauty","Club"],
-    isOpen: true,
-    isStatic: true
-  },
 
-  {
-    id: 'parapharmacy-parapharmacie-parc-des-princes',
-    name: 'Parapharmacie parc des princes',
-    cuisine: 'parapharmacy',
-    rating: 3.0,
-    reviewsCount: 1,
-    distance: '3 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Parapharmacie parc des princes — 9 Av. Prince Héritier, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: '9 Av. Prince Héritier',
-    tags: ["Parc","Princes"],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'parapharmacy-al-hariri-parapharmacie',
@@ -4187,23 +3311,6 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-paraluna-m',
-    name: 'paraluna m',
-    cuisine: 'parapharmacy',
-    rating: 5.0,
-    reviewsCount: 4,
-    distance: '1.3 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'paraluna m — n 11, zemmouri 3 immeuble syrin 2, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: 'n 11, zemmouri 3 immeuble syrin 2',
-    tags: ["Paraluna","M"],
-    isOpen: true,
-    isStatic: true
-  },
 
   {
     id: 'parapharmacy-para-grand-tanger',
@@ -4223,23 +3330,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-parapharmacie-para-time',
-    name: 'Parapharmacie Para Time',
-    cuisine: 'parapharmacy',
-    rating: 5.0,
-    reviewsCount: 6,
-    distance: '1.4 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Parapharmacie Para Time — 95 Av. Anfa, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: '95 Av. Anfa',
-    tags: ["Time"],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'parapharmacy-parapharmacie-jaanin',
@@ -4259,23 +3350,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-parapharmacie-les-merveilles',
-    name: 'Parapharmacie les merveilles',
-    cuisine: 'parapharmacy',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '3.2 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Parapharmacie les merveilles — 1, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: '1',
-    tags: ["Merveilles"],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'parapharmacy-parapharmacie-bio-nature',
@@ -4583,23 +3658,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-para-cleopatre-hafsa-tanger',
-    name: 'Para cleopatre Hafsa Tanger',
-    cuisine: 'parapharmacy',
-    rating: 5.0,
-    reviewsCount: 2,
-    distance: '0.7 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '💄',
-    description: 'Para cleopatre Hafsa Tanger — Q53C+VJ8, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: 'Q53C+VJ8',
-    tags: ["Cleopatre","Hafsa"],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'parapharmacy-skin-rituals-dr-marwa-tanger',
@@ -4619,23 +3678,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-hala-parapharmacie',
-    name: 'Hala Parapharmacie',
-    cuisine: 'parapharmacy',
-    rating: 4.0,
-    reviewsCount: 1,
-    distance: '3 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Hala Parapharmacie — 22 Rue El Bouhtouri, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: '22 Rue El Bouhtouri',
-    tags: ["Hala"],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'parapharmacy-parapharmacie-parasma',
@@ -4655,23 +3698,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-hala-para',
-    name: 'Hala Para',
-    cuisine: 'parapharmacy',
-    rating: 5.0,
-    reviewsCount: 2,
-    distance: '2.7 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Hala Para — Av. Prince Héritier, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: 'Av. Prince Héritier',
-    tags: ["Hala"],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'parapharmacy-paramedical-ahlan',
@@ -4709,41 +3736,8 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-parapharmacie-iberia',
-    name: 'Parapharmacie iberia',
-    cuisine: 'parapharmacy',
-    rating: 3.0,
-    reviewsCount: 32,
-    distance: '2.8 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Parapharmacie iberia — Q5JH+RP3, Av. Sidi Mohamed Ben Abdellah, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: 'Q5JH+RP3, Av. Sidi Mohamed Ben Abdellah',
-    tags: ["Iberia"],
-    isOpen: true,
-    isStatic: true
-  },
 
-  {
-    id: 'parapharmacy-parapachere',
-    name: 'Parapachère',
-    cuisine: 'parapharmacy',
-    rating: 4.5,
-    reviewsCount: 4,
-    distance: '2.7 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Parapachère — 115 Rue Allal Ben Abdellah, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: '115 Rue Allal Ben Abdellah',
-    tags: ["Parapachere"],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'parapharmacy-parapharmacie-mesnana-2',
@@ -4795,24 +3789,6 @@ export const STATIC_STORES = [
     description: 'Parapharmacie Saida — Q5P7+7WC, Av. Imam Mouslim, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
     address: 'Q5P7+7WC, Av. Imam Mouslim',
     tags: ["Saida"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'parapharmacy-market-para-mouqawama',
-    name: 'Market para Mouqawama',
-    cuisine: 'parapharmacy',
-    rating: 2.3,
-    reviewsCount: 3,
-    distance: '3 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Market para Mouqawama — 53 av la résistance, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: '53 av la résistance',
-    tags: ["Market","Mouqawama"],
     isOpen: true,
     isStatic: true
   },
@@ -4979,23 +3955,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-para-sham-s',
-    name: 'Para Sham\'s',
-    cuisine: 'parapharmacy',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '0.1 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Para Sham\'s — Q558+R95، Rue Abou firass Hamdani Rue de Rome, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: 'Q558+R95، Rue Abou firass Hamdani Rue de Rome',
-    tags: ["Sham s"],
-    isOpen: true,
-    isStatic: true
-  },
+  
 
   {
     id: 'parapharmacy-pharmacie-tangerine',
@@ -5015,23 +3975,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-remed-para',
-    name: 'Remed Para',
-    cuisine: 'parapharmacy',
-    rating: 5.0,
-    reviewsCount: 2,
-    distance: '2.6 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Remed Para — Q5MC+4H3, Rue Imam Kastalani, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: 'Q5MC+4H3, Rue Imam Kastalani',
-    tags: ["Remed"],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'parapharmacy-para-qualite-institut',
@@ -5051,23 +3995,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-revie-pharm',
-    name: 'Revie Pharm',
-    cuisine: 'parapharmacy',
-    rating: 1.0,
-    reviewsCount: 1,
-    distance: '3.7 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Revie Pharm — P4QJ+XW8, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: 'P4QJ+XW8',
-    tags: ["Revie","Pharm"],
-    isOpen: true,
-    isStatic: true
-  },
+  
 
   {
     id: 'parapharmacy-bio-care-beauty',
@@ -5123,23 +4051,7 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-sam-para',
-    name: 'Sam Para',
-    cuisine: 'parapharmacy',
-    rating: 5.0,
-    reviewsCount: 2,
-    distance: '2.8 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Sam Para — P5WR+7HJ Residence Al Ferdaous, Rue Marrakech, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: 'P5WR+7HJ Residence Al Ferdaous, Rue Marrakech',
-    tags: ["Sam"],
-    isOpen: true,
-    isStatic: true
-  },
+
 
   {
     id: 'parapharmacy-pharmacie-parapharmacie-chams-ahlen',
@@ -5303,23 +4215,6 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-derma-beaute',
-    name: 'Derma Beauté',
-    cuisine: 'parapharmacy',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '2.7 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '💄',
-    description: 'Derma Beauté — 1er etage, Gallerie Al Sharaf, Rue du Mexique, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: '1er etage, Gallerie Al Sharaf, Rue du Mexique',
-    tags: ["Derma","Beaute"],
-    isOpen: true,
-    isStatic: true
-  },
 
   {
     id: 'parapharmacy-grande-pharmacie-parapharmacie-assia',
@@ -5339,23 +4234,6 @@ export const STATIC_STORES = [
     isStatic: true
   },
 
-  {
-    id: 'parapharmacy-inter-para',
-    name: 'Inter Para',
-    cuisine: 'parapharmacy',
-    rating: 4.0,
-    reviewsCount: 0,
-    distance: '1.9 km',
-    eta: '30-45 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=85',
-    logo: '🌿',
-    description: 'Inter Para — Q54P+9PP, Rue, Tanger. Parapharmacie & cosmétiques, livraison express sur toute la ville.',
-    address: 'Q54P+9PP, Rue',
-    tags: ["Inter"],
-    isOpen: true,
-    isStatic: true
-  },
 
 
 
