@@ -6,8 +6,15 @@ let placesCachePromise = null;
 
 function loadPlaces() {
   if (!placesCachePromise) {
-    placesCachePromise = fetch('/places/tanger_places.json')
+    placesCachePromise = fetch('/data/autocomplete.json')
       .then((r) => (r.ok ? r.json() : []))
+      .then((list) =>
+        (Array.isArray(list) ? list : []).map((p) => ({
+          name: p.n || '',
+          address: p.a || '',
+          category: p.c || null,
+        }))
+      )
       .catch(() => []);
   }
   return placesCachePromise;
