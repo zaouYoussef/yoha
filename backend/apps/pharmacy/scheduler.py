@@ -1,13 +1,16 @@
-"""Planification de la synchronisation quotidienne des pharmacies de garde.
+"""Planification de la synchronisation des pharmacies de garde.
 
-L'ordonnanceur est partagé (apps.core.scheduler). Exécution quotidienne
-à 12:00 (heure de Casablanca) — la source infopoint.ma met à jour ses gardes
-en début d'après-midi.
+L'ordonnanceur est partagé (apps.core.scheduler). La page infopoint.ma change
+en cours de journée (sections « jour »/« 24h » ajoutées puis retirées, p. ex.
+la garde de jour disparaît après 20h). Pour que l'app reflète toujours la
+liste officielle, la synchro tourne toutes les `PHARMACY_SCHEDULER_INTERVAL_MINUTES`
+minutes (défaut 30) et juste après le démarrage du serveur.
 """
 from __future__ import annotations
 
 import logging
 import sys
+from datetime import datetime
 
 from django.conf import settings
 
@@ -43,20 +46,21 @@ def start_pharmacy_scheduler():
         return
 
     try:
-        from apscheduler.triggers.cron import CronTrigger
+        from apscheduler.triggers.interval import IntervalTrigger
     except ImportError:
         return
 
-    tz = getattr(settings, "PROMO_SCHEDULER_TIMEZONE", "Africa/Casablanca")
-    hour = getattr(settings, "PHARMACY_SCHEDULER_HOUR", 12)
-    minute = getattr(settings, "PHARMACY_SCHEDULER_MINUTE", 0)
+    interval_minutes = getattr(settings, "PHARMACY_SCHEDULER_INTERVAL_MINUTES", 30)
 
     scheduler.add_job(
         _run_pharmacy_sync,
-        trigger=CronTrigger(hour=hour, minute=minute, timezone=tz),
+        trigger=IntervalTrigger(minutes=interval_minutes),
         id="yoha_pharmacy_duty_sync",
         replace_existing=True,
         max_instances=1,
         coalesce=True,
+        next_run_time=datetime.now(),
     )
-    logger.info("Pharmacies de garde planifiées — %02d:%02d (%s)", hour, minute, tz)
+    logger.info(
+        "Pharmacies de garde planifiées — toutes les %d min", interval_minutes
+    )

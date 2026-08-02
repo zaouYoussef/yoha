@@ -313,8 +313,10 @@ PROMO_SCHEDULER_HOUR = env.int("PROMO_SCHEDULER_HOUR", default=11)
 PROMO_SCHEDULER_MINUTE = env.int("PROMO_SCHEDULER_MINUTE", default=0)
 
 
-# ——— Synchronisation quotidienne des pharmacies de garde (12:00 Casablanca) ———
+# ——— Synchronisation des pharmacies de garde (toutes les 30 min, miroir infopoint) ———
 PHARMACY_SCHEDULER_ENABLED = env.bool("PHARMACY_SCHEDULER_ENABLED", default=True)
+PHARMACY_SCHEDULER_INTERVAL_MINUTES = env.int("PHARMACY_SCHEDULER_INTERVAL_MINUTES", default=30)
+# Rétro-compatibilité (ex-horaire quotidien) — plus utilisé, conservé pour d'éventuels .env
 PHARMACY_SCHEDULER_HOUR = env.int("PHARMACY_SCHEDULER_HOUR", default=12)
 PHARMACY_SCHEDULER_MINUTE = env.int("PHARMACY_SCHEDULER_MINUTE", default=0)
 PROMO_CAMPAIGN_MIN_DAYS = env.int("PROMO_CAMPAIGN_MIN_DAYS", default=2)
