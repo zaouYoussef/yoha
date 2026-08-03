@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 
 from .models import CourierProfile, Order
+from .email_html import format_line_price_html, format_line_price_text
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ def _build_courier_email(order: Order) -> tuple[str, str, str]:
     )
     lines = list(order.lines.all())
     items_lines = "\n".join(
-        f"  • {line.quantity}× {line.item_name} — {line.line_total_mad:.2f} MAD"
+        f"  • {line.quantity}× {line.item_name} — {format_line_price_text(line)}"
         for line in lines
     ) or "  • (détail indisponible)"
     dash_url = _delivery_dashboard_url()
@@ -55,6 +56,10 @@ def _build_courier_email(order: Order) -> tuple[str, str, str]:
     subject = f"🛵 Nouvelle course #{order.public_id} · YoHa"
     resto_phone = (order.restaurant.phone or "").strip() if order.restaurant_id else ""
     client_phone = (order.customer_phone or "").strip()
+    on_ticket = bool(lines) and all((getattr(l, "line_total_mad", 0) or 0) <= 0 for l in lines)
+    total_label = f"{order.total_mad:.2f} MAD".replace(".", ",")
+    if on_ticket:
+        total_label += " + achats"
     text_parts = [
         f"Nouvelle commande disponible — #{order.public_id}",
         "",
@@ -69,7 +74,7 @@ def _build_courier_email(order: Order) -> tuple[str, str, str]:
     if client_phone:
         text_parts.append(f"Tél client : {client_phone}")
     text_parts.extend([
-        f"Total : {order.total_mad:.2f} MAD",
+        f"Total : {total_label}",
         "",
         "Articles :",
         items_lines,
@@ -81,6 +86,7 @@ def _build_courier_email(order: Order) -> tuple[str, str, str]:
     esc = html.escape
     items_html = ""
     for line in lines:
+        price_html = format_line_price_html(line)
         items_html += f"""
         <tr>
           <td style="padding:10px 0;border-bottom:1px solid #f1f5f920;font-size:13px;color:#334155;">
@@ -91,7 +97,7 @@ def _build_courier_email(order: Order) -> tuple[str, str, str]:
           </td>
           <td align="right" style="padding:10px 0;border-bottom:1px solid #f1f5f920;font-size:13px;
             color:#334155;font-weight:700;font-variant-numeric:tabular-nums;">
-            {line.line_total_mad:.2f} <span style="color:#94a3b8;font-weight:500;">MAD</span>
+            {price_html}
           </td>
         </tr>"""
 
@@ -112,7 +118,7 @@ def _build_courier_email(order: Order) -> tuple[str, str, str]:
 
 <!-- Preheader -->
 <div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:#faf8f5;">
-  🛵 Nouvelle course #{esc(order.public_id)} — {esc(order.restaurant.name)} — {order.total_mad:.2f} MAD
+  🛵 Nouvelle course #{esc(order.public_id)} — {esc(order.restaurant.name)} — {esc(total_label)}
 </div>
 
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#faf8f5;padding:32px 16px;">
@@ -203,7 +209,7 @@ def _build_courier_email(order: Order) -> tuple[str, str, str]:
               <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;
                 color:#a78bfa;margin-bottom:4px;">💰 Total</div>
               <div style="font-size:16px;font-weight:900;
-                color:#7c3aed;">{order.total_mad:.2f} MAD</div>
+                color:#7c3aed;">{esc(total_label)}</div>
             </td>
           </tr>
         </table>

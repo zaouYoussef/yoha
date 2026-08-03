@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import html
+from decimal import Decimal
 from urllib.parse import quote
 
 from django.conf import settings
@@ -10,6 +11,33 @@ from django.conf import settings
 _ORANGE = "#f97316"
 _PINK = "#ec4899"
 _VIOLET = "#8b5cf6"
+
+
+def _line_total(line) -> Decimal:
+    try:
+        return Decimal(str(getattr(line, "line_total_mad", 0) or 0))
+    except Exception:
+        return Decimal("0")
+
+
+def format_line_price_html(line) -> str:
+    """0 MAD (commande sur-mesure) → « Sur ticket », sinon montant formaté."""
+    amount = _line_total(line)
+    if amount <= 0:
+        return (
+            f'<span style="color:{_ORANGE};font-weight:800;font-size:13px;">Sur ticket</span>'
+        )
+    formatted = f"{amount:.2f}".replace(".", ",")
+    return (
+        f'{formatted} <span style="color:#94a3b8;font-weight:600;font-size:12px;">MAD</span>'
+    )
+
+
+def format_line_price_text(line) -> str:
+    amount = _line_total(line)
+    if amount <= 0:
+        return "Sur ticket"
+    return f"{amount:.2f} MAD".replace(".", ",")
 
 
 def _abs_url(path: str) -> str:
@@ -51,6 +79,12 @@ def render_order_email_html(ctx: dict) -> str:
     logo_url = _esc(_abs_url("/logo.png"))
     tracking_url = _esc(_tracking_url(order_id))
     is_cancelled = ctx.get("status") == "cancelled" or "annul" in headline.lower()
+    total_extra = (
+        f' <span style="font-size:13px;font-weight:800;color:{_ORANGE};">+ achats</span>'
+        if ctx.get("on_ticket")
+        else ""
+    )
+    total_extra_text = " + achats" if ctx.get("on_ticket") else ""
 
     # ── Progress / status ──
     if is_cancelled:
@@ -151,6 +185,7 @@ def render_order_email_html(ctx: dict) -> str:
     # ── Order lines ──
     lines_html = ""
     for line in ctx.get("line_preview", []):
+        price_html = format_line_price_html(line)
         lines_html += f"""
         <tr>
           <td style="padding:12px 0;border-bottom:1px solid #f1f5f9;font-size:14px;color:#334155;font-weight:600;">
@@ -160,7 +195,7 @@ def render_order_email_html(ctx: dict) -> str:
           </td>
           <td align="right" style="padding:12px 0;border-bottom:1px solid #f1f5f9;font-size:14px;
             color:#1e1b4b;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;">
-            {line.line_total_mad:.2f} <span style="color:#94a3b8;font-weight:600;font-size:12px;">MAD</span>
+            {price_html}
           </td>
         </tr>"""
 
@@ -249,7 +284,7 @@ def render_order_email_html(ctx: dict) -> str:
 
 <!-- Preheader -->
 <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#fff7ed;">
-  {emoji} {headline} — Commande #{order_id} · {total} MAD
+  {emoji} {headline} — Commande #{order_id} · {total} MAD{total_extra_text}
   &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
 </div>
 
@@ -349,7 +384,7 @@ def render_order_email_html(ctx: dict) -> str:
                 <td style="font-size:16px;font-weight:900;color:#1e1b4b;padding-bottom:4px;">Total</td>
                 <td align="right" style="font-size:26px;font-weight:900;color:{_ORANGE};
                   letter-spacing:-0.02em;padding-bottom:4px;">{total}
-                  <span style="font-size:14px;font-weight:800;color:#94a3b8;">MAD</span></td>
+                  <span style="font-size:14px;font-weight:800;color:#94a3b8;">MAD</span>{total_extra}</td>
               </tr>
               {courier_row}
             </table>
@@ -409,6 +444,9 @@ def render_order_email_html(ctx: dict) -> str:
 def render_order_email_text(ctx: dict) -> str:
     is_cancelled = ctx.get("status") == "cancelled" or "annul" in ctx.get("headline", "").lower()
     browse = _browse_url()
+    total_label = f"{ctx['total']} MAD"
+    if ctx.get("on_ticket"):
+        total_label += " + achats"
     lines = [
         f"{ctx.get('headline', 'YoHa')} {ctx.get('emoji', '')}",
         "",
@@ -417,9 +455,14 @@ def render_order_email_text(ctx: dict) -> str:
         "",
         f"Commande : #{ctx['id']}",
         f"Restaurant : {ctx['restaurant']}",
-        f"Total : {ctx['total']} MAD",
-        "",
+        "Articles :",
     ]
+    for line in ctx.get("line_preview", []):
+        lines.append(f"  • {line.quantity}× {line.item_name} — {format_line_price_text(line)}")
+    lines.extend([
+        f"Total : {total_label}",
+        "",
+    ])
     if is_cancelled:
         lines.append(f"Découvrir d'autres restaurants : {browse}")
     else:
