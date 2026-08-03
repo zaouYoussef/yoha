@@ -21,12 +21,10 @@ export const RESTAURANT_LOGO_FALLBACK = '/logo.webp';
 export function restaurantCover(url) {
   if (typeof url === 'string' && url.trim()) {
     let trimmed = url.trim();
-    if (!trimmed.startsWith('/stores/') && !trimmed.startsWith('/media/')) {
-      if (trimmed.includes('unsplash.com')) {
-        trimmed = trimmed.replace(/w=\d+/g, 'w=500').replace(/q=\d+/g, 'q=75');
-      }
-      return trimmed;
+    if (trimmed.includes('unsplash.com')) {
+      trimmed = trimmed.replace(/w=\d+/g, 'w=500').replace(/q=\d+/g, 'q=75');
     }
+    return trimmed;
   }
   return RESTAURANT_COVER_FALLBACK;
 }
