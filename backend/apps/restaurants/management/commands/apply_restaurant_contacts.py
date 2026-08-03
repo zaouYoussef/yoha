@@ -35,12 +35,14 @@ def _is_default_hours(raw) -> bool:
     return True
 
 
-def _description_with_address(name: str, address: str) -> str:
+def _description_with_address(name: str, address: str, bio: str = "") -> str:
     addr = " ".join((address or "").replace("\n", ", ").split()).strip(" ,")
-    base = (name or "").strip() or "Restaurant"
+    text = " ".join((bio or "").split()).strip()
+    if not text:
+        text = (name or "").strip() or "Restaurant"
     if not addr:
-        return base[:500]
-    return f"{base} — {addr}"[:500]
+        return text[:500]
+    return f"{text} — {addr}"[:500]
 
 
 class Command(BaseCommand):
@@ -109,18 +111,20 @@ class Command(BaseCommand):
 
             address = addr_override or ((profile.address if profile else "") or "").strip()
             if address:
-                desc = _description_with_address(resto.name, address)
+                from apps.restaurants.serializers import split_restaurant_description
+                from apps.restaurants.restaurant_bios import RESTAURANT_BIOS
+
+                existing_bio, _existing_addr = split_restaurant_description(
+                    resto.description or "", resto.name
+                )
+                bio = (
+                    (override.get("bio") or "").strip()
+                    or RESTAURANT_BIOS.get(resto.slug, "").strip()
+                    or existing_bio
+                )
+                desc = _description_with_address(resto.name, address, bio=bio)
                 if desc != (resto.description or "").strip():
-                    # Ne pas écraser une description marketing longue (Mr.Tacos…)
-                    current = (resto.description or "").strip()
-                    looks_like_address = (
-                        not current
-                        or " — " in current
-                        or current.lower().startswith((resto.name or "").lower()[:12])
-                        or len(current) < 160
-                    )
-                    if looks_like_address or addr_override:
-                        fields["description"] = desc
+                    fields["description"] = desc
 
             # Horaires OSM seulement si pas d'override et encore le défaut 10–23
             if (
