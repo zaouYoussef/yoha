@@ -162,6 +162,8 @@ class RestaurantListSerializer(serializers.ModelSerializer):
     openLabel = serializers.SerializerMethodField()
     ownerEmail = serializers.SerializerMethodField()
     isActive = serializers.BooleanField(source="is_active", read_only=True)
+    # Noms de plats / catégories pour la recherche browse (léger, sans prix/images)
+    menuHints = serializers.SerializerMethodField()
 
     class Meta:
         model = Restaurant
@@ -185,6 +187,7 @@ class RestaurantListSerializer(serializers.ModelSerializer):
             "ownerEmail",
             "isActive",
             "rating",
+            "menuHints",
         )
 
     def get_isOpen(self, obj):
@@ -203,6 +206,19 @@ class RestaurantListSerializer(serializers.ModelSerializer):
         if obj.owner_id and obj.owner:
             return obj.owner.email
         return None
+
+    def get_menuHints(self, obj):
+        names = []
+        # Prefetch attendu : menu_categories__items
+        for cat in obj.menu_categories.all():
+            if cat.name:
+                names.append(cat.name)
+            for item in cat.items.all():
+                if item.name:
+                    names.append(item.name)
+                if len(names) >= 120:
+                    return names
+        return names
 
 
 class RestaurantOfferPublicSerializer(serializers.ModelSerializer):

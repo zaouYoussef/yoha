@@ -46,6 +46,35 @@ function shuffleWithSeed(array, seed) {
 
 const norm = (s) => foldText(s);
 
+/** Texte indexé pour la recherche browse (nom, tags, cuisine, menu si présent). */
+function restaurantSearchHaystack(r) {
+  if (!r) return '';
+  const parts = [
+    r.name,
+    r.cuisine,
+    r.description,
+    r.subtitle,
+    r.promo,
+    ...(Array.isArray(r.tags) ? r.tags : []),
+    ...(Array.isArray(r.menuHints) ? r.menuHints : []),
+  ];
+  if (Array.isArray(r.menu)) {
+    r.menu.forEach((cat) => {
+      parts.push(cat.category);
+      (cat.items || []).forEach((it) => {
+        parts.push(it.name, it.desc, it.ingredients);
+      });
+    });
+  }
+  return foldText(parts.filter(Boolean).join(' '));
+}
+
+function matchesBrowseSearch(r, rawQuery) {
+  const q = foldText(rawQuery);
+  if (!q) return true;
+  return restaurantSearchHaystack(r).includes(q);
+}
+
 const SUB_CATEGORIES = {
   dessert: [
     { id: 'gateaux', label: 'Gâteaux', emoji: '🎂', image: '/chain-img/sub-gateaux.jpg', match: ['gateau', 'cake', 'gourmand', 'creation', 'creatif', 'art', 'diamant', 'cadeaux'] },
@@ -355,36 +384,28 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
   const customResto = useMemo(() => STATIC_STORES.find((s) => s.id === 'custom-restaurant'), []);
 
-  const restaurants = useMemo(() => {
-    let list = [...catalog];
+  /** Catalogue complet searchable : restos API + magasins statiques + pharmacies de garde. */
+  const searchPool = useMemo(() => {
+    const seen = new Set();
+    const out = [];
+    const push = (r) => {
+      if (!r?.name) return;
+      const key = String(r.id || r.slug || r.name).toLowerCase().trim();
+      if (!key || seen.has(key)) return;
+      seen.add(key);
+      out.push(r);
+    };
+    (catalog || []).forEach(push);
+    (STATIC_STORES || []).forEach(push);
+    (dutyPharmacies || []).map(toDutyPharmacyItem).forEach(push);
+    return out;
+  }, [catalog, dutyPharmacies]);
 
-    if (['pharmacy', 'parapharmacy', 'supermarket', 'shop'].includes(filter)) {
-      list = STATIC_STORES.filter((s) => s.cuisine === filter);
-    } else if (filter === 'dessert' || filter === 'patisserie') {
-      const staticDesserts = STATIC_STORES.filter((s) => s.cuisine === 'dessert' || s.cuisine === 'patisserie');
-      const catalogDesserts = catalog.filter((r) => r.cuisine === 'dessert' || r.cuisine === 'patisserie');
-      const seen = new Set();
-      list = [...catalogDesserts, ...staticDesserts].filter((r) => {
-        const key = r.id || r.slug || r.name;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
-    } else if (filter === 'all' && customResto) {
-      list = [customResto, ...catalog];
-    }
-
-    return list.filter((r) => {
-      const tags = Array.isArray(r.tags) ? r.tags : [];
-      const matchCuisine = filter === 'all' || r.cuisine === filter || r.isCustomRequest ||
-        tags.some(t => t.toLowerCase() === filter.toLowerCase());
-      const matchSearch =
-        !search ||
-        r.name?.toLowerCase().includes(search.toLowerCase()) ||
-        tags.join(' ').toLowerCase().includes(search.toLowerCase());
-      return matchCuisine && matchSearch;
-    });
-  }, [search, filter, catalog]);
+  const searchResults = useMemo(() => {
+    const q = search.trim();
+    if (!q) return [];
+    return searchPool.filter((r) => matchesBrowseSearch(r, q));
+  }, [search, searchPool]);
 
   const loading = loadingRestaurants && !['dessert', 'pharmacy', 'parapharmacy', 'supermarket', 'shop'].includes(filter);
   const name = greetingName(user);
@@ -940,8 +961,8 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             );
           })()}
 
-          {/* ═══ FILTERED / CATEGORY GRID VIEW ═══ */}
-          {(filter !== 'all' || search.trim()) && (
+          {/* ═══ FILTERED / CATEGORY GRID VIEW (pas pendant une recherche texte) ═══ */}
+          {filter !== 'all' && !search.trim() && (
             <section className="px-4 sm:px-0">
               <div className="flex items-center justify-between mb-6 pb-3 border-b border-ink-100 dark:border-ink-800">
                 <div>
@@ -963,7 +984,6 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                        filter === 'supermarket' ? '🛒 Supermarchés' :
                        filter === 'shop' ? '🛍️ Magasins' :
                        SUB_BY_ID[filter] ? `${SUB_BY_ID[filter].emoji} ${SUB_BY_ID[filter].label}` :
-                       search ? `Résultats pour « ${search} »` :
                        `Résultats pour « ${filter.charAt(0).toUpperCase() + filter.slice(1)} »`}
                     </span>
                   </h2>
@@ -1108,21 +1128,38 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
           {/* ═══ SEARCH RESULTS ═══ */}
           {search.trim() && (
             <section className="px-4 sm:px-0">
-              <h2 className="font-display font-extrabold text-lg sm:text-xl text-ink-900 dark:text-white mb-4">
-                Résultats pour « {search} »
-              </h2>
-              {loading
-                ? Array.from({ length: 4 }).map((_, i) => <RestaurantCardSkeletonHorizontal key={i} />)
-                : restaurants.length === 0
-                  ? <EmptyState catalogEmpty={false} filter={search} onShowAll={() => { setSearch(''); applyFilter('all'); }} />
-                  : (
-                    <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 pb-2">
-                      {restaurants.map((r) => (
-                        <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                      ))}
+              <div className="flex items-center justify-between mb-5 pb-3 border-b border-ink-100 dark:border-ink-800 gap-3">
+                <div className="min-w-0">
+                  <h2 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white truncate">
+                    Résultats pour « {search.trim()} »
+                  </h2>
+                  <p className="mt-1 text-xs font-semibold text-ink-500">
+                    {loading ? 'Recherche…' : `${searchResults.length} résultat${searchResults.length > 1 ? 's' : ''}`}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  className="cursor-grow shrink-0 px-3.5 py-2 rounded-xl bg-ink-100 dark:bg-ink-800 text-ink-900 dark:text-white font-bold text-xs hover:bg-brand-500 hover:text-white active:scale-95 transition-all"
+                >
+                  Effacer
+                </button>
+              </div>
+              {loading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {Array.from({ length: 6 }).map((_, i) => <RestaurantSkeleton key={i} />)}
+                </div>
+              ) : searchResults.length === 0 ? (
+                <EmptyState catalogEmpty={false} filter={search} onShowAll={() => { setSearch(''); applyFilter('all'); }} />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                  {searchResults.map((r, i) => (
+                    <div key={r.id || `${r.name}-${i}`} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 9) * 55}ms` }}>
+                      <RestaurantCard restaurant={r} onClick={() => onPickRestaurant(r)} />
                     </div>
-                  )
-              }
+                  ))}
+                </div>
+              )}
             </section>
           )}
         </div>

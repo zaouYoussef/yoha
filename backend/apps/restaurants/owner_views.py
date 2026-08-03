@@ -39,7 +39,10 @@ class RestaurantListView(generics.ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        qs = Restaurant.objects.filter(is_active=True)
+        qs = (
+            Restaurant.objects.filter(is_active=True)
+            .prefetch_related("menu_categories__items")
+        )
         cuisine = self.request.query_params.get("cuisine")
         if cuisine:
             qs = qs.filter(cuisine=cuisine)
