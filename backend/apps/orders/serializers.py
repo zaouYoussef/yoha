@@ -120,7 +120,11 @@ class CheckoutSerializer(serializers.Serializer):
                     price_mad=item_price,
                     is_available=True,
                 )
-            resolved.append({"menu_item": item, "qty": row["quantity"]})
+            resolved.append({
+                "menu_item": item,
+                "qty": row["quantity"],
+                "unit_price_mad": row.get("item_price"),
+            })
 
         # Calculate dynamic delivery fee: 20 DH per unique custom/static pharmacy, patisserie, supermarket, shop, or parapharmacy restaurant name
         custom_restaurant_names = set()

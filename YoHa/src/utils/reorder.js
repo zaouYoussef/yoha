@@ -11,6 +11,9 @@ export function orderToCartItems(order) {
       restaurantId: line.restaurantId || order.restaurantId,
       restaurantName: line.restaurantName || order.restaurantName,
     };
+    if (Array.isArray(line.options) && line.options.length > 0) {
+      item.options = line.options.map((o) => (typeof o === 'string' ? { name: o, price: 0 } : o));
+    }
     if (line.isCustom || line.restaurantCuisine || item.price === 0) {
       item.isCustom = true;
       item.restaurantCuisine = line.restaurantCuisine;

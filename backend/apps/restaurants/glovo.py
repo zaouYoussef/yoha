@@ -28,7 +28,9 @@ import requests
 logger = logging.getLogger(__name__)
 
 API_BASE = "https://api.glovoapp.com"
-IMAGE_BASE = "https://glovo.dhmedia.io"
+# Le préfixe `dh:` des imageId se résout sur le même hôte que `imageUrl`
+# (images.deliveryhero.io/image/…), PAS sur glovo.dhmedia.io.
+IMAGE_BASE = "https://images.deliveryhero.io/image"
 STORE_PAGE_URL = "https://glovoapp.com/{country}/{lang}/{city}/{slug}"
 
 USER_AGENT = (
@@ -106,7 +108,7 @@ def _to_product(data: Dict[str, Any]) -> GlovoProduct:
     if not image_url:
         image_id = data.get("imageId", "")
         if isinstance(image_id, str) and image_id.startswith("dh:"):
-            image_url = f"{IMAGE_BASE}{image_id[3:]}"
+            image_url = f"{IMAGE_BASE}/{image_id[3:].lstrip('/')}"
     return GlovoProduct(
         external_id=_external_id(data),
         name=_clean_name(data.get("name", "")),
@@ -532,6 +534,6 @@ class GlovoClient:
             if e.get("type") in ("PRODUCT_ROW", "PRODUCT_TILE")
             and (p := _to_product(e.get("data") or {}))
         ]
-        if not title and not products:
+        if not products:
             return
         sections.append(GlovoSection(title=title, products=products))

@@ -219,38 +219,44 @@ const CATEGORY_GLOW = {
 function BrowseHero({ name, search, onSearchChange, openCount, totalCount }) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-amber-50/80 via-white to-orange-50/60 dark:from-ink-950 dark:via-[#0d0704] dark:to-ink-950">
+      <div className="absolute inset-0 mesh-bg pointer-events-none" aria-hidden />
+      <div className="yoha-ambient" aria-hidden />
       <div className="absolute top-[-40%] right-[-20%] w-[500px] h-[500px] rounded-full bg-brand-500/[0.06] dark:bg-brand-500/10 blur-[100px] pointer-events-none" aria-hidden />
       <div className="absolute bottom-[-30%] left-[-10%] w-[400px] h-[400px] rounded-full bg-pink-500/[0.05] dark:bg-pink-500/8 blur-[80px] pointer-events-none" aria-hidden />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-5 pb-4">
-        {/* Top bar: Delivery mode + location */}
-        <div className="flex items-center justify-between mb-4 animate-fade-up">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-5 pb-5 stagger-children">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-ink-900 border border-ink-100 dark:border-ink-800 shadow-sm">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-ink-900/90 border border-ink-100 dark:border-ink-800 shadow-sm backdrop-blur-md animate-border-glow">
               <I.MapPin size={14} className="text-brand-500" />
               <span className="text-sm font-semibold text-ink-900 dark:text-white">CHU-Tanger</span>
             </div>
           </div>
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-500/20">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
             {openCount} ouverts
           </span>
         </div>
 
-        {/* Greeting */}
-        <div className="mb-4 animate-fade-up" style={{ animationDelay: '100ms' }}>
-          <h1 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl tracking-tight text-ink-900 dark:text-white">
+        <div className="mb-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400 mb-1.5">
+            YoHa · Tanger
+          </p>
+          <h1 className="font-display font-black text-hero-mobile sm:text-3xl lg:text-4xl tracking-tight text-ink-900 dark:text-white animate-text-glow-slow">
             {timeGreeting()},{' '}
             <span className="bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 bg-clip-text text-transparent">{name}</span>
             <span className="inline-block ml-1 animate-wiggle">👋</span>
           </h1>
-          <p className="mt-1.5 text-sm text-ink-500 dark:text-ink-400">
+          <p className="mt-2 text-sm text-ink-500 dark:text-ink-400">
             Livraison · Maintenant · 🏍️ Frais offerts
+            {totalCount ? <span className="text-ink-400"> · {totalCount} adresses</span> : null}
           </p>
         </div>
 
-        {/* Search */}
-        <div className="animate-fade-up" style={{ animationDelay: '200ms' }}>
+        <div>
           <SearchBar value={search} onChange={onSearchChange} variant="hero" />
         </div>
       </div>
@@ -569,7 +575,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       <BrowseHero name={name} search={search} onSearchChange={setSearch} openCount={openCount} totalCount={catalog.length} />
 
       <div className="bg-white dark:bg-ink-950 overflow-x-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-6 sm:space-y-7">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-6 sm:space-y-7 stagger-children">
 
           {/* ═══ SMART INTELLIGENT RE-ORDER BANNER ═══ */}
           {!search && <SmartReorderBanner catalog={catalog} onPickRestaurant={onPickRestaurant} />}
@@ -593,14 +599,14 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                       type="button"
                       onClick={() => applyFilter(tab.id)}
                       className={`py-3 relative transition-colors ${
-                        active ? 'text-teal-600 dark:text-teal-400 font-extrabold' : 'hover:text-ink-900 dark:hover:text-white'
+                        active ? 'text-brand-600 dark:text-brand-400 font-extrabold' : 'hover:text-ink-900 dark:hover:text-white'
                       }`}
                     >
                       <span>{tab.label}</span>
                       {active && (
                         <motion.span
                           layoutId="browse-tab-underline"
-                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-600 dark:bg-teal-400 rounded-full"
+                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 rounded-full"
                           transition={{ type: 'spring', stiffness: 520, damping: 40 }}
                         />
                       )}
@@ -1091,18 +1097,22 @@ function HorizontalRow({ title, subtitle, count, children, onSeeAll }) {
   return (
     <Reveal>
       <section className="px-4 sm:px-0">
-        <div className="flex items-center justify-between mb-3.5">
-          <div>
-            <h2 className="font-display font-extrabold text-base sm:text-lg text-ink-900 dark:text-white">{title}</h2>
+        <div className="flex items-end justify-between gap-3 mb-4">
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400 mb-1">
+              Sélection
+            </p>
+            <h2 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white tracking-tight leading-none">{title}</h2>
             {subtitle && (
-              <p className="text-xs text-ink-500 dark:text-ink-400 mt-0.5 font-medium">{subtitle}</p>
+              <p className="text-xs text-ink-500 dark:text-ink-400 mt-1.5 font-medium">{subtitle}</p>
             )}
+            <div className="mt-2.5 h-1 w-11 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
           </div>
           {count > 0 && onSeeAll && (
             <button
               type="button"
               onClick={onSeeAll}
-              className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-brand-500 hover:underline cursor-pointer flex items-center gap-1 active:scale-95 transition-transform shrink-0"
+              className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-brand-500 hover:underline cursor-pointer flex items-center gap-1 active:scale-95 transition-transform shrink-0 mb-0.5"
             >
               <span>Tout voir ({count})</span>
               <span>→</span>
@@ -1257,7 +1267,7 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      className="cursor-grow card-glow-hover group relative shrink-0 w-[240px] sm:w-[270px] lg:w-[290px] h-[210px] sm:h-[230px] snap-start overflow-hidden rounded-2xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-sm hover:shadow-cardhover hover:-translate-y-1 transition-all duration-500 active:scale-[0.97] active:brightness-95"
+      className="cursor-grow card-glow-hover group relative shrink-0 w-[78vw] max-w-[300px] sm:w-[270px] lg:w-[290px] h-[240px] sm:h-[250px] snap-center overflow-hidden rounded-[1.4rem] sm:rounded-2xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-[0_18px_40px_-20px_rgba(15,23,42,0.5)] hover:shadow-cardhover hover:-translate-y-1 transition-all duration-500 active:scale-[0.97] active:brightness-95"
     >
       <img
         src={restaurantCover(restaurant.cover)}
@@ -1295,15 +1305,15 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
 
         <div className="flex items-center gap-1.5 text-xs text-white/75 font-medium truncate">
           {restaurant.isChain ? (
-            <span className="text-teal-400 font-bold">⚡ Rapide</span>
+            <span className="text-brand-400 font-bold">⚡ Rapide</span>
           ) : isService || isCustom ? null : (
             <>
-              <span className="text-teal-400 font-extrabold">★</span>
+              <span className="text-amber-300 font-extrabold">★</span>
               <span className="font-bold text-white">{(restaurant.rating ?? 4.4).toString().replace('.', ',')}</span>
               <span>·</span>
               <span>{restaurant.distance || '1.5 km'}</span>
               <span>·</span>
-              <span className="text-teal-400 font-bold">⚡ Rapide</span>
+              <span className="text-brand-300 font-bold">⚡ Rapide</span>
             </>
           )}
         </div>
@@ -1342,45 +1352,55 @@ export function SearchBar({ value, onChange, variant = 'default' }) {
   return (
     <div className={`group relative rounded-2xl transition-all duration-300 ${
       focused 
-        ? 'shadow-glow-lg scale-[1.01]' 
-        : 'shadow-card'
+        ? 'shadow-glow-lg scale-[1.015]' 
+        : isHero ? 'shadow-cardhover ring-gradient' : 'shadow-card'
     }`}>
-      <div className={`absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 transition-opacity duration-300 ${focused ? 'opacity-[0.55] blur-md' : 'opacity-0'}`} />
       <div
-        className={`relative flex items-center gap-3 px-4 sm:px-5 h-14 sm:h-[3.75rem] rounded-2xl border transition-all duration-300 ${
+        aria-hidden
+        className={`pointer-events-none absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 transition-opacity duration-300 ${focused ? 'opacity-[0.65] blur-md' : 'opacity-0'}`}
+      />
+      <div
+        className={`relative z-10 flex items-center gap-3 px-4 sm:px-5 h-[3.65rem] sm:h-[3.85rem] rounded-2xl border transition-all duration-300 ${
           isHero
             ? focused
               ? 'bg-white dark:bg-ink-950 border-brand-500 dark:border-brand-500'
-              : 'bg-white/95 dark:bg-ink-900/90 backdrop-blur-md border-white/20 dark:border-ink-800'
+              : 'bg-white/95 dark:bg-ink-900/90 backdrop-blur-md border-white/30 dark:border-ink-800'
             : focused
               ? 'bg-white dark:bg-ink-950 border-brand-500 dark:border-brand-500'
               : 'bg-white dark:bg-ink-900 border-ink-200 dark:border-ink-800'
         }`}
       >
-        <I.Search size={20} className={`shrink-0 transition-colors duration-300 ${focused ? 'text-brand-500' : 'text-ink-400'}`} />
+        <I.Search size={20} className={`shrink-0 transition-all duration-300 ${focused ? 'text-brand-500 scale-110' : 'text-ink-400'}`} />
         <input
           type="text"
+          enterKeyHint="search"
+          autoComplete="off"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder="Pizza, sushi, bowls healthy…"
-          className="flex-1 bg-transparent outline-none placeholder:text-ink-400/70 text-base text-ink-900 dark:text-white"
+          placeholder="Pizza, sushi, tacos, bowls…"
+          className="relative z-10 flex-1 min-w-0 bg-transparent outline-none placeholder:text-ink-400/70 text-base text-ink-900 dark:text-white"
         />
         {value && (
           <button
             type="button"
             onClick={() => onChange('')}
-            className="cursor-grow p-1.5 rounded-full hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500 transition-colors"
+            className="cursor-grow relative z-10 p-1.5 rounded-full hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500 transition-colors"
           >
             <I.X size={16} />
           </button>
+        )}
+        {!value && isHero && (
+          <span className="hidden sm:inline-flex text-[10px] font-bold uppercase tracking-wider text-ink-400 px-2 py-1 rounded-lg bg-ink-100/80 dark:bg-ink-800/80 pointer-events-none">
+            ⌘K
+          </span>
         )}
       </div>
     </div>
   );
 }
-export function RestaurantPage({ restaurant, onAdd, onBack }) {
+export function RestaurantPage({ restaurant, onBack, onAdd }) {
   if (!restaurant) return null;
   const r = restaurant;
   const openStatus = r.openingHours ? restaurantOpenStatus(r.openingHours) : { isOpen: true, openLabel: 'Ouvert' };
@@ -1388,8 +1408,9 @@ export function RestaurantPage({ restaurant, onAdd, onBack }) {
   const openLabel = r.openLabel ?? openStatus.openLabel ?? 'Ouvert';
   const [activeCat, setActiveCat] = useState(r.menu?.[0]?.category ?? '');
   const [selectedItem, setSelectedItem] = useState(null);
-  const [heroScrolled, setHeroScrolled] = useState(false);
+  const [compactNav, setCompactNav] = useState(false);
   const sectionRefs = useRef({});
+  const catsRef = useRef(null);
 
   const [storeName, setStoreName] = useState('');
   const [storeAddress, setStoreAddress] = useState('');
@@ -1408,20 +1429,22 @@ export function RestaurantPage({ restaurant, onAdd, onBack }) {
     setActiveCat(cat);
     const el = sectionRefs.current[cat];
     if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY - 120;
+      const top = el.getBoundingClientRect().top + window.scrollY - 118;
       window.scrollTo({ top, behavior: 'smooth' });
     }
+    const btn = catsRef.current?.querySelector(`[data-cat="${String(cat).replace(/"/g, '')}"]`);
+    btn?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   };
 
   useEffect(() => {
     if (!r.menu) return;
     const onScroll = () => {
-      setHeroScrolled(window.scrollY > 180);
+      setCompactNav(window.scrollY > 220);
       const offsets = r.menu.map((c) => ({
         cat: c.category,
         top: sectionRefs.current[c.category]?.getBoundingClientRect().top || 0,
       }));
-      const visible = offsets.filter((o) => o.top < 180).pop();
+      const visible = offsets.filter((o) => o.top < 170).pop();
       if (visible) setActiveCat(visible.cat);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -1436,7 +1459,7 @@ export function RestaurantPage({ restaurant, onAdd, onBack }) {
   };
 
   const populaires = (r.menu || []).flatMap((c) =>
-    (c.items || []).filter((it) => it.price > 12).slice(0, 4),
+    (c.items || []).filter((it) => Number(it.price) > 12).slice(0, 3),
   ).slice(0, 8);
 
   const feeLabel = r.fee
@@ -1444,86 +1467,138 @@ export function RestaurantPage({ restaurant, onAdd, onBack }) {
     : 'Livraison offerte';
 
   return (
-    <div className="page-enter bg-[#0a0806] min-h-screen text-white">
-      {/* Hero plein cadre — la marque vit dans la photo */}
+    <div className="page-enter relative min-h-screen bg-gradient-to-b from-amber-50/70 via-white to-white dark:from-ink-950 dark:via-ink-950 dark:to-ink-950 overflow-x-hidden">
+      {/* Ambient blobs — light mode soft, dark mode subtle */}
+      <div className="pointer-events-none absolute top-0 right-[-20%] w-[420px] h-[420px] rounded-full bg-brand-500/[0.08] dark:bg-brand-500/10 blur-[100px]" aria-hidden />
+      <div className="pointer-events-none absolute top-[40%] left-[-25%] w-[360px] h-[360px] rounded-full bg-pink-500/[0.06] dark:bg-pink-500/8 blur-[90px]" aria-hidden />
+
+      {/* Compact nav on scroll */}
+      <div
+        className={`fixed top-14 inset-x-0 z-40 transition-all duration-300 ${
+          compactNav ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'
+        }`}
+      >
+        <div className="bg-white/90 dark:bg-ink-950/90 backdrop-blur-xl border-b border-ink-100/80 dark:border-ink-800 px-4 py-2.5 flex items-center gap-3">
+          <button
+            onClick={onBack}
+            className="w-9 h-9 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center shrink-0 active:scale-95"
+            title="Retour"
+          >
+            <I.Left size={16} />
+          </button>
+          <div className="min-w-0 flex-1">
+            <p className="font-display font-bold text-sm text-ink-900 dark:text-white truncate">{r.name}</p>
+          </div>
+          {!isChain && !isServiceDetail && (
+            <span className="shrink-0 inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+              <I.Star size={11} className="fill-emerald-500 text-emerald-500" />
+              {(r.rating ?? 4.5).toString().replace('.', ',')}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* HERO — full bleed, brand in the photo */}
       <section
-        className={`relative overflow-hidden ${
-          r.coverBlend === 'screen' ? 'bg-ink-950' : 'bg-[#141010]'
-        } h-[min(72vh,560px)] sm:h-[min(68vh,620px)]`}
+        className={`relative h-[min(58vh,480px)] sm:h-[min(52vh,520px)] overflow-hidden ${
+          r.coverBlend === 'screen' ? 'bg-ink-950' : 'bg-ink-200 dark:bg-ink-900'
+        }`}
       >
         <motion.img
-          initial={{ scale: 1.08 }}
+          initial={{ scale: 1.12 }}
           animate={{ scale: 1 }}
-          transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
           src={restaurantCover(r.cover)}
           alt={r.name || ''}
           className={`absolute inset-0 w-full h-full ${
             r.coverBlend === 'screen' ? 'object-contain mix-blend-screen' : 'object-cover'
           }`}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/15 to-[#0a0806]" />
-        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#0a0806] via-[#0a0806]/85 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/15 to-black/75" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent" />
 
         <button
           onClick={onBack}
-          className="absolute top-3 left-3 sm:top-5 sm:left-5 z-20 w-11 h-11 rounded-full bg-black/45 backdrop-blur-md border border-white/15 flex items-center justify-center active:scale-95 transition"
+          className="absolute top-3 left-3 sm:top-5 sm:left-5 z-20 w-11 h-11 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white flex items-center justify-center active:scale-95 transition shadow-lg"
           title="Retour"
         >
           <I.Left size={18} />
         </button>
 
-        <div className="absolute inset-x-0 bottom-0 z-10 px-4 sm:px-6 pb-7 sm:pb-9 max-w-3xl mx-auto">
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.5 }}
-            className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-400"
+        {typeof r.logo === 'string' && (r.logo.startsWith('http') || r.logo.startsWith('/')) && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.35, duration: 0.5 }}
+            className="absolute top-3 right-3 sm:top-5 sm:right-5 z-20 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border-2 border-white/80 shadow-xl bg-white"
           >
-            {formatTag(r.cuisine) || tags[0] || 'Cuisine'}
+            <img src={r.logo} alt="" className="w-full h-full object-cover" />
+          </motion.div>
+        )}
+
+        <div className="absolute inset-x-0 bottom-0 z-10 px-5 sm:px-8 pb-8 max-w-3xl mx-auto">
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12, duration: 0.4 }}
+            className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-300"
+          >
+            {formatTag(r.cuisine) || tags[0] || 'Restaurant'}
           </motion.p>
           <motion.h1
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.22, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-2 font-display font-black text-[clamp(2rem,9vw,3.4rem)] leading-[0.92] tracking-tight text-white uppercase"
+            transition={{ delay: 0.2, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-2 font-display font-black text-[clamp(2.1rem,8.5vw,3.5rem)] leading-[0.95] tracking-tight text-white"
           >
             {r.name}
           </motion.h1>
 
           {tags.length > 0 && (
-            <p className="mt-3 text-sm text-white/55 tracking-wide">
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.35 }}
+              className="mt-3 text-sm text-white/65"
+            >
               {tags.map(formatTag).filter(Boolean).join(' · ')}
-            </p>
+            </motion.p>
           )}
 
-          <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-[12px] text-white/70">
-            {!isChain && !isServiceDetail && (
-              <span className="inline-flex items-center gap-1.5">
-                <I.MapPin size={12} className="text-brand-400" />
-                {r.distance || 'Tanger'}
-              </span>
-            )}
-            <span className="inline-flex items-center gap-1.5">
-              <span className={`relative flex h-2 w-2 ${isOpen ? '' : 'opacity-50'}`}>
-                {isOpen && (
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
-                )}
-                <span className={`relative inline-flex rounded-full h-2 w-2 ${isOpen ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-4 flex flex-wrap items-center gap-2"
+          >
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[11px] font-bold text-white">
+              <span className="relative flex h-1.5 w-1.5">
+                {isOpen && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />}
+                <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${isOpen ? 'bg-emerald-400' : 'bg-amber-400'}`} />
               </span>
               {isOpen ? (openLabel || 'Ouvert') : (openLabel || 'Fermé')}
             </span>
-            <span>Min. {formatMad(40, { decimals: 0 })}</span>
             {!isChain && !isServiceDetail && (
-              <span className="inline-flex items-center gap-1 text-amber-300">
-                <I.Star size={11} className="fill-amber-300 text-amber-300" />
-                {(r.rating ?? 4.9).toString().replace('.', ',')}
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[11px] font-bold text-white">
+                <I.MapPin size={11} /> {r.distance || 'Tanger'}
               </span>
             )}
-            <span className="text-brand-300 font-semibold">{feeLabel}</span>
-          </div>
+            {!isChain && !isServiceDetail && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/25 backdrop-blur-md border border-emerald-400/30 text-[11px] font-bold text-emerald-100">
+                <I.Star size={11} className="fill-emerald-300 text-emerald-300" />
+                {(r.rating ?? 4.5).toString().replace('.', ',')}
+              </span>
+            )}
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-brand-500/35 backdrop-blur-md border border-brand-300/35 text-[11px] font-bold text-brand-50">
+              {feeLabel}
+            </span>
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-semibold text-white/80">
+              Min. {formatMad(40, { decimals: 0 })}
+            </span>
+          </motion.div>
 
-          {(r.description || !isDuty) && (
-            <p className="mt-3 text-[13px] text-white/45 leading-relaxed max-w-md line-clamp-2">
+          {(r.description || (!isDuty && r.name)) && (
+            <p className="mt-3 text-[13px] text-white/50 leading-relaxed line-clamp-2 max-w-lg">
               {isDuty && dutyHoursFr
                 ? dutyHoursFr
                 : r.description ||
@@ -1542,38 +1617,24 @@ export function RestaurantPage({ restaurant, onAdd, onBack }) {
         </div>
       </section>
 
-      {/* Barre titre compacte au scroll */}
-      <div
-        className={`fixed top-14 inset-x-0 z-40 transition-all duration-300 ${
-          heroScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
-        }`}
-      >
-        <div className="bg-[#0a0806]/92 backdrop-blur-xl border-b border-white/[0.08] px-4 py-2.5 flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="w-9 h-9 rounded-full bg-white/[0.08] border border-white/10 flex items-center justify-center shrink-0"
-            title="Retour"
-          >
-            <I.Left size={16} />
-          </button>
-          <h2 className="font-display font-bold text-sm truncate">{r.name}</h2>
-        </div>
-      </div>
-
-      {/* Catégories sticky */}
+      {/* Sticky categories */}
       {!r.isStatic && (r.menu || []).length > 0 && (
-        <div className="sticky top-14 z-30 bg-[#0a0806]/90 backdrop-blur-xl border-b border-white/[0.06]">
-          <div className="max-w-3xl mx-auto px-3 sm:px-6 flex gap-1.5 overflow-x-auto no-scrollbar h-[52px] items-center">
+        <div className="sticky top-14 z-30 bg-white/85 dark:bg-ink-950/85 backdrop-blur-xl border-b border-ink-100/70 dark:border-ink-800/80">
+          <div
+            ref={catsRef}
+            className="max-w-3xl mx-auto px-3 sm:px-6 flex gap-2 overflow-x-auto no-scrollbar h-[54px] items-center"
+          >
             {(r.menu || []).map((c) => {
               const active = activeCat === c.category;
               return (
                 <button
                   key={c.category}
+                  data-cat={c.category}
                   onClick={() => scrollToCat(c.category)}
-                  className={`relative shrink-0 px-3.5 h-9 rounded-full text-[12px] sm:text-[13px] font-semibold whitespace-nowrap transition-all duration-200 ${
+                  className={`relative shrink-0 px-4 h-9 rounded-full text-[12px] sm:text-[13px] font-bold whitespace-nowrap transition-all duration-200 ${
                     active
-                      ? 'bg-brand-500 text-white shadow-glow'
-                      : 'text-white/45 hover:text-white/80 bg-white/[0.04]'
+                      ? 'bg-brand-500 text-white shadow-glow dark:bg-brand-500'
+                      : 'text-ink-500 dark:text-ink-400 bg-ink-100/70 dark:bg-ink-900 hover:text-ink-800 dark:hover:text-white'
                   }`}
                 >
                   {c.category}
@@ -1585,27 +1646,27 @@ export function RestaurantPage({ restaurant, onAdd, onBack }) {
       )}
 
       {!r.isStatic ? (
-        <div className="max-w-3xl mx-auto px-0 sm:px-6 py-6 pb-32">
+        <div className="relative max-w-3xl mx-auto px-0 sm:px-6 py-7 pb-36">
           {!isOpen && (
-            <div className="mx-4 sm:mx-0 mb-6 rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-center">
-              <p className="font-bold text-amber-300 text-sm">Fermé — {openLabel}</p>
-              <p className="text-xs text-amber-300/60 mt-0.5">
+            <div className="mx-4 sm:mx-0 mb-6 rounded-2xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-500/5 px-4 py-3 text-center">
+              <p className="font-bold text-amber-700 dark:text-amber-300 text-sm">Fermé — {openLabel}</p>
+              <p className="text-xs text-amber-600/80 dark:text-amber-300/70 mt-0.5">
                 Consulte le menu, la commande reprend à l&apos;ouverture.
               </p>
             </div>
           )}
 
           {populaires.length > 0 && (
-            <div className="mb-10">
-              <div className="px-4 sm:px-0 mb-4 flex items-end justify-between">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-brand-400 font-semibold">Top</p>
-                  <h2 className="font-display font-black text-2xl sm:text-3xl uppercase tracking-tight leading-none mt-1">
-                    Populaires
-                  </h2>
-                </div>
+            <section className="mb-11">
+              <div className="px-4 sm:px-0 mb-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-600 dark:text-brand-400">
+                  Sélection
+                </p>
+                <h2 className="mt-1 font-display font-black text-2xl sm:text-3xl text-ink-900 dark:text-white tracking-tight">
+                  Populaires
+                </h2>
               </div>
-              <div className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 sm:px-0">
+              <div className="flex gap-3.5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-1 px-4 sm:px-0">
                 {populaires.map((it, i) => (
                   <DeliverooItemCard
                     key={it.db_id || it.id || i}
@@ -1615,31 +1676,37 @@ export function RestaurantPage({ restaurant, onAdd, onBack }) {
                     onOpen={() => setSelectedItem(it)}
                     orderingDisabled={!isOpen}
                     compact
+                    index={i}
                   />
                 ))}
               </div>
-            </div>
+            </section>
           )}
 
           {(r.menu || []).map((cat, catIdx) => (
-            <div
+            <section
               key={cat.category}
               ref={(el) => { sectionRefs.current[cat.category] = el; }}
-              className="mb-12 scroll-mt-32"
+              className="mb-12 scroll-mt-28"
             >
-              <div className="px-4 sm:px-0 mb-4">
-                <motion.h2
-                  initial={{ opacity: 0, x: -10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: '-40px' }}
-                  transition={{ duration: 0.4, delay: Math.min(catIdx * 0.04, 0.2) }}
-                  className="font-display font-black text-xl sm:text-2xl uppercase tracking-tight"
-                >
-                  {cat.category}
-                </motion.h2>
-                <div className="mt-2 h-px w-12 bg-brand-500/70" />
+              <div className="px-4 sm:px-0 mb-4 flex items-end gap-3">
+                <div>
+                  <motion.h2
+                    initial={{ opacity: 0, y: 8 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-30px' }}
+                    transition={{ duration: 0.35, delay: Math.min(catIdx * 0.03, 0.15) }}
+                    className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white tracking-tight"
+                  >
+                    {cat.category}
+                  </motion.h2>
+                  <div className="mt-2 h-1 w-10 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
+                </div>
+                <span className="mb-0.5 text-[11px] font-semibold text-ink-400 dark:text-ink-500">
+                  {(cat.items || []).length} plats
+                </span>
               </div>
-              <div className="space-y-2.5 px-3 sm:px-0">
+              <div className="px-3 sm:px-0 space-y-2.5">
                 {(cat.items || []).map((it, i) => (
                   <DeliverooItemCard
                     key={it.db_id || it.id || i}
@@ -1648,26 +1715,23 @@ export function RestaurantPage({ restaurant, onAdd, onBack }) {
                     onAdd={onAdd}
                     onOpen={() => setSelectedItem(it)}
                     orderingDisabled={!isOpen}
+                    index={i}
                   />
                 ))}
               </div>
-            </div>
+            </section>
           ))}
         </div>
       ) : (
         <section className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 sm:p-8">
-            <h2 className="font-display font-bold text-xl text-white mb-3">
+          <div className="rounded-2xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 p-6 sm:p-8 shadow-sm">
+            <h2 className="font-display font-bold text-xl text-ink-900 dark:text-white mb-3">
               Commander sur-mesure
             </h2>
-            <p className="text-sm text-white/50 leading-relaxed mb-6">
+            <p className="text-sm text-ink-500 dark:text-ink-400 leading-relaxed mb-6">
               {isDuty
                 ? "Commandez vos médicaments depuis cette pharmacie de garde, notre livreur s'occupe de tout !"
-                : r.cuisine === 'pharmacy' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
-                   r.cuisine === 'parapharmacy' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
-                   r.cuisine === 'supermarket' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
-                   r.cuisine === 'shop' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
-                   "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !"}
+                : "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !"}
             </p>
 
             {isDuty && (
@@ -1686,11 +1750,6 @@ export function RestaurantPage({ restaurant, onAdd, onBack }) {
                   <I.MapPin size={13} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <p className="text-xs text-ink-700 dark:text-ink-200 leading-relaxed">{r.address}</p>
                 </div>
-                {r.addressAr && (
-                  <p className="text-[11px] text-ink-500 dark:text-ink-400 leading-relaxed" dir="rtl">
-                    {r.addressAr}
-                  </p>
-                )}
                 {dutyHoursFr && (
                   <p className="text-[11px] text-ink-500 dark:text-ink-400 leading-relaxed border-t border-emerald-100 dark:border-emerald-500/15 pt-2">
                     🕐 {dutyHoursFr}
@@ -1699,64 +1758,64 @@ export function RestaurantPage({ restaurant, onAdd, onBack }) {
               </div>
             )}
 
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              if (needsCustomStoreInfo && (!storeName.trim() || !storeAddress.trim())) {
-                alert('Veuillez renseigner le nom et l\'adresse de l\'établissement.');
-                return;
-              }
-              if (!orderDetails.trim()) {
-                alert('Veuillez préciser votre commande.');
-                return;
-              }
-
-              const targetStoreName = isChain ? r.name : (r.isCustomRequest ? storeName.trim() : r.name);
-              const targetStoreAddress = isChain ? (r.address || 'Tanger') : (r.isCustomRequest ? storeAddress.trim() : (isDuty ? r.address : r.distance));
-
-              const customItem = {
-                id: `custom-${r.id}-${Date.now()}`,
-                name: r.isCustomRequest || isDuty
-                  ? `[${targetStoreName}] ${orderDetails.trim()}`
-                  : `${r.name} - ${orderDetails.trim()}`,
-                price: 0,
-                img: r.isChain && r.cover ? r.cover :
-                     r.cuisine === 'pharmacy' ? 'https://images.unsplash.com/photo-1576671081837-49000212a370?w=500&auto=format&fit=crop&q=75' :
-                     r.cuisine === 'parapharmacy' ? 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=500&auto=format&fit=crop&q=75' :
-                     r.cuisine === 'supermarket' ? 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&auto=format&fit=crop&q=75' :
-                     r.cuisine === 'shop' ? 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500&auto=format&fit=crop&q=75' :
-                     'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=500&auto=format&fit=crop&q=75',
-                restaurantId: r.id,
-                restaurantName: targetStoreName,
-                restaurantCuisine: r.cuisine,
-                isCustom: true,
-                customDetails: {
-                  storeName: targetStoreName,
-                  storeAddress: targetStoreAddress,
-                  details: orderDetails.trim(),
-                  ordonnanceUrl: r.cuisine === 'pharmacy' ? ordonnanceUrl : ''
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (needsCustomStoreInfo && (!storeName.trim() || !storeAddress.trim())) {
+                  alert("Veuillez renseigner le nom et l'adresse de l'établissement.");
+                  return;
                 }
-              };
-
-              onAdd(customItem, { id: r.id, name: targetStoreName });
-              setOrderDetails('');
-              setOrdonnanceUrl('');
-              if (r.isCustomRequest) {
-                setStoreName('');
-                setStoreAddress('');
-              }
-              setIsAdded(true);
-              setTimeout(() => setIsAdded(false), 2000);
-            }} className="space-y-4">
+                if (!orderDetails.trim()) {
+                  alert('Veuillez préciser votre commande.');
+                  return;
+                }
+                const targetStoreName = isChain ? r.name : (r.isCustomRequest ? storeName.trim() : r.name);
+                const targetStoreAddress = isChain
+                  ? (r.address || 'Tanger')
+                  : (r.isCustomRequest ? storeAddress.trim() : (isDuty ? r.address : r.distance));
+                const customItem = {
+                  id: `custom-${r.id}-${Date.now()}`,
+                  name: r.isCustomRequest || isDuty
+                    ? `[${targetStoreName}] ${orderDetails.trim()}`
+                    : `${r.name} - ${orderDetails.trim()}`,
+                  price: 0,
+                  img: r.isChain && r.cover ? r.cover :
+                    r.cuisine === 'pharmacy' ? 'https://images.unsplash.com/photo-1576671081837-49000212a370?w=500&auto=format&fit=crop&q=75' :
+                    r.cuisine === 'parapharmacy' ? 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=500&auto=format&fit=crop&q=75' :
+                    r.cuisine === 'supermarket' ? 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&auto=format&fit=crop&q=75' :
+                    r.cuisine === 'shop' ? 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500&auto=format&fit=crop&q=75' :
+                    'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=500&auto=format&fit=crop&q=75',
+                  restaurantId: r.id,
+                  restaurantName: targetStoreName,
+                  restaurantCuisine: r.cuisine,
+                  isCustom: true,
+                  customDetails: {
+                    storeName: targetStoreName,
+                    storeAddress: targetStoreAddress,
+                    details: orderDetails.trim(),
+                    ordonnanceUrl: r.cuisine === 'pharmacy' ? ordonnanceUrl : '',
+                  },
+                };
+                onAdd(customItem, { id: r.id, name: targetStoreName });
+                setOrderDetails('');
+                setOrdonnanceUrl('');
+                if (r.isCustomRequest) {
+                  setStoreName('');
+                  setStoreAddress('');
+                }
+                setIsAdded(true);
+                setTimeout(() => setIsAdded(false), 2000);
+              }}
+              className="space-y-4"
+            >
               {needsCustomStoreInfo && (
                 <>
                   <label className="block space-y-1">
-                    <span className="text-sm font-semibold text-white/80">Nom de l&apos;établissement *</span>
+                    <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">Nom de l&apos;établissement *</span>
                     <PlaceAutocomplete
                       value={storeName}
                       onChange={setStoreName}
-                      onPick={(place) => {
-                        if (place.address) setStoreAddress(place.address);
-                      }}
+                      onPick={(place) => { if (place.address) setStoreAddress(place.address); }}
                       mode="name"
                       category={PLACE_CATEGORY[r.cuisine]}
                       placeholder="Ex: Pharmacie du Progrès"
@@ -1764,7 +1823,7 @@ export function RestaurantPage({ restaurant, onAdd, onBack }) {
                     />
                   </label>
                   <label className="block space-y-1">
-                    <span className="text-sm font-semibold text-white/80">Adresse *</span>
+                    <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">Adresse *</span>
                     <PlaceAutocomplete
                       value={storeAddress}
                       onChange={setStoreAddress}
@@ -1776,34 +1835,37 @@ export function RestaurantPage({ restaurant, onAdd, onBack }) {
                 </>
               )}
               {isChain && (
-                <div className="rounded-xl bg-teal-500/10 border border-teal-500/20 p-3 text-xs text-teal-300">
+                <div className="rounded-xl bg-brand-500/10 border border-brand-500/20 p-3 text-xs text-brand-800 dark:text-brand-300">
                   <p className="font-bold mb-0.5">🏪 {r.name}</p>
                   <p>Le livreur se rendra à la succursale la plus proche à Tanger et achètera votre commande.</p>
                 </div>
               )}
               <label className="block space-y-1">
-                <span className="text-sm font-semibold text-white/80">Détaillez votre commande *</span>
-                <textarea required value={orderDetails} onChange={(e) => setOrderDetails(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white/[0.05] border border-white/10 outline-none focus:border-brand-500 transition text-white resize-none placeholder:text-white/30"
+                <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">Détaillez votre commande *</span>
+                <textarea
+                  required
+                  value={orderDetails}
+                  onChange={(e) => setOrderDetails(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-ink-900 dark:text-white resize-none"
                   rows={4}
                   placeholder={isChain
                     ? 'Ex: 2 Big Mac, 1 grande frite, 2 boissons…'
                     : r.cuisine === 'pharmacy' || r.cuisine === 'parapharmacy'
-                      ? 'Ex: 2 boîtes de Doliprane 1000mg, 1 boîte de Spasfon…'
-                      : 'Ex: 1 plat de couscous, 2 brochettes, 1 thé…'} />
-                <p className="text-xs text-white/40 leading-relaxed">
-                  Écrivez exactement ce que vous souhaitez commander. YoHa achètera votre commande auprès du restaurant sélectionné et vous la livrera. Les prix sont ceux pratiqués par le restaurant.
-                </p>
+                      ? 'Ex: 2 boîtes de Doliprane 1000mg…'
+                      : 'Ex: 1 plat de couscous, 2 brochettes…'}
+                />
               </label>
-              <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs text-amber-300">
+              <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs text-amber-800 dark:text-amber-300">
                 <p className="font-bold mb-0.5">💵 Frais de livraison fixes : 20 MAD</p>
                 <p>Le prix d&apos;achat réel sera ajouté à la livraison.</p>
               </div>
               {r.cuisine === 'pharmacy' && (
                 <OrdonnanceUpload value={ordonnanceUrl} onChange={setOrdonnanceUrl} />
               )}
-              <button type="submit"
-                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold transition shadow-md active:scale-[0.98]">
+              <button
+                type="submit"
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-ink-900 dark:bg-white text-white dark:text-ink-900 hover:bg-brand-500 dark:hover:bg-brand-500 dark:hover:text-white font-bold transition shadow-md active:scale-[0.98]"
+              >
                 <I.Bag size={18} />
                 {isAdded ? 'Ajouté ! ✓' : 'Ajouter à mon panier'}
               </button>
@@ -1825,69 +1887,77 @@ export function RestaurantPage({ restaurant, onAdd, onBack }) {
   );
 }
 
-function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled = false, compact = false }) {
+function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled = false, compact = false, index = 0 }) {
   const [adding, setAdding] = useState(false);
 
   const handleAdd = (e) => {
     e.stopPropagation();
     if (orderingDisabled) return;
+    if (item.modifierGroups && item.modifierGroups.length > 0) {
+      onOpen?.();
+      return;
+    }
     onAdd(item, restaurant);
     setAdding(true);
     setTimeout(() => setAdding(false), 1200);
   };
 
-  /* Carrousel Populaires — vignette immersive, texte dans la photo */
   if (compact) {
     return (
-      <button
+      <motion.button
         type="button"
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.45, delay: Math.min(index * 0.06, 0.3), ease: [0.16, 1, 0.3, 1] }}
         onClick={() => onOpen?.()}
-        className="cursor-grow shrink-0 w-[72vw] max-w-[280px] sm:w-[240px] snap-center text-left group"
+        className="cursor-grow shrink-0 w-[78vw] max-w-[300px] sm:w-[250px] snap-center text-left group"
       >
-        <div className="relative rounded-2xl overflow-hidden bg-[#1a1513] aspect-[5/4] ring-1 ring-white/[0.08]">
+        <div className="relative rounded-[1.35rem] overflow-hidden aspect-[5/4] bg-ink-100 dark:bg-ink-800 shadow-[0_18px_40px_-20px_rgba(15,23,42,0.45)] dark:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.65)] ring-1 ring-ink-200/60 dark:ring-white/10">
           <MenuItemImage
             src={item.img}
             alt={item.name}
             loading="lazy"
-            className="w-full h-full object-cover group-active:scale-105 transition-transform duration-700"
+            className="w-full h-full object-cover transition-transform duration-700 group-active:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
-          {item.price > 14 && (
-            <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-brand-500 text-[9px] font-black uppercase tracking-wider text-white shadow-glow">
-              Top
-            </span>
-          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/25 to-transparent" />
+          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 dark:bg-ink-900/90 text-[10px] font-black uppercase tracking-wide text-brand-600 dark:text-brand-400 shadow-sm">
+            Top
+          </span>
           {!orderingDisabled && (
             <button
               type="button"
               onClick={handleAdd}
-              className={`absolute top-3 right-3 w-10 h-10 rounded-full grid place-items-center text-lg font-bold shadow-lg transition-all ${
+              className={`absolute top-3 right-3 w-11 h-11 rounded-full grid place-items-center text-lg font-black shadow-lg transition-all ${
                 adding
                   ? 'bg-emerald-500 text-white scale-110'
-                  : 'bg-brand-500 text-white active:scale-90'
+                  : 'bg-white text-ink-900 active:scale-90 dark:bg-ink-900 dark:text-white'
               }`}
             >
               {adding ? '✓' : '+'}
             </button>
           )}
-          <div className="absolute inset-x-0 bottom-0 p-3.5">
-            <h3 className="font-display font-bold text-[15px] text-white leading-tight line-clamp-2">
+          <div className="absolute inset-x-0 bottom-0 p-4">
+            <h3 className="font-display font-bold text-[16px] text-white leading-tight line-clamp-2 drop-shadow">
               {item.name}
             </h3>
-            <div className="mt-1.5 font-display font-black text-brand-400 text-sm">
+            <p className="mt-1.5 font-display font-black text-brand-300 text-sm">
               {formatMad(item.price)}
-            </div>
+            </p>
           </div>
         </div>
-      </button>
+      </motion.button>
     );
   }
 
-  /* Ligne menu — photo dominante, fond charbon */
   return (
-    <div
+    <motion.div
       role="button"
       tabIndex={0}
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-20px' }}
+      transition={{ duration: 0.35, delay: Math.min(index * 0.03, 0.18) }}
       onClick={() => onOpen?.()}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -1895,40 +1965,35 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
           onOpen?.();
         }
       }}
-      className="flex gap-3.5 p-3 rounded-2xl bg-white/[0.035] ring-1 ring-white/[0.06] active:bg-white/[0.06] cursor-grow group transition-colors"
+      className="flex gap-3.5 p-3 rounded-2xl bg-white dark:bg-ink-900/80 ring-1 ring-ink-100 dark:ring-ink-800 shadow-sm active:scale-[0.99] transition-transform cursor-grow group"
     >
-      <div className="shrink-0 w-[108px] h-[108px] sm:w-[120px] sm:h-[120px] rounded-xl overflow-hidden bg-[#1a1513] relative">
+      <div className="shrink-0 w-[112px] h-[112px] sm:w-[124px] sm:h-[124px] rounded-xl overflow-hidden bg-ink-100 dark:bg-ink-800 relative">
         <MenuItemImage
           src={item.img}
           alt={item.name}
           loading="lazy"
-          className="w-full h-full object-cover group-active:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover transition-transform duration-500 group-active:scale-105"
         />
-        {item.price > 80 && (
-          <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-brand-500/95 text-[8px] font-black uppercase tracking-wider text-white">
-            Hit
-          </span>
-        )}
       </div>
       <div className="flex-1 min-w-0 flex flex-col py-0.5">
-        <h3 className="font-display font-bold text-[15px] sm:text-base text-white leading-snug line-clamp-2">
+        <h3 className="font-display font-bold text-[15px] sm:text-base text-ink-900 dark:text-white leading-snug line-clamp-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
           {item.name}
         </h3>
         {item.desc ? (
-          <p className="text-[12px] text-white/40 line-clamp-2 mt-1.5 leading-relaxed">{item.desc}</p>
+          <p className="text-[12px] text-ink-400 dark:text-ink-500 line-clamp-2 mt-1.5 leading-relaxed">{item.desc}</p>
         ) : null}
         <div className="mt-auto pt-2.5 flex items-center gap-2">
-          <span className="font-display font-black text-[15px] text-brand-400">
+          <span className="font-display font-black text-[15px] text-ink-900 dark:text-white">
             {formatMad(item.price)}
           </span>
           {!orderingDisabled && (
             <button
               type="button"
               onClick={handleAdd}
-              className={`ml-auto w-11 h-11 rounded-full grid place-items-center text-base font-bold shadow-glow transition-all ${
+              className={`ml-auto w-11 h-11 rounded-full grid place-items-center text-base font-black shadow-md transition-all ${
                 adding
                   ? 'bg-emerald-500 text-white scale-110'
-                  : 'bg-brand-500 text-white active:scale-90'
+                  : 'bg-ink-900 text-white dark:bg-white dark:text-ink-900 hover:bg-brand-500 dark:hover:bg-brand-500 dark:hover:text-white active:scale-90'
               }`}
             >
               {adding ? '✓' : '+'}
@@ -1936,10 +2001,9 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
-
 export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = false }) {
   const [adding, setAdding] = useState(false);
   const imgRef = useRef();
@@ -1947,6 +2011,10 @@ export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = f
   const handleAdd = (e) => {
     e.stopPropagation();
     if (orderingDisabled) return;
+    if (item.modifierGroups && item.modifierGroups.length > 0) {
+      onOpen?.();
+      return;
+    }
     onAdd(item, restaurant, imgRef.current);
     setAdding(true);
     setTimeout(() => setAdding(false), 1200);
@@ -2021,25 +2089,24 @@ export function RestaurantCard({ restaurant, onClick }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      className="cursor-grow card-glow-hover group relative block h-[300px] w-full overflow-hidden rounded-3xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-sm hover:shadow-cardhover transition-all duration-500 active:scale-[0.98] active:brightness-95"
+      className="cursor-grow card-glow-hover group relative block h-[min(78vw,360px)] sm:h-[320px] w-full overflow-hidden rounded-[1.6rem] sm:rounded-3xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-[0_20px_50px_-24px_rgba(15,23,42,0.55)] hover:shadow-cardhover transition-all duration-500 active:scale-[0.98] active:brightness-95"
     >
-      {/* Image plein cadre : plus de bandeau blanc séparé, tout vit sur la photo. */}
       <img
         src={restaurantCover(restaurant.cover)}
         alt={restaurant.name}
         loading="lazy"
-        className={`absolute inset-0 h-full w-full object-cover transition-transform duration-[1.1s] ease-out group-hover:scale-[1.08] ${
+        className={`absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.1] group-active:scale-105 ${
           restaurant.coverBlend === 'screen' ? 'mix-blend-screen' : ''
         } ${
           !open ? 'filter blur-sm grayscale opacity-70' : ''
         }`}
       />
-      {/* Voile bas : le texte se lit toujours, quelle que soit la photo. */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-black/5" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/10" />
+      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/45 to-transparent pointer-events-none" />
+      <div className="card-shine pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-      {/* Fermé */}
       {!open && (
-        <div className="absolute inset-0 bg-ink-950/40 backdrop-blur-[2px] flex flex-col items-center justify-center text-white">
+        <div className="absolute inset-0 bg-ink-950/40 backdrop-blur-[2px] flex flex-col items-center justify-center text-white z-20">
           <span className="bg-ink-950/75 border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-red-500" />
             Fermé · Réouverture demain
@@ -2047,15 +2114,22 @@ export function RestaurantCard({ restaurant, onClick }) {
         </div>
       )}
 
-      {/* Pastilles en haut */}
-      <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-4 z-10">
+      <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3.5 sm:p-4 z-10">
         {restaurant.isCustomRequest ? (
-          <span className="px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-md animate-pulse">
-            ✨ SUR-MESURE 
+          <span className="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-md">
+            ✨ SUR-MESURE
           </span>
         ) : restaurant.promo && open ? (
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-md animate-pulse-slow">
+          <span className="px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-glow animate-pulse-slow">
             🎁 {restaurant.promo}
+          </span>
+        ) : open ? (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[10px] font-bold text-white">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
+            </span>
+            Ouvert
           </span>
         ) : <span />}
 
@@ -2067,9 +2141,8 @@ export function RestaurantCard({ restaurant, onClick }) {
         )}
       </div>
 
-      {/* Contenu, ancré en bas sur le voile — repris de hiho/yoha-web (RestaurantCard) */}
       <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 z-10 text-white">
-        <h3 className="font-display font-extrabold text-lg sm:text-xl truncate transition-colors group-hover:text-brand-400">
+        <h3 className="font-display font-black text-[1.25rem] sm:text-xl leading-tight line-clamp-2 transition-colors group-hover:text-brand-300">
           {restaurant.name}
         </h3>
         {isDuty && restaurant.nameAr && (
@@ -2082,52 +2155,23 @@ export function RestaurantCard({ restaurant, onClick }) {
             {restaurant.subtitle}
           </p>
         )}
-        <div className="mt-1 flex items-center gap-1.5 text-[11px] sm:text-xs text-white/70 truncate">
+        <div className="mt-1.5 flex items-center gap-1.5 text-[11px] sm:text-xs text-white/70 truncate">
           {isDuty ? (
             restaurant.phone && (
               <span className="truncate shrink-0">{restaurant.phone}</span>
             )
           ) : (
-            <>
-              <span className="truncate">{formatTags(restaurant.tags, ' • ')}</span>
-              {!restaurant.isCustomRequest && !isDuty && !isService && (
-                <span className="shrink-0 px-1.5 py-0.5 rounded bg-white/10 text-white/70 text-[10px] font-bold">
-                  Sponsorisé
-                </span>
-              )}
-            </>
+            <span className="truncate">{formatTags(restaurant.tags, ' • ')}</span>
           )}
         </div>
 
-        <div className="mt-3 sm:mt-4 flex items-center gap-3 border-t border-white/[0.12] pt-3 text-[11px] sm:text-xs">
-          {isDuty ? (
+        <div className="mt-3.5 flex items-center gap-2 border-t border-white/[0.12] pt-3 text-[11px] sm:text-xs">
+          {isDuty || restaurant.isCustomRequest || isService ? (
             <>
-              <span className="flex items-center gap-1 text-white/70 min-w-0">
-                <I.MapPin size={12} className="text-white/50 shrink-0" />
-                <span className="truncate">{restaurant.address || restaurant.distance}</span>
-              </span>
-              <span className="font-bold text-amber-400 shrink-0">20 MAD de livraison</span>
+              <span className="font-bold text-amber-300 shrink-0">20 MAD livraison</span>
               <span className="flex-1" />
-              <span className="inline-flex items-center gap-0.5 font-bold text-emerald-400 shrink-0">
-                Commander <I.Right size={12} />
-              </span>
-            </>
-          ) : restaurant.isCustomRequest ? (
-            <>
-              <span className="inline-flex items-center gap-1.5 font-bold text-amber-400 shrink-0">
-                🛍️ 20 MAD de livraison
-              </span>
-              <span className="flex-1" />
-              <span className="inline-flex items-center gap-0.5 font-bold text-brand-400 shrink-0">
-                Commander <I.Right size={12} />
-              </span>
-            </>
-          ) : isService ? (
-            <>
-              <span className="font-bold text-amber-400 shrink-0">20 MAD de livraison</span>
-              <span className="flex-1" />
-              <span className="inline-flex items-center gap-0.5 font-bold text-emerald-400 shrink-0">
-                Commander <I.Right size={12} />
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white text-ink-900 font-black text-[10px] sm:text-[11px] shadow-md">
+                Commander <I.Right size={11} />
               </span>
             </>
           ) : (
@@ -2136,12 +2180,10 @@ export function RestaurantCard({ restaurant, onClick }) {
                 <I.MapPin size={12} className="text-white/50 shrink-0" />
                 <span className="truncate">{restaurant.distance}</span>
               </span>
-              <span className="text-white/20 shrink-0">|</span>
-              <span className="hidden sm:inline line-through text-white/40 shrink-0">19,99 MAD</span>
-              <span className="font-bold text-emerald-400 shrink-0">0,00 MAD livraison</span>
+              <span className="font-bold text-emerald-400 shrink-0">Livraison offerte</span>
               <span className="flex-1" />
-              <span className="inline-flex items-center gap-0.5 font-bold text-brand-400 shrink-0">
-                Voir le menu <I.Right size={12} />
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-brand-500 to-pink-500 text-white font-black text-[10px] sm:text-[11px] shadow-glow">
+                Voir le menu <I.Right size={11} />
               </span>
             </>
           )}
@@ -2155,7 +2197,7 @@ export const DeliverooCard = RestaurantCard;
 
 export function RestaurantSkeleton() {
   return (
-    <div className="relative h-[300px] rounded-3xl overflow-hidden border border-ink-200/60 dark:border-ink-800 shadow-sm">
+    <div className="relative h-[min(78vw,360px)] sm:h-[320px] rounded-[1.6rem] sm:rounded-3xl overflow-hidden border border-ink-200/60 dark:border-ink-800 shadow-sm">
       <div className="absolute inset-0 bg-ink-200 dark:bg-ink-800/50 skeleton"></div>
       <div className="absolute inset-x-0 bottom-0 p-5 space-y-3">
         <div className="h-5 w-2/3 rounded bg-white/20 animate-pulse"></div>
@@ -2454,23 +2496,38 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
   return (
     <section className="relative px-4 sm:px-0">
       {copiedToast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-slate-900 text-white font-black text-xs shadow-2xl border border-emerald-400/30 flex items-center gap-2 animate-bounce">
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-ink-900 text-white font-black text-xs shadow-2xl border border-brand-400/40 flex items-center gap-2 animate-bounce-soft">
           <span>🎉</span>
           <span>{copiedToast}</span>
         </div>
       )}
 
+      <div className="mb-3.5 flex items-end justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400">Offres</p>
+          <h2 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white tracking-tight leading-none mt-1">
+            Juste pour toi
+          </h2>
+          <div className="mt-2 h-1 w-10 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
+        </div>
+      </div>
+
       <div
         ref={trackRef}
-        className="flex gap-4 overflow-x-auto no-scrollbar pb-2 snap-x snap-mandatory scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0"
+        className="flex gap-3.5 overflow-x-auto no-scrollbar pb-2 snap-x snap-mandatory scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0"
       >
-        {PROMO_BANNERS.map((b) => (
-          <div
+        {PROMO_BANNERS.map((b, i) => (
+          <motion.div
             key={b.id}
+            initial={{ opacity: 0, y: 20, scale: 0.96 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: Math.min(i * 0.06, 0.3), duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             onClick={() => handleCardClick(b)}
-            className={`cursor-pointer shrink-0 w-[300px] sm:w-[380px] md:w-[420px] rounded-3xl p-4 sm:p-5 border shadow-card hover:shadow-cardhover hover:scale-[1.02] transition-all duration-300 relative overflow-hidden group snap-start bg-gradient-to-br ${b.bg}`}
+            className={`cursor-pointer promo-snap shrink-0 w-[300px] sm:w-[380px] md:w-[420px] rounded-[1.4rem] sm:rounded-3xl p-4 sm:p-5 border shadow-card hover:shadow-cardhover active:scale-[0.98] transition-all duration-300 relative overflow-hidden group snap-center bg-gradient-to-br ${b.bg} animate-border-glow`}
           >
             <div className="absolute -right-8 -bottom-8 w-36 h-36 rounded-full bg-white/20 dark:bg-white/5 blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
+            <div className="card-shine absolute inset-0 opacity-40 pointer-events-none" />
             
             <div className="relative flex items-center justify-between gap-3 h-full">
               <div className="flex-1 min-w-0 pr-1">
@@ -2497,21 +2554,21 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
                         goto('my-orders');
                       }
                     }}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white text-slate-950 font-black text-xs shadow-md group-hover:scale-105 transition-all ${b.id === 'promo-6' ? 'cursor-pointer hover:bg-amber-50' : ''}`}>
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white text-slate-950 font-black text-xs shadow-md group-hover:scale-105 transition-all ${b.id === 'promo-6' ? 'cursor-pointer hover:bg-amber-50' : ''}`}>
                     <span>{b.cta}</span>
+                    <span className="animate-bounce-horizontal">→</span>
                   </span>
                 </div>
               </div>
 
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shrink-0 border-2 border-white/60 shadow-md transform group-hover:scale-105 transition-transform duration-500">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shrink-0 border-2 border-white/60 shadow-md transform group-hover:scale-105 transition-transform duration-500 float-soft">
                 <img src={b.image} alt={b.title} className="w-full h-full object-cover" />
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Floating Next Button Arrow */}
       <button
         type="button"
         onClick={scrollNext}

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.files.storage import default_storage
+from django.db.models import Count
 from rest_framework import serializers
 
 from .models import (
@@ -168,7 +169,13 @@ class RestaurantDetailSerializer(RestaurantListSerializer):
         fields = RestaurantListSerializer.Meta.fields + ("menu", "offers")
 
     def get_menu(self, obj):
-        cats = obj.menu_categories.prefetch_related("items").all()
+        cats = (
+            obj.menu_categories
+            .annotate(_n_items=Count("items"))
+            .filter(_n_items__gt=0)
+            .prefetch_related("items__modifier_groups__options")
+            .order_by("sort_order", "id")
+        )
         return MenuCategorySerializer(cats, many=True, context=self.context).data
 
     def get_offers(self, obj):

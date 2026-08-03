@@ -229,20 +229,27 @@ function ItemsSummary({ order, itemCount }) {
         </div>
         <div className="divide-y divide-ink-100/60 dark:divide-ink-800/40">
           {order.items.map((it, idx) => (
-            <div key={idx} className="flex items-center justify-between px-3 py-2 text-xs hover:bg-ink-50/50 dark:hover:bg-ink-800/30 transition-colors">
-              <span className="text-ink-700 dark:text-ink-300 font-medium truncate mr-2">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-brand-500/10 text-brand-600 dark:text-brand-400 font-extrabold text-[10px] mr-1.5">{it.qty}</span>
-                {it.name}
-              </span>
-              <span className="font-bold text-ink-900 dark:text-white shrink-0 tabular-nums">
-                {looksCustom(it) ? (
-                  <span className="inline-flex items-center gap-1.5 text-brand-600 dark:text-brand-400">
-                    <span className="px-2 py-0.5 rounded-md bg-brand-500/10 border border-brand-500/20 text-[9px] font-black uppercase tracking-wider">Sur ticket</span>
-                  </span>
-                ) : (
-                  formatMad(it.price * (it.qty || 1))
-                )}
-              </span>
+            <div key={idx} className="px-3 py-2 text-xs hover:bg-ink-50/50 dark:hover:bg-ink-800/30 transition-colors">
+              <div className="flex items-center justify-between">
+                <span className="text-ink-700 dark:text-ink-300 font-medium truncate mr-2">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-brand-500/10 text-brand-600 dark:text-brand-400 font-extrabold text-[10px] mr-1.5">{it.qty}</span>
+                  {it.name}
+                </span>
+                <span className="font-bold text-ink-900 dark:text-white shrink-0 tabular-nums">
+                  {looksCustom(it) ? (
+                    <span className="inline-flex items-center gap-1.5 text-brand-600 dark:text-brand-400">
+                      <span className="px-2 py-0.5 rounded-md bg-brand-500/10 border border-brand-500/20 text-[9px] font-black uppercase tracking-wider">Sur ticket</span>
+                    </span>
+                  ) : (
+                    formatMad(it.price * (it.qty || 1))
+                  )}
+                </span>
+              </div>
+              {(it.options || []).length > 0 && (
+                <div className="mt-0.5 pl-7 text-[10px] text-ink-400 dark:text-ink-500 truncate">
+                  {it.options.map((o) => o.name).join(' · ')}
+                </div>
+              )}
             </div>
           ))}
         </div>

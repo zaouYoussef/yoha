@@ -171,9 +171,12 @@ class Order(models.Model):
         for row in items_payload:
             item = row["menu_item"]
             qty = row["qty"]
-            line_total = item.price_mad * qty
+            # Prix unitaire transmis par le client (base + surtaxes options) ;
+            # on retombe sur le prix en base si absent ou nul.
+            unit = Decimal(str(row.get("unit_price_mad") or 0)) or item.price_mad
+            line_total = unit * qty
             subtotal += line_total
-            line_objects.append((item, qty, line_total))
+            line_objects.append((item, qty, line_total, unit))
 
         if custom_delivery_fee is not None:
             fee = Decimal(str(custom_delivery_fee))
@@ -200,12 +203,12 @@ class Order(models.Model):
             idempotency_key=idempotency_key or None,
             scheduled_delivery_at=scheduled_delivery_at,
         )
-        for item, qty, line_total in line_objects:
+        for item, qty, line_total, unit in line_objects:
             OrderLine.objects.create(
                 order=order,
                 menu_item=item,
                 item_name=item.name,
-                unit_price_mad=item.price_mad,
+                unit_price_mad=unit,
                 quantity=qty,
                 line_total_mad=line_total,
                 image_url=item.image_url,

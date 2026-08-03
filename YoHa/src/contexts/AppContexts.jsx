@@ -2,6 +2,20 @@
 
 import { createContext, useContext } from 'react';
 
+/** Clé stable d'une ligne de panier : item + options triées.
+ * Sans options, on retombe sur l'id brut (comportement d'origine). */
+export function makeCartKey(itemId, options = []) {
+  const base = String(itemId);
+  const opts = Array.isArray(options) ? options : [];
+  if (!opts.length) return base;
+  const tail = opts
+    .slice()
+    .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
+    .map((o) => `${o.name}:${Number(o.price || 0)}`)
+    .join('|');
+  return `${base}::${tail}`;
+}
+
 export const ToastCtx = createContext(null);
 export const useToast = () => useContext(ToastCtx) || { push: () => {}, toasts: [] };
 

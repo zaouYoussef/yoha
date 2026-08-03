@@ -287,18 +287,18 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   }
 
   return (
-    <div className="page-enter max-w-5xl mx-auto px-4 sm:px-6 pt-4 pb-28 lg:pb-8">
-      {/* Back Button & Checkout Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div className="page-enter relative max-w-5xl mx-auto px-4 sm:px-6 pt-4 pb-28 lg:pb-8 overflow-hidden">
+      <div className="yoha-ambient opacity-70" aria-hidden />
+
+      <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <button
           onClick={onBack}
-          className="cursor-pointer inline-flex items-center gap-2 self-start px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-ink-900 dark:hover:bg-ink-800 text-ink-700 dark:text-white font-bold text-xs transition-colors shadow-xs"
+          className="cursor-pointer inline-flex items-center gap-2 self-start px-3.5 py-2 rounded-xl bg-white/80 dark:bg-ink-900 hover:bg-brand-500/10 text-ink-700 dark:text-white font-bold text-xs transition-colors shadow-xs border border-ink-100 dark:border-ink-800"
         >
           <I.Left size={16}/> <span>Retour à la carte</span>
         </button>
 
-        {/* Deliveroo-Style Step Indicator */}
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 self-start sm:self-auto text-[11px] sm:text-xs font-bold bg-slate-100 dark:bg-ink-900 px-3 sm:px-3.5 py-1.5 rounded-full border border-ink-100 dark:border-ink-800 max-w-full overflow-x-auto no-scrollbar">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 self-start sm:self-auto text-[11px] sm:text-xs font-bold bg-white/90 dark:bg-ink-900 px-3 sm:px-3.5 py-1.5 rounded-full border border-ink-100 dark:border-ink-800 max-w-full overflow-x-auto no-scrollbar shadow-sm">
           <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1 shrink-0">
             <span>✓</span> Panier
           </span>
@@ -312,10 +312,15 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
         </div>
       </div>
 
-      {/* Main Title & Subtitle */}
-      <div className="mb-6 animate-fade-up">
+      <div className="relative mb-6">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400 mb-1.5">
+          Presque là
+        </p>
         <h1 className="font-display font-black text-2xl sm:text-4xl tracking-tight text-ink-900 dark:text-white">
-          Finalisation de commande
+          Finalisation{' '}
+          <span className="bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 bg-clip-text text-transparent">
+            de commande
+          </span>
         </h1>
         <p className="mt-1 text-xs sm:text-sm text-ink-500 dark:text-ink-400 font-medium">
           Livraison rapide en <span className="font-bold text-brand-600 dark:text-brand-400">{deliveryEta}</span> à l'Alliance & CHU Tanger 🏍️
@@ -451,6 +456,11 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                         <div className="text-[11px] sm:text-xs text-ink-500 dark:text-ink-400 font-medium mt-0.5">
                           Quantité : <strong className="text-ink-900 dark:text-white">{it.qty}</strong> · {it.restaurantName || mainStoreName}
                         </div>
+                        {(it.options || []).length > 0 && (
+                          <div className="text-[11px] text-ink-400 dark:text-ink-500 mt-0.5 truncate">
+                            {it.options.map((o) => o.name).join(' · ')}
+                          </div>
+                        )}
                       </>
                     )}
                   </div>
@@ -643,7 +653,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                   type="button"
                   onClick={handleConfirm}
                   disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
-                  className="w-full relative py-3.5 px-5 sm:px-6 rounded-xl bg-brand-500 hover:bg-brand-600 active:scale-[0.99] text-white font-extrabold text-sm sm:text-base shadow-sm shadow-brand-500/25 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 border border-brand-400/30"
+                  className="w-full relative py-3.5 px-5 sm:px-6 rounded-xl cta-brand btn-shimmer active:scale-[0.99] text-white font-extrabold text-sm sm:text-base transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 border border-white/20"
                 >
                   {submitting ? (
                     <span className="flex items-center justify-center gap-2 font-bold text-xs sm:text-sm">
@@ -680,7 +690,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
             type="button"
             onClick={handleConfirm}
             disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
-            className="flex-1 py-3 px-4 rounded-xl bg-brand-500 active:bg-brand-600 text-white font-extrabold text-xs sm:text-sm shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer border border-brand-400/30"
+            className="flex-1 py-3.5 px-4 rounded-xl cta-brand btn-shimmer text-white font-extrabold text-xs sm:text-sm active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer border border-white/20"
           >
             {submitting ? (
               <span className="text-center font-bold text-xs">Traitement…</span>

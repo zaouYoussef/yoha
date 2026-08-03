@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { ORDER_STATES } from '@/data/index.js';
-import { ToastCtx, OrdersCtx, CartIconRefCtx, CartCtx } from '@/contexts/AppContexts.jsx';
+import { ToastCtx, OrdersCtx, CartIconRefCtx, CartCtx, makeCartKey } from '@/contexts/AppContexts.jsx';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext.jsx';
 import { YohaNavProvider } from '@/contexts/YohaNavContext.jsx';
 import { getTokens, ordersApi, restaurantsApi } from '@/lib/api';
@@ -428,6 +428,7 @@ function triggerClientNotification(title, body, orderId) {
           quantity: i.qty,
           item_name: i.name,
           item_price: i.price,
+          item_options: (i.options || []).map((o) => o.name),
           restaurant_name: i.restaurantName,
         })),
         customer_name: customer.name,
@@ -456,7 +457,7 @@ function triggerClientNotification(title, body, orderId) {
             address: customer.address,
             phone: customer.phone,
           },
-          items: cartItems.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
+          items: cartItems.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price, options: i.options })),
           restaurantNotes: customer.restaurantNotes,
           ordonnanceUrl: customer.ordonnanceUrl || '',
         };
@@ -472,6 +473,7 @@ function triggerClientNotification(title, body, orderId) {
               img: line.img || src.img,
               restaurantId: line.restaurantId || src.restaurantId,
               restaurantName: line.restaurantName || src.restaurantName,
+              options: line.options || src.options,
             };
             if (src.isCustom || src.restaurantCuisine) {
               enriched.isCustom = true;
@@ -682,25 +684,34 @@ function triggerClientNotification(title, body, orderId) {
     () => ({
       cart,
       setCart,
-      addToCart: (item, restaurant, sourceEl) => {
+      addToCart: (item, restaurant, sourceEl, options) => {
+        const opts = Array.isArray(options) ? options : [];
         if (sourceEl && cartIconRef.current) {
           import('@/utils/flyToCart.js').then(({ flyToCart }) => {
             flyToCart(sourceEl, cartIconRef.current, item.img);
           });
         }
+        const price =
+          Number(item.price || 0) + opts.reduce((s, o) => s + (Number(o.price) || 0), 0);
+        const key = makeCartKey(item.id, opts);
         setCart((prev) => {
-          const e = prev.find((p) => p.id === item.id);
-          if (e) return prev.map((p) => (p.id === item.id ? { ...p, qty: p.qty + 1 } : p));
-          return [...prev, { ...item, qty: 1, restaurantId: restaurant.id, restaurantName: restaurant.name }];
+          const e = prev.find((p) => (p.key || p.id) === key);
+          if (e) return prev.map((p) => ((p.key || p.id) === key ? { ...p, qty: p.qty + 1 } : p));
+          return [
+            ...prev,
+            { ...item, key, options: opts, price, qty: 1, restaurantId: restaurant.id, restaurantName: restaurant.name },
+          ];
         });
         setTimeout(() => {
           pushToast({ title: 'Ajouté au panier', desc: item.name, type: 'success' });
         }, 800);
       },
-      removeFromCart: (id) => setCart((prev) => prev.filter((p) => p.id !== id)),
+      removeFromCart: (id) => setCart((prev) => prev.filter((p) => (p.key || p.id) !== id)),
       setQty: (id, qty) =>
         setCart((prev) =>
-          qty <= 0 ? prev.filter((p) => p.id !== id) : prev.map((p) => (p.id === id ? { ...p, qty } : p))
+          qty <= 0
+            ? prev.filter((p) => (p.key || p.id) !== id)
+            : prev.map((p) => ((p.key || p.id) === id ? { ...p, qty } : p))
         ),
       clearCart: () => setCart([]),
       cartCount: cart.reduce((s, p) => s + p.qty, 0),

@@ -299,6 +299,8 @@ def _apply_menu(restaurant: Restaurant, store: GlovoStoreConfig, sections: List[
     keep_item_ids: set[int] = set()
 
     for cat_order, section in enumerate(sections):
+        if not section.products:
+            continue
         cat_name = (store.overrides.get(section.title) or section.title).strip()
         if not cat_name:
             continue
@@ -342,6 +344,11 @@ def _apply_menu(restaurant: Restaurant, store: GlovoStoreConfig, sections: List[
         removed_items = MenuItem.objects.filter(restaurant=restaurant).exclude(pk__in=keep_item_ids)
         report.removed_items = removed_items.count()
         removed_items.delete()
+        # Catégories vides (créées par d'anciennes passes avec des sections sans produits)
+        empty_cats = MenuCategory.objects.filter(restaurant=restaurant, items__isnull=True)
+        if empty_cats.exists():
+            report.removed_categories += empty_cats.count()
+            empty_cats.delete()
 
 
 def _apply_modifiers(item: MenuItem, product: GlovoProduct) -> None:
