@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .admin_views import AdminRestaurantCreateView, AdminRestaurantDeleteView, AdminRestaurantListView, AdminRestaurantUpdateView
+from .glovo_views import AddGlovoStoreView, GlovoLogsView, GlovoStoresView, GlovoSyncNowView
 from .owner_views import (
     MenuCategoryDetailView,
     MenuCategoryListCreateView,
@@ -18,6 +19,10 @@ from .owner_views import (
 
 urlpatterns = [
     path("", RestaurantListView.as_view(), name="restaurant-list"),
+    path("add-glovo/store/", AddGlovoStoreView.as_view(), name="add-glovo-store"),
+    path("add-glovo/stores/", GlovoStoresView.as_view(), name="add-glovo-stores"),
+    path("add-glovo/logs/", GlovoLogsView.as_view(), name="add-glovo-logs"),
+    path("add-glovo/sync/", GlovoSyncNowView.as_view(), name="add-glovo-sync"),
     path("youssef/", AdminRestaurantListView.as_view(), name="admin-restaurant-list"),
     path("youssef/create/", AdminRestaurantCreateView.as_view(), name="admin-restaurant-create"),
     path("youssef/<int:pk>/", AdminRestaurantDeleteView.as_view(), name="admin-restaurant-delete"),

@@ -58,6 +58,30 @@ class Restaurant(models.Model):
     )
     is_active = models.BooleanField(default=True, db_index=True)
     rating = models.CharField(max_length=10, blank=True, default="4.8")
+    glovo_store_id = models.BigIntegerField(
+        null=True,
+        blank=True,
+        help_text="ID du store Glovo (découvert) — active la synchro du menu.",
+    )
+    glovo_address_id = models.BigIntegerField(
+        null=True,
+        blank=True,
+        help_text="ID de l'adresse Glovo du store.",
+    )
+    glovo_slug = models.CharField(
+        max_length=120,
+        blank=True,
+        help_text="Slug interne Glovo (ex: mr-tacos-tgr) pour la découverte.",
+    )
+    glovo_enabled = models.BooleanField(
+        default=False,
+        help_text="Menu synchronisé depuis l'API Glovo (toutes les 2 jours).",
+    )
+    glovo_synced_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Dernière synchronisation réussie du menu Glovo.",
+    )
     commission_rate = models.DecimalField(
         max_digits=5,
         decimal_places=4,
@@ -162,3 +186,35 @@ class RestaurantOffer(models.Model):
 
     def __str__(self):
         return f"{self.restaurant.name} — {self.title}"
+
+
+class GlovoSyncLog(models.Model):
+    """Historique des synchronisations de menu Glovo (verrou + audit)."""
+
+    class Status(models.TextChoices):
+        RUNNING = "running", "En cours"
+        OK = "ok", "Réussi"
+        ERROR = "error", "Erreur"
+        UP_TO_DATE = "up_to_date", "Déjà à jour"
+        DISABLED = "disabled", "Désactivé"
+
+    restaurant = models.ForeignKey(
+        Restaurant,
+        on_delete=models.CASCADE,
+        related_name="glovo_sync_logs",
+    )
+    slug = models.CharField(max_length=120, db_index=True)
+    started_at = models.DateTimeField(db_index=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.RUNNING)
+    dry_run = models.BooleanField(default=False)
+    stats = models.JSONField(default=dict, blank=True)
+    error = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["-started_at"]
+        verbose_name = "log synchro Glovo"
+        verbose_name_plural = "logs synchro Glovo"
+
+    def __str__(self):
+        return f"{self.slug} — {self.status} [{self.started_at:%Y-%m-%d %H:%M}]"

@@ -5,3 +5,8 @@ class RestaurantsConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "apps.restaurants"
     verbose_name = "Restaurants"
+
+    def ready(self):
+        from .scheduler import start_glovo_scheduler
+
+        start_glovo_scheduler()

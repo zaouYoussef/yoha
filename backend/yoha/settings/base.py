@@ -322,6 +322,138 @@ PHARMACY_SCHEDULER_MINUTE = env.int("PHARMACY_SCHEDULER_MINUTE", default=0)
 PROMO_CAMPAIGN_MIN_DAYS = env.int("PROMO_CAMPAIGN_MIN_DAYS", default=2)
 PROMO_EMAIL_DELAY_SECONDS = env.float("PROMO_EMAIL_DELAY_SECONDS", default=1.0)
 
+# ——— Synchronisation des menus Glovo (Tanger, toutes les 2 jours) ———
+GLOVO_SYNC_ENABLED = env.bool("GLOVO_SYNC_ENABLED", default=True)
+GLOVO_CITY_CODE = env("GLOVO_CITY_CODE", default="TAN")
+GLOVO_CITY_SLUG = env("GLOVO_CITY_SLUG", default="tanger")  # slug web (glovoapp.com/ma/fr/<city>/…)
+GLOVO_COUNTRY_CODE = env("GLOVO_COUNTRY_CODE", default="ma")
+GLOVO_LATITUDE = env.float("GLOVO_LATITUDE", default=35.7595)
+GLOVO_LONGITUDE = env.float("GLOVO_LONGITUDE", default=-5.8340)
+GLOVO_LANGUAGE = env("GLOVO_LANGUAGE", default="fr")
+GLOVO_SYNC_INTERVAL_DAYS = env.int("GLOVO_SYNC_INTERVAL_DAYS", default=2)
+GLOVO_NEXT_RUN_MINUTES = env.int("GLOVO_NEXT_RUN_MINUTES", default=60)
+GLOVO_REQUEST_DELAY = env.float("GLOVO_REQUEST_DELAY", default=2.0)
+# Outils exposés via /add-glovo/* — token optionnel pour déclenchement externe.
+GLOVO_TOOLS = {
+    "add": env.bool("GLOVO_TOOL_ADD", default=True),
+    "discover": env.bool("GLOVO_TOOL_DISCOVER", default=True),
+    "sync": env.bool("GLOVO_TOOL_SYNC", default=True),
+    "logs": env.bool("GLOVO_TOOL_LOGS", default=True),
+    "token": env("GLOVO_TOOL_TOKEN", default=""),
+}
+
+# Stores Glovo de Tanger (IDs découverts). Le menu provient de l'API Glovo ;
+# cuisine/tags restent ajustables via l'admin YoHa.
+GLOVO_STORES = [
+    {
+        "slug": "mr-tacos-tanger",
+        "glovo_slug": "mr-tacos-tgr",
+        "store_id": 355376,
+        "address_id": 860274,
+        "name": "Mr.Tacos — Tanger",
+        "cuisine": "tacos",
+        "tags": ["Tacos", "Burger", "Box", "Poutine"],
+        "cover_url": "https://glovo.dhmedia.io/image/stores-glovo/stores/ff0eaffbcf05631daf2356646d2d72232338f1b97cbe6a8dd5a5d019bbf73734",
+        "logo_url": "https://glovo.dhmedia.io/image/customer-assets-glovo/store_logos/d554a4453c44dfa15e126020b6acb9e8475e1627a8033e4baea358e4f72a6e41",
+        "delivery_time": "25-40 min",
+        "fee_label": "Livraison offerte",
+    },
+    {
+        "slug": "kamora",
+        "glovo_slug": "kamora",
+        "store_id": 325469,
+        "address_id": 485335,
+        "name": "Kamora",
+        "cuisine": "burger",
+        "tags": ["Burger", "Tacos"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "new-school-tacos-corniche",
+        "glovo_slug": "new-school-tacos-tng",
+        "store_id": 105625,
+        "address_id": 197266,
+        "name": "New School Tacos",
+        "cuisine": "tacos",
+        "tags": ["Tacos"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "new-school-tacos-boulevard",
+        "glovo_slug": "new-school-tacostng",
+        "store_id": 409428,
+        "address_id": 605123,
+        "name": "New School Tacos",
+        "cuisine": "tacos",
+        "tags": ["Tacos"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "l-assiette-verte",
+        "glovo_slug": "lassiette-verte-tng",
+        "store_id": 542935,
+        "address_id": 879639,
+        "name": "L'Assiette Verte",
+        "cuisine": "healthy",
+        "tags": ["Healthy", "Salades"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "tchoco-charly",
+        "glovo_slug": "tchoco-charly-tng",
+        "store_id": 539328,
+        "address_id": 923965,
+        "name": "Tchoco Charly",
+        "cuisine": "dessert",
+        "tags": ["Chocolat", "Desserts"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "burns",
+        "glovo_slug": "burns-tng",
+        "store_id": 557373,
+        "address_id": 901525,
+        "name": "Burns",
+        "cuisine": "burger",
+        "tags": ["Burger"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "melt-99",
+        "glovo_slug": "melt-99-tng",
+        "store_id": 527388,
+        "address_id": 858564,
+        "name": "Melt 99",
+        "cuisine": "burger",
+        "tags": ["Burger", "Grillades"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "kunafita",
+        "glovo_slug": "kunafita",
+        "store_id": 174706,
+        "address_id": 296550,
+        "name": "Kunafita",
+        "cuisine": "dessert",
+        "tags": ["Kunafa", "Desserts"],
+        "delivery_time": "25-40 min",
+    },
+]
+
+# Réglages fins par store (recette de synchro) : renommages de sections,
+# désactivation du purge, tags supplémentaires…
+GLOVO_STORE_CONFIGS = {
+    "mr-tacos-tanger": {"prune": True},
+    "kamora": {"prune": True},
+    "new-school-tacos-corniche": {"prune": True},
+    "new-school-tacos-boulevard": {"prune": True},
+    "l-assiette-verte": {"prune": True},
+    "tchoco-charly": {"prune": True},
+    "burns": {"prune": True},
+    "melt-99": {"prune": True},
+    "kunafita": {"prune": True},
+}
+
 # ——— Sécurité HTTP ———
 SECURE_SSL_REDIRECT = env("SECURE_SSL_REDIRECT")
 SESSION_COOKIE_SECURE = env("SESSION_COOKIE_SECURE")
