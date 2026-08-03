@@ -161,7 +161,7 @@ export function ShopShell({ children, showCampus = false }) {
           onMyOrders={() => goto('my-orders')}
         />
 
-        <main className="relative z-10 min-w-0 flex-1 overflow-x-hidden pt-16 pb-24 md:pb-0">{children}</main>
+        <main className="relative z-10 min-w-0 flex-1 overflow-x-hidden pt-16 pb-28 md:pb-0">{children}</main>
 
         {showCampus && (
           <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 pb-10 sm:pb-14">
@@ -171,7 +171,7 @@ export function ShopShell({ children, showCampus = false }) {
 
         <BottomNav
           active={viewName}
-          onHome={() => goto('home', { browseFilter: 'all' })}
+          onHome={() => goto('landing')}
           onSearch={() => goto('home', { browseFilter: 'all' })}
           onCart={() => setCartOpen(true)}
           onProfile={() => goto(user ? 'my-orders' : 'auth')}

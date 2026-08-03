@@ -5,7 +5,7 @@ import { Logo } from './Logo.jsx';
 
 export function Footer({ goto }) {
   return (
-    <footer className="relative mt-10 overflow-hidden border-t border-ink-200/60 pb-24 dark:border-ink-800/60 md:pb-0">
+    <footer className="relative mt-10 overflow-hidden border-t border-ink-200/60 pb-28 dark:border-ink-800/60 md:pb-0">
       <div className="pointer-events-none absolute inset-0 mesh-bg opacity-40 dark:opacity-25" aria-hidden />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-brand-500/0 via-pink-500/50 to-violet-500/0" />
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
