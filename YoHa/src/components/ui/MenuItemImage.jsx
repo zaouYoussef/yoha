@@ -18,11 +18,24 @@ export const FOOD_IMAGE_FALLBACK = UNSPLASH_FALLBACKS[0];
 export const RESTAURANT_COVER_FALLBACK = UNSPLASH_FALLBACKS[0];
 export const RESTAURANT_LOGO_FALLBACK = '/logo.webp';
 
-/** Répare / normalise les URLs images Glovo (dhmedia + transform t=). */
-const GLOVO_IMAGE_TRANSFORM =
+/** Transforms Glovo dhmedia — plats petits, cover/logo haute qualité. */
+const GLOVO_MENU_TRANSFORM =
   'W3sicmVzaXplIjp7Im1vZGUiOiJmaXQiLCJ3aWR0aCI6MzIwLCJoZWlnaHQiOjMyMH19LHsid2VicCI6e319XQ==';
+const GLOVO_COVER_TRANSFORM =
+  'W3sicmVzaXplIjp7Im1vZGUiOiJmaXQiLCJ3aWR0aCI6MTIwMCwiaGVpZ2h0Ijo4MDB9fSx7IndlYnAiOnt9fV0=';
+const GLOVO_LOGO_TRANSFORM =
+  'W3sicmVzaXplIjp7Im1vZGUiOiJmaXQiLCJ3aWR0aCI6NTEyLCJoZWlnaHQiOjUxMn19LHsid2VicCI6e319XQ==';
 
-export function fixGlovoImageUrl(url) {
+function stripGlovoTransform(url) {
+  return url
+    .replace(/([?&])t=[^&]*/g, '$1')
+    .replace(/\?&/, '?')
+    .replace(/[?&]$/, '')
+    .replace(/\?$/, '');
+}
+
+/** Répare / normalise les URLs images Glovo (dhmedia + transform t=). */
+export function fixGlovoImageUrl(url, transform = GLOVO_MENU_TRANSFORM) {
   if (!url || typeof url !== 'string') return '';
   let trimmed = url.trim();
   if (!trimmed) return '';
@@ -44,8 +57,9 @@ export function fixGlovoImageUrl(url) {
     trimmed = `https://glovo.dhmedia.io/image/${trimmed.slice('https://images.deliveryhero.io/image/'.length)}`;
   }
 
-  if (trimmed.includes('glovo.dhmedia.io/image/') && !/[?&]t=/.test(trimmed)) {
-    trimmed += `${trimmed.includes('?') ? '&' : '?'}t=${GLOVO_IMAGE_TRANSFORM}`;
+  if (trimmed.includes('glovo.dhmedia.io/image/')) {
+    trimmed = stripGlovoTransform(trimmed);
+    trimmed += `${trimmed.includes('?') ? '&' : '?'}t=${transform}`;
   }
 
   if (trimmed.includes('unsplash.com')) {
@@ -55,12 +69,12 @@ export function fixGlovoImageUrl(url) {
 }
 
 export function restaurantCover(url) {
-  const fixed = fixGlovoImageUrl(url);
+  const fixed = fixGlovoImageUrl(url, GLOVO_COVER_TRANSFORM);
   return fixed || RESTAURANT_COVER_FALLBACK;
 }
 
 export function restaurantLogo(url) {
-  const fixed = fixGlovoImageUrl(url);
+  const fixed = fixGlovoImageUrl(url, GLOVO_LOGO_TRANSFORM);
   return fixed || RESTAURANT_LOGO_FALLBACK;
 }
 

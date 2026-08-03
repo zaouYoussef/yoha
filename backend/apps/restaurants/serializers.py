@@ -194,7 +194,7 @@ class RestaurantListSerializer(serializers.ModelSerializer):
         return restaurant_open_status(obj.opening_hours)["openLabel"]
 
     def get_cover(self, obj):
-        return pick_image(obj.cover_file, obj.cover_thumb, obj.cover_url, prefer_thumb=True)
+        return pick_image(obj.cover_file, obj.cover_thumb, obj.cover_url, prefer_thumb=False)
 
     def get_logo(self, obj):
         return pick_image(obj.logo_file, obj.logo_thumb, obj.logo_url, prefer_thumb=False)
