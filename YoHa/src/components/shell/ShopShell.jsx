@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { ScrollProgress } from '@/components/effects/ScrollProgress.jsx';
-import { SocialOrderPopup } from '@/components/effects/SocialOrderPopup.jsx';
 import { Navbar } from '@/components/layout/Navbar.jsx';
 import { BottomNav } from '@/components/layout/BottomNav.jsx';
 import { CartSidebar, FloatingCart } from '@/views/CartViews.jsx';
@@ -203,16 +202,6 @@ export function ShopShell({ children, showCampus = false }) {
             viewName === 'checkout' ||
             pathname === '/checkout' ||
             cartOpen
-          }
-        />
-
-        <SocialOrderPopup
-          visible={
-            anyRestoOpen &&
-            viewName !== 'landing' &&
-            viewName !== 'success' &&
-            viewName !== 'checkout' &&
-            viewName !== 'auth'
           }
         />
 
