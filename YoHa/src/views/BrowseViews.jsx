@@ -18,7 +18,7 @@ import { MenuItemDetailModal } from '../components/ui/MenuItemDetailModal.jsx';
 import PlaceAutocomplete from '../components/ui/PlaceAutocomplete.jsx';
 import { OrdonnanceUpload } from '../components/ui/OrdonnanceUpload.jsx';
 import { pharmaciesApi } from '../lib/api.js';
-import { browsePathForFilter } from '../data/browseSlugs.js';
+import { browsePathForFilter, normalizeBrowseFilter } from '../data/browseSlugs.js';
 
 function shuffleWithSeed(array, seed) {
   if (!array || !array.length) return [];
@@ -316,20 +316,25 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   const { user } = useAuth();
   const { restaurants: catalog, loadingRestaurants, restaurantsError, refreshRestaurants } = useOrders();
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState(initialFilter);
+  const [filter, setFilter] = useState(() => normalizeBrowseFilter(initialFilter));
   const [dutyPharmacies, setDutyPharmacies] = useState([]);
 
   const router = useRouter();
   const applyFilter = useCallback(
     (f) => {
-      setFilter(f);
-      const url = browsePathForFilter(f);
+      const next = normalizeBrowseFilter(f);
+      setFilter(next);
+      const url = browsePathForFilter(next);
       if (typeof window !== 'undefined' && url !== window.location.pathname + window.location.search) {
         router.push(url);
       }
     },
     [router]
   );
+
+  useEffect(() => {
+    setFilter(normalizeBrowseFilter(initialFilter));
+  }, [initialFilter]);
 
   useEffect(() => {
     let cancelled = false;

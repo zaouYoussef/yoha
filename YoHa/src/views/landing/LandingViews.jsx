@@ -229,10 +229,16 @@ export function AnimatedHeading({ text, gradient }) {
 }
 
 /* === Bento layout for hero right === */
-function BentoSpotlightCard({ spot, spotFade, n, restaurants, spotIdx, onSelectSpot }) {
+function BentoSpotlightCard({ spot, spotFade, n, restaurants, spotIdx, onSelectSpot, onOpen }) {
   return (
-    <div className="cursor-grow group relative h-full min-h-[200px] sm:min-h-[220px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-cardhover spotlight border border-ink-200/20 dark:border-ink-800/80 transition-all duration-300"
-      onMouseMove={spotlightHandler}>
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen?.(); } }}
+      className="cursor-grow group relative h-full min-h-[200px] sm:min-h-[220px] w-full text-left rounded-2xl sm:rounded-3xl overflow-hidden shadow-cardhover spotlight border border-ink-200/20 dark:border-ink-800/80 transition-all duration-300"
+      onMouseMove={spotlightHandler}
+    >
       <div className={`absolute inset-0 transition-opacity duration-300 ease-out ${spotFade ? 'opacity-100' : 'opacity-0'}`}>
         <img src={restaurantCover(spot.cover)} alt={spot.name}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700"/>
@@ -251,13 +257,14 @@ function BentoSpotlightCard({ spot, spotFade, n, restaurants, spotIdx, onSelectS
                   role="tab"
                   aria-selected={i === spotIdx}
                   aria-label={`Restaurant ${r.name}`}
-                  onClick={() => onSelectSpot(i)}
+                  onClick={(e) => { e.stopPropagation(); onSelectSpot(i); }}
                   className={`h-1.5 rounded-full transition-colors ${i === spotIdx ? 'w-6 bg-white' : 'w-1.5 bg-white/45 hover:bg-white/75'}`}
                 />
               ))}
             </div>
           )}
           <div className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl leading-tight line-clamp-2">{spot.name}</div>
+          <div className="mt-1.5 text-xs font-bold text-white/80 opacity-0 group-hover:opacity-100 transition-opacity">Voir le menu →</div>
         </div>
       </div>
     </div>
@@ -265,6 +272,7 @@ function BentoSpotlightCard({ spot, spotFade, n, restaurants, spotIdx, onSelectS
 }
 
 export function BentoHero() {
+  const { goto } = useYohaNav();
   const { restaurants: allRestaurants } = useOrders();
   const restaurants = useMemo(() => {
     if (!Array.isArray(allRestaurants) || !allRestaurants.length) return HERO_RESTAURANTS;
@@ -311,6 +319,12 @@ export function BentoHero() {
     setTimeout(() => { setSpotIdx(i); setSpotFade(true); }, 200);
   };
 
+  const openSpot = () => {
+    if (spot?.id) goto('restaurant', { restaurant: spot });
+    else goto('home', { browseFilter: 'all' });
+  };
+  const goBrowse = () => goto('home', { browseFilter: 'all' });
+
   return (
     <>
       {/* Mobile — layout simplifié et lisible */}
@@ -322,24 +336,25 @@ export function BentoHero() {
           restaurants={restaurants}
           spotIdx={spotIdx}
           onSelectSpot={selectSpot}
+          onOpen={openSpot}
         />
 
         <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-          <div className="rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 p-2 sm:p-3 text-white text-center border border-white/20 shadow-glow">
+          <button type="button" onClick={goBrowse} className="rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 p-2 sm:p-3 text-white text-center border border-white/20 shadow-glow cursor-pointer active:scale-[0.98] transition-transform">
             <div className="text-[8px] sm:text-[9px] font-semibold uppercase tracking-wider opacity-90">Délai</div>
-            <div className="font-display font-black text-xl sm:text-2xl leading-none mt-0.5">34<span className="text-[9px] sm:text-xs font-bold">min</span></div>
-          </div>
-          <div className="rounded-xl sm:rounded-2xl glass-card-premium p-2 sm:p-3 text-center border border-white/20 dark:border-white/5">
+            <div className="font-display font-black text-xl sm:text-2xl leading-none mt-0.5">~30<span className="text-[9px] sm:text-xs font-bold"> min</span></div>
+          </button>
+          <button type="button" onClick={goBrowse} className="rounded-xl sm:rounded-2xl glass-card-premium p-2 sm:p-3 text-center border border-white/20 dark:border-white/5 cursor-pointer active:scale-[0.98] transition-transform">
             <div className="text-[8px] sm:text-[9px] font-semibold uppercase tracking-wider text-ink-500">Communauté</div>
             <div className="font-display font-black text-lg sm:text-2xl text-gradient mt-0.5">12k+</div>
-          </div>
-          <div className="rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/5 p-2 sm:p-3 text-center border border-emerald-500/20">
+          </button>
+          <button type="button" onClick={goBrowse} className="rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/5 p-2 sm:p-3 text-center border border-emerald-500/20 cursor-pointer active:scale-[0.98] transition-transform">
             <div className="text-base sm:text-lg leading-none">🎁</div>
             <div className="text-[9px] sm:text-[10px] font-bold text-emerald-800 dark:text-emerald-300 mt-0.5 sm:mt-1 leading-tight">Livraison offerte</div>
-          </div>
+          </button>
         </div>
 
-        <div className="rounded-2xl bg-gradient-to-r from-ink-950 to-ink-900 p-4 text-white border border-white/10 flex items-center justify-between gap-3">
+        <button type="button" onClick={goBrowse} className="w-full rounded-2xl bg-gradient-to-r from-ink-950 to-ink-900 p-4 text-white border border-white/10 flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition-transform text-left">
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"/> Suivi en direct
@@ -347,7 +362,7 @@ export function BentoHero() {
             <div className="font-semibold text-sm mt-1 truncate">Yacine · arrivée dans 4 min</div>
           </div>
           <span className="text-2xl shrink-0">🛵</span>
-        </div>
+        </button>
       </div>
 
       {/* Desktop — grille bento complète */}
@@ -360,6 +375,7 @@ export function BentoHero() {
           restaurants={restaurants}
           spotIdx={spotIdx}
           onSelectSpot={selectSpot}
+          onOpen={openSpot}
         />
       </Tilt>
 
@@ -401,37 +417,37 @@ export function BentoHero() {
       </Tilt>
 
       <Tilt className="col-span-3 row-span-2 rounded-3xl">
-        <div className="relative h-full rounded-3xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 p-5 text-white shadow-glow border border-white/20 overflow-hidden transition-all duration-300 flex flex-col justify-between">
+        <button type="button" onClick={goBrowse} className="relative h-full w-full text-left rounded-3xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 p-5 text-white shadow-glow border border-white/20 overflow-hidden transition-all duration-300 flex flex-col justify-between cursor-pointer">
           <div className="absolute -bottom-8 -right-8 w-36 h-36 rounded-full bg-white/20 blur-2xl"></div>
           <div className="absolute inset-0 bg-[radial-gradient(at_10%_20%,rgba(255,255,255,0.15)_0,transparent_55%)]"></div>
           <div>
             <div className="text-xs font-semibold uppercase tracking-wider opacity-90">Livraison moyenne</div>
-            <div className="mt-2 font-display font-black text-5xl tracking-tight text-glow animate-pulse-slow">34<span className="text-2xl font-bold">min</span></div>
+            <div className="mt-2 font-display font-black text-5xl tracking-tight text-glow animate-pulse-slow">~30<span className="text-2xl font-bold"> min</span></div>
           </div>
           <div className="text-sm opacity-95 flex items-center gap-1.5 font-medium">
             <span>⚡</span> Du clic à la fourchette
           </div>
-        </div>
+        </button>
       </Tilt>
 
       <Tilt className="col-span-3 row-span-1 rounded-3xl">
-        <div className="h-full rounded-3xl bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-500/20 dark:border-emerald-500/10 px-4 flex items-center gap-3 shadow-sm hover:bg-emerald-500/15 dark:hover:bg-emerald-500/10 transition-all duration-300 hover:border-emerald-500/30 cursor-pointer">
+        <button type="button" onClick={goBrowse} className="h-full w-full rounded-3xl bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-500/20 dark:border-emerald-500/10 px-4 flex items-center gap-3 shadow-sm hover:bg-emerald-500/15 dark:hover:bg-emerald-500/10 transition-all duration-300 hover:border-emerald-500/30 cursor-pointer text-left">
           <span className="w-9 h-9 rounded-xl bg-emerald-500 text-white grid place-items-center shadow-sm shrink-0"><I.Bike size={18}/></span>
           <div className="text-sm min-w-0">
             <div className="font-bold text-emerald-800 dark:text-emerald-300">Livraison offerte</div>
             <div className="text-ink-500 dark:text-ink-400 text-xs">Sur toute l&apos;Alliance & CHU</div>
           </div>
-        </div>
+        </button>
       </Tilt>
 
       <Tilt className="col-span-3 row-span-1 rounded-3xl">
-        <div className="h-full rounded-3xl glass-card-premium border border-white/20 dark:border-white/5 px-4 flex items-center gap-3 shadow-card hover:shadow-cardhover transition-all duration-300 hover:border-brand-500/20 cursor-pointer">
+        <button type="button" onClick={goBrowse} className="h-full w-full rounded-3xl glass-card-premium border border-white/20 dark:border-white/5 px-4 flex items-center gap-3 shadow-card hover:shadow-cardhover transition-all duration-300 hover:border-brand-500/20 cursor-pointer text-left">
           <span className="w-9 h-9 rounded-xl bg-brand-500 text-white grid place-items-center text-lg shadow-sm shrink-0">🍽️</span>
           <div className="text-sm min-w-0">
             <div className="font-bold">Alliance & CHU</div>
             <div className="text-ink-500 dark:text-ink-400 text-xs">Livraison prioritaire 24h/24</div>
           </div>
-        </div>
+        </button>
       </Tilt>
       </div>
     </>
@@ -541,7 +557,7 @@ export function PartnerCategoriesSection() {
       hoverShadow: 'hover:shadow-[0_20px_50px_rgba(20,184,166,0.15)] dark:hover:shadow-[0_20px_50px_rgba(20,184,166,0.25)]',
       textHover: 'group-hover:text-teal-500',
       tag: 'Beauté & Soins',
-      browseFilter: 'parapharmacie',
+      browseFilter: 'parapharmacy',
     },
     {
       emoji: '🛒',
@@ -668,11 +684,17 @@ function useCarouselRadius() {
 }
 
 export function Carousel3DSection({ onStart }) {
+  const { goto } = useYohaNav();
   const { restaurants } = useOrders();
   const items = restaurants.slice(0, 6);
   const count = Math.max(items.length, 1);
   const angleStep = 360 / count;
   const radius = useCarouselRadius();
+
+  const openRestaurant = (r) => {
+    if (r?.id) goto('restaurant', { restaurant: r });
+    else onStart?.();
+  };
 
   return (
     <section className="relative overflow-hidden py-8 sm:py-16 lg:py-24">
@@ -692,16 +714,17 @@ export function Carousel3DSection({ onStart }) {
       {/* Carrousel Mobile / Tablette — 2D Plat, Élégant et Fluide */}
       <div className="lg:hidden -mx-4 px-4 overflow-x-auto no-scrollbar snap-x snap-mandatory flex gap-3.5 pb-2 pt-1">
         {items.map((r) => (
-          <div
+          <button
             key={r.id}
-            onClick={onStart}
-            className="shrink-0 w-[230px] sm:w-[260px] h-[280px] sm:h-[320px] snap-center cursor-pointer active:scale-95 transition-transform"
+            type="button"
+            onClick={() => openRestaurant(r)}
+            className="shrink-0 w-[230px] sm:w-[260px] h-[280px] sm:h-[320px] snap-center cursor-pointer active:scale-95 transition-transform text-left"
           >
             <CarouselPartnerCard
               restaurant={r}
               className="border border-white/20 dark:border-white/10 shadow-lg hover:border-brand-500/40 transition-all duration-300"
             />
-          </div>
+          </button>
         ))}
       </div>
 
@@ -711,10 +734,15 @@ export function Carousel3DSection({ onStart }) {
           {items.map((r, i) => {
             const angle = i * angleStep;
             return (
-              <div key={r.id} onClick={onStart} className="carousel-3d-card cursor-grow group"
-                style={{ transform: `rotateY(${angle}deg) translateZ(${radius}px)` }}>
+              <button
+                key={r.id}
+                type="button"
+                onClick={() => openRestaurant(r)}
+                className="carousel-3d-card cursor-grow group"
+                style={{ transform: `rotateY(${angle}deg) translateZ(${radius}px)` }}
+              >
                 <CarouselPartnerCard restaurant={r} className="group-hover:border-brand-500/30 transition-all duration-500 group-hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]"/>
-              </div>
+              </button>
             );
           })}
         </div>
@@ -770,8 +798,12 @@ export function FeaturesSection({ onStart }) {
           return (
             <Reveal key={f.title} delay={i * 80}>
               <Tilt max={8} className="h-full rounded-2xl sm:rounded-[2rem]">
-                <div className={`group relative h-full p-4 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} shadow-card ${hoverShadowClass} transition-all duration-500 overflow-hidden spotlight flex flex-col justify-between min-h-[160px] sm:min-h-[240px]`}
-                  onMouseMove={spotlightHandler}>
+                <button
+                  type="button"
+                  onClick={onStart}
+                  className={`group relative h-full w-full text-left p-4 sm:p-8 rounded-2xl sm:rounded-[2rem] glass-card-premium border border-white/20 dark:border-white/5 ${hoverBorderClass} shadow-card ${hoverShadowClass} transition-all duration-500 overflow-hidden spotlight flex flex-col justify-between min-h-[160px] sm:min-h-[240px] cursor-pointer`}
+                  onMouseMove={spotlightHandler}
+                >
                   
                   {/* Glowing background corner orb */}
                   <div className={`absolute -right-8 -bottom-8 w-24 h-24 rounded-full bg-gradient-to-br ${f.from} ${f.to} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 blur-xl transition-all duration-500 scale-50`}></div>
@@ -789,7 +821,7 @@ export function FeaturesSection({ onStart }) {
                       {f.desc}
                     </p>
                   </div>
-                </div>
+                </button>
               </Tilt>
             </Reveal>
           );
@@ -1036,7 +1068,7 @@ export function ShowcaseSection({ onStart }) {
                 </span>
               </h2>
               <p className="mt-4 sm:mt-6 text-sm sm:text-base lg:text-lg text-slate-600 max-w-xl leading-relaxed">
-                Tout a été méticuleusement conçu pour éliminer l'attente et vous offrir le meilleur de vos campus.
+                Tout a été méticuleusement conçu pour éliminer l&apos;attente et vous offrir le meilleur de vos campus.
               </p>
               <div className="mt-5 sm:mt-6">
                 <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/20">
@@ -1049,13 +1081,17 @@ export function ShowcaseSection({ onStart }) {
           {/* Premium Highlights Grid */}
           <div className="mt-6 sm:mt-10 grid grid-cols-2 gap-2.5 sm:gap-4">
             {[
-              { icon: '⚡', title: <><LiveCount to={14} /> min de livraison</>, desc: 'Moyenne record sur le campus' },
-              { icon: '🍔', title: 'Gourmet & Ultra-frais', desc: 'Préparé sous vos yeux' },
+              { icon: '⚡', title: <><LiveCount to={30} /> min de livraison</>, desc: 'Moyenne sur le campus' },
+              { icon: '🍔', title: 'Gourmet & ultra-frais', desc: 'Préparé sous vos yeux' },
               { icon: '🛵', title: 'Suivi live interactif', desc: 'Savoir exactement où est le livreur' },
-              { icon: '🔒', title: 'Zéro friction', desc: 'Commande en 3 clics sans friction' }
+              { icon: '🔒', title: 'Zéro friction', desc: 'Commande en 3 clics, sans appli' }
             ].map((item, idx) => (
               <Reveal key={idx} delay={100 + idx * 80}>
-                <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/60 border border-amber-100 hover:border-brand-500/20 hover:bg-white transition-all duration-300 flex items-start gap-3 group shadow-sm hover:shadow-md">
+                <button
+                  type="button"
+                  onClick={onStart}
+                  className="w-full text-left p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/60 border border-amber-100 hover:border-brand-500/20 hover:bg-white transition-all duration-300 flex items-start gap-3 group shadow-sm hover:shadow-md cursor-pointer"
+                >
                   <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-amber-100/50 text-amber-800 group-hover:bg-brand-500/20 group-hover:text-brand-600 transition-all duration-300 flex items-center justify-center text-base sm:text-lg shrink-0">
                     {item.icon}
                   </span>
@@ -1063,7 +1099,7 @@ export function ShowcaseSection({ onStart }) {
                     <h3 className="font-bold text-sm text-slate-900 group-hover:text-brand-600 transition-colors">{item.title}</h3>
                     <p className="text-xs text-slate-500 mt-0.5 sm:mt-1 leading-relaxed">{item.desc}</p>
                   </div>
-                </div>
+                </button>
               </Reveal>
             ))}
           </div>
@@ -1326,7 +1362,11 @@ export function CampusHospitalsSection({ onStart }) {
             <div className="mt-4 sm:mt-8 grid sm:grid-cols-2 gap-3 sm:gap-4">
               {CAMPUS_HOSPITALS.map((place, idx) => (
                 <Reveal key={place.name} delay={idx * 70}>
-                  <article className="group relative flex gap-0 sm:block h-full rounded-2xl overflow-hidden border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-300 hover:border-white/20">
+                  <button
+                    type="button"
+                    onClick={onStart}
+                    className="group relative flex gap-0 sm:block h-full w-full text-left rounded-2xl overflow-hidden border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-300 hover:border-white/20 cursor-pointer"
+                  >
                     <div className="relative w-28 sm:w-full shrink-0 sm:shrink sm:h-40 overflow-hidden">
                       <img
                         src={place.img}
@@ -1344,10 +1384,10 @@ export function CampusHospitalsSection({ onStart }) {
                       <h4 className="font-display font-bold text-base sm:text-lg leading-snug line-clamp-2">{place.name}</h4>
                       <p className="mt-1.5 text-xs sm:text-sm text-white/60 line-clamp-2">{place.subtitle}</p>
                       <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-300">
-                        <I.Bike size={14} /> Livraison prioritaire
+                        <I.Bike size={14} /> Livraison prioritaire · Commander →
                       </div>
                     </div>
-                  </article>
+                  </button>
                 </Reveal>
               ))}
             </div>
