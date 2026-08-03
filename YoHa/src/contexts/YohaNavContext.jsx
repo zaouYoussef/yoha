@@ -92,11 +92,7 @@ export function YohaNavProvider({ children }) {
       }
 
       const path = buildPath(name, params);
-      // Après commande : navigation complète (évite ChunkLoadError sur cache JS périmé)
-      if (name === 'success' && typeof window !== 'undefined') {
-        window.location.assign(path);
-        return;
-      }
+      // Succès : soft nav (prefetch déjà fait) — plus fluide qu'un full reload
       router.push(path);
     },
     [user, router, toast]

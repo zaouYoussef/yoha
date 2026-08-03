@@ -719,9 +719,12 @@ function triggerClientNotification(title, body, orderId) {
             },
           ];
         });
-        setTimeout(() => {
-          pushToast({ title: 'Ajouté au panier', desc: item.name, type: 'success' });
-        }, 800);
+        pushToast({ title: 'Ajouté au panier', desc: item.name, type: 'success' });
+        try {
+          window.dispatchEvent(new CustomEvent('yoha-cart-shake'));
+        } catch {
+          /* ignore */
+        }
       },
       removeFromCart: (id) => setCart((prev) => prev.filter((p) => (p.key || p.id) !== id)),
       setQty: (id, qty) =>

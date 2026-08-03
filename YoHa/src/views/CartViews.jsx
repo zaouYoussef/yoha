@@ -9,7 +9,7 @@ import { MenuItemImage } from '../components/ui/MenuItemImage.jsx';
 import { Row } from '../components/ui/Row.jsx';
 import { useCart } from '../contexts/AppContexts.jsx';
 
-export function CartSidebar({ open, onClose, items, setQty, remove, total, onCheckout }) {
+export function CartSidebar({ open, onClose, items, setQty, remove, total, onCheckout, onBrowse }) {
   useEffect(() => {
     if (open) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = '';
@@ -58,7 +58,10 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
             <Button
               variant="primary"
               size="lg"
-              onClick={onClose}
+              onClick={() => {
+                onClose?.();
+                onBrowse?.();
+              }}
               className="relative mt-8 w-full justify-center cta-brand border-0 btn-shimmer shadow-glow"
             >
               <span>Découvrir les établissements</span>

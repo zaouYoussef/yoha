@@ -4,7 +4,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { I } from '../../icons/Icons.jsx';
 
-export function BottomNav({ active, onHome, onSearch, onCart, onProfile, cartCount }) {
+export function BottomNav({ active, onHome, onSearch, onCart, onProfile, cartCount, cartShake }) {
+  const cmdActive = active === 'browse' || active === 'home' || active === 'restaurant';
   return (
     <nav
       aria-label="Navigation principale"
@@ -20,19 +21,15 @@ export function BottomNav({ active, onHome, onSearch, onCart, onProfile, cartCou
             label="Accueil"
           />
           <BNBtn
-            active={active === 'browse' || active === 'home'}
+            active={cmdActive}
             onClick={onSearch}
-            icon={
-              <I.Chef
-                size={21}
-                stroke={active === 'browse' || active === 'home' ? 2.35 : 2}
-              />
-            }
+            icon={<I.Chef size={21} stroke={cmdActive ? 2.35 : 2} />}
             label="Commander"
           />
           <BNBtn
             active={active === 'checkout'}
             onClick={onCart}
+            className={cartShake ? 'cart-shake' : ''}
             icon={
               <span className="relative">
                 <I.Cart size={21} stroke={active === 'checkout' || cartCount > 0 ? 2.35 : 2} />
@@ -69,7 +66,7 @@ export function BottomNav({ active, onHome, onSearch, onCart, onProfile, cartCou
   );
 }
 
-export function BNBtn({ active, onClick, icon, label, highlight }) {
+export function BNBtn({ active, onClick, icon, label, highlight, className = '' }) {
   return (
     <button
       type="button"
@@ -81,7 +78,7 @@ export function BNBtn({ active, onClick, icon, label, highlight }) {
           : highlight
             ? 'text-brand-500'
             : 'text-ink-500 dark:text-ink-400'
-      }`}
+      } ${className}`}
     >
       {active && (
         <motion.span

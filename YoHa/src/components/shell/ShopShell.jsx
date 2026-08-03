@@ -130,8 +130,16 @@ export function ShopShell({ children, showCampus = false }) {
 
   useEffect(() => {
     const open = () => setCartOpen(true);
+    const shake = () => {
+      setCartShake(true);
+      window.setTimeout(() => setCartShake(false), 550);
+    };
     window.addEventListener('yoha-open-cart', open);
-    return () => window.removeEventListener('yoha-open-cart', open);
+    window.addEventListener('yoha-cart-shake', shake);
+    return () => {
+      window.removeEventListener('yoha-open-cart', open);
+      window.removeEventListener('yoha-cart-shake', shake);
+    };
   }, []);
 
   const cartUI = useMemo(
@@ -204,12 +212,13 @@ export function ShopShell({ children, showCampus = false }) {
         {/* Pas de bottom nav sur checkout / auth / succès — évite le chevauchement avec les CTA */}
         {!['checkout', 'success', 'auth'].includes(viewName) && (
           <BottomNav
-            active={viewName}
+            active={cartOpen ? 'checkout' : viewName === 'restaurant' ? 'home' : viewName}
             onHome={() => goto('landing')}
             onSearch={() => goto('home', { browseFilter: 'all' })}
             onCart={() => setCartOpen(true)}
             onProfile={() => goto(user ? 'my-orders' : 'auth')}
             cartCount={cartCount}
+            cartShake={cartShake}
           />
         )}
 
@@ -220,6 +229,10 @@ export function ShopShell({ children, showCampus = false }) {
           setQty={setQty}
           remove={removeFromCart}
           total={cartTotal}
+          onBrowse={() => {
+            setCartOpen(false);
+            goto('home', { browseFilter: 'all' });
+          }}
           onCheckout={() => {
             setCartOpen(false);
             goto('checkout');

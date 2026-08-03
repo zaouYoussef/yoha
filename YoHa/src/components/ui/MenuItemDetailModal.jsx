@@ -87,10 +87,14 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
 
   const incomplete = groups.some((g) => (selections[g.name] || []).length < Number(g.min || 0));
 
-  /** Ajoute au panier — le CTA devient « Voir le panier » (sans fermer). */
+  /** Ajoute au panier. Sur mobile : ferme le modal pour libérer la bottom nav (parcours fluide). */
   const handleAdd = (e) => {
     if (orderingDisabled || incomplete) return;
     onAdd?.(item, restaurant, e.currentTarget, selectedOptions);
+    const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
+    if (isMobile) {
+      window.setTimeout(() => onClose?.(), 160);
+    }
   };
 
   const goToCart = () => {

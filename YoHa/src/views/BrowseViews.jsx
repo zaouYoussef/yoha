@@ -1333,13 +1333,21 @@ export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
 }
 
 function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
+  const router = useRouter();
   const open = isRestaurantOpen(restaurant);
   const isCustom = restaurant.isCustomRequest;
   const isService = isServiceStore(restaurant);
+  const prefetch = () => {
+    if (restaurant?.id && !restaurant.isCustomRequest) {
+      try { router.prefetch(`/restaurant/${restaurant.id}`); } catch { /* ignore */ }
+    }
+  };
 
   return (
     <div
       onClick={onClick}
+      onPointerEnter={prefetch}
+      onTouchStart={prefetch}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
@@ -2248,13 +2256,21 @@ function isServiceStore(r) {
 }
 
 export function RestaurantCard({ restaurant, onClick }) {
+  const router = useRouter();
   const open = isRestaurantOpen(restaurant);
   const isDuty = restaurant.isDutyPharmacy;
   const isService = isServiceStore(restaurant);
+  const prefetch = () => {
+    if (restaurant?.id && !restaurant.isCustomRequest) {
+      try { router.prefetch(`/restaurant/${restaurant.id}`); } catch { /* ignore */ }
+    }
+  };
 
   return (
     <div
       onClick={onClick}
+      onPointerEnter={prefetch}
+      onTouchStart={prefetch}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}

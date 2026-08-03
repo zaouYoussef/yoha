@@ -18,7 +18,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   const [phone, setPhone] = useState('');
   const [restaurantNotes, setRestaurantNotes] = useState('');
   const [scheduledTime, setScheduledTime] = useState('');
-  const [name, setName] = useState('X Y');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [promoInput, setPromoInput] = useState('');
@@ -141,11 +141,21 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
     if (user?.role === 'client') {
       if (user.displayName) setName(migrateLegacyDisplayName(user.displayName));
       if (user.email) setEmail(user.email);
+      if (user.phone) setPhone(String(user.phone));
     }
   }, [user]);
 
   const [err, setErr] = useState('');
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
+
+  useEffect(() => {
+    if (!err) return;
+    try {
+      document.getElementById('checkout-err-banner')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch {
+      /* ignore */
+    }
+  }, [err]);
 
   const applyPromo = async () => {
     setPromoErr('');
@@ -223,6 +233,11 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
       setErr(`Le restaurant n'accepte pas les commandes de moins de ${MIN_ORDER_TOTAL} DH. Ajoutez encore ${formatMad(MIN_ORDER_TOTAL - total)}.`);
       return;
     }
+    const trimmedName = String(name || '').trim();
+    if (!trimmedName || trimmedName.length < 2) {
+      setErr('Indiquez votre nom pour la livraison.');
+      return;
+    }
     const trimmedEmail = email.trim();
     if (!user && !trimmedEmail) {
       setErr('E-mail obligatoire pour recevoir le suivi de commande.');
@@ -249,7 +264,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
     }
     setSubmitting(true);
     const ordonnanceUrl = cart.find(i => i.customDetails?.ordonnanceUrl)?.customDetails?.ordonnanceUrl || '';
-    const customer = { name, address, phone: trimmedPhone, email: trimmedEmail, restaurantNotes: restaurantNotes.trim(), scheduledTime: scheduledTime || undefined, ordonnanceUrl };
+    const customer = { name: trimmedName, address, phone: trimmedPhone, email: trimmedEmail, restaurantNotes: restaurantNotes.trim(), scheduledTime: scheduledTime || undefined, ordonnanceUrl };
     try {
       const orderId = await addOrder(cart, grand, customer);
       try {
@@ -722,7 +737,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                 {promoErr && <p className="mt-1.5 text-xs font-bold text-rose-600">{promoErr}</p>}
               </div>
 
-              {err && <p className="text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-200">{err}</p>}
+              {err && <p id="checkout-err-banner" className="text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-200">{err}</p>}
               
               {/* Main CTA Confirmation Button (Desktop only - Mobile uses floating bar below) */}
               <div className="pt-2 hidden lg:block">
@@ -755,29 +770,36 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
       </div>
 
       {/* Mobile Floating Sticky Checkout Bar */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 px-3 pt-3 bg-white/95 dark:bg-ink-950/95 backdrop-blur-xl border-t border-brand-500/20 dark:border-brand-500/25 shadow-2xl shadow-brand-500/10 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <div className="max-w-lg mx-auto flex items-center justify-between gap-2.5 sm:gap-3 min-w-0">
-          <div className="shrink-0 min-w-0 max-w-[38%]">
-            <div className="text-[10px] font-extrabold uppercase tracking-wider text-ink-400">Total</div>
-            <div className="font-display font-black text-sm sm:text-base bg-gradient-to-r from-brand-600 via-pink-600 to-violet-600 bg-clip-text text-transparent truncate">
-              {formatMad(grand)}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 px-3 pt-2.5 bg-white/95 dark:bg-ink-950/95 backdrop-blur-xl border-t border-brand-500/20 dark:border-brand-500/25 shadow-2xl shadow-brand-500/10 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="max-w-lg mx-auto space-y-2">
+          {err ? (
+            <p className="text-[11px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/50 px-2.5 py-2 rounded-xl border border-rose-200/80 dark:border-rose-800 leading-snug">
+              {err}
+            </p>
+          ) : null}
+          <div className="flex items-center justify-between gap-2.5 sm:gap-3 min-w-0">
+            <div className="shrink-0 min-w-0 max-w-[38%]">
+              <div className="text-[10px] font-extrabold uppercase tracking-wider text-ink-400">Total</div>
+              <div className="font-display font-black text-sm sm:text-base bg-gradient-to-r from-brand-600 via-pink-600 to-violet-600 bg-clip-text text-transparent truncate">
+                {formatMad(grand)}
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={handleConfirm}
+              disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
+              className="min-w-0 flex-1 py-3.5 px-3 sm:px-4 rounded-xl cta-brand btn-shimmer text-white font-extrabold text-xs sm:text-sm active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer border border-white/20"
+            >
+              {submitting ? (
+                <span className="text-center font-bold text-xs">Traitement…</span>
+              ) : (
+                <span className="flex items-center justify-center gap-1.5 font-display font-bold">
+                  <span className="truncate">Confirmer</span>
+                  <I.Right size={16} stroke={2.5} className="shrink-0" />
+                </span>
+              )}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={handleConfirm}
-            disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
-            className="min-w-0 flex-1 py-3.5 px-3 sm:px-4 rounded-xl cta-brand btn-shimmer text-white font-extrabold text-xs sm:text-sm active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer border border-white/20"
-          >
-            {submitting ? (
-              <span className="text-center font-bold text-xs">Traitement…</span>
-            ) : (
-              <span className="flex items-center justify-center gap-1.5 font-display font-bold">
-                <span className="truncate">Confirmer</span>
-                <I.Right size={16} stroke={2.5} className="shrink-0" />
-              </span>
-            )}
-          </button>
         </div>
       </div>
     </div>
