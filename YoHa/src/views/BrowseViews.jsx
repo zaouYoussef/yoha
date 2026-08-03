@@ -569,7 +569,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   }, [filter, promoRestaurants, popularRestaurants, fastDelivery, topRatedList, favoritesList, burgerList, pizzaList, asianList, dessertItems, pharmacyItems, paraItems, marketItems, shopItems, foodRestaurants]);
 
   const homeSections = useMemo(() => {
-    const sections = [
+    const top = [
       chainsList.length > 0 && (
         <HorizontalRow
           key="chains"
@@ -672,6 +672,9 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
           <RestaurantCardHorizontal key={`fav-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
         ))}
       </HorizontalRow>,
+  ];
+
+  const end = [
 
       burgerList.length > 0 && (
         <HorizontalRow
@@ -784,9 +787,9 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
           ))}
         </HorizontalRow>
       ),
-    ].filter(Boolean);
+  ].filter(Boolean);
 
-    return homeSeed ? shuffleWithSeed(sections, homeSeed + 888) : sections;
+  return [...(homeSeed ? shuffleWithSeed(top, homeSeed + 888) : top), ...end];
   }, [
     homeSeed,
     foodRestaurants,
