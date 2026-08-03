@@ -1297,43 +1297,70 @@ export function AdminCourierLiveGpsBadge({ courier, orders: propOrders }) {
   const activeLng = remoteGps?.active ? Number(remoteGps.longitude) : (gpsData?.active ? gpsData.lng : null);
   const isLive = activeLat != null && activeLng != null;
 
-  if (isLive) {
-    const mapsUrl = `https://www.google.com/maps?q=${activeLat},${activeLng}`;
+  if (isLive || activeOrder) {
+    const mapsUrl = isLive
+      ? `https://www.google.com/maps?q=${activeLat},${activeLng}`
+      : null;
     return (
-      <div className="mt-3 p-2.5 rounded-xl border flex items-center justify-between text-xs bg-emerald-500/10 border-emerald-500/20">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="w-2 h-2 rounded-full shrink-0 bg-emerald-500 animate-ping" />
-          <div className="min-w-0 text-left">
-            <span className="font-extrabold block truncate text-emerald-700 dark:text-emerald-300">
-              GPS Live : {activeLat.toFixed(4)}, {activeLng.toFixed(4)}
-            </span>
-            {activeOrder && (
-              <span className="text-[10px] text-ink-500 dark:text-ink-400 block truncate font-medium">
-                Cmd #{activeOrder.id} · {ORDER_STATES[activeOrder.status]?.label || activeOrder.status}
-                {activeOrder.restaurantName ? ` · ${activeOrder.restaurantName}` : ''}
-              </span>
-            )}
-          </div>
-        </div>
-        <a
-          href={mapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="px-2.5 py-1 rounded-lg text-white font-extrabold text-[10px] transition shrink-0 ml-1.5 bg-emerald-600 hover:bg-emerald-700"
+      <div className="mt-3 space-y-2">
+        <div
+          className={`p-2.5 rounded-xl border flex items-center justify-between text-xs ${
+            isLive
+              ? 'bg-emerald-500/10 border-emerald-500/20'
+              : 'bg-amber-500/10 border-amber-500/25'
+          }`}
         >
-          Carte
-        </a>
-      </div>
-    );
-  }
-
-  if (activeOrder) {
-    return (
-      <div className="mt-3 p-2 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-800 dark:text-amber-300 text-[11px] font-semibold text-center">
-        Course active — GPS en attente du signal livreur
-        <div className="text-[10px] font-medium text-ink-500 dark:text-ink-400 mt-0.5">
-          Cmd #{activeOrder.id} · {ORDER_STATES[activeOrder.status]?.label || activeOrder.status}
+          <div className="flex items-center gap-2 min-w-0">
+            <span
+              className={`w-2 h-2 rounded-full shrink-0 ${
+                isLive ? 'bg-emerald-500 animate-ping' : 'bg-amber-500'
+              }`}
+            />
+            <div className="min-w-0 text-left">
+              <span
+                className={`font-extrabold block truncate ${
+                  isLive
+                    ? 'text-emerald-700 dark:text-emerald-300'
+                    : 'text-amber-800 dark:text-amber-300'
+                }`}
+              >
+                {isLive
+                  ? `GPS Live : ${activeLat.toFixed(4)}, ${activeLng.toFixed(4)}`
+                  : 'Course active — GPS en attente du signal livreur'}
+              </span>
+              {activeOrder && (
+                <span className="text-[10px] text-ink-500 dark:text-ink-400 block truncate font-medium">
+                  Cmd #{activeOrder.id} · {ORDER_STATES[activeOrder.status]?.label || activeOrder.status}
+                  {activeOrder.restaurantName ? ` · ${activeOrder.restaurantName}` : ''}
+                </span>
+              )}
+            </div>
+          </div>
+          {mapsUrl && (
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-2.5 py-1 rounded-lg text-white font-extrabold text-[10px] transition shrink-0 ml-1.5 bg-emerald-600 hover:bg-emerald-700"
+            >
+              Ouvrir
+            </a>
+          )}
         </div>
+        <LiveMapTracker
+          orderId={activeOrder.id}
+          courierName={courier?.name || courier?.displayName || activeOrder.courierName || 'Livreur'}
+          address={
+            activeOrder.customerAddress ||
+            activeOrder.address ||
+            activeOrder.deliveryAddress ||
+            activeOrder.delivery_instructions ||
+            ''
+          }
+          height="220px"
+          lat={isLive ? activeLat : undefined}
+          lng={isLive ? activeLng : undefined}
+        />
       </div>
     );
   }
