@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { I } from '../icons/Icons.jsx';
 import { Logo } from '../components/layout/Logo.jsx';
 import { ORDER_STATES } from '../data/index.js';
@@ -246,6 +247,90 @@ export function ActionButton({ children, variant = 'primary', size = 'md', icon,
       {icon}
       {children}
     </button>
+  );
+}
+
+/* ─── Sheet / Drawer (mobile bottom sheet + desktop dialog) ─── */
+export function DashSheet({
+  open,
+  onClose,
+  title,
+  subtitle,
+  icon,
+  children,
+  footer,
+  wide = false,
+}) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose?.();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open, onClose]);
+
+  if (!open || !mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[80] flex items-end justify-center sm:items-center sm:p-4" role="dialog" aria-modal="true">
+      <button
+        type="button"
+        aria-label="Fermer"
+        className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
+        onClick={onClose}
+      />
+      <div
+        className={`relative z-10 flex w-full max-h-[92dvh] flex-col overflow-hidden rounded-t-[1.35rem] border border-ink-200/60 bg-white shadow-2xl dark:border-ink-700/60 dark:bg-ink-950 sm:max-h-[88vh] sm:rounded-2xl ${
+          wide ? 'sm:max-w-xl' : 'sm:max-w-md'
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-ink-200 dark:bg-ink-700 sm:hidden" aria-hidden />
+
+        <div className="flex shrink-0 items-start gap-3 border-b border-ink-100 px-4 py-3 dark:border-ink-800 sm:px-5 sm:py-4">
+          {icon && (
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-pink-500 text-white shadow-lg">
+              {icon}
+            </span>
+          )}
+          <div className="min-w-0 flex-1 pt-0.5">
+            <h3 className="font-display text-base font-bold leading-tight sm:text-lg">{title}</h3>
+            {subtitle && <p className="mt-0.5 text-[11px] text-ink-500 sm:text-xs">{subtitle}</p>}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fermer"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-ink-100 text-ink-600 hover:bg-ink-200 dark:bg-ink-800 dark:text-ink-300 dark:hover:bg-ink-700"
+          >
+            <I.X size={18} />
+          </button>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5">
+          {children}
+        </div>
+
+        {footer && (
+          <div className="shrink-0 border-t border-ink-100 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur dark:border-ink-800 dark:bg-ink-950/95 sm:px-5">
+            {footer}
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -570,8 +655,8 @@ export function DashLayout({
         </header>
 
         {/* Content */}
-        <div className="min-w-0 flex-1 overflow-x-hidden p-3 pb-safe-nav sm:p-5 sm:pb-safe-nav lg:pb-5">
-          <div key={current} className="page-enter stagger-children space-y-0">
+        <div className="min-w-0 flex-1 overflow-x-hidden p-3 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] sm:p-5 sm:pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] lg:pb-6">
+          <div key={current} className="page-enter stagger-children mx-auto w-full max-w-6xl space-y-0">
             {children}
           </div>
         </div>

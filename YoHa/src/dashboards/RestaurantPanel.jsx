@@ -38,6 +38,7 @@ import {
   BarChart,
   DonutChart,
   AnimatedCounter,
+  DashSheet,
 } from './DashShared.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { ImageUpload } from '../components/ui/ImageUpload.jsx';
@@ -550,13 +551,14 @@ export function RestoProfile({ restaurant, onUpdated }) {
             return (
               <div
                 key={day}
-                className={`flex flex-wrap items-center gap-3 py-3 px-3 rounded-xl transition ${
+                className={`flex flex-col gap-2 py-3 px-3 rounded-xl transition sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 ${
                   slot.is_closed ? 'bg-ink-50/50 dark:bg-ink-800/30' : 'bg-emerald-50/30 dark:bg-emerald-500/5'
                 }`}
               >
-                <span className={`w-24 shrink-0 text-sm font-bold ${slot.is_closed ? 'text-ink-400 line-through' : 'text-ink-700 dark:text-ink-300'}`}>
+                <span className={`w-full sm:w-24 shrink-0 text-sm font-bold ${slot.is_closed ? 'text-ink-400 line-through' : 'text-ink-700 dark:text-ink-300'}`}>
                   {OPENING_DAY_LABELS[day]}
                 </span>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <label className="inline-flex items-center gap-2 text-sm">
                   <input
                     type="checkbox"
@@ -614,6 +616,7 @@ export function RestoProfile({ restaurant, onUpdated }) {
                 ) : (
                   <span className="text-xs text-ink-400">Journée de repos</span>
                 )}
+                </div>
               </div>
             );
           })}
@@ -1233,7 +1236,7 @@ export function RestoMenu({ restaurant, onRefresh }) {
   const availableItems = menu.reduce((s, c) => s + c.items.filter((i) => i.is_available !== false).length, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       {/* Header */}
       <GradientHeader
         title="Mon menu"
@@ -1243,24 +1246,25 @@ export function RestoMenu({ restaurant, onRefresh }) {
       />
 
       {/* Controls */}
-      <div className="flex flex-wrap items-center gap-3">
-        <SearchBar value={search} onChange={setSearch} placeholder="Rechercher un plat..." className="flex-1 min-w-[200px]" />
-        <div className="flex gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <SearchBar value={search} onChange={setSearch} placeholder="Rechercher un plat..." className="w-full min-w-0 flex-1" />
+        <div className="flex w-full gap-2 sm:w-auto">
           <input
             value={newCat}
             onChange={(e) => setNewCat(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addCategory()}
             placeholder="Nouvelle catégorie"
-            className="px-4 py-2.5 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none"
+            className="min-w-0 flex-1 px-3 py-2.5 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none sm:px-4 sm:min-w-[11rem]"
           />
-          <ActionButton onClick={addCategory} disabled={addingCat} variant="primary" size="sm" icon={<I.Plus size={14} />}>
-            Catégorie
+          <ActionButton onClick={addCategory} disabled={addingCat} variant="primary" size="sm" icon={<I.Plus size={14} />} className="shrink-0">
+            <span className="hidden xs:inline sm:inline">Catégorie</span>
+            <span className="sm:hidden">Cat.</span>
           </ActionButton>
         </div>
       </div>
 
       {/* Storage note */}
-      <p className="text-xs text-ink-400">
+      <p className="text-[11px] text-ink-400 sm:text-xs">
         Photos compressées en WebP côté serveur — stockage objet, pas dans la base de données.
       </p>
 
@@ -1370,7 +1374,7 @@ export function RestoMenu({ restaurant, onRefresh }) {
             </div>
 
             {/* Items Grid */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
               {cat.items.map((it) => (
                 <GlassCard
                   key={it.db_id || it.id}
@@ -1380,10 +1384,10 @@ export function RestoMenu({ restaurant, onRefresh }) {
                   <ImageUpload
                     currentUrl={it.img}
                     onUpload={(file) => uploadItemPhoto(it.db_id, file, it)}
-                    aspect="aspect-[4/3]"
+                    aspect="aspect-[16/10] sm:aspect-[4/3]"
                     busy={busy}
                   />
-                  <div className="p-3.5 space-y-2">
+                  <div className="p-3 space-y-2.5 sm:p-3.5">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <h3 className="font-display font-bold text-sm truncate">{it.name}</h3>
@@ -1411,22 +1415,41 @@ export function RestoMenu({ restaurant, onRefresh }) {
                       ) : null}
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      <ActionButton size="sm" variant="secondary" onClick={() => setDraftItem({ ...it, categoryDbId: cat.db_id })} icon={<I.Sparkle size={10} />}>
+                    {/* Actions — grille compacte mobile */}
+                    <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                      <ActionButton
+                        size="sm"
+                        variant="secondary"
+                        className="w-full"
+                        onClick={() => setDraftItem({ ...it, categoryDbId: cat.db_id })}
+                        icon={<I.Sparkle size={12} />}
+                      >
                         Modifier
                       </ActionButton>
-                      <ActionButton size="sm" variant="ghost" onClick={() => duplicateItem(it, cat.db_id)} icon={<I.Copy size={10} />}>
+                      <ActionButton
+                        size="sm"
+                        variant="ghost"
+                        className="w-full"
+                        onClick={() => duplicateItem(it, cat.db_id)}
+                        icon={<I.Copy size={12} />}
+                      >
                         Dupliquer
                       </ActionButton>
                       <ActionButton
                         size="sm"
                         variant={it.is_available !== false ? 'warning' : 'success'}
+                        className="w-full"
                         onClick={() => toggleItemAvailability(it.db_id, it.is_available !== false)}
                       >
                         {it.is_available !== false ? 'Masquer' : 'Afficher'}
                       </ActionButton>
-                      <ActionButton size="sm" variant="ghost" onClick={() => removeItem(it.db_id)} className="text-red-500 hover:text-red-600" icon={<I.Trash size={10} />}>
+                      <ActionButton
+                        size="sm"
+                        variant="ghost"
+                        className="w-full text-red-500 hover:text-red-600"
+                        onClick={() => removeItem(it.db_id)}
+                        icon={<I.Trash size={12} />}
+                      >
                         Suppr.
                       </ActionButton>
                     </div>
@@ -1438,7 +1461,7 @@ export function RestoMenu({ restaurant, onRefresh }) {
               <button
                 type="button"
                 onClick={() => setDraftItem({ categoryDbId: cat.db_id, name: '', desc: '', ingredients: '', price: '9.90', modifierGroups: [] })}
-                className="rounded-2xl border-2 border-dashed border-ink-200 dark:border-ink-700 min-h-[250px] flex flex-col items-center justify-center text-ink-500 hover:border-brand-400 hover:text-brand-600 hover:bg-brand-50/30 dark:hover:bg-brand-500/5 transition group"
+                className="rounded-2xl border-2 border-dashed border-ink-200 dark:border-ink-700 min-h-[180px] sm:min-h-[250px] flex flex-col items-center justify-center text-ink-500 hover:border-brand-400 hover:text-brand-600 hover:bg-brand-50/30 dark:hover:bg-brand-500/5 transition group"
               >
                 <div className="grid h-12 w-12 place-items-center rounded-2xl bg-ink-100 dark:bg-ink-800 group-hover:bg-brand-100 dark:group-hover:bg-brand-500/10 transition mb-2">
                   <I.Plus size={20} />
@@ -1584,187 +1607,187 @@ function ItemDraftModal({ item, busy, onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm grid place-items-center p-4" onClick={onClose}>
-      <GlassCard
-        className="p-6 w-full max-w-xl space-y-4 max-h-[90vh] overflow-y-auto"
-        hover={false}
-        glow="from-brand-400 to-pink-500"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-pink-500 text-white shadow-lg">
-            {item.db_id ? <I.Sparkle size={16} /> : <I.Plus size={16} />}
-          </span>
-          <div>
-            <h3 className="font-display font-bold text-lg">{item.db_id ? 'Modifier le plat' : 'Nouveau plat'}</h3>
-            <p className="text-xs text-ink-500">Infos, sauces et suppléments</p>
-          </div>
+    <DashSheet
+      open
+      onClose={onClose}
+      wide
+      title={item.db_id ? 'Modifier le plat' : 'Nouveau plat'}
+      subtitle="Infos, sauces et suppléments"
+      icon={item.db_id ? <I.Sparkle size={16} /> : <I.Plus size={16} />}
+      footer={(
+        <div className="flex gap-2">
+          <ActionButton type="button" variant="ghost" className="flex-1" onClick={onClose}>
+            Annuler
+          </ActionButton>
+          <ActionButton
+            type="submit"
+            form="item-draft-form"
+            variant="primary"
+            className="flex-[1.4]"
+            disabled={busy}
+            icon={item.db_id ? <I.Check size={14} /> : <I.Plus size={14} />}
+          >
+            {busy ? '…' : item.db_id ? 'Enregistrer' : 'Créer'}
+          </ActionButton>
         </div>
+      )}
+    >
+      <form id="item-draft-form" onSubmit={handleSubmit} className="space-y-4">
+        <label className="block space-y-1.5">
+          <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Nom du plat</span>
+          <input required placeholder="Ex: Pizza Margherita" value={form.name}
+            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+            className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
+        </label>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <label className="block space-y-1.5">
-            <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Nom du plat</span>
-            <input required placeholder="Ex: Pizza Margherita" value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
-          </label>
+        <label className="block space-y-1.5">
+          <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Accroche courte</span>
+          <input placeholder="Ex: Spécialité maison, depuis 1985" value={form.desc}
+            onChange={(e) => setForm((f) => ({ ...f, desc: e.target.value }))}
+            className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
+        </label>
 
-          <label className="block space-y-1.5">
-            <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Accroche courte</span>
-            <input placeholder="Ex: Spécialité maison, depuis 1985" value={form.desc}
-              onChange={(e) => setForm((f) => ({ ...f, desc: e.target.value }))}
-              className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
-          </label>
+        <label className="block space-y-1.5">
+          <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Ingrédients et description détaillée</span>
+          <p className="text-[11px] text-ink-400">Visible quand le client clique sur le plat</p>
+          <textarea rows={3} placeholder="Tomate, mozzarella, basilic frais..." value={form.ingredients}
+            onChange={(e) => setForm((f) => ({ ...f, ingredients: e.target.value }))}
+            className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none resize-none" />
+        </label>
 
-          <label className="block space-y-1.5">
-            <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Ingrédients et description détaillée</span>
-            <p className="text-[11px] text-ink-400">Visible quand le client clique sur le plat</p>
-            <textarea rows={3} placeholder="Tomate, mozzarella, basilic frais..." value={form.ingredients}
-              onChange={(e) => setForm((f) => ({ ...f, ingredients: e.target.value }))}
-              className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none resize-none" />
-          </label>
-
-          <label className="block space-y-1.5">
-            <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Prix (MAD)</span>
-            <div className="relative">
-              <input required type="number" step="0.01" min="0" placeholder="9.90" value={form.price}
-                onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                className="w-full pl-4 pr-12 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-ink-400">MAD</span>
-            </div>
-          </label>
-
-          {item.db_id && (
-            <div className="flex items-center justify-between rounded-xl bg-ink-50/50 dark:bg-ink-800/30 px-4 py-3">
-              <div>
-                <p className="text-sm font-bold">Visible dans le menu</p>
-                <p className="text-[11px] text-ink-500">Masqué = invisible pour les clients</p>
-              </div>
-              <Toggle checked={form.is_available} onChange={(v) => setForm((f) => ({ ...f, is_available: v }))} />
-            </div>
-          )}
-
-          <div className="space-y-3 rounded-2xl border border-brand-500/20 bg-brand-500/[0.04] p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-sm font-black text-ink-900 dark:text-white">Sauces & suppléments</p>
-                <p className="text-[11px] text-ink-500 mt-0.5">
-                  Groupes proposés au client (ex. sauce, extras). Min &gt; 0 = obligatoire.
-                </p>
-              </div>
-              <ActionButton type="button" size="sm" variant="secondary" onClick={addGroup} icon={<I.Plus size={12} />}>
-                Groupe
-              </ActionButton>
-            </div>
-
-            {form.modifierGroups.length === 0 ? (
-              <p className="text-xs text-ink-400 py-2">Aucun groupe. Exemple : &quot;Choisissez votre sauce&quot;.</p>
-            ) : (
-              <div className="space-y-3">
-                {form.modifierGroups.map((g, gi) => (
-                  <div key={gi} className="rounded-xl border border-ink-200/70 dark:border-ink-700/60 bg-white/70 dark:bg-ink-900/60 p-3 space-y-2.5">
-                    <div className="flex items-center gap-2">
-                      <input
-                        required
-                        placeholder="Nom du groupe (ex: Sauce)"
-                        value={g.name}
-                        onChange={(e) => updateGroup(gi, { name: e.target.value })}
-                        className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm font-semibold outline-none focus:border-brand-400"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeGroup(gi)}
-                        className="shrink-0 w-9 h-9 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 grid place-items-center"
-                        aria-label="Supprimer le groupe"
-                      >
-                        <I.Trash size={14} />
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <label className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Min</span>
-                        <input
-                          type="number"
-                          min="0"
-                          max="99"
-                          value={g.min}
-                          onChange={(e) => updateGroup(gi, { min: Number(e.target.value) || 0 })}
-                          className="w-full px-3 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm outline-none focus:border-brand-400"
-                        />
-                      </label>
-                      <label className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Max</span>
-                        <input
-                          type="number"
-                          min="0"
-                          max="99"
-                          value={g.max}
-                          onChange={(e) => updateGroup(gi, { max: Number(e.target.value) || 0 })}
-                          className="w-full px-3 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm outline-none focus:border-brand-400"
-                        />
-                      </label>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Options</span>
-                        <button
-                          type="button"
-                          onClick={() => addOption(gi)}
-                          className="text-[11px] font-bold text-brand-600 hover:text-brand-500"
-                        >
-                          + option
-                        </button>
-                      </div>
-                      {g.options.map((o, oi) => (
-                        <div key={oi} className="flex items-center gap-2">
-                          <input
-                            required
-                            placeholder="Ex: Algérienne"
-                            value={o.name}
-                            onChange={(e) => updateOption(gi, oi, { name: e.target.value })}
-                            className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm outline-none focus:border-brand-400"
-                          />
-                          <div className="relative w-24 shrink-0">
-                            <input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              placeholder="0"
-                              value={o.price}
-                              onChange={(e) => updateOption(gi, oi, { price: e.target.value })}
-                              className="w-full pl-2 pr-8 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm outline-none focus:border-brand-400"
-                              title="Surcoût MAD"
-                            />
-                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-ink-400">+</span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => removeOption(gi, oi)}
-                            className="shrink-0 w-8 h-8 rounded-lg text-ink-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 grid place-items-center"
-                            aria-label="Supprimer l option"
-                          >
-                            <I.X size={12} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+        <label className="block space-y-1.5">
+          <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Prix (MAD)</span>
+          <div className="relative">
+            <input required type="number" step="0.01" min="0" placeholder="9.90" value={form.price}
+              onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+              className="w-full pl-4 pr-12 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-ink-400">MAD</span>
           </div>
+        </label>
 
-          <div className="flex gap-2 justify-end pt-2">
-            <ActionButton type="button" variant="ghost" onClick={onClose}>Annuler</ActionButton>
-            <ActionButton type="submit" variant="primary" disabled={busy} icon={item.db_id ? <I.Check size={14} /> : <I.Plus size={14} />}>
-              {busy ? '\u2026' : item.db_id ? 'Enregistrer' : 'Créer le plat'}
+        {item.db_id && (
+          <div className="flex items-center justify-between rounded-xl bg-ink-50/50 dark:bg-ink-800/30 px-4 py-3">
+            <div>
+              <p className="text-sm font-bold">Visible dans le menu</p>
+              <p className="text-[11px] text-ink-500">Masqué = invisible pour les clients</p>
+            </div>
+            <Toggle checked={form.is_available} onChange={(v) => setForm((f) => ({ ...f, is_available: v }))} />
+          </div>
+        )}
+
+        <div className="space-y-3 rounded-2xl border border-brand-500/20 bg-brand-500/[0.04] p-3 sm:p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-black text-ink-900 dark:text-white">Sauces & suppléments</p>
+              <p className="text-[11px] text-ink-500 mt-0.5">
+                Groupes proposés au client (ex. sauce, extras). Min &gt; 0 = obligatoire.
+              </p>
+            </div>
+            <ActionButton type="button" size="sm" variant="secondary" onClick={addGroup} icon={<I.Plus size={12} />} className="shrink-0">
+              Groupe
             </ActionButton>
           </div>
-        </form>
-      </GlassCard>
-    </div>
+
+          {form.modifierGroups.length === 0 ? (
+            <p className="text-xs text-ink-400 py-2">Aucun groupe. Exemple : &quot;Choisissez votre sauce&quot;.</p>
+          ) : (
+            <div className="space-y-3">
+              {form.modifierGroups.map((g, gi) => (
+                <div key={gi} className="rounded-xl border border-ink-200/70 dark:border-ink-700/60 bg-white/70 dark:bg-ink-900/60 p-3 space-y-2.5">
+                  <div className="flex items-center gap-2">
+                    <input
+                      required
+                      placeholder="Nom du groupe (ex: Sauce)"
+                      value={g.name}
+                      onChange={(e) => updateGroup(gi, { name: e.target.value })}
+                      className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm font-semibold outline-none focus:border-brand-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeGroup(gi)}
+                      className="shrink-0 w-9 h-9 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 grid place-items-center"
+                      aria-label="Supprimer le groupe"
+                    >
+                      <I.Trash size={14} />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="space-y-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Min</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="99"
+                        value={g.min}
+                        onChange={(e) => updateGroup(gi, { min: Number(e.target.value) || 0 })}
+                        className="w-full px-3 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm outline-none focus:border-brand-400"
+                      />
+                    </label>
+                    <label className="space-y-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Max</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="99"
+                        value={g.max}
+                        onChange={(e) => updateGroup(gi, { max: Number(e.target.value) || 0 })}
+                        className="w-full px-3 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm outline-none focus:border-brand-400"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Options</span>
+                      <button
+                        type="button"
+                        onClick={() => addOption(gi)}
+                        className="text-[11px] font-bold text-brand-600 hover:text-brand-500"
+                      >
+                        + option
+                      </button>
+                    </div>
+                    {g.options.map((o, oi) => (
+                      <div key={oi} className="flex items-center gap-2">
+                        <input
+                          required
+                          placeholder="Ex: Algérienne"
+                          value={o.name}
+                          onChange={(e) => updateOption(gi, oi, { name: e.target.value })}
+                          className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm outline-none focus:border-brand-400"
+                        />
+                        <div className="relative w-[4.5rem] sm:w-24 shrink-0">
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="0"
+                            value={o.price}
+                            onChange={(e) => updateOption(gi, oi, { price: e.target.value })}
+                            className="w-full pl-2 pr-7 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm outline-none focus:border-brand-400"
+                            title="Surcoût MAD"
+                          />
+                          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-ink-400">+</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeOption(gi, oi)}
+                          className="shrink-0 w-8 h-8 rounded-lg text-ink-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 grid place-items-center"
+                          aria-label="Supprimer l option"
+                        >
+                          <I.X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </form>
+    </DashSheet>
   );
 }
 
@@ -1983,133 +2006,125 @@ function OfferFormModal({ offer, busy, onClose, onSave }) {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm grid place-items-center p-4" onClick={onClose}>
-      <GlassCard
-        className="p-6 w-full max-w-md max-h-[85vh] overflow-y-auto space-y-4"
-        hover={false}
-        glow="from-amber-400 to-orange-500"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg">
-            {offer ? <I.Sparkle size={16} /> : <I.Plus size={16} />}
-          </span>
-          <div>
-            <h3 className="font-display font-bold text-lg">{offer ? 'Modifier l\'offre' : 'Nouvelle offre'}</h3>
-            <p className="text-xs text-ink-500">Configurez votre promotion</p>
+    <DashSheet
+      open
+      onClose={onClose}
+      title={offer ? "Modifier l'offre" : 'Nouvelle offre'}
+      subtitle="Configurez votre promotion"
+      icon={offer ? <I.Sparkle size={16} /> : <I.Plus size={16} />}
+      footer={(
+        <div className="flex gap-2">
+          <ActionButton type="button" variant="ghost" className="flex-1" onClick={onClose}>Annuler</ActionButton>
+          <ActionButton
+            type="submit"
+            form="offer-form"
+            variant="primary"
+            className="flex-[1.4]"
+            disabled={busy}
+            icon={busy ? undefined : (offer ? <I.Check size={14} /> : <I.Plus size={14} />)}
+          >
+            {busy ? '…' : offer ? 'Enregistrer' : "Créer l'offre"}
+          </ActionButton>
+        </div>
+      )}
+    >
+      <form id="offer-form" onSubmit={submit} className="space-y-4">
+        <div className="space-y-2">
+          <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Type d&apos;offre</span>
+          <div className="grid gap-2">
+            {OFFER_TYPES.map((t) => (
+              <button
+                key={t.value}
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, offer_type: t.value }))}
+                className={`flex items-start gap-3 p-3 rounded-xl border text-left transition ${
+                  form.offer_type === t.value
+                    ? 'border-brand-500 bg-brand-50 dark:bg-brand-500/10 ring-2 ring-brand-500/20'
+                    : 'border-ink-200/60 dark:border-ink-700/50 hover:border-ink-300 dark:hover:border-ink-600'
+                }`}
+              >
+                <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br text-white text-sm ${
+                  form.offer_type === t.value ? t.color : 'from-ink-300 to-ink-400 dark:from-ink-600 dark:to-ink-700'
+                }`}>
+                  {t.label.charAt(0)}
+                </span>
+                <div>
+                  <div className="text-sm font-bold">{t.label}</div>
+                  <div className="text-xs text-ink-500">{t.desc}</div>
+                </div>
+              </button>
+            ))}
           </div>
         </div>
 
-        <form onSubmit={submit} className="space-y-4">
-          {/* Type Selection */}
-          <div className="space-y-2">
-            <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Type d&apos;offre</span>
-            <div className="grid gap-2">
-              {OFFER_TYPES.map((t) => (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => setForm((f) => ({ ...f, offer_type: t.value }))}
-                  className={`flex items-start gap-3 p-3 rounded-xl border text-left transition ${
-                    form.offer_type === t.value
-                      ? 'border-brand-500 bg-brand-50 dark:bg-brand-500/10 ring-2 ring-brand-500/20'
-                      : 'border-ink-200/60 dark:border-ink-700/50 hover:border-ink-300 dark:hover:border-ink-600'
-                  }`}
-                >
-                  <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br text-white text-sm ${
-                    form.offer_type === t.value ? t.color : 'from-ink-300 to-ink-400 dark:from-ink-600 dark:to-ink-700'
-                  }`}>
-                    {t.label.charAt(0)}
-                  </span>
-                  <div>
-                    <div className="text-sm font-bold">{t.label}</div>
-                    <div className="text-xs text-ink-500">{t.desc}</div>
-                  </div>
-                </button>
-              ))}
+        <label className="block space-y-1.5">
+          <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Titre de l&apos;offre</span>
+          <input required maxLength={150} placeholder="Ex: -50% sur tout le menu"
+            value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+            className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
+        </label>
+
+        <label className="block space-y-1.5">
+          <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Description (optionnel)</span>
+          <textarea rows={2} placeholder="Détails visibles par les clients"
+            value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+            className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none resize-none" />
+        </label>
+
+        {form.offer_type === 'percentage' && (
+          <label className="block space-y-1.5">
+            <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Pourcentage de réduction</span>
+            <div className="relative">
+              <input required type="number" min="1" max="100" placeholder="50"
+                value={form.discount_percent} onChange={(e) => setForm((f) => ({ ...f, discount_percent: e.target.value }))}
+                className="w-full pl-4 pr-10 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-ink-400">%</span>
             </div>
-          </div>
-
-          {/* Title */}
-          <label className="block space-y-1.5">
-            <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Titre de l&apos;offre</span>
-            <input required maxLength={150} placeholder="Ex: -50% sur tout le menu"
-              value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-              className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
+            <p className="text-xs text-ink-400">La réduction s&apos;applique sur le total de la commande.</p>
           </label>
+        )}
 
-          {/* Description */}
-          <label className="block space-y-1.5">
-            <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Description (optionnel)</span>
-            <textarea rows={2} placeholder="Détails visibles par les clients"
-              value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-              className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none resize-none" />
-          </label>
-
-          {/* Type-specific fields */}
-          {form.offer_type === 'percentage' && (
+        {form.offer_type === 'buy_get_free' && (
+          <div className="grid grid-cols-2 gap-3">
             <label className="block space-y-1.5">
-              <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Pourcentage de réduction</span>
-              <div className="relative">
-                <input required type="number" min="1" max="100" placeholder="50"
-                  value={form.discount_percent} onChange={(e) => setForm((f) => ({ ...f, discount_percent: e.target.value }))}
-                  className="w-full pl-4 pr-10 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-ink-400">%</span>
-              </div>
-              <p className="text-xs text-ink-400">La réduction s&apos;applique sur le total de la commande.</p>
+              <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Achetez (qté)</span>
+              <input required type="number" min="1" placeholder="2"
+                value={form.buy_quantity} onChange={(e) => setForm((f) => ({ ...f, buy_quantity: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
             </label>
-          )}
-
-          {form.offer_type === 'buy_get_free' && (
-            <div className="grid grid-cols-2 gap-3">
-              <label className="block space-y-1.5">
-                <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Achetez (qté)</span>
-                <input required type="number" min="1" placeholder="2"
-                  value={form.buy_quantity} onChange={(e) => setForm((f) => ({ ...f, buy_quantity: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
-              </label>
-              <label className="block space-y-1.5">
-                <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Offert (qté)</span>
-                <input required type="number" min="1" placeholder="1"
-                  value={form.get_quantity} onChange={(e) => setForm((f) => ({ ...f, get_quantity: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
-              </label>
-              <label className="block space-y-1.5 col-span-2">
-                <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Nom de l&apos;article offert (optionnel)</span>
-                <input placeholder="Ex: Boisson 33cl"
-                  value={form.free_item_name} onChange={(e) => setForm((f) => ({ ...f, free_item_name: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
-              </label>
-            </div>
-          )}
-
-          {form.offer_type === 'min_spend' && (
-            <div className="grid grid-cols-2 gap-3">
-              <label className="block space-y-1.5">
-                <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Montant minimum (MAD)</span>
-                <input required type="number" step="0.01" min="0" placeholder="100"
-                  value={form.min_amount} onChange={(e) => setForm((f) => ({ ...f, min_amount: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
-              </label>
-              <label className="block space-y-1.5">
-                <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Réduction (%)</span>
-                <input required type="number" min="1" max="100" placeholder="15"
-                  value={form.discount_percent} onChange={(e) => setForm((f) => ({ ...f, discount_percent: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
-              </label>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex gap-2 justify-end pt-2">
-            <ActionButton type="button" variant="ghost" onClick={onClose}>Annuler</ActionButton>
-            <ActionButton type="submit" variant="primary" disabled={busy} icon={busy ? undefined : (offer ? <I.Check size={14} /> : <I.Plus size={14} />)}>
-              {busy ? '…' : offer ? 'Enregistrer' : 'Créer l\'offre'}
-            </ActionButton>
+            <label className="block space-y-1.5">
+              <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Offert (qté)</span>
+              <input required type="number" min="1" placeholder="1"
+                value={form.get_quantity} onChange={(e) => setForm((f) => ({ ...f, get_quantity: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
+            </label>
+            <label className="block space-y-1.5 col-span-2">
+              <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Nom de l&apos;article offert (optionnel)</span>
+              <input placeholder="Ex: Boisson 33cl"
+                value={form.free_item_name} onChange={(e) => setForm((f) => ({ ...f, free_item_name: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
+            </label>
           </div>
-        </form>
-      </GlassCard>
-    </div>
+        )}
+
+        {form.offer_type === 'min_spend' && (
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block space-y-1.5">
+              <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Montant min. (MAD)</span>
+              <input required type="number" step="0.01" min="0" placeholder="100"
+                value={form.min_amount} onChange={(e) => setForm((f) => ({ ...f, min_amount: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
+            </label>
+            <label className="block space-y-1.5">
+              <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Réduction (%)</span>
+              <input required type="number" min="1" max="100" placeholder="15"
+                value={form.discount_percent} onChange={(e) => setForm((f) => ({ ...f, discount_percent: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
+            </label>
+          </div>
+        )}
+      </form>
+    </DashSheet>
   );
 }
 
