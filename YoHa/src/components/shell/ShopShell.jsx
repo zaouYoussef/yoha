@@ -12,7 +12,6 @@ import { useAuth, getStaffHomePath } from '@/contexts/AuthContext.jsx';
 import { useYohaNav } from '@/contexts/YohaNavContext.jsx';
 import { useCart, useToast, useOrders, CartUICtx } from '@/contexts/AppContexts.jsx';
 import { filterOrdersForClient } from '@/utils/clientOrders.js';
-import { hasAnyRestaurantOpen } from '@/data/openingHours.js';
 
 function pathToView(pathname) {
   if (pathname === '/') return 'landing';
@@ -33,7 +32,7 @@ export function ShopShell({ children, showCampus = false }) {
   const { user, booting } = useAuth();
   const { cart, setQty, removeFromCart, cartCount, cartTotal, theme } = useCart();
   const { dark, setDark } = theme;
-  const { orders, restaurants } = useOrders();
+  const { orders } = useOrders();
   const { toasts } = useToast();
   const [cartOpen, setCartOpen] = useState(false);
   const [cartShake, setCartShake] = useState(false);
@@ -93,11 +92,6 @@ export function ShopShell({ children, showCampus = false }) {
     }
     return null;
   }, [orders, user, trackOrderId]);
-
-  const anyRestoOpen = useMemo(
-    () => hasAnyRestaurantOpen(restaurants),
-    [restaurants],
-  );
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
