@@ -312,7 +312,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
             </button>
           ) : (
             <div className="flex items-center gap-2.5">
-              <div className="flex items-center rounded-2xl border border-brand-500/25 bg-brand-500/5 dark:bg-brand-500/10 p-1 shrink-0">
+              <div className="flex flex-1 sm:flex-none items-center justify-between sm:justify-start rounded-2xl border border-brand-500/25 bg-brand-500/5 dark:bg-brand-500/10 p-1">
                 <button
                   type="button"
                   onClick={() => setQty(key, quantity - 1)}
@@ -336,7 +336,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
               <button
                 type="button"
                 onClick={goToCart}
-                className="cursor-grow flex-1 min-h-12 inline-flex items-center justify-center gap-2 px-3 rounded-2xl font-bold text-sm cta-brand btn-shimmer border-0 text-white active:scale-[0.98] transition-transform shadow-glow"
+                className="cursor-grow hidden sm:inline-flex flex-1 min-h-12 items-center justify-center gap-2 px-3 rounded-2xl font-bold text-sm cta-brand btn-shimmer border-0 text-white active:scale-[0.98] transition-transform shadow-glow"
               >
                 <I.Bag size={16} />
                 <span>Voir le panier</span>
