@@ -294,21 +294,21 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   }
 
   return (
-    <div className="page-enter relative max-w-5xl mx-auto px-4 sm:px-6 pt-4 pb-28 lg:pb-8 overflow-hidden">
+    <div className="page-enter relative max-w-5xl mx-auto w-full min-w-0 px-3 sm:px-6 pt-3 sm:pt-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:pb-8 overflow-x-hidden">
       <div className="absolute inset-0 mesh-bg opacity-50 pointer-events-none" aria-hidden />
-      <div className="yoha-ambient opacity-80" aria-hidden />
-      <div className="pointer-events-none absolute -top-24 right-[-10%] w-[380px] h-[380px] rounded-full bg-brand-500/[0.12] blur-[110px]" aria-hidden />
-      <div className="pointer-events-none absolute top-[35%] left-[-15%] w-[320px] h-[320px] rounded-full bg-pink-500/[0.08] blur-[100px]" aria-hidden />
+      <div className="yoha-ambient opacity-80 pointer-events-none" aria-hidden />
+      <div className="pointer-events-none absolute -top-24 right-0 w-[min(280px,70vw)] h-[280px] rounded-full bg-brand-500/[0.12] blur-[90px]" aria-hidden />
+      <div className="pointer-events-none absolute top-[40%] left-0 w-[min(240px,60vw)] h-[240px] rounded-full bg-pink-500/[0.08] blur-[80px]" aria-hidden />
 
-      <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 animate-fade-up">
+      <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 mb-5 sm:mb-6 animate-fade-up">
         <button
           onClick={onBack}
           className="cursor-pointer inline-flex items-center gap-2 self-start px-3.5 py-2 rounded-xl bg-white/80 dark:bg-ink-900 hover:bg-brand-500/10 text-ink-700 dark:text-white font-bold text-xs transition-colors shadow-xs border border-ink-100 dark:border-ink-800"
         >
-          <I.Left size={16}/> <span>Retour à la carte</span>
+          <I.Left size={16}/> <span>Retour</span>
         </button>
 
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 self-start sm:self-auto text-[11px] sm:text-xs font-bold bg-white/90 dark:bg-ink-900 px-3 sm:px-3.5 py-1.5 rounded-full border border-brand-500/20 dark:border-brand-500/25 max-w-full overflow-x-auto no-scrollbar shadow-sm ring-gradient">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 self-start sm:self-auto text-[11px] sm:text-xs font-bold bg-white/90 dark:bg-ink-900 px-3 sm:px-3.5 py-1.5 rounded-full border border-brand-500/20 dark:border-brand-500/25 max-w-full shadow-sm ring-gradient">
           <span className="text-brand-600 dark:text-brand-400 flex items-center gap-1 shrink-0">
             <span>✓</span> Panier
           </span>
@@ -322,11 +322,11 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
         </div>
       </div>
 
-      <div className="relative mb-7 animate-fade-up" style={{ animationDelay: '60ms' }}>
+      <div className="relative mb-5 sm:mb-7 animate-fade-up" style={{ animationDelay: '60ms' }}>
         <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-600 dark:text-brand-400 mb-2">
           Presque là
         </p>
-        <h1 className="font-display font-black text-[clamp(1.85rem,5vw,2.75rem)] tracking-tight text-ink-900 dark:text-white leading-[1.05]">
+        <h1 className="font-display font-black text-[clamp(1.55rem,6.5vw,2.75rem)] tracking-tight text-ink-900 dark:text-white leading-[1.08] break-words">
           Finalisation{' '}
           <span className="text-gradient">de commande</span>
         </h1>
@@ -364,10 +364,10 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
         </div>
       )}
 
-      {/* Main Form Grid */}
-      <div className="grid lg:grid-cols-3 gap-6">
+      {/* Main Form Grid — récap en premier sur mobile pour voir le total vite */}
+      <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 min-w-0">
         {/* Left Column: Form & Options */}
-        <div className="lg:col-span-2 space-y-6 animate-fade-up" style={{ animationDelay: '100ms' }}>
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6 animate-fade-up min-w-0 order-2 lg:order-1" style={{ animationDelay: '100ms' }}>
           {/* Delivery Address Card */}
           <Card className="rounded-3xl shadow-sm border border-ink-100 dark:border-ink-800 overflow-hidden glass-card-premium">
             <CardHeader icon={<I.MapPin size={20} className="text-brand-500" />} title="Coordonnées de livraison" />
@@ -535,19 +535,19 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
         </div>
 
         {/* Right Column: Order Summary & Checkout Button */}
-        <div className="lg:sticky lg:top-20 self-start animate-fade-up" style={{ animationDelay: '160ms' }}>
-          <Card className="rounded-3xl shadow-xl shadow-brand-500/10 border border-brand-500/30 overflow-hidden bg-white/95 dark:bg-ink-900 ring-gradient">
+        <div className="lg:sticky lg:top-20 self-start animate-fade-up min-w-0 order-1 lg:order-2" style={{ animationDelay: '160ms' }}>
+          <Card className="rounded-2xl sm:rounded-3xl shadow-xl shadow-brand-500/10 border border-brand-500/30 overflow-hidden bg-white/95 dark:bg-ink-900 ring-gradient">
             <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" aria-hidden />
             <div className="pointer-events-none absolute -top-16 -right-16 w-40 h-40 rounded-full bg-brand-500/10 blur-3xl" aria-hidden />
             <div className="relative p-4 sm:p-6 space-y-4">
-              <h3 className="font-display font-black text-xl text-ink-900 dark:text-white border-b border-ink-100 dark:border-ink-800 pb-3 flex items-center justify-between">
+              <h3 className="font-display font-black text-lg sm:text-xl text-ink-900 dark:text-white border-b border-ink-100 dark:border-ink-800 pb-3 flex items-center justify-between gap-2 flex-wrap">
                 <span>Récapitulatif</span>
                 {isGroupOrder ? (
-                  <span className="text-xs font-black text-white bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 px-2.5 py-1 rounded-full shadow-glow animate-pulse">
+                  <span className="text-[10px] sm:text-xs font-black text-white bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 px-2.5 py-1 rounded-full shadow-glow animate-pulse">
                     🎉 OFFRE GROUPE
                   </span>
                 ) : (
-                  <span className="text-xs font-bold text-brand-600 dark:text-brand-400 bg-brand-500/10 px-2.5 py-1 rounded-full border border-brand-500/20">
+                  <span className="text-[10px] sm:text-xs font-bold text-brand-600 dark:text-brand-400 bg-brand-500/10 px-2.5 py-1 rounded-full border border-brand-500/20">
                     {deliveryFee === 0 ? '⚡ 0 MAD livraison' : `⚡ ${deliveryEta}`}
                   </span>
                 )}
@@ -741,11 +741,11 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
       </div>
 
       {/* Mobile Floating Sticky Checkout Bar */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 p-3 bg-white/95 dark:bg-ink-950/95 backdrop-blur-xl border-t border-brand-500/20 dark:border-brand-500/25 shadow-2xl shadow-brand-500/10 pb-[calc(10px+env(safe-area-inset-bottom))] animate-slide-up">
-        <div className="max-w-lg mx-auto flex items-center justify-between gap-3">
-          <div className="shrink-0 pl-1">
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 px-3 pt-3 bg-white/95 dark:bg-ink-950/95 backdrop-blur-xl border-t border-brand-500/20 dark:border-brand-500/25 shadow-2xl shadow-brand-500/10 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="max-w-lg mx-auto flex items-center justify-between gap-2.5 sm:gap-3 min-w-0">
+          <div className="shrink-0 min-w-0 max-w-[38%]">
             <div className="text-[10px] font-extrabold uppercase tracking-wider text-ink-400">Total</div>
-            <div className="font-display font-black text-sm sm:text-base bg-gradient-to-r from-brand-600 via-pink-600 to-violet-600 bg-clip-text text-transparent">
+            <div className="font-display font-black text-sm sm:text-base bg-gradient-to-r from-brand-600 via-pink-600 to-violet-600 bg-clip-text text-transparent truncate">
               {formatMad(grand)}
             </div>
           </div>
@@ -753,14 +753,14 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
             type="button"
             onClick={handleConfirm}
             disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
-            className="flex-1 py-3.5 px-4 rounded-xl cta-brand btn-shimmer text-white font-extrabold text-xs sm:text-sm active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer border border-white/20"
+            className="min-w-0 flex-1 py-3.5 px-3 sm:px-4 rounded-xl cta-brand btn-shimmer text-white font-extrabold text-xs sm:text-sm active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer border border-white/20"
           >
             {submitting ? (
               <span className="text-center font-bold text-xs">Traitement…</span>
             ) : (
               <span className="flex items-center justify-center gap-1.5 font-display font-bold">
-                <span>Confirmer la commande</span>
-                <I.Right size={16} stroke={2.5} />
+                <span className="truncate">Confirmer</span>
+                <I.Right size={16} stroke={2.5} className="shrink-0" />
               </span>
             )}
           </button>

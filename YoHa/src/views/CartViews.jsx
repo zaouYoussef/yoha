@@ -114,7 +114,7 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
               })()}
             </div>
 
-            <div className="px-5 py-4 border-t border-ink-200 dark:border-ink-800 space-y-3">
+            <div className="px-5 py-4 border-t border-ink-200 dark:border-ink-800 space-y-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
               {(() => {
                 const isCustom = items.some(i => i.isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes(i.restaurantCuisine));
                 const customItems = items.filter(i => i.isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes(i.restaurantCuisine));

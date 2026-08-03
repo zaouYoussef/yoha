@@ -97,6 +97,13 @@ export function ShopShell({ children, showCampus = false }) {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [pathname]);
 
+  // Sur checkout : fermer le panier pour éviter le double écran mobile
+  useEffect(() => {
+    if (viewName === 'checkout' || pathname === '/checkout') {
+      setCartOpen(false);
+    }
+  }, [viewName, pathname]);
+
   useEffect(() => {
     const open = () => setCartOpen(true);
     window.addEventListener('yoha-open-cart', open);
@@ -130,6 +137,8 @@ export function ShopShell({ children, showCampus = false }) {
     );
   }
 
+  const hideBottomNav = ['checkout', 'success', 'auth'].includes(viewName);
+
   return (
     <CartUICtx.Provider value={cartUI}>
       <ScrollProgress />
@@ -154,7 +163,13 @@ export function ShopShell({ children, showCampus = false }) {
           onMyOrders={() => goto('my-orders')}
         />
 
-        <main className="relative z-10 min-w-0 flex-1 overflow-x-hidden pt-16 pb-28 md:pb-0">{children}</main>
+        <main
+          className={`relative z-10 min-w-0 flex-1 overflow-x-hidden pt-16 ${
+            hideBottomNav ? 'pb-4 md:pb-0' : 'pb-28 md:pb-0'
+          }`}
+        >
+          {children}
+        </main>
 
         {showCampus && (
           <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 pb-10 sm:pb-14">
@@ -162,14 +177,17 @@ export function ShopShell({ children, showCampus = false }) {
           </div>
         )}
 
-        <BottomNav
-          active={viewName}
-          onHome={() => goto('landing')}
-          onSearch={() => goto('home', { browseFilter: 'all' })}
-          onCart={() => setCartOpen(true)}
-          onProfile={() => goto(user ? 'my-orders' : 'auth')}
-          cartCount={cartCount}
-        />
+        {/* Pas de bottom nav sur checkout / auth / succès — évite le chevauchement avec les CTA */}
+        {!['checkout', 'success', 'auth'].includes(viewName) && (
+          <BottomNav
+            active={viewName}
+            onHome={() => goto('landing')}
+            onSearch={() => goto('home', { browseFilter: 'all' })}
+            onCart={() => setCartOpen(true)}
+            onProfile={() => goto(user ? 'my-orders' : 'auth')}
+            cartCount={cartCount}
+          />
+        )}
 
         <CartSidebar
           open={cartOpen}
