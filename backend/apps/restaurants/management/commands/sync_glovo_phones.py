@@ -21,7 +21,18 @@ def normalize_phone(raw: str) -> str:
 
 
 def sync_restaurant_phone(restaurant: Restaurant, *, delay: float = 0.4) -> str:
-    """Retourne le téléphone trouvé (ou '')."""
+    """Retourne le téléphone trouvé (ou ''). Respecte les overrides vérifiés."""
+    from apps.restaurants.contact_overrides import get_contact_override
+
+    override = get_contact_override(restaurant.slug) or {}
+    if (override.get("phone") or "").strip():
+        phone = normalize_phone(override["phone"])
+        if phone and phone != (restaurant.phone or "").strip():
+            Restaurant.objects.filter(pk=restaurant.pk).update(phone=phone)
+            restaurant.phone = phone
+        time.sleep(min(delay, 0.1))
+        return phone or (restaurant.phone or "")
+
     if not restaurant.glovo_store_id:
         return ""
     store = GlovoStoreConfig(

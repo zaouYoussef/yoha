@@ -342,11 +342,17 @@ def _fetch_menu(store: GlovoStoreConfig) -> List[GlovoSection]:
 
 
 def _sync_store_profile(restaurant: Restaurant, store: GlovoStoreConfig) -> None:
-    """Téléphone + horaires (config GLOVO_STORES / profil Glovo / OSM)."""
+    """Téléphone + horaires (overrides vérifiés > config GLOVO_STORES > Glovo/OSM)."""
+    from apps.restaurants.contact_overrides import get_contact_override
     from apps.restaurants.opening_hours import normalize_opening_hours
 
     fields: dict = {}
-    if store.opening_hours:
+    override = get_contact_override(store.slug) or {}
+
+    # Horaires : override JSON > config GLOVO_STORES > OSM (plus bas)
+    if isinstance(override.get("opening_hours"), dict) and override["opening_hours"]:
+        fields["opening_hours"] = normalize_opening_hours(override["opening_hours"])
+    elif store.opening_hours:
         fields["opening_hours"] = normalize_opening_hours(store.opening_hours)
 
     profile = None
@@ -357,15 +363,22 @@ def _sync_store_profile(restaurant: Restaurant, store: GlovoStoreConfig) -> None
         except GlovoError as exc:
             logger.info("glovo_store_profile_failed %s — %s", store.slug, exc)
 
-    # Priorité : téléphone Glovo live, sinon config GLOVO_STORES
-    if profile and (profile.phone or "").strip():
-        fields["phone"] = profile.phone.strip()[:30]
+    # Téléphone : override JSON > config GLOVO_STORES > Glovo (souvent faux)
+    if (override.get("phone") or "").strip():
+        fields["phone"] = override["phone"].strip()[:30]
     elif store.phone:
         fields["phone"] = store.phone[:30]
+    elif profile and (profile.phone or "").strip():
+        fields["phone"] = profile.phone.strip()[:30]
+
+    addr = (override.get("address") or "").strip()
+    if not addr and profile and profile.address:
+        addr = profile.address.replace("\n", ", ").strip()
+    if addr:
+        name = (profile.name if profile and profile.name else None) or restaurant.name
+        fields["description"] = f"{name} — {addr}"[:500]
 
     if profile:
-        if profile.address and not (restaurant.description or "").strip():
-            fields["description"] = f"{profile.name or restaurant.name} — {profile.address}"[:500]
         if "opening_hours" not in fields and profile.latitude is not None and profile.longitude is not None:
             try:
                 from apps.restaurants.opening_hours import fetch_osm_opening_hours

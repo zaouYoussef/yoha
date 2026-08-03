@@ -1,0 +1,34 @@
+{
+  "_meta": {
+    "note": "Contacts vérifiés manuellement — prioritaire sur Glovo/OSM. phone + opening_hours + address (description)."
+  },
+  "restaurants": {
+    "l-assiette-verte": {
+      "phone": "+212642713737",
+      "address": "rte california 90000 Tanger, Morocco",
+      "opening_hours": {
+        "monday": { "open": "13:30", "close": "00:00" },
+        "tuesday": { "open": "13:30", "close": "00:00" },
+        "wednesday": { "open": "13:30", "close": "00:00" },
+        "thursday": { "open": "13:30", "close": "23:59" },
+        "friday": { "open": "17:00", "close": "00:00" },
+        "saturday": { "open": "13:30", "close": "23:59" },
+        "sunday": { "is_closed": true }
+      }
+    },
+    "crumby": {
+      "phone": "+212539909090",
+      "address": "Residence Salem, Rue de Grenade, Iberia, Tanger 90040",
+      "opening_hours": {
+        "monday": { "open": "08:30", "close": "22:00" },
+        "tuesday": { "open": "08:30", "close": "22:00" },
+        "wednesday": { "open": "08:30", "close": "22:00" },
+        "thursday": { "open": "08:30", "close": "22:00" },
+        "friday": { "open": "08:30", "close": "22:00" },
+        "saturday": { "open": "09:00", "close": "23:00" },
+        "sunday": { "open": "09:00", "close": "23:00" }
+      },
+      "source": "crumby.ma"
+    }
+  }
+}
