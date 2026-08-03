@@ -52,6 +52,7 @@ export function YohaNavProvider({ children }) {
       router.prefetch('/');
       router.prefetch('/browse');
       router.prefetch('/checkout');
+      router.prefetch('/success');
       router.prefetch('/orders');
       router.prefetch('/auth');
     }
@@ -89,7 +90,14 @@ export function YohaNavProvider({ children }) {
           return;
         }
       }
-      router.push(buildPath(name, params));
+
+      const path = buildPath(name, params);
+      // Après commande : navigation complète (évite ChunkLoadError sur cache JS périmé)
+      if (name === 'success' && typeof window !== 'undefined') {
+        window.location.assign(path);
+        return;
+      }
+      router.push(path);
     },
     [user, router, toast]
   );

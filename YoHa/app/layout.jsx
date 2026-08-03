@@ -2,6 +2,7 @@ import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import Script from 'next/script';
 import { AppProviders } from '@/providers/AppProviders';
 import { AnalyticsTracker } from '@/components/ui/AnalyticsTracker';
+import { PathAwareShell } from '@/components/shell/PathAwareShell';
 import './globals.css';
 const inter = Inter({
   subsets: ['latin'],
@@ -112,6 +113,11 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/logo.png" />
         <script
           dangerouslySetInnerHTML={{
+            __html: `(function(){try{var k="yoha_chunk_reload";function bad(m){m=String(m||"");return /ChunkLoadError|Loading chunk|Failed to fetch dynamically imported module|Importing a module script failed/i.test(m)}function go(){try{if(sessionStorage.getItem(k)==="1")return;sessionStorage.setItem(k,"1");location.reload()}catch(e){}}window.addEventListener("error",function(e){if(bad(e&&e.message))go()},true);window.addEventListener("unhandledrejection",function(e){var r=e&&e.reason;if(bad(r&&(r.message||r))|| (r&&r.name==="ChunkLoadError"))go()});if(document.readyState==="complete"){try{sessionStorage.removeItem(k)}catch(e){}}else{window.addEventListener("load",function(){try{sessionStorage.removeItem(k)}catch(e){}})}}catch(e){}})();`,
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
             __html: `(function(){try{var ok=typeof Promise!=="undefined"&&typeof Symbol!=="undefined"&&typeof Map!=="undefined"&&typeof WeakMap!=="undefined"&&typeof Proxy!=="undefined"&&typeof fetch==="function"&&typeof Object.assign==="function"&&typeof Object.fromEntries==="function"&&!!Array.prototype.flat&&!!Array.prototype.includes;if(!ok){window.location.replace("/browser-update.html");}}catch(e){try{window.location.replace("/browser-update.html");}catch(_){}}})();`,
           }}
         />
@@ -124,7 +130,7 @@ export default function RootLayout({ children }) {
         <Script src="/legacy-polyfills.js" strategy="beforeInteractive" />
         <AppProviders>
           <AnalyticsTracker />
-          {children}
+          <PathAwareShell>{children}</PathAwareShell>
         </AppProviders>
       </body>
     </html>
