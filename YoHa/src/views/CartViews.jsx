@@ -254,7 +254,7 @@ export function CartLine({ item, setQty, remove }) {
 }
 
 /* ============================================================================
-   FLOATING CART
+   FLOATING CART — fixe à droite, sticky au scroll (mobile + desktop)
 ============================================================================ */
 export function FloatingCart({ count, total, items = [], onClick, hidden }) {
   if (count === 0 || hidden) return null;
@@ -263,32 +263,37 @@ export function FloatingCart({ count, total, items = [], onClick, hidden }) {
   const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
   const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
   const displayTotal = total + deliveryFee;
-  
+  const priceLabel = isCustom
+    ? (total > 0 ? `${formatMad(displayTotal)} + achats` : '20 DH + achats')
+    : formatMad(displayTotal);
+
   return (
     <motion.button
       type="button"
       onClick={onClick}
-      initial={{ y: 80, opacity: 0, scale: 0.96 }}
-      animate={{ y: 0, opacity: 1, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 340, damping: 26 }}
-      className="btn-shimmer cursor-pointer fixed z-[55] left-3 right-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:left-auto md:right-6 md:bottom-6 md:w-[min(22rem,calc(100vw-3rem))] group flex items-center justify-between gap-2 px-3.5 py-3 min-h-[3.25rem] rounded-2xl cta-brand text-white shadow-glow-lg active:scale-[0.98] transition-transform pointer-events-auto border border-white/25 touch-manipulation max-w-lg mx-auto md:mx-0"
+      initial={{ x: 72, opacity: 0, scale: 0.92 }}
+      animate={{ x: 0, opacity: 1, scale: 1 }}
+      transition={{ type: 'spring', stiffness: 360, damping: 28 }}
+      aria-label={`Voir le panier, ${count} article${count > 1 ? 's' : ''}, ${priceLabel}`}
+      className="btn-shimmer cursor-pointer fixed z-[55] right-3 sm:right-5 md:right-6 bottom-[calc(5.25rem+env(safe-area-inset-bottom,0px))] md:bottom-8 group flex flex-col items-stretch gap-1.5 w-[min(11.5rem,calc(100vw-1.5rem))] sm:w-[12.75rem] px-3 py-2.5 sm:px-3.5 sm:py-3 rounded-2xl cta-brand text-white shadow-glow-lg active:scale-[0.97] transition-transform pointer-events-auto border border-white/25 touch-manipulation"
     >
-      <span className="flex items-center gap-2.5 min-w-0">
+      <span className="flex items-center gap-2 min-w-0">
         <span className="relative shrink-0 w-9 h-9 rounded-xl bg-white/20 backdrop-blur grid place-items-center">
-          <I.Bag size={17}/>
-          <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-extrabold bg-white text-brand-600 grid place-items-center shadow-xs">{count}</span>
+          <I.Bag size={17} />
+          <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-extrabold bg-white text-brand-600 grid place-items-center shadow-xs">
+            {count}
+          </span>
         </span>
-        <span className="font-extrabold text-sm truncate">Voir le panier</span>
-      </span>
-      <span className="flex items-center gap-1.5 shrink-0">
-        <span className="font-black text-sm tabular-nums">
-          {isCustom 
-            ? (total > 0 ? `${formatMad(displayTotal)} + achats` : "20 DH + achats")
-            : formatMad(displayTotal)
-          }
+        <span className="min-w-0 flex-1 text-left">
+          <span className="block font-extrabold text-[12px] sm:text-sm leading-tight truncate">
+            Voir le panier
+          </span>
+          <span className="block font-black text-[11px] sm:text-xs tabular-nums text-white/95 truncate">
+            {priceLabel}
+          </span>
         </span>
-        <span className="w-7 h-7 rounded-full bg-white/20 grid place-items-center">
-          <I.Right size={14}/>
+        <span className="w-7 h-7 shrink-0 rounded-full bg-white/20 grid place-items-center">
+          <I.Right size={14} />
         </span>
       </span>
     </motion.button>
