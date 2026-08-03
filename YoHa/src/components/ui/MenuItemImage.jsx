@@ -18,26 +18,37 @@ export const FOOD_IMAGE_FALLBACK = UNSPLASH_FALLBACKS[0];
 export const RESTAURANT_COVER_FALLBACK = UNSPLASH_FALLBACKS[0];
 export const RESTAURANT_LOGO_FALLBACK = '/logo.webp';
 
-export function restaurantCover(url) {
-  if (typeof url === 'string' && url.trim()) {
-    let trimmed = url.trim();
-    if (trimmed.includes('unsplash.com')) {
-      trimmed = trimmed.replace(/w=\d+/g, 'w=500').replace(/q=\d+/g, 'q=75');
-    }
-    return trimmed;
+/** Répare les URLs Glovo mangled: dhmedia.iomenus-glovo → dhmedia.io/image/menus-glovo */
+export function fixGlovoImageUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  let trimmed = url.trim();
+  if (!trimmed) return '';
+
+  const mangled = trimmed.match(/^https:\/\/glovo\.dhmedia\.io([a-z0-9-]+)\/(.*)$/i);
+  if (mangled && !trimmed.includes('/image/')) {
+    trimmed = `https://glovo.dhmedia.io/image/${mangled[1]}/${mangled[2]}`;
+  } else if (trimmed.startsWith('https://glovo.dhmedia.io/') && !trimmed.includes('/image/')) {
+    trimmed = trimmed.replace('https://glovo.dhmedia.io/', 'https://glovo.dhmedia.io/image/');
   }
-  return RESTAURANT_COVER_FALLBACK;
+
+  if (trimmed.includes('unsplash.com')) {
+    trimmed = trimmed.replace(/w=\d+/g, 'w=500').replace(/q=\d+/g, 'q=75');
+  }
+  return trimmed;
+}
+
+export function restaurantCover(url) {
+  const fixed = fixGlovoImageUrl(url);
+  return fixed || RESTAURANT_COVER_FALLBACK;
 }
 
 export function restaurantLogo(url) {
-  if (typeof url === 'string' && url.trim()) {
-    return url.trim();
-  }
-  return RESTAURANT_LOGO_FALLBACK;
+  const fixed = fixGlovoImageUrl(url);
+  return fixed || RESTAURANT_LOGO_FALLBACK;
 }
 
 export function MenuItemImage({ src, alt = '', className = '', loading = 'lazy' }) {
-  const primary = typeof src === 'string' ? src.trim() : '';
+  const primary = fixGlovoImageUrl(typeof src === 'string' ? src : '');
 
   const getSmartFallback = () => {
     const text = `${alt} ${primary}`.toLowerCase();
@@ -56,19 +67,18 @@ export function MenuItemImage({ src, alt = '', className = '', loading = 'lazy' 
     if (text.includes('healthy') || text.includes('salad') || text.includes('bowl')) {
       return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=75';
     }
-    if (text.includes('patisserie') || text.includes('dessert') || text.includes('sweets') || text.includes('bakery')) {
+    if (
+      text.includes('patisserie') || text.includes('dessert') || text.includes('sweets') ||
+      text.includes('bakery') || text.includes('cookie') || text.includes('cake') ||
+      text.includes('brunch') || text.includes('toast') || text.includes('café') || text.includes('cafe') ||
+      text.includes('matcha') || text.includes('smoothie') || text.includes('thé') || text.includes('tea')
+    ) {
       return 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=500&auto=format&fit=crop&q=75';
     }
     return FOOD_IMAGE_FALLBACK;
   };
 
-  const initialSource = () => {
-    let source = primary || getSmartFallback();
-    if (source.includes('unsplash.com')) {
-      source = source.replace(/w=\d+/g, 'w=500').replace(/q=\d+/g, 'q=75');
-    }
-    return source;
-  };
+  const initialSource = () => primary || getSmartFallback();
 
   const [currentSrc, setCurrentSrc] = useState(initialSource);
 
@@ -88,6 +98,8 @@ export function MenuItemImage({ src, alt = '', className = '', loading = 'lazy' 
       src={currentSrc}
       alt={alt}
       loading={loading}
+      referrerPolicy="no-referrer"
+      decoding="async"
       onError={handleError}
       className={className}
     />

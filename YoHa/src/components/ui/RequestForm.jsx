@@ -27,7 +27,7 @@ export function RequestForm({ defaultType = 'complaint' }) {
 
   if (sent) return (
     <div className="text-center py-12 animate-fade-up">
-      <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-500 grid place-items-center mx-auto text-3xl shadow-lg mb-4">✓</div>
+      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 text-white grid place-items-center mx-auto text-3xl shadow-glow mb-4">✓</div>
       <h3 className="text-xl font-display font-extrabold text-ink-900 dark:text-white mb-1">Demande envoyée !</h3>
       <p className="text-sm text-ink-500 dark:text-ink-400 max-w-sm mx-auto">
         Nous traitons votre demande dans les plus brefs délais. Vous recevrez une réponse par email.
@@ -82,7 +82,7 @@ export function RequestForm({ defaultType = 'complaint' }) {
       </div>
 
       <button type="submit" disabled={busy}
-        className="w-full py-3.5 rounded-2xl bg-brand-500 text-white font-black text-sm hover:bg-brand-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-brand-500/20">
+        className="w-full py-3.5 rounded-2xl cta-brand btn-shimmer border-0 text-white font-black text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-glow">
         {busy ? (
           <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Envoi en cours…</>
         ) : (

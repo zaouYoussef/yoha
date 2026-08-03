@@ -518,6 +518,37 @@ GLOVO_STORES = [
         "cuisine": "burger",
         "tags": ["Tacos", "Pizza", "Burger"],
         "delivery_time": "25-40 min",
+        "phone": "+212660612640",
+        "opening_hours": {
+            "monday": {
+                "is_closed": False,
+                "slots": [{"open": "00:00", "close": "02:30"}, {"open": "12:00", "close": "23:59"}],
+            },
+            "tuesday": {
+                "is_closed": False,
+                "slots": [{"open": "00:00", "close": "02:30"}, {"open": "12:00", "close": "23:59"}],
+            },
+            "wednesday": {
+                "is_closed": False,
+                "slots": [{"open": "00:00", "close": "02:30"}, {"open": "12:00", "close": "23:59"}],
+            },
+            "thursday": {
+                "is_closed": False,
+                "slots": [{"open": "00:00", "close": "02:30"}, {"open": "12:00", "close": "23:59"}],
+            },
+            "friday": {
+                "is_closed": False,
+                "slots": [{"open": "00:00", "close": "23:59"}],
+            },
+            "saturday": {
+                "is_closed": False,
+                "slots": [{"open": "00:00", "close": "02:30"}, {"open": "12:00", "close": "23:59"}],
+            },
+            "sunday": {
+                "is_closed": False,
+                "slots": [{"open": "00:00", "close": "02:30"}, {"open": "12:00", "close": "23:59"}],
+            },
+        },
     },
     {
         "slug": "vicio",

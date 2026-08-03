@@ -11,9 +11,7 @@ import { ToastViewport } from '@/components/ui/ToastViewport.jsx';
 import { CampusHospitalsSection } from '@/views/landing/LandingViews.jsx';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { useYohaNav } from '@/contexts/YohaNavContext.jsx';
-import { useCart } from '@/contexts/AppContexts.jsx';
-import { useToast } from '@/contexts/AppContexts.jsx';
-import { useOrders } from '@/contexts/AppContexts.jsx';
+import { useCart, useToast, useOrders, CartUICtx } from '@/contexts/AppContexts.jsx';
 import { filterOrdersForClient } from '@/utils/clientOrders.js';
 import { hasAnyRestaurantOpen } from '@/data/openingHours.js';
 
@@ -88,10 +86,33 @@ export function ShopShell({ children, showCampus = false }) {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [pathname]);
 
+  useEffect(() => {
+    const open = () => setCartOpen(true);
+    window.addEventListener('yoha-open-cart', open);
+    return () => window.removeEventListener('yoha-open-cart', open);
+  }, []);
+
+  const cartUI = useMemo(
+    () => ({
+      cartOpen,
+      openCart: () => {
+        setCartOpen(true);
+        try {
+          window.dispatchEvent(new CustomEvent('yoha-open-cart'));
+        } catch {
+          /* ignore */
+        }
+      },
+      closeCart: () => setCartOpen(false),
+    }),
+    [cartOpen],
+  );
+
   return (
-    <>
+    <CartUICtx.Provider value={cartUI}>
       <ScrollProgress />
-      <div className="flex min-h-screen min-h-[100dvh] flex-col overflow-x-hidden relative">
+      <div className="flex min-h-screen min-h-[100dvh] flex-col overflow-x-hidden relative bg-gradient-to-b from-amber-50/50 via-white to-violet-50/20 dark:from-ink-950 dark:via-ink-950 dark:to-ink-950">
+        <div className="pointer-events-none fixed inset-0 mesh-bg opacity-50 dark:opacity-35" aria-hidden />
         <Navbar
           dark={dark}
           setDark={setDark}
@@ -111,7 +132,7 @@ export function ShopShell({ children, showCampus = false }) {
           onMyOrders={() => goto('my-orders')}
         />
 
-        <main className="min-w-0 flex-1 overflow-x-hidden pt-16 pb-24 md:pb-0">{children}</main>
+        <main className="relative z-10 min-w-0 flex-1 overflow-x-hidden pt-16 pb-24 md:pb-0">{children}</main>
 
         {showCampus && (
           <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 pb-10 sm:pb-14">
@@ -168,6 +189,6 @@ export function ShopShell({ children, showCampus = false }) {
 
         <ToastViewport toasts={toasts} />
       </div>
-    </>
+    </CartUICtx.Provider>
   );
 }

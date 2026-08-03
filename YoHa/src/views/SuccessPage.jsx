@@ -294,7 +294,7 @@ function ProgressBarSection({ status, stepNum, displayedProgressPct, gpsCalculat
           className="h-full rounded-full animate-glow-pulse-bar relative"
           style={{
             width: `${displayedProgressPct}%`,
-            background: 'linear-gradient(90deg, #f97316, #ec4899, #eab308, #10b981)',
+            background: 'linear-gradient(90deg, #f97316, #ec4899, #8b5cf6, #f97316)',
             backgroundSize: '200% 100%',
             animation: 'snake-flow 2.2s ease-in-out infinite, glow-pulse-bar 2.4s ease-in-out infinite',
             transition: 'width 1s cubic-bezier(0.16,1,0.3,1)',
@@ -352,9 +352,14 @@ function HeroSection({ hero, status, st }) {
   return (
     <div className="text-center px-4 pt-8 sm:pt-12 animate-card-entrance">
       <div className="relative inline-block">
-        <div className={`hero-glow w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-2xl bg-gradient-to-br ${hero.gradient} shadow-xl grid place-items-center transition-transform hover:scale-105 cursor-default relative overflow-hidden`}>
-          <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent rounded-2xl" />
-          <span className="relative text-3xl sm:text-4xl" role="img" aria-hidden>{hero.emoji}</span>
+        <div
+          className={`hero-glow w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-[1.35rem] bg-gradient-to-br ${hero.gradient} shadow-2xl grid place-items-center transition-transform hover:scale-105 cursor-default relative overflow-hidden`}
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-white/25 to-transparent rounded-[1.35rem]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_55%)]" />
+          <span className="relative text-4xl sm:text-5xl drop-shadow-sm" role="img" aria-hidden>
+            {hero.emoji}
+          </span>
         </div>
         {status !== 'delivered' && (
           <span className="absolute -top-1 -right-1 flex h-4 w-4">
@@ -363,15 +368,22 @@ function HeroSection({ hero, status, st }) {
           </span>
         )}
         {status === 'delivered' && (
-          <div className="absolute -inset-4 rounded-3xl border-2 border-emerald-400/30 animate-pulse" style={{ animation: 'glow-ring-emerald 2s ease-in-out infinite' }} />
+          <div
+            className="absolute -inset-4 rounded-3xl border-2 border-emerald-400/30 animate-pulse"
+            style={{ animation: 'glow-ring-emerald 2s ease-in-out infinite' }}
+          />
         )}
       </div>
-      <h1 className="mt-3 font-display font-black text-2xl sm:text-3xl tracking-tight text-ink-900 dark:text-white animate-text-glow-slow">
+      <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.22em] text-brand-600 dark:text-brand-400">
+        YoHa · suivi live
+      </p>
+      <h1 className="mt-1.5 font-display font-black text-[clamp(1.75rem,5vw,2.35rem)] tracking-tight text-ink-900 dark:text-white animate-text-glow-slow leading-[1.1]">
         {hero.title}
       </h1>
-      <p className="mt-1 text-xs sm:text-sm text-ink-500 dark:text-ink-400 font-medium max-w-xs mx-auto leading-relaxed">
+      <p className="mt-2 text-xs sm:text-sm text-ink-500 dark:text-ink-400 font-medium max-w-sm mx-auto leading-relaxed">
         {st.clientMsg}
       </p>
+      <div className="mx-auto mt-3 h-1 w-12 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
     </div>
   );
 }
@@ -380,11 +392,11 @@ function ActionButtons({ onMyOrders, onHome }) {
   return (
     <div className="mt-5 flex flex-col sm:flex-row gap-2 px-3 sm:px-0 items-center justify-center animate-card-entrance-3">
       {onMyOrders && (
-        <Button onClick={onMyOrders} variant="secondary" size="md" className="justify-center rounded-xl text-xs sm:text-sm btn-shimmer">
+        <Button onClick={onMyOrders} variant="secondary" size="md" className="justify-center rounded-xl text-xs sm:text-sm btn-shimmer border-brand-500/20">
           Mes commandes
         </Button>
       )}
-      <Button onClick={onHome} variant="primary" size="md" className="justify-center rounded-xl text-xs sm:text-sm btn-shimmer shadow-lg shadow-brand-500/20">
+      <Button onClick={onHome} variant="primary" size="md" className="justify-center rounded-xl text-xs sm:text-sm btn-shimmer cta-brand border-0 shadow-glow">
         Commander autre chose
       </Button>
     </div>
@@ -505,17 +517,20 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   const hasCartItems = cart.length > 0;
 
   return (
-    <div className="page-enter relative min-h-screen bg-gradient-to-b from-white via-ink-50/30 to-white dark:from-ink-950 dark:via-ink-900/30 dark:to-ink-950">
+    <div className="page-enter relative min-h-screen overflow-hidden bg-gradient-to-b from-amber-50/70 via-white to-pink-50/50 dark:from-ink-950 dark:via-ink-950 dark:to-ink-950">
+      <div className="absolute inset-0 mesh-bg opacity-55 pointer-events-none" aria-hidden />
+      <div className="yoha-ambient opacity-80" aria-hidden />
+      <div className="pointer-events-none absolute top-10 left-1/2 -translate-x-1/2 w-[520px] h-[320px] rounded-full bg-brand-500/[0.1] blur-[120px]" aria-hidden />
       <FloatingParticles />
       <Confetti active={status !== 'delivered'} />
       <GlowRing gradient={hero.gradient} />
 
-      <div className="max-w-lg mx-auto pb-28 sm:pb-12">
+      <div className="relative max-w-lg mx-auto pb-28 sm:pb-12">
         {!notifPermitted && (
-          <div className="animate-card-entrance mx-3 mt-3 flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-sky-500/10 to-blue-500/10 border border-sky-200 dark:border-sky-800/40 backdrop-blur-sm">
+          <div className="animate-card-entrance mx-3 mt-3 flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-brand-500/10 via-pink-500/10 to-violet-500/10 border border-brand-500/25 dark:border-brand-500/20 backdrop-blur-sm">
             <span className="text-sm">🔔</span>
-            <p className="text-[10px] font-semibold text-sky-800 dark:text-sky-200 flex-1">Activez les notifications pour suivre en temps réel.</p>
-            <button onClick={async () => { const ok = await requestNotif(); if (ok) subscribeWebPush().catch(() => {}); }} className="shrink-0 text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-sky-500 to-blue-600 text-white hover:from-sky-600 hover:to-blue-700 transition-all shadow-md shadow-sky-500/20">
+            <p className="text-[10px] font-semibold text-ink-800 dark:text-ink-200 flex-1">Activez les notifications pour suivre en temps réel.</p>
+            <button onClick={async () => { const ok = await requestNotif(); if (ok) subscribeWebPush().catch(() => {}); }} className="shrink-0 text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg cta-brand text-white transition-all shadow-glow">
               Activer
             </button>
           </div>
@@ -524,8 +539,9 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
         <HeroSection hero={hero} status={status} st={st} />
         <DeliveryWindowBanner liveEtaWindow={liveEtaWindow} status={status} />
 
-        <div className="mt-4 mx-3 sm:mx-0 rounded-2xl bg-white/80 dark:bg-ink-900/80 border border-ink-200/60 dark:border-ink-800/50 shadow-lg backdrop-blur-xl overflow-hidden animate-card-entrance-1">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 via-pink-500 to-emerald-500" />
+        <div className="relative mt-4 mx-3 sm:mx-0 rounded-2xl bg-white/90 dark:bg-ink-900/90 border border-ink-200/60 dark:border-ink-800/50 shadow-xl shadow-brand-500/10 backdrop-blur-xl overflow-hidden animate-card-entrance-1 ring-gradient">
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
+          <div className="pointer-events-none absolute -top-20 right-0 w-48 h-48 rounded-full bg-brand-500/10 blur-3xl" aria-hidden />
           <OrderHeader orderId={orderId} order={order} status={status} />
           {status !== 'delivered' && (
             <ProgressBarSection
@@ -549,7 +565,7 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
 
       {!hasCartItems && (
         <div className="fixed bottom-0 inset-x-0 md:hidden z-40 p-3 pointer-events-none">
-          <div className="pointer-events-auto mx-auto max-w-xs rounded-2xl bg-white/95 dark:bg-ink-900/95 backdrop-blur-xl border border-ink-200/60 dark:border-ink-800/60 shadow-2xl shadow-brand-500/10 px-4 py-3 flex items-center justify-between gap-3">
+          <div className="pointer-events-auto mx-auto max-w-xs rounded-2xl bg-white/95 dark:bg-ink-900/95 backdrop-blur-xl border border-brand-500/20 dark:border-brand-500/25 shadow-2xl shadow-brand-500/15 px-4 py-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <span className="text-lg">🎉</span>
               <div>
@@ -557,7 +573,7 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
                 <div className="font-extrabold text-xs text-ink-900 dark:text-white">#{orderId?.slice(0, 8)}</div>
               </div>
             </div>
-            <button onClick={onHome} className="text-[10px] font-black uppercase tracking-widest px-3 py-2 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 text-white hover:from-brand-600 hover:to-pink-600 transition-all shadow-lg shadow-brand-500/30 btn-shimmer">
+            <button onClick={onHome} className="text-[10px] font-black uppercase tracking-widest px-3 py-2 rounded-xl cta-brand text-white transition-all shadow-glow btn-shimmer border-0">
               Re-commander
             </button>
           </div>

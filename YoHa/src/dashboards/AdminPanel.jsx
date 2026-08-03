@@ -386,7 +386,7 @@ export function AdminOverview({ orders, restaurantCount = 0 }) {
         <StatCard label="Commandes" value={orders.length} sub="Cumulé" icon={<I.Bag size={18} />} color="from-brand-500 to-orange-500" animate />
         <StatCard label="Aujourd'hui" value={today.length} sub="Dernières 24h" icon={<I.Bell size={18} />} color="from-pink-500 to-rose-500" animate />
         <StatCard label="Revenus totaux" value={totalRev} suffix=" MAD" sub="Somme des commandes" icon={<I.Star size={18} />} color="from-violet-500 to-fuchsia-500" animate />
-        <StatCard label="Actives" value={active.length} sub="Non livrées" icon={<I.Bike size={18} />} color="from-sky-500 to-indigo-500" animate />
+        <StatCard label="Actives" value={active.length} sub="Non livrées" icon={<I.Bike size={18} />} color="from-violet-500 to-fuchsia-500" animate />
         <StatCard label="Restaurants" value={restaurantCount} sub="Partenaires actifs" icon={<I.Chef size={18} />} color="from-emerald-500 to-teal-500" animate />
       </div>
 
@@ -1669,7 +1669,7 @@ export function AdminRevenue({ orders }) {
         <StatCard label="Chiffre d'affaires" value={totalRev} suffix=" MAD" icon={<I.Star size={18} />} color="from-brand-500 to-pink-500" animate />
         <StatCard label="Bénéfice brut" value={grossProf} suffix=" MAD" icon={<I.Sparkle size={18} />} color="from-violet-500 to-fuchsia-500" animate />
         <StatCard label="Bénéfice net" value={netProf} suffix=" MAD" sub={`Marge ${margin}%`} icon={<I.Award size={18} />} color="from-emerald-500 to-teal-500" animate />
-        <StatCard label="Panier moyen" value={Math.round(avgOrder)} suffix=" MAD" sub={`${filtered.length} commandes`} icon={<I.Bag size={18} />} color="from-sky-500 to-indigo-500" animate />
+        <StatCard label="Panier moyen" value={Math.round(avgOrder)} suffix=" MAD" sub={`${filtered.length} commandes`} icon={<I.Bag size={18} />} color="from-violet-500 to-fuchsia-500" animate />
       </div>
 
       {/* Commission tracking by restaurant */}

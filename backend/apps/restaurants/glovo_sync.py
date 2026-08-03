@@ -69,6 +69,8 @@ class GlovoStoreConfig:
     overrides: dict = field(default_factory=dict)
     prune: bool = True
     enabled: bool = True
+    opening_hours: dict | None = None
+    phone: str = ""
 
 
 @dataclass
@@ -98,30 +100,118 @@ class SyncReport:
 
 # ————————————————————— Verrou anti-double-course —————————————————————
 
+_lock_fd: Optional[int] = None
+
+
 def _acquire_lock() -> bool:
+    """Verrou exclusif (fcntl) — libéré auto si le process meurt (plus d'orphelins)."""
+    global _lock_fd
+    if _lock_fd is not None:
+        return True
     try:
-        fd = os.open(_LOCK_PATH, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        fd = os.open(_LOCK_PATH, os.O_CREAT | os.O_RDWR, 0o644)
+    except OSError:
+        logger.exception("glovo_sync_lock_open_failed path=%s", _LOCK_PATH)
+        return False
+
+    try:
+        import fcntl
+
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
         os.close(fd)
+        holder = _lock_holder_pid()
+        logger.warning(
+            "glovo_sync_lock_busy path=%s holder_pid=%s",
+            _LOCK_PATH,
+            holder or "?",
+        )
+        return False
+    except OSError:
+        # Fallback Windows / FS sans flock : O_EXCL + PID + stale
+        os.close(fd)
+        return _acquire_lock_fallback()
+
+    try:
+        os.ftruncate(fd, 0)
+        os.write(fd, f"{os.getpid()}\n".encode())
+        os.fsync(fd)
+    except OSError:
+        pass
+    _lock_fd = fd
+    return True
+
+
+def _lock_holder_pid() -> Optional[int]:
+    try:
+        with open(_LOCK_PATH, "r", encoding="utf-8") as fh:
+            raw = (fh.readline() or "").strip()
+        return int(raw) if raw.isdigit() else None
+    except (OSError, ValueError):
+        return None
+
+
+def _pid_alive(pid: int) -> bool:
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except OSError:
+        return False
+
+
+def _acquire_lock_fallback() -> bool:
+    """Fallback O_EXCL + PID (si flock indisponible)."""
+    global _lock_fd
+    try:
+        fd = os.open(_LOCK_PATH, os.O_CREAT | os.O_EXCL | os.O_RDWR, 0o644)
+        os.write(fd, f"{os.getpid()}\n".encode())
+        _lock_fd = fd
         return True
     except FileExistsError:
+        holder = _lock_holder_pid()
         try:
             age = time.time() - os.path.getmtime(_LOCK_PATH)
         except OSError:
+            age = _LOCK_TIMEOUT + 1
+        stale = age > _LOCK_TIMEOUT or (holder is not None and not _pid_alive(holder))
+        if not stale:
+            return False
+        try:
+            os.unlink(_LOCK_PATH)
+        except OSError:
+            return False
+        try:
+            fd = os.open(_LOCK_PATH, os.O_CREAT | os.O_EXCL | os.O_RDWR, 0o644)
+            os.write(fd, f"{os.getpid()}\n".encode())
+            _lock_fd = fd
             return True
-        if age > _LOCK_TIMEOUT:
-            try:
-                os.unlink(_LOCK_PATH)
-                fd = os.open(_LOCK_PATH, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-                os.close(fd)
-                return True
-            except (OSError, FileExistsError):
-                return False
-        return False
+        except (OSError, FileExistsError):
+            return False
     except OSError:
-        return True
+        return False
 
 
 def _release_lock() -> None:
+    global _lock_fd
+    fd = _lock_fd
+    _lock_fd = None
+    if fd is not None:
+        try:
+            import fcntl
+
+            fcntl.flock(fd, fcntl.LOCK_UN)
+        except OSError:
+            pass
+        try:
+            os.close(fd)
+        except OSError:
+            pass
     try:
         os.unlink(_LOCK_PATH)
     except OSError:
@@ -161,6 +251,8 @@ def _config_from_dict(slug: str, base: dict, recipe: dict, db: dict) -> GlovoSto
         overrides=merged.get("overrides", {}),
         prune=merged.get("prune", True),
         enabled=merged.get("enabled", True),
+        opening_hours=merged.get("opening_hours"),
+        phone=merged.get("phone", "") or "",
     )
 
 
@@ -226,13 +318,69 @@ def _fetch_menu(store: GlovoStoreConfig) -> List[GlovoSection]:
     Depuis août 2026 Glovo ne sert plus le menu dans le HTML public (rendu
     côté client, plus de `initialStoreContent`) : l'API est la source fiable.
     Le scrap HTML reste un secours si les ids API manquent ou si l'API échoue.
+
+    Dans les deux cas, les sauces/tailles/extras sont enrichis via le détail
+    produit (`/products/{id}`) car la liste omet souvent `attributeGroups`.
     """
+    sections: List[GlovoSection]
     if store.store_id and store.address_id:
         try:
-            return _client_api(store, store.store_id, store.address_id).fetch_full_menu()
+            sections = _client_api(store, store.store_id, store.address_id).fetch_full_menu()
+            return sections
         except GlovoError as exc:
             logger.info("glovo_api_failed %s — %s ; fallback HTML", store.slug, exc)
-    return _client(store).fetch_full_menu()
+    sections = _client(store).fetch_full_menu()
+    if store.store_id and store.address_id:
+        try:
+            api = _client_api(store, store.store_id, store.address_id)
+            n = api.enrich_sections_modifiers(sections)
+            if n:
+                logger.info("glovo_modifiers_enriched_html_fallback store=%s n=%d", store.slug, n)
+        except Exception:  # noqa: BLE001
+            logger.exception("glovo_modifiers_enrich_html_failed %s", store.slug)
+    return sections
+
+
+def _sync_store_profile(restaurant: Restaurant, store: GlovoStoreConfig) -> None:
+    """Téléphone + horaires (config GLOVO_STORES / profil Glovo / OSM)."""
+    from apps.restaurants.opening_hours import normalize_opening_hours
+
+    fields: dict = {}
+    if store.opening_hours:
+        fields["opening_hours"] = normalize_opening_hours(store.opening_hours)
+    if store.phone:
+        fields["phone"] = store.phone[:30]
+
+    profile = None
+    if store.store_id:
+        try:
+            api = _client_api(store, store.store_id, store.address_id or 0)
+            profile = api.fetch_store_profile()
+        except GlovoError as exc:
+            logger.info("glovo_store_profile_failed %s — %s", store.slug, exc)
+
+    if profile:
+        if profile.phone and "phone" not in fields:
+            fields["phone"] = profile.phone[:30]
+        if profile.address and not (restaurant.description or "").strip():
+            fields["description"] = f"{profile.name or restaurant.name} — {profile.address}"[:500]
+        if "opening_hours" not in fields and profile.latitude is not None and profile.longitude is not None:
+            try:
+                from apps.restaurants.opening_hours import fetch_osm_opening_hours
+
+                hours = fetch_osm_opening_hours(
+                    profile.latitude,
+                    profile.longitude,
+                    name=profile.name or restaurant.name,
+                )
+                if hours:
+                    fields["opening_hours"] = hours
+            except Exception:  # noqa: BLE001
+                logger.exception("osm_hours_failed %s", store.slug)
+
+    if fields:
+        Restaurant.objects.filter(pk=restaurant.pk).update(**fields)
+        restaurant.refresh_from_db()
 
 
 def _fill_store_images(store: GlovoStoreConfig) -> None:
@@ -325,7 +473,7 @@ def _apply_menu(restaurant: Restaurant, store: GlovoStoreConfig, sections: List[
                     "description": product.description[:300],
                     "ingredients": product.description,
                     "price_mad": Decimal(str(product.price_mad)),
-                    "image_url": product.image_url[:500],
+                    "image_url": (product.image_url or "")[:500],
                     "is_available": not product.out_of_stock,
                     "sort_order": item_order,
                 },
@@ -353,6 +501,9 @@ def _apply_menu(restaurant: Restaurant, store: GlovoStoreConfig, sections: List[
 
 def _apply_modifiers(item: MenuItem, product: GlovoProduct) -> None:
     """Upsert des groupes d'options (tailles, sauces, extras…) du produit."""
+    if getattr(item, "modifiers_manual", False):
+        # Éditions panel restaurant : ne pas écraser sauces/suppléments
+        return
     keep_group_ids: set[int] = set()
     for group_order, group in enumerate(product.modifier_groups):
         grp, _ = MenuItemModifierGroup.objects.update_or_create(
@@ -457,6 +608,7 @@ def sync_glovo_menu(store: GlovoStoreConfig, *, dry_run: bool = False, force: bo
 
     try:
         _apply_menu(restaurant, store, sections, report)
+        _sync_store_profile(restaurant, store)
         Restaurant.objects.filter(pk=restaurant.pk).update(
             glovo_synced_at=timezone.now(),
             glovo_enabled=True,

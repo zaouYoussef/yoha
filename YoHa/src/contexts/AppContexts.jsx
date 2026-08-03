@@ -49,3 +49,12 @@ export const useCart = () => {
   }
   return ctx;
 };
+
+/** Ouvre / ferme le tiroir panier depuis n’importe quel écran (modal plat, toast…). */
+export const CartUICtx = createContext({
+  cartOpen: false,
+  openCart: () => {},
+  closeCart: () => {},
+});
+export const useCartUI = () =>
+  useContext(CartUICtx) || { cartOpen: false, openCart: () => {}, closeCart: () => {} };

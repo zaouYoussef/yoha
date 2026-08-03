@@ -4,13 +4,13 @@ import React from 'react';
 import { I } from '../../icons/Icons.jsx';
 
 export function Card({ children, className = '' }) {
-  return <div className={`bg-white dark:bg-ink-900 border border-ink-200/70 dark:border-ink-800 rounded-2xl sm:rounded-3xl shadow-sm overflow-hidden ${className}`}>{children}</div>;
+  return <div className={`relative bg-white dark:bg-ink-900 border border-ink-200/70 dark:border-ink-800 rounded-2xl sm:rounded-3xl shadow-sm overflow-hidden ${className}`}>{children}</div>;
 }
 
 export function CardHeader({ icon, title }) {
   return (
-    <div className="flex items-center gap-2.5 px-3.5 sm:px-6 h-12 sm:h-14 border-b border-ink-100 dark:border-ink-800">
-      <span className="text-brand-500 shrink-0">{icon}</span>
+    <div className="flex items-center gap-2.5 px-3.5 sm:px-6 h-12 sm:h-14 border-b border-ink-100 dark:border-ink-800 bg-gradient-to-r from-brand-500/[0.04] via-transparent to-pink-500/[0.04]">
+      <span className="w-8 h-8 rounded-xl bg-brand-500/10 text-brand-500 grid place-items-center shrink-0">{icon}</span>
       <h3 className="font-display font-extrabold text-xs sm:text-base text-ink-900 dark:text-white truncate">{title}</h3>
     </div>
   );

@@ -125,26 +125,38 @@ export function AuthPage({ redirect, goto, goHome }) {
   };
 
   return (
-    <div className="page-enter relative min-h-[calc(100dvh-8rem)] flex flex-col items-center justify-center px-4 py-10 overflow-hidden">
-      {/* Ambiance : les mêmes blobs animés que le Hero, pour que cette page
-          ne soit plus la seule totalement statique de l'app. */}
+    <div className="page-enter relative min-h-[calc(100dvh-8rem)] flex flex-col items-center justify-center px-4 py-10 overflow-hidden bg-gradient-to-b from-amber-50/50 via-white to-pink-50/30 dark:from-ink-950 dark:via-ink-950 dark:to-ink-950">
+      <div className="absolute inset-0 bg-gradient-to-br from-brand-500/10 via-pink-500/5 to-violet-500/10 pointer-events-none" aria-hidden />
       <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute top-[-15%] left-[-10%] w-[22rem] h-[22rem] rounded-full bg-brand-400/30 blur-3xl animate-blob" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[24rem] h-[24rem] rounded-full bg-violet-400/25 blur-3xl animate-blob" style={{ animationDelay: '5s' }} />
+        <div className="absolute top-[-15%] left-[-10%] w-[18rem] h-[18rem] rounded-full bg-brand-400/25 blur-3xl" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[20rem] h-[20rem] rounded-full bg-violet-400/20 blur-3xl" />
       </div>
 
-      <div className="w-full max-w-md">
+      <div className="relative w-full max-w-md stagger-children">
         <button
           type="button"
           onClick={goHome}
-          className="cursor-grow inline-flex items-center gap-2 mb-6 text-sm text-ink-500 hover:text-brand-500 transition"
+          className="cursor-grow inline-flex items-center gap-2 mb-6 px-3 py-2 rounded-xl text-sm text-ink-500 hover:text-brand-500 hover:bg-white/60 dark:hover:bg-ink-900/60 transition"
         >
           <I.Left size={18}/> Retour
         </button>
 
-        <div className="rounded-3xl border border-ink-200/70 bg-white/90 dark:bg-ink-900/80 dark:border-ink-800 shadow-card backdrop-blur-xl p-6 sm:p-8 animate-fade-up">
-          <h1 className="font-display font-extrabold text-2xl sm:text-3xl tracking-tight text-center">
-            {tab === 'login' ? 'Connexion' : 'Créer un compte client'}
+        <div className="relative rounded-[1.75rem] border border-ink-200/70 bg-white/95 dark:bg-ink-900/85 dark:border-ink-800 shadow-cardhover shadow-glow backdrop-blur-xl p-6 sm:p-8 ring-gradient overflow-hidden">
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" aria-hidden />
+          <p className="text-center text-[10px] font-bold uppercase tracking-[0.22em] text-brand-600 dark:text-brand-400">
+            YoHa Account
+          </p>
+          <h1 className="mt-2 font-display font-black text-2xl sm:text-3xl tracking-tight text-center text-ink-900 dark:text-white">
+            {tab === 'login' ? (
+              <>
+                Bon retour{' '}
+                <span className="bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 bg-clip-text text-transparent">👋</span>
+              </>
+            ) : (
+              <span className="bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 bg-clip-text text-transparent">
+                Créer un compte
+              </span>
+            )}
           </h1>
           <p className="mt-2 text-center text-sm text-ink-500 dark:text-ink-400">
             {tab === 'login'
@@ -153,7 +165,7 @@ export function AuthPage({ redirect, goto, goHome }) {
           </p>
 
           {redirect && (
-            <div className="mt-4 rounded-2xl bg-brand-500/10 border border-brand-500/25 px-4 py-3 text-sm text-ink-700 dark:text-ink-200">
+            <div className="mt-4 rounded-2xl bg-gradient-to-r from-brand-500/10 via-pink-500/10 to-violet-500/10 border border-brand-500/25 px-4 py-3 text-sm text-ink-700 dark:text-ink-200">
               Connexion requise pour l’espace <strong>{roleLabelForDashboard(redirect)}</strong>.
             </div>
           )}
@@ -181,14 +193,14 @@ export function AuthPage({ redirect, goto, goHome }) {
             <button
               type="button"
               onClick={() => { setTab('login'); setErr(''); }}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition ${tab === 'login' ? 'bg-white dark:bg-ink-900 shadow-sm' : 'text-ink-500'}`}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition ${tab === 'login' ? 'bg-white dark:bg-ink-900 shadow-sm text-brand-600 dark:text-brand-400' : 'text-ink-500'}`}
             >
               Connexion
             </button>
             <button
               type="button"
               onClick={() => { setTab('register'); setErr(''); }}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition ${tab === 'register' ? 'bg-white dark:bg-ink-900 shadow-sm' : 'text-ink-500'}`}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition ${tab === 'register' ? 'bg-white dark:bg-ink-900 shadow-sm text-brand-600 dark:text-brand-400' : 'text-ink-500'}`}
             >
               Inscription
             </button>
@@ -198,7 +210,7 @@ export function AuthPage({ redirect, goto, goHome }) {
             type="button"
             onClick={handleGoogle}
             disabled={googleLoading}
-            className="cursor-grow mt-5 w-full inline-flex items-center justify-center gap-3 rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 px-4 py-3 text-sm font-semibold text-ink-700 dark:text-ink-200 shadow-sm disabled:opacity-60 transition"
+            className="cursor-grow mt-5 w-full inline-flex items-center justify-center gap-3 rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 px-4 py-3 text-sm font-semibold text-ink-700 dark:text-ink-200 shadow-sm hover:border-brand-400/40 hover:shadow-md disabled:opacity-60 transition"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -242,7 +254,7 @@ export function AuthPage({ redirect, goto, goHome }) {
                 />
               </label>
               {err && <p className="text-sm text-red-600 dark:text-red-400">{err}</p>}
-              <Button type="submit" variant="primary" size="lg" className="w-full justify-center" disabled={loading}>
+              <Button type="submit" variant="primary" size="lg" className="w-full justify-center btn-shimmer cta-brand border-0" disabled={loading}>
                 {loading ? 'Connexion…' : 'Se connecter'}
               </Button>
             </form>
@@ -284,7 +296,7 @@ export function AuthPage({ redirect, goto, goHome }) {
                 />
               </label>
               {err && <p className="text-sm text-red-600 dark:text-red-400">{err}</p>}
-              <Button type="submit" variant="primary" size="lg" className="w-full justify-center" disabled={loading}>
+              <Button type="submit" variant="primary" size="lg" className="w-full justify-center btn-shimmer cta-brand border-0" disabled={loading}>
                 {loading ? 'Création…' : 'Créer mon compte'}
               </Button>
             </form>

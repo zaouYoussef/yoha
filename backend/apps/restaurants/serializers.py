@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.db.models import Count
+from decimal import Decimal
 from rest_framework import serializers
 
 from .models import (
@@ -47,6 +48,53 @@ class MenuItemModifierGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = MenuItemModifierGroup
         fields = ("name", "min", "max", "options")
+
+
+class ModifierOptionInputSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=120)
+    price = serializers.DecimalField(
+        max_digits=10, decimal_places=2, required=False, default=Decimal("0.00")
+    )
+
+
+class ModifierGroupInputSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=120)
+    min = serializers.IntegerField(min_value=0, max_value=99, required=False, default=0)
+    max = serializers.IntegerField(min_value=0, max_value=99, required=False, default=1)
+    options = ModifierOptionInputSerializer(many=True, required=False)
+
+    def validate(self, attrs):
+        mn = int(attrs.get("min", 0) or 0)
+        mx = int(attrs.get("max", 1) or 0)
+        if mx < mn:
+            raise serializers.ValidationError({"max": "Doit être ≥ min."})
+        options = attrs.get("options") or []
+        if not options:
+            raise serializers.ValidationError({"options": "Ajoutez au moins une option."})
+        names = [o["name"].strip().lower() for o in options]
+        if len(names) != len(set(names)):
+            raise serializers.ValidationError({"options": "Noms d'options en double."})
+        return attrs
+
+
+def replace_menu_item_modifiers(item, groups_data):
+    """Remplace entièrement les groupes d'options d'un plat."""
+    item.modifier_groups.all().delete()
+    for group_order, group in enumerate(groups_data or []):
+        grp = MenuItemModifierGroup.objects.create(
+            menu_item=item,
+            name=str(group["name"]).strip()[:120],
+            min_selected=int(group.get("min", 0) or 0),
+            max_selected=int(group.get("max", 1) or 0),
+            sort_order=group_order,
+        )
+        for option_order, option in enumerate(group.get("options") or []):
+            MenuItemModifierOption.objects.create(
+                group=grp,
+                name=str(option["name"]).strip()[:120],
+                price_impact=Decimal(str(option.get("price") or 0)),
+                sort_order=option_order,
+            )
 
 
 class MenuItemSerializer(serializers.ModelSerializer):
@@ -228,10 +276,20 @@ class MenuItemWriteSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source="external_id", required=False, allow_blank=True)
     desc = serializers.CharField(source="description", required=False, allow_blank=True)
     price = serializers.DecimalField(source="price_mad", max_digits=10, decimal_places=2)
+    modifierGroups = ModifierGroupInputSerializer(many=True, required=False, write_only=True)
 
     class Meta:
         model = MenuItem
-        fields = ("id", "name", "desc", "ingredients", "price", "is_available", "sort_order")
+        fields = (
+            "id",
+            "name",
+            "desc",
+            "ingredients",
+            "price",
+            "is_available",
+            "sort_order",
+            "modifierGroups",
+        )
 
     def validate_id(self, value):
         if not value:
@@ -243,6 +301,38 @@ class MenuItemWriteSerializer(serializers.ModelSerializer):
         if qs.exists():
             raise serializers.ValidationError("ID plat déjà utilisé dans ce restaurant.")
         return value
+
+    def validate_modifierGroups(self, value):
+        names = [str(g.get("name", "")).strip().lower() for g in value or []]
+        if len(names) != len(set(names)):
+            raise serializers.ValidationError("Noms de groupes en double.")
+        return value
+
+    def create(self, validated_data):
+        groups = validated_data.pop("modifierGroups", None)
+        item = super().create(validated_data)
+        if groups is not None:
+            replace_menu_item_modifiers(item, groups)
+            item.modifiers_manual = True
+            item.save(update_fields=["modifiers_manual"])
+        return item
+
+    def update(self, instance, validated_data):
+        groups = validated_data.pop("modifierGroups", None)
+        instance = super().update(instance, validated_data)
+        if groups is not None:
+            replace_menu_item_modifiers(instance, groups)
+            instance.modifiers_manual = True
+            instance.save(update_fields=["modifiers_manual"])
+        return instance
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["modifierGroups"] = MenuItemModifierGroupSerializer(
+            instance.modifier_groups.all(), many=True
+        ).data
+        data["db_id"] = instance.pk
+        return data
 
 
 class RestaurantOfferSerializer(serializers.ModelSerializer):

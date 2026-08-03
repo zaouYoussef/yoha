@@ -218,45 +218,35 @@ const CATEGORY_GLOW = {
 
 function BrowseHero({ name, search, onSearchChange, openCount, totalCount }) {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-amber-50/80 via-white to-orange-50/60 dark:from-ink-950 dark:via-[#0d0704] dark:to-ink-950">
-      <div className="absolute inset-0 mesh-bg pointer-events-none" aria-hidden />
-      <div className="yoha-ambient" aria-hidden />
-      <div className="absolute top-[-40%] right-[-20%] w-[500px] h-[500px] rounded-full bg-brand-500/[0.06] dark:bg-brand-500/10 blur-[100px] pointer-events-none" aria-hidden />
-      <div className="absolute bottom-[-30%] left-[-10%] w-[400px] h-[400px] rounded-full bg-pink-500/[0.05] dark:bg-pink-500/8 blur-[80px] pointer-events-none" aria-hidden />
+    <section className="relative overflow-hidden">
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-[radial-gradient(120%_80%_at_0%_0%,rgba(249,115,22,0.22),transparent_55%),radial-gradient(90%_70%_at_100%_10%,rgba(236,72,153,0.16),transparent_50%),radial-gradient(70%_60%_at_50%_100%,rgba(139,92,246,0.12),transparent_55%)] dark:bg-[radial-gradient(120%_80%_at_0%_0%,rgba(249,115,22,0.28),transparent_55%),radial-gradient(90%_70%_at_100%_10%,rgba(236,72,153,0.18),transparent_50%),radial-gradient(70%_60%_at_50%_100%,rgba(139,92,246,0.2),transparent_55%)]"
+      />
+      <div className="absolute inset-0 bg-white/55 dark:bg-ink-950/70 pointer-events-none" aria-hidden />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-5 pb-5 stagger-children">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-ink-900/90 border border-ink-100 dark:border-ink-800 shadow-sm backdrop-blur-md animate-border-glow">
-              <I.MapPin size={14} className="text-brand-500" />
-              <span className="text-sm font-semibold text-ink-900 dark:text-white">CHU-Tanger</span>
-            </div>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-6 sm:pt-8 sm:pb-8">
+        <div className="flex items-center justify-between gap-3 mb-5">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-ink-900 text-white dark:bg-white dark:text-ink-950 text-xs font-bold shadow-sm">
+            <I.MapPin size={13} />
+            Alliance · CHU
           </div>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-500/20">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             {openCount} ouverts
+            {totalCount ? <span className="text-ink-400 font-semibold">/ {totalCount}</span> : null}
           </span>
         </div>
 
-        <div className="mb-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400 mb-1.5">
-            YoHa · Tanger
-          </p>
-          <h1 className="font-display font-black text-hero-mobile sm:text-3xl lg:text-4xl tracking-tight text-ink-900 dark:text-white animate-text-glow-slow">
-            {timeGreeting()},{' '}
-            <span className="bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 bg-clip-text text-transparent">{name}</span>
-            <span className="inline-block ml-1 animate-wiggle">👋</span>
-          </h1>
-          <p className="mt-2 text-sm text-ink-500 dark:text-ink-400">
-            Livraison · Maintenant · 🏍️ Frais offerts
-            {totalCount ? <span className="text-ink-400"> · {totalCount} adresses</span> : null}
-          </p>
-        </div>
+        <h1 className="font-display font-black tracking-tight text-[2.15rem] sm:text-4xl lg:text-5xl leading-[1.05] text-ink-900 dark:text-white max-w-3xl">
+          <span className="block text-gradient text-[0.72em] sm:text-[0.78em] mb-1">YoHa</span>
+          {timeGreeting()}, {name}
+        </h1>
+        <p className="mt-2.5 text-sm sm:text-base text-ink-500 dark:text-ink-400 max-w-xl">
+          Livraison offerte · frais offerts sur toute l&apos;Alliance Tangéroise
+        </p>
 
-        <div>
+        <div className="mt-5 sm:mt-6">
           <SearchBar value={search} onChange={onSearchChange} variant="hero" />
         </div>
       </div>
@@ -274,15 +264,14 @@ function FeaturedSpotlight({ restaurant, onClick }) {
         <button
           type="button"
           onClick={onClick}
-          onMouseMove={spotlightHandler}
-          className="cursor-grow group relative w-full text-left overflow-hidden rounded-[2rem] border border-brand-500/20 shadow-glow-lg spotlight transition-transform duration-500 hover:shadow-glow card-glow-hover"
+          className="cursor-grow group relative w-full text-left overflow-hidden rounded-[2rem] border border-brand-500/20 shadow-glow-lg transition-shadow duration-500 hover:shadow-glow card-glow-hover"
           style={{ '--glow-color': 'rgba(249,115,22,0.45)' }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/80 to-transparent z-10" />
           <img
             src={restaurantCover(restaurant.cover)}
             alt=""
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out will-change-transform"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
           />
           {/* Animated gradient mesh visible only on hover */}
           <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.15)_0%,rgba(236,72,153,0.1)_30%,transparent_50%)] animate-rotate-slow pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10" />
@@ -362,10 +351,18 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   const restaurants = useMemo(() => {
     let list = [...catalog];
 
-    if (['dessert', 'pharmacy', 'parapharmacy', 'supermarket', 'shop', 'patisserie'].includes(filter)) {
-      list = STATIC_STORES.filter((s) => 
-        filter === 'dessert' ? (s.cuisine === 'dessert' || s.cuisine === 'patisserie') : s.cuisine === filter
-      );
+    if (['pharmacy', 'parapharmacy', 'supermarket', 'shop'].includes(filter)) {
+      list = STATIC_STORES.filter((s) => s.cuisine === filter);
+    } else if (filter === 'dessert' || filter === 'patisserie') {
+      const staticDesserts = STATIC_STORES.filter((s) => s.cuisine === 'dessert' || s.cuisine === 'patisserie');
+      const catalogDesserts = catalog.filter((r) => r.cuisine === 'dessert' || r.cuisine === 'patisserie');
+      const seen = new Set();
+      list = [...catalogDesserts, ...staticDesserts].filter((r) => {
+        const key = r.id || r.slug || r.name;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
     } else if (filter === 'all' && customResto) {
       list = [customResto, ...catalog];
     }
@@ -459,9 +456,9 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     });
   };
 
-  // Only real food restaurants (exclude non-food static stores like pharmacy, supermarket, patisserie)
+  // Food partners from catalog (exclude pharmacies / supermarchés / shops only)
   const foodRestaurants = useMemo(() => {
-    const nonFoodCuisines = ['pharmacy', 'parapharmacy', 'supermarket', 'shop', 'dessert', 'patisserie'];
+    const nonFoodCuisines = ['pharmacy', 'parapharmacy', 'supermarket', 'shop'];
     const seen = new Set();
     return catalog.filter((r) => {
       if (!r || !r.name) return false;
@@ -473,15 +470,18 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     });
   }, [catalog]);
 
-  const seedRef = useRef(Date.now() + Math.random());
+  const [homeSeed, setHomeSeed] = useState(0);
+  useEffect(() => {
+    setHomeSeed(Date.now() + Math.random());
+  }, []);
 
-  const freeDeliveryList = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 101), [foodRestaurants]);
-  const featuredList = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 202), [foodRestaurants]);
-  const popularRestaurants = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 303), [foodRestaurants]);
-  const fastDelivery = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 404), [foodRestaurants]);
-  const promoRestaurants = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 505), [foodRestaurants]);
-  const topRatedList = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 606), [foodRestaurants]);
-  const favoritesList = useMemo(() => shuffleWithSeed(foodRestaurants, seedRef.current + 707), [foodRestaurants]);
+  const freeDeliveryList = useMemo(() => shuffleWithSeed(foodRestaurants, homeSeed + 101), [foodRestaurants, homeSeed]);
+  const featuredList = useMemo(() => shuffleWithSeed(foodRestaurants, homeSeed + 202), [foodRestaurants, homeSeed]);
+  const popularRestaurants = useMemo(() => shuffleWithSeed(foodRestaurants, homeSeed + 303), [foodRestaurants, homeSeed]);
+  const fastDelivery = useMemo(() => shuffleWithSeed(foodRestaurants, homeSeed + 404), [foodRestaurants, homeSeed]);
+  const promoRestaurants = useMemo(() => shuffleWithSeed(foodRestaurants, homeSeed + 505), [foodRestaurants, homeSeed]);
+  const topRatedList = useMemo(() => shuffleWithSeed(foodRestaurants, homeSeed + 606), [foodRestaurants, homeSeed]);
+  const favoritesList = useMemo(() => shuffleWithSeed(foodRestaurants, homeSeed + 707), [foodRestaurants, homeSeed]);
 
   const burgerList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'burger' || r.tags?.includes('Burgers') || r.name.toLowerCase().includes('burger')), [foodRestaurants]);
   const pizzaList = useMemo(() => foodRestaurants.filter(r => r.cuisine === 'pizza' || r.tags?.includes('Pizza') || r.name.toLowerCase().includes('pizza')), [foodRestaurants]);
@@ -567,6 +567,248 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       (Array.isArray(r.tags) && r.tags.some(t => t.toLowerCase() === filter.toLowerCase()))
     );
   }, [filter, promoRestaurants, popularRestaurants, fastDelivery, topRatedList, favoritesList, burgerList, pizzaList, asianList, dessertItems, pharmacyItems, paraItems, marketItems, shopItems, foodRestaurants]);
+
+  const homeSections = useMemo(() => {
+    const sections = [
+      chainsList.length > 0 && (
+        <HorizontalRow
+          key="chains"
+          title="🍟 Les grandes enseignes"
+          subtitle="McDonald's, KFC, Pizza Hut… on achète pour vous"
+          count={chainsList.length}
+        >
+          {chainsList.map((r) => (
+            <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          ))}
+        </HorizontalRow>
+      ),
+
+      <HorizontalRow
+        key="free"
+        title="Frais de livraison offerts"
+        subtitle="Livraison 0 MAD sur tout l'Alliance & CHU"
+        count={freeDeliveryList.length}
+        onSeeAll={() => applyFilter('free_delivery')}
+      >
+        {freeDeliveryList.map((r) => (
+          <RestaurantCardHorizontal key={`free-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
+        ))}
+      </HorizontalRow>,
+
+      <section key="featured" className="px-4 sm:px-0">
+        <div className="flex flex-col mb-2">
+          <h2 className="font-display font-black text-lg sm:text-xl text-ink-900 dark:text-white">À la une</h2>
+          <p className="text-xs text-ink-500 dark:text-ink-400 font-medium mt-0.5">Annonces payantes de nos partenaires</p>
+        </div>
+        <div className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
+          {featuredList.map((r) => (
+            <RestaurantCardHorizontal key={`featured-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
+          ))}
+        </div>
+      </section>,
+
+      <div key="brands">
+        <DeliverooPopularBrandsSection restaurants={foodRestaurants} onPick={onPickRestaurant} />
+      </div>,
+
+      <HorizontalRow
+        key="popular"
+        title="🔥 Populaires dans votre quartier"
+        subtitle="Établissements très prisés au campus & hôpitaux"
+        count={popularRestaurants.length}
+        onSeeAll={() => applyFilter('popular')}
+      >
+        {popularRestaurants.slice(0, 10).map((r) => (
+          <RestaurantCardHorizontal key={`pop-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+        ))}
+      </HorizontalRow>,
+
+      <HorizontalRow
+        key="fast"
+        title="⚡ Frais de livraison tout doux"
+        subtitle="Livraison ultra rapide en moins de 30 min"
+        count={fastDelivery.length}
+        onSeeAll={() => applyFilter('fast')}
+      >
+        {fastDelivery.slice(0, 10).map((r) => (
+          <RestaurantCardHorizontal key={`fast-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+        ))}
+      </HorizontalRow>,
+
+      promoRestaurants.length > 0 && (
+        <HorizontalRow
+          key="promo"
+          title="🎁 Offres près de chez vous"
+          subtitle="Promotions actives et menus avantageux"
+          count={promoRestaurants.length}
+          onSeeAll={() => applyFilter('offers')}
+        >
+          {promoRestaurants.slice(0, 10).map((r) => (
+            <RestaurantCardHorizontal key={`promo-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
+          ))}
+        </HorizontalRow>
+      ),
+
+      <HorizontalRow
+        key="top"
+        title="🌟 Mieux notés"
+        subtitle="Les meilleures adresses notées 4.8 et plus"
+        count={topRatedList.length}
+        onSeeAll={() => applyFilter('top_rated')}
+      >
+        {topRatedList.slice(0, 10).map((r) => (
+          <RestaurantCardHorizontal key={`top-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+        ))}
+      </HorizontalRow>,
+
+      <HorizontalRow
+        key="fav"
+        title="❤️ Favoris les plus populaires"
+        subtitle="Adresses fréquemment ajoutées en coup de cœur"
+        count={favoritesList.length}
+        onSeeAll={() => applyFilter('favorites')}
+      >
+        {favoritesList.slice(0, 10).map((r) => (
+          <RestaurantCardHorizontal key={`fav-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+        ))}
+      </HorizontalRow>,
+
+      burgerList.length > 0 && (
+        <HorizontalRow
+          key="burger"
+          title="🍔 Burgers"
+          subtitle="Smash burgers, double cheese et frites dorées"
+          count={burgerList.length}
+          onSeeAll={() => applyFilter('burgers_sec')}
+        >
+          {burgerList.slice(0, 10).map((r) => (
+            <RestaurantCardHorizontal key={`burger-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          ))}
+        </HorizontalRow>
+      ),
+
+      pizzaList.length > 0 && (
+        <HorizontalRow
+          key="pizza"
+          title="🍕 Pizzas"
+          subtitle="Pizzas napolitaines et recettes italiennes"
+          count={pizzaList.length}
+          onSeeAll={() => applyFilter('pizzas_sec')}
+        >
+          {pizzaList.slice(0, 10).map((r) => (
+            <RestaurantCardHorizontal key={`pizza-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          ))}
+        </HorizontalRow>
+      ),
+
+      asianList.length > 0 && (
+        <HorizontalRow
+          key="asian"
+          title="🍣 Asian & Sushi"
+          subtitle="Maki, nigiri, pad thaï et ramen chaud"
+          count={asianList.length}
+          onSeeAll={() => applyFilter('asian_sec')}
+        >
+          {asianList.slice(0, 10).map((r) => (
+            <RestaurantCardHorizontal key={`asian-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          ))}
+        </HorizontalRow>
+      ),
+
+      kebabList.length > 0 && (
+        <HorizontalRow
+          key="kebab"
+          title="🥙 Shawarma & Kebab"
+          subtitle="Kebab grillé au feu de bois, shawarma libanais & sauces maison"
+          count={kebabList.length}
+          onSeeAll={() => applyFilter('kebab_sec')}
+        >
+          {kebabList.slice(0, 10).map((r) => (
+            <RestaurantCardHorizontal key={`kebab-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          ))}
+        </HorizontalRow>
+      ),
+
+      tacosList.length > 0 && (
+        <HorizontalRow
+          key="tacos"
+          title="🌮 Tacos & Wraps"
+          subtitle="French tacos généreux, gratinés au fromage & wraps gourmands"
+          count={tacosList.length}
+          onSeeAll={() => applyFilter('tacos_sec')}
+        >
+          {tacosList.slice(0, 10).map((r) => (
+            <RestaurantCardHorizontal key={`tacos-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          ))}
+        </HorizontalRow>
+      ),
+
+      sandwichList.length > 0 && (
+        <HorizontalRow
+          key="sandwich"
+          title="🥪 Sandwichs & Snacks"
+          subtitle="Sandwichs chauds, paninis croustillants & snacks de quartier"
+          count={sandwichList.length}
+          onSeeAll={() => applyFilter('sandwich_sec')}
+        >
+          {sandwichList.map((r) => (
+            <RestaurantCardHorizontal key={`snack-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          ))}
+        </HorizontalRow>
+      ),
+
+      healthyList.length > 0 && (
+        <HorizontalRow
+          key="healthy"
+          title="🥗 Bowls & Salades Healthy"
+          subtitle="Poke bowls frais, salades composées & menus hôpital MedEat"
+          count={healthyList.length}
+          onSeeAll={() => applyFilter('healthy_sec')}
+        >
+          {healthyList.slice(0, 10).map((r) => (
+            <RestaurantCardHorizontal key={`healthy-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          ))}
+        </HorizontalRow>
+      ),
+
+      chickenList.length > 0 && (
+        <HorizontalRow
+          key="chicken"
+          title="🍗 Poulet Rôti & Crispy Chicken"
+          subtitle="Poulet braisé, tenders croustillants & wings épicés"
+          count={chickenList.length}
+          onSeeAll={() => applyFilter('chicken_sec')}
+        >
+          {chickenList.slice(0, 10).map((r) => (
+            <RestaurantCardHorizontal key={`chicken-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          ))}
+        </HorizontalRow>
+      ),
+    ].filter(Boolean);
+
+    return homeSeed ? shuffleWithSeed(sections, homeSeed + 888) : sections;
+  }, [
+    homeSeed,
+    foodRestaurants,
+    chainsList,
+    freeDeliveryList,
+    featuredList,
+    popularRestaurants,
+    fastDelivery,
+    promoRestaurants,
+    topRatedList,
+    favoritesList,
+    burgerList,
+    pizzaList,
+    asianList,
+    kebabList,
+    tacosList,
+    sandwichList,
+    healthyList,
+    chickenList,
+    onPickRestaurant,
+    applyFilter,
+  ]);
 
   const isDefault = filter === 'all' && !search.trim();
 
@@ -816,221 +1058,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 </section>
               )}
 
-              {/* 1. Les grandes enseignes */}
-              {chainsList.length > 0 && (
-                <HorizontalRow
-                  title="🍟 Les grandes enseignes"
-                  subtitle="McDonald's, KFC, Pizza Hut… on achète pour vous"
-                  count={chainsList.length}
-                >
-                  {chainsList.map((r) => (
-                    <RestaurantCardHorizontal key={r.id} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                  ))}
-                </HorizontalRow>
-              )}
-
-              {/* 2. Frais de livraison offerts */}
-              <HorizontalRow
-                title="Frais de livraison offerts"
-                subtitle="Livraison 0 MAD sur tout l'Alliance & CHU"
-                count={freeDeliveryList.length}
-                onSeeAll={() => applyFilter('free_delivery')}
-              >
-                {freeDeliveryList.map((r) => (
-                  <RestaurantCardHorizontal key={`free-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
-                ))}
-              </HorizontalRow>
-
-              {/* 2. À la une */}
-              <section className="px-4 sm:px-0">
-                <div className="flex flex-col mb-2">
-                  <h2 className="font-display font-black text-lg sm:text-xl text-ink-900 dark:text-white">À la une</h2>
-                  <p className="text-xs text-ink-500 dark:text-ink-400 font-medium mt-0.5">Annonces payantes de nos partenaires</p>
-                </div>
-                <div className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
-                  {featuredList.map((r) => (
-                    <RestaurantCardHorizontal key={`featured-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
-                  ))}
-                </div>
-              </section>
-
-
-              {/* 4. Marques populaires */}
-              <DeliverooPopularBrandsSection restaurants={foodRestaurants} onPick={onPickRestaurant} />
-
-              {/* 4. Populaires dans votre quartier */}
-              <HorizontalRow
-                title="🔥 Populaires dans votre quartier"
-                subtitle="Établissements très prisés au campus & hôpitaux"
-                count={popularRestaurants.length}
-                onSeeAll={() => applyFilter('popular')}
-              >
-                {popularRestaurants.map((r) => (
-                  <RestaurantCardHorizontal key={`pop-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                ))}
-              </HorizontalRow>
-
-              {/* 5. Frais de livraison tout doux */}
-              <HorizontalRow
-                title="⚡ Frais de livraison tout doux"
-                subtitle="Livraison ultra rapide en moins de 30 min"
-                count={fastDelivery.length}
-                onSeeAll={() => applyFilter('fast')}
-              >
-                {fastDelivery.map((r) => (
-                  <RestaurantCardHorizontal key={`fast-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                ))}
-              </HorizontalRow>
-
-              {/* 6. Offres près de chez vous */}
-              {promoRestaurants.length > 0 && (
-                <HorizontalRow
-                  title="🎁 Offres près de chez vous"
-                  subtitle="Promotions actives et menus avantageux"
-                  count={promoRestaurants.length}
-                  onSeeAll={() => applyFilter('offers')}
-                >
-                  {promoRestaurants.map((r) => (
-                    <RestaurantCardHorizontal key={`promo-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
-                  ))}
-                </HorizontalRow>
-              )}
-
-              {/* 7. Mieux notés */}
-              <HorizontalRow
-                title="🌟 Mieux notés"
-                subtitle="Les meilleures adresses notées 4.8 et plus"
-                count={topRatedList.length}
-                onSeeAll={() => applyFilter('top_rated')}
-              >
-                {topRatedList.map((r) => (
-                  <RestaurantCardHorizontal key={`top-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                ))}
-              </HorizontalRow>
-
-              {/* 8. Favoris les plus populaires */}
-              <HorizontalRow
-                title="❤️ Favoris les plus populaires"
-                subtitle="Adresses fréquemment ajoutées en coup de cœur"
-                count={favoritesList.length}
-                onSeeAll={() => applyFilter('favorites')}
-              >
-                {favoritesList.map((r) => (
-                  <RestaurantCardHorizontal key={`fav-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                ))}
-              </HorizontalRow>
-
-              {/* 9. Burgers */}
-              {burgerList.length > 0 && (
-                <HorizontalRow
-                  title="🍔 Burgers"
-                  subtitle="Smash burgers, double cheese et frites dorées"
-                  count={burgerList.length}
-                  onSeeAll={() => applyFilter('burgers_sec')}
-                >
-                  {burgerList.map((r) => (
-                    <RestaurantCardHorizontal key={`burger-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                  ))}
-                </HorizontalRow>
-              )}
-
-              {/* 10. Pizzas */}
-              {pizzaList.length > 0 && (
-                <HorizontalRow
-                  title="🍕 Pizzas"
-                  subtitle="Pizzas napolitaines et recettes italiennes"
-                  count={pizzaList.length}
-                  onSeeAll={() => applyFilter('pizzas_sec')}
-                >
-                  {pizzaList.map((r) => (
-                    <RestaurantCardHorizontal key={`pizza-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                  ))}
-                </HorizontalRow>
-              )}
-
-              {/* 11. Asian & Sushi */}
-              {asianList.length > 0 && (
-                <HorizontalRow
-                  title="🍣 Asian & Sushi"
-                  subtitle="Maki, nigiri, pad thaï et ramen chaud"
-                  count={asianList.length}
-                  onSeeAll={() => applyFilter('asian_sec')}
-                >
-                  {asianList.map((r) => (
-                    <RestaurantCardHorizontal key={`asian-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                  ))}
-                </HorizontalRow>
-              )}
-
-              {/* 12. Shawarma & Kebab */}
-              {kebabList.length > 0 && (
-                <HorizontalRow
-                  title="🥙 Shawarma & Kebab"
-                  subtitle="Kebab grillé au feu de bois, shawarma libanais & sauces maison"
-                  count={kebabList.length}
-                  onSeeAll={() => applyFilter('kebab_sec')}
-                >
-                  {kebabList.map((r) => (
-                    <RestaurantCardHorizontal key={`kebab-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                  ))}
-                </HorizontalRow>
-              )}
-
-              {/* 13. Tacos & Wraps */}
-              {tacosList.length > 0 && (
-                <HorizontalRow
-                  title="🌮 Tacos & Wraps"
-                  subtitle="French tacos généreux, gratinés au fromage & wraps gourmands"
-                  count={tacosList.length}
-                  onSeeAll={() => applyFilter('tacos_sec')}
-                >
-                  {tacosList.map((r) => (
-                    <RestaurantCardHorizontal key={`tacos-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                  ))}
-                </HorizontalRow>
-              )}
-
-              {/* 14. Sandwichs & Snacks */}
-              {sandwichList.length > 0 && (
-                <HorizontalRow
-                  title="🥪 Sandwichs & Snacks"
-                  subtitle="Sandwichs chauds, paninis croustillants & snacks de quartier"
-                  count={sandwichList.length}
-                  onSeeAll={() => applyFilter('sandwich_sec')}
-                >
-                  {sandwichList.map((r) => (
-                    <RestaurantCardHorizontal key={`snack-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                  ))}
-                </HorizontalRow>
-              )}
-
-              {/* 15. Bowls & Salades Healthy */}
-              {healthyList.length > 0 && (
-                <HorizontalRow
-                  title="🥗 Bowls & Salades Healthy"
-                  subtitle="Poke bowls frais, salades composées & menus hôpital MedEat"
-                  count={healthyList.length}
-                  onSeeAll={() => applyFilter('healthy_sec')}
-                >
-                  {healthyList.map((r) => (
-                    <RestaurantCardHorizontal key={`healthy-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                  ))}
-                </HorizontalRow>
-              )}
-
-              {/* 16. Poulet Rôti & Crispy Chicken */}
-              {chickenList.length > 0 && (
-                <HorizontalRow
-                  title="🍗 Poulet Rôti & Crispy Chicken"
-                  subtitle="Poulet braisé, tenders croustillants & wings épicés"
-                  count={chickenList.length}
-                  onSeeAll={() => applyFilter('chicken_sec')}
-                >
-                  {chickenList.map((r) => (
-                    <RestaurantCardHorizontal key={`chicken-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-                  ))}
-                </HorizontalRow>
-              )}
+              {homeSections}
 
               {/* Search results error */}
               {restaurantsError && <ApiErrorState message={restaurantsError} onRetry={refreshRestaurants} />}
@@ -1267,7 +1295,7 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      className="cursor-grow card-glow-hover group relative shrink-0 w-[78vw] max-w-[300px] sm:w-[270px] lg:w-[290px] h-[240px] sm:h-[250px] snap-center overflow-hidden rounded-[1.4rem] sm:rounded-2xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-[0_18px_40px_-20px_rgba(15,23,42,0.5)] hover:shadow-cardhover hover:-translate-y-1 transition-all duration-500 active:scale-[0.97] active:brightness-95"
+      className="cursor-grow card-glow-hover group relative shrink-0 w-[78vw] max-w-[300px] sm:w-[270px] lg:w-[290px] h-[240px] sm:h-[250px] snap-center overflow-hidden rounded-[1.4rem] sm:rounded-2xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-[0_18px_40px_-20px_rgba(15,23,42,0.5)] hover:shadow-cardhover transition-[box-shadow,border-color,filter] duration-500 active:brightness-95"
     >
       <img
         src={restaurantCover(restaurant.cover)}
@@ -1468,9 +1496,9 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
 
   return (
     <div className="page-enter relative min-h-screen bg-gradient-to-b from-amber-50/70 via-white to-white dark:from-ink-950 dark:via-ink-950 dark:to-ink-950 overflow-x-hidden">
-      {/* Ambient blobs — light mode soft, dark mode subtle */}
       <div className="pointer-events-none absolute top-0 right-[-20%] w-[420px] h-[420px] rounded-full bg-brand-500/[0.08] dark:bg-brand-500/10 blur-[100px]" aria-hidden />
       <div className="pointer-events-none absolute top-[40%] left-[-25%] w-[360px] h-[360px] rounded-full bg-pink-500/[0.06] dark:bg-pink-500/8 blur-[90px]" aria-hidden />
+      <div className="yoha-ambient opacity-50" aria-hidden />
 
       {/* Compact nav on scroll */}
       <div
@@ -1500,22 +1528,20 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
 
       {/* HERO — full bleed, brand in the photo */}
       <section
-        className={`relative h-[min(58vh,480px)] sm:h-[min(52vh,520px)] overflow-hidden ${
+        className={`relative h-[min(62vh,520px)] sm:h-[min(56vh,560px)] overflow-hidden ${
           r.coverBlend === 'screen' ? 'bg-ink-950' : 'bg-ink-200 dark:bg-ink-900'
         }`}
       >
-        <motion.img
-          initial={{ scale: 1.12 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
+        <img
           src={restaurantCover(r.cover)}
           alt={r.name || ''}
-          className={`absolute inset-0 w-full h-full ${
+          className={`absolute inset-0 w-full h-full animate-fade-in scale-[1.02] ${
             r.coverBlend === 'screen' ? 'object-contain mix-blend-screen' : 'object-cover'
           }`}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/15 to-black/75" />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-black/80" />
+        <div className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-500/15 via-transparent to-pink-500/10 pointer-events-none" />
 
         <button
           onClick={onBack}
@@ -1665,6 +1691,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 <h2 className="mt-1 font-display font-black text-2xl sm:text-3xl text-ink-900 dark:text-white tracking-tight">
                   Populaires
                 </h2>
+                <div className="mt-2 h-1 w-12 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
               </div>
               <div className="flex gap-3.5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-1 px-4 sm:px-0">
                 {populaires.map((it, i) => (
@@ -1904,24 +1931,20 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
 
   if (compact) {
     return (
-      <motion.button
+      <button
         type="button"
-        initial={{ opacity: 0, y: 18 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.45, delay: Math.min(index * 0.06, 0.3), ease: [0.16, 1, 0.3, 1] }}
         onClick={() => onOpen?.()}
-        className="cursor-grow shrink-0 w-[78vw] max-w-[300px] sm:w-[250px] snap-center text-left group"
+        className="yoha-card-cv cursor-grow shrink-0 w-[78vw] max-w-[300px] sm:w-[250px] snap-center text-left group animate-fade-up"
       >
         <div className="relative rounded-[1.35rem] overflow-hidden aspect-[5/4] bg-ink-100 dark:bg-ink-800 shadow-[0_18px_40px_-20px_rgba(15,23,42,0.45)] dark:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.65)] ring-1 ring-ink-200/60 dark:ring-white/10">
           <MenuItemImage
             src={item.img}
             alt={item.name}
             loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-700 group-active:scale-105"
+            className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/25 to-transparent" />
-          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 dark:bg-ink-900/90 text-[10px] font-black uppercase tracking-wide text-brand-600 dark:text-brand-400 shadow-sm">
+          <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-white/80 dark:bg-ink-900/80 text-[9px] font-bold uppercase tracking-wider text-brand-600/90 dark:text-brand-400/90 backdrop-blur-sm border border-brand-500/15">
             Top
           </span>
           {!orderingDisabled && (
@@ -1946,18 +1969,14 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
             </p>
           </div>
         </div>
-      </motion.button>
+      </button>
     );
   }
 
   return (
-    <motion.div
+    <div
       role="button"
       tabIndex={0}
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-20px' }}
-      transition={{ duration: 0.35, delay: Math.min(index * 0.03, 0.18) }}
       onClick={() => onOpen?.()}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -1965,21 +1984,22 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
           onOpen?.();
         }
       }}
-      className="flex gap-3.5 p-3 rounded-2xl bg-white dark:bg-ink-900/80 ring-1 ring-ink-100 dark:ring-ink-800 shadow-sm active:scale-[0.99] transition-transform cursor-grow group"
+      className="yoha-card-cv flex gap-3.5 p-3 rounded-2xl bg-white/95 dark:bg-ink-900/85 ring-1 ring-ink-100 dark:ring-ink-800 shadow-sm hover:shadow-cardhover hover:ring-brand-500/25 active:brightness-95 transition-all duration-300 cursor-grow group animate-fade-up"
     >
-      <div className="shrink-0 w-[112px] h-[112px] sm:w-[124px] sm:h-[124px] rounded-xl overflow-hidden bg-ink-100 dark:bg-ink-800 relative">
+      <div className="shrink-0 w-[112px] h-[112px] sm:w-[124px] sm:h-[124px] rounded-xl overflow-hidden bg-ink-100 dark:bg-ink-800 relative shadow-sm">
         <MenuItemImage
           src={item.img}
           alt={item.name}
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-500 group-active:scale-105"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
       <div className="flex-1 min-w-0 flex flex-col py-0.5">
         <h3 className="font-display font-bold text-[15px] sm:text-base text-ink-900 dark:text-white leading-snug line-clamp-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
           {item.name}
         </h3>
-        {item.desc ? (
+        {item.desc && item.desc.trim() !== item.name ? (
           <p className="text-[12px] text-ink-400 dark:text-ink-500 line-clamp-2 mt-1.5 leading-relaxed">{item.desc}</p>
         ) : null}
         <div className="mt-auto pt-2.5 flex items-center gap-2">
@@ -2001,7 +2021,7 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = false }) {
@@ -2089,7 +2109,7 @@ export function RestaurantCard({ restaurant, onClick }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      className="cursor-grow card-glow-hover group relative block h-[min(78vw,360px)] sm:h-[320px] w-full overflow-hidden rounded-[1.6rem] sm:rounded-3xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-[0_20px_50px_-24px_rgba(15,23,42,0.55)] hover:shadow-cardhover transition-all duration-500 active:scale-[0.98] active:brightness-95"
+      className="cursor-grow card-glow-hover group relative block h-[min(78vw,360px)] sm:h-[320px] w-full overflow-hidden rounded-[1.6rem] sm:rounded-3xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-[0_20px_50px_-24px_rgba(15,23,42,0.55)] hover:shadow-cardhover transition-[box-shadow,border-color,filter] duration-500 active:brightness-95"
     >
       <img
         src={restaurantCover(restaurant.cover)}
@@ -2392,88 +2412,103 @@ export function LoyaltyRewardBanner() {
 const PROMO_BANNERS = [
   {
     id: 'promo-1',
-    bg: 'from-rose-500 via-pink-600 to-rose-600 text-white border-rose-400/50 shadow-lg shadow-rose-500/20',
-    tag: 'OFFRE DE BIENVENUE',
-    tagBg: 'bg-white text-rose-600 font-black',
-    title: '50 MAD OFFERTS',
-    subtitle: 'sur votre première commande à l\'Alliance & CHU',
-    code: 'CODE : YOHA50 📋',
-    cta: 'J\'en profite 🚀',
+    accent: 'from-brand-500 via-pink-500 to-rose-600',
+    orb: 'bg-amber-300/40',
+    tag: 'Offre de bienvenue',
+    title: '50 MAD',
+    titleAccent: 'offerts',
+    subtitle: 'Sur ta 1ʳᵉ commande Alliance & CHU',
+    code: 'YOHA50',
+    cta: "J'en profite",
     image: '/promos/promo_bienvenue_50mad.jpg',
     filterId: null,
     promoCode: 'YOHA50',
-    textColor: 'text-white',
-    subColor: 'text-rose-100 font-medium',
   },
   {
     id: 'promo-2',
-    bg: 'from-emerald-600 via-teal-600 to-emerald-700 text-white border-emerald-400/50 shadow-lg shadow-emerald-500/20',
-    tag: 'FRAIS DE LIVRAISON',
-    tagBg: 'bg-white text-emerald-700 font-black',
-    title: '0 MAD DE FRAIS',
+    accent: 'from-violet-600 via-fuchsia-500 to-brand-500',
+    orb: 'bg-violet-300/35',
+    tag: 'Livraison offerte',
+    title: '0 MAD',
+    titleAccent: 'de frais',
     subtitle: 'Dès 200 MAD de commande globale',
-    code: 'CODE : GROUPE0 📋',
-    cta: 'Commander 👥',
+    code: 'GROUPE0',
+    cta: 'Commander',
     image: '/promos/promo_frais_offerts.jpg',
     filterId: null,
     promoCode: 'GROUPE0',
-    textColor: 'text-white',
-    subColor: 'text-emerald-100 font-medium',
   },
   {
     id: 'promo-4',
-    bg: 'from-purple-600 via-pink-600 to-rose-500 text-white border-pink-400/50 shadow-lg shadow-pink-500/20',
-    tag: 'DOUCEURS & DESSERTS',
-    tagBg: 'bg-amber-400 text-slate-950 font-black',
-    title: 'UNE ENVIE GLACÉE ?',
-    subtitle: 'Glaces artisanales, gaufres & crêpes livrées chaudes',
-    code: 'C\'EST PAR ICI ➔',
-    cta: 'Pâtisseries 🍰',
+    accent: 'from-pink-600 via-rose-500 to-orange-400',
+    orb: 'bg-pink-200/40',
+    tag: 'Douceurs & desserts',
+    title: 'Envie',
+    titleAccent: 'glacée ?',
+    subtitle: 'Glaces, gaufres & crêpes livrées chaudes',
+    code: null,
+    cta: 'Voir les douceurs',
     image: '/promos/promo_envie_glacee.jpg',
     filterId: 'dessert',
     promoCode: null,
-    textColor: 'text-white',
-    subColor: 'text-pink-100 font-medium',
   },
   {
     id: 'promo-5',
-    bg: 'from-indigo-600 via-purple-600 to-blue-700 text-white border-indigo-400/50 shadow-lg shadow-indigo-500/20',
-    tag: 'LIVRAISON EXPRESS',
-    tagBg: 'bg-amber-400 text-slate-950 font-black',
-    title: 'LIVRAISON 4,99 MAD',
-    subtitle: 'Dès 120 MAD de commande en livraison rapide',
-    code: 'EXPRESS 🚀',
-    cta: 'Profiter ⚡',
+    accent: 'from-indigo-600 via-violet-500 to-pink-500',
+    orb: 'bg-sky-300/30',
+    tag: 'Livraison express',
+    title: '4,99 MAD',
+    titleAccent: 'express',
+    subtitle: 'Dès 120 MAD · livré ultra vite',
+    code: null,
+    cta: 'Profiter',
     image: '/promos/promo_livraison_express.jpg',
     filterId: 'fast',
     promoCode: null,
-    textColor: 'text-white',
-    subColor: 'text-indigo-100 font-medium',
   },
   {
     id: 'promo-6',
-    bg: 'from-amber-500 via-orange-500 to-amber-600 text-white border-amber-400/50 shadow-lg shadow-amber-500/20',
-    tag: 'FIDÉLITÉ RÉCOMPENSÉE',
-    tagBg: 'bg-white text-slate-950 font-black',
-    title: '-50 MAD FIDÉLITÉ',
-    subtitle: 'Après 6 commandes livrées confirmées !',
-    code: 'FIDÉLITÉ ⭐',
-    cta: 'Voir mon solde →',
+    accent: 'from-amber-500 via-orange-500 to-pink-500',
+    orb: 'bg-amber-200/45',
+    tag: 'Fidélité',
+    title: '-50 MAD',
+    titleAccent: 'fidélité',
+    subtitle: 'Après 6 commandes livrées confirmées',
+    code: null,
+    cta: 'Voir mon solde',
     image: '/promos/promo_recompense_fidelite.jpg',
     filterId: null,
     promoCode: null,
-    textColor: 'text-white',
-    subColor: 'text-amber-100 font-medium',
   },
 ];
 
 export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
   const trackRef = useRef(null);
   const [copiedToast, setCopiedToast] = useState(null);
+  const [activeIdx, setActiveIdx] = useState(0);
   const { goto } = useYohaNav();
 
   const scrollNext = () => {
-    trackRef.current?.scrollBy({ left: 340, behavior: 'smooth' });
+    trackRef.current?.scrollBy({ left: 320, behavior: 'smooth' });
+  };
+
+  const handleScroll = () => {
+    const el = trackRef.current;
+    if (!el) return;
+    const cards = Array.from(el.children);
+    if (!cards.length) return;
+    const mid = el.scrollLeft + el.clientWidth / 2;
+    let best = 0;
+    let bestDist = Infinity;
+    cards.forEach((card, i) => {
+      const center = card.offsetLeft + card.offsetWidth / 2;
+      const dist = Math.abs(center - mid);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = i;
+      }
+    });
+    setActiveIdx(best);
   };
 
   const handleCardClick = (b) => {
@@ -2485,7 +2520,7 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
       if (typeof navigator !== 'undefined') {
         navigator.clipboard?.writeText(b.promoCode);
       }
-      setCopiedToast(`Code ${b.promoCode} copié ! 📋`);
+      setCopiedToast(`Code ${b.promoCode} copié`);
       setTimeout(() => setCopiedToast(null), 2500);
     }
     if (b.filterId) {
@@ -2496,87 +2531,108 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
   return (
     <section className="relative px-4 sm:px-0">
       {copiedToast && (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-ink-900 text-white font-black text-xs shadow-2xl border border-brand-400/40 flex items-center gap-2 animate-bounce-soft">
-          <span>🎉</span>
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-gradient-to-r from-brand-500 to-pink-500 text-white font-black text-sm shadow-glow flex items-center gap-2 animate-bounce-soft border border-white/20">
+          <span className="text-base">✓</span>
           <span>{copiedToast}</span>
         </div>
       )}
 
-      <div className="mb-3.5 flex items-end justify-between gap-3">
+      <div className="mb-4 flex items-end justify-between gap-3">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400">Offres</p>
-          <h2 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white tracking-tight leading-none mt-1">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-600 dark:text-brand-400">
+            Exclusivités
+          </p>
+          <h2 className="font-display font-black text-[1.65rem] sm:text-3xl text-ink-900 dark:text-white tracking-tight leading-none mt-1">
             Juste pour toi
           </h2>
-          <div className="mt-2 h-1 w-10 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
+          <div className="mt-2.5 h-1.5 w-14 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 shadow-glow" />
         </div>
+        <button
+          type="button"
+          onClick={scrollNext}
+          aria-label="Suivant"
+          className="hidden sm:grid place-items-center w-11 h-11 rounded-2xl bg-white dark:bg-ink-900 border border-ink-100 dark:border-ink-800 text-brand-600 shadow-card hover:scale-105 active:scale-95 transition"
+        >
+          →
+        </button>
       </div>
 
       <div
         ref={trackRef}
-        className="flex gap-3.5 overflow-x-auto no-scrollbar pb-2 snap-x snap-mandatory scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0"
+        onScroll={handleScroll}
+        className="flex gap-3.5 overflow-x-auto no-scrollbar pb-3 snap-x snap-mandatory scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0"
       >
         {PROMO_BANNERS.map((b, i) => (
-          <motion.div
+          <button
             key={b.id}
-            initial={{ opacity: 0, y: 20, scale: 0.96 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: Math.min(i * 0.06, 0.3), duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            type="button"
             onClick={() => handleCardClick(b)}
-            className={`cursor-pointer promo-snap shrink-0 w-[300px] sm:w-[380px] md:w-[420px] rounded-[1.4rem] sm:rounded-3xl p-4 sm:p-5 border shadow-card hover:shadow-cardhover active:scale-[0.98] transition-all duration-300 relative overflow-hidden group snap-center bg-gradient-to-br ${b.bg} animate-border-glow`}
+            className="promo-snap yoha-card-cv cursor-pointer shrink-0 w-[82vw] max-w-[300px] sm:w-[280px] md:w-[300px] lg:w-[320px] snap-center text-left group animate-fade-up"
+            style={{ animationDelay: `${Math.min(i * 40, 200)}ms` }}
           >
-            <div className="absolute -right-8 -bottom-8 w-36 h-36 rounded-full bg-white/20 dark:bg-white/5 blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
-            <div className="card-shine absolute inset-0 opacity-40 pointer-events-none" />
-            
-            <div className="relative flex items-center justify-between gap-3 h-full">
-              <div className="flex-1 min-w-0 pr-1">
-                <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider mb-2 shadow-xs ${b.tagBg}`}>
-                  {b.tag}
-                </span>
+            <div className="relative h-[200px] sm:h-[190px] md:h-[200px] rounded-[1.5rem] overflow-hidden border border-white/15 dark:border-white/10 ring-1 ring-black/5 dark:ring-white/10">
+              <img
+                src={b.image}
+                alt=""
+                aria-hidden
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className={`absolute inset-0 bg-gradient-to-br ${b.accent} opacity-[0.82] mix-blend-multiply`} />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/55 to-transparent" />
+              <div className={`absolute -top-10 -right-8 w-32 h-32 rounded-full ${b.orb} blur-3xl pointer-events-none`} />
+              <div className="card-shine absolute inset-0 opacity-40 pointer-events-none" />
 
-                <h3 className={`font-display font-black text-lg sm:text-2xl tracking-tight leading-none ${b.textColor || 'text-ink-900 dark:text-white'} transition-colors`}>
-                  {b.title}
-                </h3>
-
-                <p className={`text-xs ${b.subColor || 'text-ink-600 dark:text-ink-300'} mt-1.5 line-clamp-2 leading-relaxed font-medium`}>
-                  {b.subtitle}
-                </p>
-
-                <div className="mt-4 flex items-center gap-2 flex-wrap">
-                  <span className="inline-block px-2.5 py-1 rounded-xl bg-amber-300 dark:bg-amber-400 text-slate-950 font-black text-[10px] sm:text-[11px] uppercase tracking-wide shadow-sm border border-amber-400">
-                    {b.code}
+              <div className="relative z-10 flex flex-col h-full p-3.5 sm:p-4 overflow-hidden">
+                <div className="flex items-center justify-between gap-2 min-w-0">
+                  <span className="inline-flex items-center max-w-[58%] truncate px-2 py-0.5 rounded-full bg-white/95 text-ink-900 text-[9px] font-black uppercase tracking-[0.12em]">
+                    {b.tag}
                   </span>
-                  <span
-                    onClick={(e) => {
-                      if (b.id === 'promo-6') {
-                        e.stopPropagation();
-                        goto('my-orders');
-                      }
-                    }}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white text-slate-950 font-black text-xs shadow-md group-hover:scale-105 transition-all ${b.id === 'promo-6' ? 'cursor-pointer hover:bg-amber-50' : ''}`}>
-                    <span>{b.cta}</span>
-                    <span className="animate-bounce-horizontal">→</span>
-                  </span>
+                  {b.code ? (
+                    <span className="inline-flex items-center gap-1 shrink-0 px-2 py-0.5 rounded-full bg-ink-950/55 backdrop-blur-md border border-white/25 text-white text-[9px] font-black tracking-wide">
+                      {b.code}
+                      <span className="opacity-80">📋</span>
+                    </span>
+                  ) : (
+                    <span className="w-7 h-7 shrink-0 rounded-full bg-white/15 backdrop-blur-md border border-white/25 grid place-items-center text-white text-xs font-black">
+                      →
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-auto pt-3 min-w-0">
+                  <h3 className="font-display font-black text-[1.85rem] sm:text-[1.75rem] md:text-[1.9rem] leading-[0.92] tracking-tight text-white truncate">
+                    {b.title}
+                  </h3>
+                  <p className="mt-0.5 text-[13px] sm:text-[13px] font-extrabold text-white/90 tracking-tight line-clamp-1">
+                    {b.titleAccent}
+                  </p>
+                  <p className="mt-1.5 text-[11px] sm:text-[11px] text-white/75 font-medium leading-snug line-clamp-2">
+                    {b.subtitle}
+                  </p>
+
+                  <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white text-ink-950 font-black text-[11px] sm:text-xs max-w-full">
+                    <span className="truncate">{b.cta}</span>
+                    <span className="shrink-0 text-brand-600">→</span>
+                  </div>
                 </div>
               </div>
-
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shrink-0 border-2 border-white/60 shadow-md transform group-hover:scale-105 transition-transform duration-500 float-soft">
-                <img src={b.image} alt={b.title} className="w-full h-full object-cover" />
-              </div>
             </div>
-          </motion.div>
+          </button>
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={scrollNext}
-        aria-label="Suivant"
-        className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-ink-800 text-ink-900 dark:text-white shadow-xl border border-ink-100 dark:border-ink-700 items-center justify-center hover:scale-110 active:scale-95 transition-all z-10"
-      >
-        <span className="text-lg font-black text-brand-600 dark:text-brand-400">→</span>
-      </button>
+      <div className="mt-3 flex items-center justify-center gap-1.5 sm:hidden" aria-hidden>
+        {PROMO_BANNERS.map((b, i) => (
+          <span
+            key={b.id}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              i === activeIdx
+                ? 'w-6 bg-gradient-to-r from-brand-500 to-pink-500'
+                : 'w-1.5 bg-ink-200 dark:bg-ink-700'
+            }`}
+          />
+        ))}
+      </div>
     </section>
   );
 }

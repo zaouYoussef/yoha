@@ -151,12 +151,12 @@ export default function AdminOverviewEnhanced({ orders, restaurantCount = 0 }) {
   }, [orders, deliveredOrders]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 page-enter">
       <GradientHeader
         title="Tableau de bord · Vue d'ensemble"
         subtitle={`${orders.length} commandes cumulées · ${activeOrders.length} en cours · ${restaurantCount} restaurants partenaires`}
         icon="📊"
-        gradient="from-brand-500 via-pink-500 to-rose-500"
+        gradient="from-brand-500 via-pink-500 to-violet-500"
       />
 
       {/* ROW 1: KPIs principaux (8 cartes) */}
@@ -167,7 +167,7 @@ export default function AdminOverviewEnhanced({ orders, restaurantCount = 0 }) {
         <KpiCard label="Bénéfice net" value={totalNet} sub={totalRev > 0 ? `Marge ${((totalNet / totalRev) * 100).toFixed(1)}%` : ''} icon={<I.Award size={16} />} color="from-emerald-500 to-teal-500" format={(v) => formatMAD(v)} />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard label="Commandes actives" value={activeOrders.length} sub={`${deliveredOrders.length} livrées · ${cancelledOrders.length} annulées`} icon={<I.Bike size={16} />} color="from-sky-500 to-indigo-500" />
+        <KpiCard label="Commandes actives" value={activeOrders.length} sub={`${deliveredOrders.length} livrées · ${cancelledOrders.length} annulées`} icon={<I.Bike size={16} />} color="from-violet-500 to-fuchsia-500" />
         <KpiCard label="Taux d'annulation" value={cancelRate.toFixed(1)} sub={`${cancelledOrders.length}/${orders.length} commandes`} icon={<I.Trash size={16} />} color="from-red-500 to-rose-500" />
         <KpiCard label="Clients fidèles" value={repeatRate.toFixed(0)} sub="% commandent plusieurs fois" icon={<I.User size={16} />} color="from-amber-500 to-yellow-500" />
         <KpiCard label="Restaurants" value={restaurantCount} sub="Partenaires actifs" icon={<I.Chef size={16} />} color="from-emerald-500 to-teal-500" />
@@ -287,7 +287,7 @@ export default function AdminOverviewEnhanced({ orders, restaurantCount = 0 }) {
                 color="from-emerald-500 to-teal-500" />
               <FunnelStep label="En cours / actives" value={activeOrders.length}
                 pct={customerFunnel.totalOrders > 0 ? Math.round((activeOrders.length / customerFunnel.totalOrders) * 100) : 0}
-                color="from-sky-500 to-indigo-500" />
+                color="from-brand-500 to-violet-500" />
               <FunnelStep label="Annulées" value={cancelledOrders.length}
                 pct={customerFunnel.totalOrders > 0 ? Math.round((cancelledOrders.length / customerFunnel.totalOrders) * 100) : 0}
                 color="from-red-500 to-rose-500" />

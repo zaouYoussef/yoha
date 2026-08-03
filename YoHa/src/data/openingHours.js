@@ -20,11 +20,25 @@ export const OPENING_DAY_LABELS = {
   sunday: 'Dimanche',
 };
 
-const DEFAULT_SLOT = { is_closed: false, is_24h: false, open: '10:00', close: '23:00' };
+const DEFAULT_SLOT = { is_closed: false, is_24h: false, open: '10:00', close: '23:00', slots: [] };
 const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
 export function defaultOpeningHours() {
-  return Object.fromEntries(OPENING_DAY_KEYS.map((day) => [day, { ...DEFAULT_SLOT }]));
+  return Object.fromEntries(OPENING_DAY_KEYS.map((day) => [day, { ...DEFAULT_SLOT, slots: [] }]));
+}
+
+function normalizeSlots(rawSlots, open, close) {
+  const out = [];
+  if (Array.isArray(rawSlots)) {
+    for (const s of rawSlots) {
+      if (!s || typeof s !== 'object') continue;
+      const o = String(s.open || '').slice(0, 5);
+      const c = String(s.close || '').slice(0, 5);
+      if (TIME_RE.test(o) && TIME_RE.test(c)) out.push({ open: o, close: c });
+    }
+  }
+  if (!out.length && open && close) out.push({ open, close });
+  return out;
 }
 
 export function normalizeOpeningHours(raw) {
@@ -34,15 +48,26 @@ export function normalizeOpeningHours(raw) {
   for (const day of OPENING_DAY_KEYS) {
     const slot = raw[day];
     if (!slot || typeof slot !== 'object') continue;
-    const open = String(slot.open || DEFAULT_SLOT.open).slice(0, 5);
-    const close = String(slot.close || DEFAULT_SLOT.close).slice(0, 5);
+    let open = String(slot.open || DEFAULT_SLOT.open).slice(0, 5);
+    let close = String(slot.close || DEFAULT_SLOT.close).slice(0, 5);
+    if (!TIME_RE.test(open)) open = DEFAULT_SLOT.open;
+    if (!TIME_RE.test(close)) close = DEFAULT_SLOT.close;
     const is_closed = Boolean(slot.is_closed);
-    const is_24h = Boolean(slot.is_24h) || (!is_closed && open === close);
+    let slots = normalizeSlots(slot.slots, open, close);
+    const is_24h = Boolean(slot.is_24h) || (!is_closed && slots.length === 1 && slots[0].open === slots[0].close);
+    if (is_24h && !is_closed) {
+      open = close = '00:00';
+      slots = [{ open: '00:00', close: '00:00' }];
+    } else if (slots.length) {
+      open = slots[0].open;
+      close = slots[slots.length - 1].close;
+    }
     out[day] = {
       is_closed,
       is_24h: is_24h && !is_closed,
-      open: is_24h && !is_closed ? '00:00' : (TIME_RE.test(open) ? open : DEFAULT_SLOT.open),
-      close: is_24h && !is_closed ? '00:00' : (TIME_RE.test(close) ? close : DEFAULT_SLOT.close),
+      open,
+      close,
+      slots: is_closed ? [] : slots,
     };
   }
   return out;
@@ -61,6 +86,13 @@ function isOpenAtTime(open, close, nowMinutes, is24h = false) {
   return nowMinutes >= openM || nowMinutes < closeM;
 }
 
+function dayIsOpen(day, nowMinutes) {
+  if (day.is_closed) return false;
+  if (day.is_24h) return true;
+  const slots = day.slots?.length ? day.slots : [{ open: day.open, close: day.close }];
+  return slots.some((s) => isOpenAtTime(s.open, s.close, nowMinutes, false));
+}
+
 /** weekday: 0 = lundi (aligné Python datetime.weekday). */
 function jsWeekdayToKey(date) {
   const js = date.getDay();
@@ -72,9 +104,8 @@ export function isRestaurantOpen(openingHours, at = new Date()) {
   const hours = normalizeOpeningHours(openingHours);
   const key = jsWeekdayToKey(at);
   const day = hours[key];
-  if (day.is_closed) return false;
   const nowMinutes = at.getHours() * 60 + at.getMinutes();
-  return isOpenAtTime(day.open, day.close, nowMinutes, day.is_24h);
+  return dayIsOpen(day, nowMinutes);
 }
 
 function nextOpenLabel(hours, at) {
@@ -87,15 +118,18 @@ function nextOpenLabel(hours, at) {
     const key = OPENING_DAY_KEYS[idx];
     const slot = hours[key];
     if (slot.is_closed) continue;
+    const slots = slot.slots?.length ? slot.slots : [{ open: slot.open, close: slot.close }];
     if (offset === 0) {
-      if (isOpenAtTime(slot.open, slot.close, startMinutes, slot.is_24h)) return 'Ouvert';
-      if (!slot.is_24h && startMinutes < parseMinutes(slot.open)) {
-        return `Fermé · ouvre à ${slot.open}`;
+      if (dayIsOpen(slot, startMinutes)) return 'Ouvert';
+      for (const s of slots) {
+        if (!slot.is_24h && startMinutes < parseMinutes(s.open)) {
+          return `Fermé · ouvre à ${s.open}`;
+        }
       }
       continue;
     }
     const dayLabel = offset === 1 ? 'demain' : OPENING_DAY_LABELS[key].toLowerCase();
-    return `Fermé · ouvre ${dayLabel} à ${slot.open}`;
+    return `Fermé · ouvre ${dayLabel} à ${slots[0].open}`;
   }
   return 'Fermé';
 }
@@ -121,5 +155,6 @@ export function hasAnyRestaurantOpen(restaurants, at = new Date()) {
 export function formatDayHours(slot) {
   if (!slot || slot.is_closed) return 'Fermé';
   if (slot.is_24h || slot.open === slot.close) return '24h/24';
-  return `${slot.open} – ${slot.close}`;
+  const slots = slot.slots?.length ? slot.slots : [{ open: slot.open, close: slot.close }];
+  return slots.map((s) => `${s.open} – ${s.close}`).join(' & ');
 }

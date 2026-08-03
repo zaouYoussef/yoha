@@ -52,12 +52,13 @@ export function Navbar({
     <header className="fixed top-0 inset-x-0 z-40 transition-all duration-500 pointer-events-none">
       <div className={`mx-auto flex h-14 sm:h-16 min-w-0 items-center justify-between gap-1 sm:gap-2 transition-all duration-500 pointer-events-auto ${
         scrolled 
-          ? 'w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] max-w-6xl mt-2 sm:mt-3 px-3 sm:px-6 rounded-2xl glass-card-premium shadow-cardhover border border-white/20 dark:border-white/5' 
+          ? 'w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] max-w-6xl mt-2 sm:mt-3 px-3 sm:px-6 rounded-2xl glass-card-premium shadow-cardhover border border-white/25 dark:border-white/8 backdrop-blur-md ring-gradient' 
           : 'w-full max-w-7xl px-3 sm:px-6 bg-transparent border-transparent'
       }`}>
         <div className="flex items-center gap-2">
           <button onClick={onLogo} className="group flex min-w-0 shrink cursor-grow items-center gap-2">
             <Logo />
+            <span className="hidden sm:inline font-display text-lg font-black tracking-tight text-gradient">YoHa</span>
           </button>
           
           {!isBrowsePage && (
@@ -196,7 +197,7 @@ export function Navbar({
             onClick={onCart} 
             aria-label="Voir le panier"
             title="Voir le panier"
-            className={`cursor-grow relative px-3 py-2.5 rounded-xl flex items-center gap-1.5 bg-brand-500/10 text-brand-600 dark:text-brand-400 hover:bg-brand-500 hover:text-white transition-all duration-300 font-extrabold text-xs sm:text-sm shadow-sm min-h-[40px] ${cartShake ? 'cart-shake' : ''}`}
+            className={`cursor-grow relative px-3 py-2.5 rounded-xl flex items-center gap-1.5 bg-gradient-to-r from-brand-500/15 via-pink-500/10 to-violet-500/10 text-brand-600 dark:text-brand-400 hover:from-brand-500 hover:via-pink-500 hover:to-violet-500 hover:text-white transition-all duration-300 font-extrabold text-xs sm:text-sm shadow-sm min-h-[40px] border border-brand-500/20 ${cartShake ? 'cart-shake' : ''}`}
           >
             <I.Cart size={18}/>
             <span className="hidden sm:inline">Panier</span>
@@ -238,7 +239,7 @@ export function Navbar({
               <button
                 type="button"
                 onClick={() => goto('auth')}
-                className="cursor-grow inline-flex items-center gap-2 ml-1 p-2 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold bg-ink-900 text-white dark:bg-white dark:text-ink-900 hover:opacity-90 transition-opacity shadow-md"
+                className="cursor-grow inline-flex items-center gap-2 ml-1 p-2 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white hover:opacity-95 transition-opacity shadow-glow"
               >
                 <I.User size={16}/>
                 <span className="hidden sm:inline">Connexion</span>
@@ -264,8 +265,10 @@ export function Navbar({
       {/* Menu plein écran (mobile uniquement) */}
       {menuOpen && (
         <div className="pointer-events-auto fixed inset-0 z-50 flex flex-col bg-white/98 dark:bg-ink-950/98 backdrop-blur-xl md:hidden">
-          <div className="flex h-16 items-center px-5">
+          <div className="pointer-events-none absolute inset-0 mesh-bg opacity-40" aria-hidden />
+          <div className="relative flex h-16 items-center px-5">
             <Logo />
+            <span className="ml-2 font-display text-lg font-black text-gradient">YoHa</span>
             <div className="flex-1" />
             <button
               type="button"
@@ -277,7 +280,7 @@ export function Navbar({
             </button>
           </div>
 
-          <nav className="flex flex-1 flex-col justify-center gap-1 px-5 pb-24">
+          <nav className="relative flex flex-1 flex-col justify-center gap-1 px-5 pb-24">
             {[
               { label: 'Restaurants', emoji: '🍔', fn: onHome },
               { label: 'Pharmacie', emoji: '💊', fn: onPharmacy },
@@ -294,7 +297,7 @@ export function Navbar({
                 style={{ animation: `fade-up .5s cubic-bezier(.16,1,.3,1) ${i * 0.05}s both` }}
               >
                 <span className="text-xl">{c.emoji}</span>
-                <span className="text-4xl font-bold tracking-tight transition-colors group-hover:text-brand-500">
+                <span className="font-display text-4xl font-black tracking-tight transition-colors group-hover:text-brand-500">
                   {c.label}
                 </span>
               </button>

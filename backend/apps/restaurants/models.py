@@ -125,6 +125,10 @@ class MenuItem(models.Model):
     image_thumb = models.CharField(max_length=300, blank=True)
     is_available = models.BooleanField(default=True)
     sort_order = models.PositiveSmallIntegerField(default=0)
+    modifiers_manual = models.BooleanField(
+        default=False,
+        help_text="Si True, la sync Glovo n'écrase pas les sauces/suppléments édités depuis le panel.",
+    )
 
     class Meta:
         ordering = ["sort_order", "id"]

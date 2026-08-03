@@ -66,7 +66,7 @@ export function AdminClients() {
         title={`${clients.length} client${clients.length > 1 ? 's' : ''}`}
         subtitle="Tous les clients inscrits"
         icon="👥"
-        gradient="from-sky-500 via-blue-500 to-indigo-500"
+        gradient="from-brand-500 via-pink-500 to-violet-500"
         actions={
           <SearchBar value={search} onChange={setSearch} placeholder="Rechercher un client…" />
         }
@@ -79,7 +79,7 @@ export function AdminClients() {
       ) : (
         <>
           <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatCard label="Clients" value={clients.length} sub="Inscrits" icon={<I.User size={16} />} color="from-sky-500 to-blue-500" />
+            <StatCard label="Clients" value={clients.length} sub="Inscrits" icon={<I.User size={16} />} color="from-brand-500 to-pink-500" />
             <StatCard label="Commandes total" value={totalOrders} icon={<I.Bag size={16} />} color="from-brand-500 to-orange-500" />
             <StatCard label="Dépenses total" value={formatMAD(totalSpent)} icon={<I.Star size={16} />} color="from-emerald-500 to-teal-500" />
             <StatCard label="Moy. par client" value={formatMAD(clients.length ? totalSpent / clients.length : 0)} icon={<I.Card size={16} />} color="from-violet-500 to-fuchsia-500" />
@@ -93,7 +93,7 @@ export function AdminClients() {
                 <button key={c.id} onClick={() => setSelected(c)}
                   className="w-full cursor-grow rounded-2xl border border-white/20 bg-white/70 px-4 py-3 text-left backdrop-blur-xl transition hover:bg-white hover:shadow-lg dark:border-ink-700/30 dark:bg-ink-900/70 dark:hover:bg-ink-800/70">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-blue-500 text-sm font-bold text-white">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-pink-500 text-sm font-bold text-white">
                       {(c.display_name || c.email)[0].toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -159,7 +159,7 @@ function ClientDetailView({ client, onBack }) {
 
       <GlassCard className="mb-6 p-5" hover={false}>
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-blue-500 text-xl font-bold text-white">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-pink-500 text-xl font-bold text-white">
             {(client.display_name || client.email)[0].toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
@@ -188,7 +188,7 @@ function ClientDetailView({ client, onBack }) {
             <StatCard label="Commandes" value={client.total_orders} icon={<I.Bag size={16} />} color="from-brand-500 to-orange-500" />
             <StatCard label="Dépensé" value={formatMAD(client.total_spent_mad)} icon={<I.Star size={16} />} color="from-emerald-500 to-teal-500" />
             <StatCard label="Panier moyen" value={formatMAD(client.avg_order_mad)} icon={<I.Card size={16} />} color="from-violet-500 to-fuchsia-500" />
-            <StatCard label="Pages vues" value={client.total_page_views} icon={<I.LayoutDashboard size={16} />} color="from-sky-500 to-indigo-500" />
+            <StatCard label="Pages vues" value={client.total_page_views} icon={<I.LayoutDashboard size={16} />} color="from-brand-500 to-violet-500" />
           </div>
 
           {detail.restaurants_viewed?.length > 0 && (

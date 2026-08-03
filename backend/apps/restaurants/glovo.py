@@ -73,6 +73,7 @@ class GlovoProduct:
     image_url: str
     out_of_stock: bool = False
     modifier_groups: List[GlovoModifierGroup] = field(default_factory=list)
+    product_id: int | None = None
 
 
 @dataclass
@@ -88,6 +89,11 @@ class GlovoStoreInfo:
     name: str = ""
     cover_url: str = ""
     logo_url: str = ""
+    phone: str = ""
+    address: str = ""
+    latitude: float | None = None
+    longitude: float | None = None
+    opening_hours: dict | None = None
 
 
 # ————————————————————— Outils communs —————————————————————
@@ -100,6 +106,33 @@ def _pick_image(urls: set[str], needle: str) -> str:
     return ""
 
 
+_MANGLED_DHMEDIA_RE = re.compile(
+    r"^https://glovo\.dhmedia\.io([a-z0-9-]+)/(.*)$",
+    re.I,
+)
+
+
+def normalize_glovo_image_url(url: str) -> str:
+    """Corrige les URLs Glovo mangled (host `dhmedia.iomenus-glovo` sans `/image/`).
+
+    Bug historique : concaténation `https://glovo.dhmedia.io` + `menus-glovo/...`
+    sans slash → `https://glovo.dhmedia.iomenus-glovo/products/...`.
+    """
+    if not url or not isinstance(url, str):
+        return ""
+    url = url.strip()
+    if not url:
+        return ""
+    m = _MANGLED_DHMEDIA_RE.match(url)
+    if m and "/image/" not in url:
+        bucket, rest = m.group(1), m.group(2)
+        return f"https://glovo.dhmedia.io/image/{bucket}/{rest}"
+    # Variante déjà partiellement corrigée mais sans segment image
+    if url.startswith("https://glovo.dhmedia.io/") and "/image/" not in url:
+        return url.replace("https://glovo.dhmedia.io/", "https://glovo.dhmedia.io/image/", 1)
+    return url
+
+
 def _to_product(data: Dict[str, Any]) -> GlovoProduct:
     price = data.get("price") or 0.0
     promotion = data.get("promotion") or {}
@@ -109,14 +142,22 @@ def _to_product(data: Dict[str, Any]) -> GlovoProduct:
         image_id = data.get("imageId", "")
         if isinstance(image_id, str) and image_id.startswith("dh:"):
             image_url = f"{IMAGE_BASE}/{image_id[3:].lstrip('/')}"
+    raw_id = data.get("id")
+    product_id = None
+    try:
+        if raw_id is not None:
+            product_id = int(raw_id)
+    except (TypeError, ValueError):
+        product_id = None
     return GlovoProduct(
         external_id=_external_id(data),
         name=_clean_name(data.get("name", "")),
         description=data.get("description", "") or "",
         price_mad=float(price_mad),
-        image_url=image_url,
+        image_url=normalize_glovo_image_url(image_url),
         out_of_stock=bool(data.get("outOfStock")),
         modifier_groups=_modifier_groups(data),
+        product_id=product_id,
     )
 
 
@@ -131,12 +172,13 @@ def _modifier_groups(data: Dict[str, Any]) -> List[GlovoModifierGroup]:
                 price_impact=float(attr.get("priceImpact") or 0.0),
             )
             for attr in group.get("attributes") or []
+            if (attr.get("name") or "").strip()
         ]
         if not options:
             continue
         groups.append(
             GlovoModifierGroup(
-                name=(group.get("name") or "").strip(),
+                name=(group.get("name") or "").strip() or "Options",
                 min_selected=int(group.get("min") or 0),
                 max_selected=int(group.get("max") or 0),
                 options=options,
@@ -436,6 +478,65 @@ class GlovoClient:
                 raise GlovoError(f"JSON invalide sur {url}") from exc
         raise last_exc or GlovoError(f"HTTP 429 (rate-limit) sur {url}")
 
+    def fetch_store_profile(self) -> GlovoStoreInfo:
+        """Profil store (téléphone, adresse, coords) via `/v3/stores/{id}`."""
+        data = self._get(f"/v3/stores/{self.store_id}")
+        loc = data.get("location") or {}
+        info = GlovoStoreInfo(
+            store_id=self.store_id,
+            address_id=int(data.get("addressId") or self.address_id or 0) or None,
+            name=(data.get("name") or "").strip(),
+            phone=(data.get("phoneNumber") or "").strip(),
+            address=(data.get("address") or "").replace("\n", ", ").strip(),
+            latitude=float(loc["latitude"]) if loc.get("latitude") is not None else None,
+            longitude=float(loc["longitude"]) if loc.get("longitude") is not None else None,
+        )
+        return info
+
+    def fetch_product_detail(self, product_id: int) -> Dict[str, Any]:
+        return self._get(
+            f"/v3/stores/{self.store_id}/addresses/{self.address_id}/products/{product_id}"
+        )
+
+    def enrich_sections_modifiers(
+        self,
+        sections: List[GlovoSection],
+        *,
+        delay: float = 0.35,
+        max_products: int = 120,
+    ) -> int:
+        """Complète sauces/tailles/extras via le détail produit quand la liste est vide.
+
+        L'API `content/main` omet souvent `attributeGroups` ; le détail
+        `/products/{id}` les expose (Taille, Sauce, Extras…).
+        """
+        enriched = 0
+        seen: set[int] = set()
+        for section in sections:
+            for product in section.products:
+                if product.modifier_groups:
+                    continue
+                pid = product.product_id
+                if not pid or pid in seen:
+                    continue
+                seen.add(pid)
+                if len(seen) > max_products:
+                    return enriched
+                try:
+                    detail = self.fetch_product_detail(pid)
+                except GlovoError as exc:
+                    logger.info("glovo_product_detail_failed id=%s — %s", pid, exc)
+                    time.sleep(max(delay, 0.2))
+                    continue
+                groups = _modifier_groups(detail)
+                if groups:
+                    product.modifier_groups = groups
+                    enriched += 1
+                if not product.description and detail.get("description"):
+                    product.description = detail.get("description") or ""
+                time.sleep(max(delay, 0.15))
+        return enriched
+
     def fetch_full_menu(self) -> List[GlovoSection]:
         """Toutes les sections (catégories) avec leurs produits.
 
@@ -446,13 +547,24 @@ class GlovoClient:
              paramètre (1 seule requête, menu complet sauf carrousels tronqués).
         """
         try:
-            return self._fetch_via_links()
+            sections = self._fetch_via_links()
         except GlovoError:
             single = self._fetch_single_shot()
             if single:
-                return single
-            raise
-
+                sections = single
+            else:
+                raise
+        try:
+            n = self.enrich_sections_modifiers(sections)
+            if n:
+                logger.info(
+                    "glovo_modifiers_enriched store=%s products=%d",
+                    self.store_id,
+                    n,
+                )
+        except Exception:  # noqa: BLE001
+            logger.exception("glovo_modifiers_enrich_failed store=%s", self.store_id)
+        return sections
     def _fetch_via_links(self) -> List[GlovoSection]:
         store_menu = self._get(
             f"/v3/stores/{self.store_id}/addresses/{self.address_id}/node/store_menu"

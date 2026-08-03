@@ -107,7 +107,7 @@ export default function AdminOrdersEnhanced({ orders }) {
       {/* KPIs row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label="Commandes" value={filtered.length} sub="Filtrées" icon={<I.Bag size={16} />} color="from-brand-500 to-orange-500" animate />
-        <StatCard label="Actives" value={activeOrders.length} sub="En cours" icon={<I.Bike size={16} />} color="from-sky-500 to-indigo-500" animate />
+        <StatCard label="Actives" value={activeOrders.length} sub="En cours" icon={<I.Bike size={16} />} color="from-brand-500 to-violet-500" animate />
         <StatCard label="Livrées" value={deliveredOrders.length} sub={`${filtered.length ? Math.round((deliveredOrders.length / filtered.length) * 100) : 0}% du total`} icon={<I.Award size={16} />} color="from-emerald-500 to-teal-500" animate />
         <StatCard label="CA total" value={formatMAD(totalRev)} sub={`Moy. ${formatMAD(Math.round(avgOrder))}/cmd`} icon={<I.Star size={16} />} color="from-violet-500 to-fuchsia-500" />
       </div>
@@ -187,7 +187,7 @@ export default function AdminOrdersEnhanced({ orders }) {
                     <div key={c.label} className="flex items-center gap-2 text-xs">
                       <span className="w-20 truncate shrink-0 font-medium">{c.label}</span>
                       <div className="flex-1 h-2.5 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden">
-                        <div className="h-full rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 transition-all" style={{ width: `${pct}%` }} />
+                        <div className="h-full rounded-full bg-gradient-to-r from-brand-500 to-violet-500 transition-all" style={{ width: `${pct}%` }} />
                       </div>
                       <span className="font-bold w-6 text-right">{c.orders}</span>
                       <span className="text-ink-400 w-16 text-right">{formatMAD(c.revenue)}</span>

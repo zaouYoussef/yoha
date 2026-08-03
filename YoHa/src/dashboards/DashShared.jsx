@@ -35,9 +35,9 @@ const DASH_LINKS = {
 };
 
 const DASH_ACCENT = {
-  admin: { from: 'from-brand-500', to: 'to-pink-500', name: 'Admin', emoji: '✨', gradient: 'from-brand-500 via-pink-500 to-rose-500' },
+  admin: { from: 'from-brand-500', to: 'to-pink-500', name: 'Admin', emoji: '✨', gradient: 'from-brand-500 via-pink-500 to-violet-500' },
   delivery: { from: 'from-violet-500', to: 'to-fuchsia-500', name: 'Livreur', emoji: '🚴', gradient: 'from-violet-500 via-fuchsia-500 to-pink-500' },
-  restaurant: { from: 'from-sky-500', to: 'to-indigo-500', name: 'Restaurant', emoji: '🍽️', gradient: 'from-sky-500 via-blue-500 to-indigo-500' },
+  restaurant: { from: 'from-brand-500', to: 'to-violet-500', name: 'Restaurant', emoji: '🍽️', gradient: 'from-brand-500 via-pink-500 to-violet-500' },
 };
 
 function pillBg(color) {
@@ -53,16 +53,17 @@ function pillBg(color) {
 }
 
 /* ─── Glass Card ─── */
-export function GlassCard({ children, className = '', hover = true, glow, ...props }) {
+export function GlassCard({ children, className = '', hover = true, glow, ring = false, ...props }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border border-white/20 bg-white/70 backdrop-blur-xl shadow-card dark:border-ink-700/30 dark:bg-ink-900/70 ${hover ? 'lift-on-hover spotlight' : ''} ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-white/25 bg-white/75 shadow-card backdrop-blur-xl glass-card-premium dark:border-white/5 dark:bg-ink-900/75 ${hover ? 'spotlight card-glow-hover' : ''} ${ring ? 'ring-gradient' : ''} ${className}`}
       onMouseMove={hover ? spotlightHandler : undefined}
       {...props}
     >
       {glow && (
-        <div className={`absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br opacity-10 blur-3xl ${glow}`} />
+        <div className={`pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-gradient-to-br opacity-[0.14] blur-3xl dark:opacity-20 ${glow}`} />
       )}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/40 to-transparent" />
       {children}
     </div>
   );
@@ -71,19 +72,21 @@ export function GlassCard({ children, className = '', hover = true, glow, ...pro
 /* ─── Gradient Header ─── */
 export function GradientHeader({ title, subtitle, icon, gradient, actions, children }) {
   return (
-    <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradient || 'from-brand-500 via-pink-500 to-rose-500'} p-5 text-white shadow-glow-lg sm:p-6`}>
-      <div className="absolute -bottom-12 -right-12 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
-      <div className="absolute -left-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+    <div className={`relative overflow-hidden rounded-[1.35rem] bg-gradient-to-br ${gradient || 'from-brand-500 via-pink-500 to-violet-500'} p-5 text-white shadow-glow-lg sm:rounded-3xl sm:p-6`}>
+      <div className="pointer-events-none absolute inset-0 opacity-40 mesh-bg" aria-hidden />
+      <div className="pointer-events-none absolute -bottom-16 -right-10 h-56 w-56 rounded-full bg-white/15 blur-3xl" />
+      <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-violet-300/20 blur-2xl" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
       <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           {icon && (
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/15 text-xl backdrop-blur-sm sm:h-14 sm:w-14">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/25 bg-white/15 text-xl shadow-lg backdrop-blur-md sm:h-14 sm:w-14 float-soft">
               {icon}
             </span>
           )}
           <div className="min-w-0">
-            <h2 className="font-display text-lg font-extrabold sm:text-xl">{title}</h2>
-            {subtitle && <p className="mt-0.5 text-sm text-white/80">{subtitle}</p>}
+            <h2 className="font-display text-lg font-black tracking-tight sm:text-2xl">{title}</h2>
+            {subtitle && <p className="mt-0.5 text-sm text-white/85">{subtitle}</p>}
           </div>
         </div>
         {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
@@ -97,13 +100,13 @@ export function GradientHeader({ title, subtitle, icon, gradient, actions, child
 export function SearchBar({ value, onChange, placeholder = 'Rechercher...', className = '' }) {
   return (
     <div className={`relative ${className}`}>
-      <I.Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+      <I.Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-400" />
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-xl border border-ink-200/60 bg-white/80 py-2.5 pl-10 pr-4 text-sm font-medium outline-none backdrop-blur-sm transition placeholder:text-ink-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 dark:border-ink-700/50 dark:bg-ink-900/80 dark:text-white dark:placeholder:text-ink-500 dark:focus:border-brand-500"
+        className="w-full rounded-2xl border border-ink-200/60 bg-white/85 py-2.5 pl-10 pr-4 text-sm font-medium outline-none shadow-xs backdrop-blur-sm transition placeholder:text-ink-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-500/25 dark:border-ink-700/50 dark:bg-ink-900/85 dark:text-white dark:placeholder:text-ink-500 dark:focus:border-pink-500/60"
       />
     </div>
   );
@@ -113,10 +116,15 @@ export function SearchBar({ value, onChange, placeholder = 'Rechercher...', clas
 export function EmptyState({ icon, title, description, action, className = '' }) {
   return (
     <div className={`flex flex-col items-center justify-center py-16 text-center ${className}`}>
-      <span className="mb-4 text-5xl opacity-80">{icon || '📭'}</span>
-      <h3 className="font-display text-xl font-bold text-ink-900 dark:text-white">{title}</h3>
-      {description && <p className="mt-1 max-w-sm text-sm text-ink-500">{description}</p>}
-      {action && <div className="mt-4">{action}</div>}
+      <span className="relative mb-5 grid h-20 w-20 place-items-center">
+        <span className="absolute inset-0 rounded-full bg-gradient-to-br from-brand-500/25 via-pink-500/20 to-violet-500/25 blur-xl" />
+        <span className="relative grid h-16 w-16 place-items-center rounded-2xl border border-white/40 bg-white/80 text-3xl shadow-card dark:border-white/10 dark:bg-ink-900/80 float-soft">
+          {icon || '📭'}
+        </span>
+      </span>
+      <h3 className="font-display text-xl font-black text-ink-900 dark:text-white">{title}</h3>
+      {description && <p className="mt-1.5 max-w-sm text-sm text-ink-500 dark:text-ink-400">{description}</p>}
+      {action && <div className="mt-5">{action}</div>}
     </div>
   );
 }
@@ -152,13 +160,13 @@ export function StatCard({ label, value, sub, icon, color = 'from-brand-500 to-p
           <div className="truncate text-[11px] font-bold uppercase tracking-wider text-ink-500 dark:text-ink-400">
             {label}
           </div>
-          <div className="mt-1.5 break-words font-display text-2xl font-black sm:text-3xl">
+          <div className="mt-1.5 break-words font-display text-2xl font-black tracking-tight text-ink-900 dark:text-white sm:text-3xl">
             {animate ? <AnimatedCounter value={value} /> : value}
           </div>
           {sub && <div className="mt-1 text-xs text-ink-500 dark:text-ink-400">{sub}</div>}
         </div>
         <span
-          className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br text-white shadow-lg sm:h-12 sm:w-12 ${color}`}
+          className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br text-white shadow-glow sm:h-12 sm:w-12 ${color}`}
         >
           {icon}
         </span>
@@ -196,15 +204,15 @@ export function FilterChip({ active, onClick, children, count }) {
   return (
     <button
       onClick={onClick}
-      className={`cursor-grow inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all ${
+      className={`cursor-grow inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all ${
         active
-          ? 'bg-ink-900 text-white shadow-lg dark:bg-white dark:text-ink-900'
-          : 'border border-ink-200/60 bg-white/80 text-ink-600 backdrop-blur-sm hover:border-brand-400 hover:text-brand-600 dark:border-ink-700/50 dark:bg-ink-900/80 dark:text-ink-300 dark:hover:border-brand-500'
+          ? 'bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white shadow-glow'
+          : 'border border-ink-200/60 bg-white/80 text-ink-600 backdrop-blur-sm hover:border-brand-400 hover:text-brand-600 dark:border-ink-700/50 dark:bg-ink-900/80 dark:text-ink-300 dark:hover:border-pink-500/50'
       }`}
     >
       {children}
       {count !== undefined && (
-        <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-black ${active ? 'bg-white/20 text-white dark:bg-ink-900/20 dark:text-ink-900' : 'bg-ink-100 text-ink-500 dark:bg-ink-800 dark:text-ink-400'}`}>
+        <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-black ${active ? 'bg-white/25 text-white' : 'bg-ink-100 text-ink-500 dark:bg-ink-800 dark:text-ink-400'}`}>
           {count}
         </span>
       )}
@@ -215,11 +223,11 @@ export function FilterChip({ active, onClick, children, count }) {
 /* ─── Action Button ─── */
 export function ActionButton({ children, variant = 'primary', size = 'md', icon, className = '', ...props }) {
   const variants = {
-    primary: 'bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-lg hover:shadow-xl hover:opacity-95 active:scale-[0.98]',
+    primary: 'bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white shadow-glow hover:shadow-glow-lg hover:opacity-95 active:scale-[0.98]',
     secondary: 'border border-ink-200/60 bg-white/80 text-ink-700 backdrop-blur-sm hover:border-brand-400 hover:text-brand-600 dark:border-ink-700/50 dark:bg-ink-900/80 dark:text-ink-300',
     danger: 'bg-red-500 text-white shadow-lg hover:bg-red-600 active:scale-[0.98]',
     ghost: 'text-ink-500 hover:bg-ink-100 hover:text-ink-700 dark:hover:bg-ink-800',
-    success: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg hover:shadow-xl active:scale-[0.98]',
+    success: 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-lg hover:shadow-xl active:scale-[0.98]',
     warning: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg hover:shadow-xl active:scale-[0.98]',
   };
   const sizes = {
@@ -276,7 +284,7 @@ export function Toggle({ checked, onChange, disabled, size = 'md' }) {
       aria-checked={checked}
       disabled={disabled}
       onClick={() => !disabled && onChange?.(!checked)}
-      className={`relative inline-flex shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ${sizes[size]} ${checked ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-ink-300 dark:bg-ink-600'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      className={`relative inline-flex shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ${sizes[size]} ${checked ? 'bg-gradient-to-r from-brand-500 to-pink-500 shadow-glow' : 'bg-ink-300 dark:bg-ink-600'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       <span className={`inline-block rounded-full bg-white shadow-lg transition-transform duration-200 ${knobs[size]} ${translate[size]}`} />
     </button>
@@ -286,14 +294,14 @@ export function Toggle({ checked, onChange, disabled, size = 'md' }) {
 /* ─── Tabs (Pill) ─── */
 export function PillTabs({ tabs, current, onChange }) {
   return (
-    <div className="flex gap-1 rounded-xl bg-ink-100/80 p-1 backdrop-blur-sm dark:bg-ink-800/80">
+    <div className="flex gap-1 rounded-2xl border border-ink-200/40 bg-ink-100/70 p-1 backdrop-blur-sm dark:border-ink-700/40 dark:bg-ink-800/70">
       {tabs.map((t) => (
         <button
           key={t.id}
           onClick={() => onChange(t.id)}
-          className={`flex-1 rounded-lg px-3 py-2 text-xs font-bold transition-all sm:text-sm ${
+          className={`flex-1 rounded-xl px-3 py-2 text-xs font-bold transition-all sm:text-sm ${
             current === t.id
-              ? 'bg-white text-ink-900 shadow-md dark:bg-ink-900 dark:text-white'
+              ? 'bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white shadow-glow'
               : 'text-ink-500 hover:text-ink-700 dark:text-ink-400 dark:hover:text-ink-200'
           }`}
         >
@@ -311,11 +319,15 @@ export function PillTabs({ tabs, current, onChange }) {
 export function SectionHeader({ title, subtitle, action, icon }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <div className="flex items-center gap-2">
-        {icon && <span className="text-lg">{icon}</span>}
+      <div className="flex items-center gap-2.5">
+        {icon && (
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-500/15 via-pink-500/10 to-violet-500/15 text-base dark:from-brand-500/25 dark:to-violet-500/20">
+            {icon}
+          </span>
+        )}
         <div>
-          <h3 className="font-display text-base font-extrabold sm:text-lg">{title}</h3>
-          {subtitle && <p className="text-xs text-ink-500">{subtitle}</p>}
+          <h3 className="font-display text-base font-black tracking-tight sm:text-lg text-ink-900 dark:text-white">{title}</h3>
+          {subtitle && <p className="text-xs text-ink-500 dark:text-ink-400">{subtitle}</p>}
         </div>
       </div>
       {action}
@@ -349,8 +361,9 @@ function DashMobileTabBar({ links, current, setCurrent, accent }) {
   return (
     <nav
       aria-label="Navigation dashboard"
-      className="dash-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-white/20 bg-white/90 backdrop-blur-xl dark:border-ink-800/60 dark:bg-ink-950/90 lg:hidden pb-[env(safe-area-inset-bottom,0px)]"
+      className="dash-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-white/25 bg-white/90 backdrop-blur-2xl dark:border-ink-800/60 dark:bg-ink-950/92 lg:hidden pb-[env(safe-area-inset-bottom,0px)]"
     >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-brand-500/0 via-pink-500/50 to-violet-500/0" />
       <div
         className="grid h-16"
         style={{ gridTemplateColumns: `repeat(${links.length}, minmax(0, 1fr))` }}
@@ -366,13 +379,16 @@ function DashMobileTabBar({ links, current, setCurrent, accent }) {
                 : 'text-ink-500 dark:text-ink-400'
             }`}
           >
-            <span className="shrink-0 scale-90 sm:scale-100">{l.icon}</span>
-            <span className="w-full truncate text-center text-[9px] font-bold leading-tight sm:text-[10px]">
+            {current === l.id && (
+              <span className={`absolute inset-x-2 top-1 bottom-1 rounded-2xl bg-gradient-to-b from-brand-500/15 to-violet-500/10 dark:from-brand-500/25 dark:to-violet-500/15 border border-brand-500/20`} />
+            )}
+            <span className={`relative shrink-0 scale-90 sm:scale-100 ${current === l.id ? 'scale-105 sm:scale-110' : ''}`}>{l.icon}</span>
+            <span className="relative w-full truncate text-center text-[9px] font-bold leading-tight sm:text-[10px]">
               {l.label}
             </span>
             {current === l.id && (
               <span
-                className={`absolute bottom-[calc(env(safe-area-inset-bottom,0px)+2px)] h-0.5 w-8 rounded-full bg-gradient-to-r ${accent.from} ${accent.to}`}
+                className={`absolute bottom-[calc(env(safe-area-inset-bottom,0px)+2px)] h-0.5 w-8 rounded-full bg-gradient-to-r ${accent.from} ${accent.to} shadow-glow`}
               />
             )}
           </button>
@@ -403,33 +419,38 @@ export function DashLayout({
   };
 
   return (
-    <div className="page-enter flex min-h-screen min-h-[100dvh] overflow-x-hidden bg-ink-50 dark:bg-ink-950">
+    <div className="page-enter relative flex min-h-screen min-h-[100dvh] overflow-x-hidden bg-gradient-to-b from-amber-50/60 via-ink-50 to-violet-50/30 dark:from-ink-950 dark:via-ink-950 dark:to-ink-950">
+      <div className="pointer-events-none absolute inset-0 mesh-bg opacity-70 dark:opacity-50" aria-hidden />
+      <div className="pointer-events-none absolute inset-0 grid-bg opacity-40 dark:opacity-30" aria-hidden />
+
       {open && (
         <button
           type="button"
           aria-label="Fermer le menu"
-          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 bg-black/45 backdrop-blur-sm lg:hidden"
           onClick={() => setOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-[min(18rem,88vw)] flex-col border-r border-white/20 bg-white/80 backdrop-blur-xl transition-transform duration-300 dark:border-ink-800/60 dark:bg-ink-900/80 lg:static lg:z-auto lg:w-72 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-[min(18rem,88vw)] flex-col border-r border-white/25 bg-white/85 backdrop-blur-2xl transition-transform duration-300 dark:border-white/5 dark:bg-ink-900/90 lg:static lg:z-auto lg:w-72 lg:translate-x-0 ${
           open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
+        <div className={`pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accent.gradient}`} />
+
         {/* Logo */}
-        <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-white/20 px-4 dark:border-ink-800 sm:px-5">
+        <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-white/20 px-4 dark:border-ink-800/80 sm:px-5">
           <button
             type="button"
             onClick={() => goto('landing')}
             className="group flex min-w-0 cursor-grow items-center gap-2"
           >
             <Logo />
-            <span className="truncate font-display text-lg font-extrabold">YoHa</span>
+            <span className="truncate font-display text-lg font-black tracking-tight">YoHa</span>
             <span
-              className={`hidden shrink-0 rounded-lg px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-white bg-gradient-to-r sm:inline ${accent.gradient}`}
+              className={`hidden shrink-0 rounded-lg px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-white shadow-glow bg-gradient-to-r sm:inline ${accent.gradient}`}
             >
               {accent.emoji} {accent.name}
             </span>
@@ -451,14 +472,17 @@ export function DashLayout({
               key={l.id}
               type="button"
               onClick={() => pickTab(l.id)}
-              className={`flex w-full min-w-0 cursor-grow items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition sm:px-4 sm:py-3 ${
+              className={`relative flex w-full min-w-0 cursor-grow items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition sm:px-4 sm:py-3 ${
                 current === l.id
-                  ? `bg-gradient-to-r text-white shadow-lg ${accent.from} ${accent.to}`
-                  : 'text-ink-600 hover:bg-white/60 dark:text-ink-300 dark:hover:bg-ink-800/60'
+                  ? `bg-gradient-to-r text-white shadow-glow ${accent.from} ${accent.to}`
+                  : 'text-ink-600 hover:bg-brand-500/8 dark:text-ink-300 dark:hover:bg-white/5'
               }`}
             >
               <span className="shrink-0">{l.icon}</span>
               <span className="truncate">{l.label}</span>
+              {current === l.id && (
+                <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-white/90 shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+              )}
             </button>
           ))}
         </nav>
@@ -468,7 +492,7 @@ export function DashLayout({
           <button
             type="button"
             onClick={() => setDark((d) => !d)}
-            className="flex w-full cursor-grow items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-ink-600 transition hover:bg-white/60 dark:text-ink-300 dark:hover:bg-ink-800/60"
+            className="flex w-full cursor-grow items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-ink-600 transition hover:bg-brand-500/8 dark:text-ink-300 dark:hover:bg-white/5"
           >
             {dark ? <I.Sun size={18} /> : <I.Moon size={18} />}
             {dark ? 'Mode clair' : 'Mode sombre'}
@@ -476,7 +500,7 @@ export function DashLayout({
           <button
             type="button"
             onClick={() => goto('landing')}
-            className="flex w-full cursor-grow items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-ink-600 transition hover:bg-white/60 dark:text-ink-300 dark:hover:bg-ink-800/60"
+            className="flex w-full cursor-grow items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-ink-600 transition hover:bg-brand-500/8 dark:text-ink-300 dark:hover:bg-white/5"
           >
             <I.Left size={18} /> Retour à YoHa
           </button>
@@ -484,29 +508,30 @@ export function DashLayout({
       </aside>
 
       {/* Main */}
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         {/* Header */}
-        <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b border-white/20 bg-white/80 px-3 backdrop-blur-xl dark:border-ink-800/60 dark:bg-ink-950/80 sm:h-16 sm:gap-3 sm:px-5">
+        <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b border-white/25 bg-white/75 px-3 backdrop-blur-2xl dark:border-white/5 dark:bg-ink-950/75 sm:h-16 sm:gap-3 sm:px-5">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-brand-500/0 via-pink-500/35 to-violet-500/0" />
           <button
             type="button"
             aria-label="Menu"
             onClick={() => setOpen(true)}
-            className="grid h-9 w-9 shrink-0 cursor-grow place-items-center rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 lg:hidden"
+            className="grid h-9 w-9 shrink-0 cursor-grow place-items-center rounded-xl border border-ink-200/50 bg-white/70 hover:bg-brand-500/10 dark:border-ink-700/50 dark:bg-ink-900/70 dark:hover:bg-brand-500/15 lg:hidden"
           >
             <I.Sparkle size={20} />
           </button>
           <div className="min-w-0 flex-1">
-            <h1 className="truncate font-display text-base font-extrabold sm:text-xl">{title}</h1>
+            <h1 className="truncate font-display text-base font-black tracking-tight sm:text-xl text-ink-900 dark:text-white">{title}</h1>
             {subtitle && (
               <div className="truncate text-[11px] text-ink-500 sm:text-xs">{subtitle}</div>
             )}
           </div>
           <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
             <span
-              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold text-emerald-600 sm:px-3 sm:text-xs"
+              className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold text-emerald-600 sm:px-3 sm:text-xs dark:text-emerald-400"
               title="Synchronisé en direct"
             >
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 sm:h-2 sm:w-2" />
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 sm:h-2 sm:w-2 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
               <span className="hidden sm:inline">En direct</span>
               <span className="sm:hidden">Live</span>
             </span>
@@ -514,7 +539,7 @@ export function DashLayout({
               <img
                 src={gerantPhoto}
                 alt=""
-                className="h-8 w-8 rounded-xl border-2 border-white object-cover dark:border-ink-800 sm:h-9 sm:w-9"
+                className="h-8 w-8 rounded-xl border-2 border-white object-cover shadow-md ring-2 ring-brand-500/30 dark:border-ink-800 sm:h-9 sm:w-9"
               />
             )}
           </div>
@@ -522,7 +547,9 @@ export function DashLayout({
 
         {/* Content */}
         <div className="min-w-0 flex-1 overflow-x-hidden p-3 pb-safe-nav sm:p-5 sm:pb-safe-nav lg:pb-5">
-          {children}
+          <div key={current} className="page-enter stagger-children space-y-0">
+            {children}
+          </div>
         </div>
       </div>
 
@@ -829,17 +856,17 @@ export function formatOrderDateTime(ts) {
 export function DateRangeSelector({ dateRange, setDateRange, startDate, setStartDate, endDate, setEndDate }) {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 flex-wrap">
-      <div className="inline-flex items-center rounded-2xl bg-ink-100 dark:bg-ink-800 p-1 border border-ink-200/60 dark:border-ink-700/60 shadow-xs">
+      <div className="inline-flex items-center rounded-2xl bg-ink-100/80 dark:bg-ink-800/80 p-1 border border-ink-200/60 dark:border-ink-700/60 shadow-xs backdrop-blur-sm">
         <button type="button" onClick={() => setDateRange('today')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${dateRange === 'today' ? 'bg-white text-ink-900 shadow-sm dark:bg-ink-900 dark:text-white' : 'text-ink-500 hover:text-ink-900 dark:hover:text-white'}`}>
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${dateRange === 'today' ? 'bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-glow' : 'text-ink-500 hover:text-ink-900 dark:hover:text-white'}`}>
           Aujourd&apos;hui
         </button>
         <button type="button" onClick={() => setDateRange('custom')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${dateRange === 'custom' ? 'bg-white text-ink-900 shadow-sm dark:bg-ink-900 dark:text-white' : 'text-ink-500 hover:text-ink-900 dark:hover:text-white'}`}>
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${dateRange === 'custom' ? 'bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-glow' : 'text-ink-500 hover:text-ink-900 dark:hover:text-white'}`}>
           <span>📅 Plage de dates</span>
         </button>
         <button type="button" onClick={() => setDateRange('all')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${dateRange === 'all' ? 'bg-white text-ink-900 shadow-sm dark:bg-ink-900 dark:text-white' : 'text-ink-500 hover:text-ink-900 dark:hover:text-white'}`}>
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${dateRange === 'all' ? 'bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-glow' : 'text-ink-500 hover:text-ink-900 dark:hover:text-white'}`}>
           Tout
         </button>
       </div>
@@ -965,8 +992,8 @@ export function KpiCard({ label, value, sub, icon, color, trend, trendLabel, for
     <GlassCard className="p-4 sm:p-5" glow={color}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[10px] font-bold uppercase tracking-wider text-ink-500">{label}</div>
-          <div className="mt-0.5 font-display text-xl font-black sm:text-2xl truncate">{display}</div>
+          <div className="truncate text-[10px] font-bold uppercase tracking-wider text-ink-500 dark:text-ink-400">{label}</div>
+          <div className="mt-0.5 font-display text-xl font-black tracking-tight text-ink-900 dark:text-white sm:text-2xl truncate">{display}</div>
           {sub && <div className="mt-0.5 text-[11px] text-ink-400">{sub}</div>}
           {trend !== undefined && (
             <div className="mt-1.5 flex items-center gap-1.5">
@@ -975,7 +1002,7 @@ export function KpiCard({ label, value, sub, icon, color, trend, trendLabel, for
             </div>
           )}
         </div>
-        <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br text-white shadow-md ${color}`}>
+        <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br text-white shadow-glow ${color}`}>
           {icon}
         </span>
       </div>
@@ -1001,7 +1028,7 @@ export function LegendRow({ items, colors = ['#f97316', '#ec4899', '#8b5cf6', '#
 /* ─── InsightCard ─── */
 export function InsightCard({ children, icon, color = 'border-l-brand-500' }) {
   return (
-    <div className={`rounded-xl border-l-4 bg-white/60 dark:bg-ink-900/60 px-4 py-3 text-sm shadow-sm dark:border-ink-800 ${color}`}>
+    <div className={`rounded-2xl border border-white/20 border-l-4 bg-white/70 px-4 py-3 text-sm shadow-card backdrop-blur-sm dark:border-white/5 dark:bg-ink-900/70 ${color}`}>
       <div className="flex items-start gap-2">
         {icon && <span className="mt-0.5 shrink-0">{icon}</span>}
         <div className="text-ink-700 dark:text-ink-200">{children}</div>

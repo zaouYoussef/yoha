@@ -108,7 +108,7 @@ function MiniProgress({ status }) {
         <div
           className={`h-full rounded-full transition-all duration-500 ${
             live
-              ? 'bg-gradient-to-r from-brand-500 via-pink-500 to-emerald-500'
+              ? 'bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500'
               : 'bg-emerald-500'
           }`}
           style={{ width: `${pct}%` }}
@@ -126,7 +126,7 @@ function OrderCard({ order, onOpenOrder, onReorder, featured = false }) {
 
   return (
     <article
-      className={`group relative overflow-hidden rounded-3xl border transition-all duration-300 hover:shadow-cardhover ${
+      className={`group relative overflow-hidden rounded-3xl border transition-all duration-300 hover:shadow-cardhover animate-fade-up pressable ${
         featured
           ? 'bg-gradient-to-br from-brand-500/12 via-pink-500/8 to-orange-500/5 border-brand-500/25 shadow-glow'
           : `bg-white dark:bg-ink-900 border-ink-200/70 dark:border-ink-800 shadow-card`
@@ -207,7 +207,7 @@ function OrderCard({ order, onOpenOrder, onReorder, featured = false }) {
             <Button
               variant="primary"
               size={featured ? 'lg' : 'md'}
-              className="justify-center w-full"
+              className="justify-center w-full cta-brand border-0 shadow-glow btn-shimmer"
               onClick={() => onOpenOrder(order.id)}
             >
               Suivre en direct <I.Right size={16} />
@@ -239,17 +239,17 @@ function OrderCard({ order, onOpenOrder, onReorder, featured = false }) {
 function SectionTitle({ icon, title, count, live }) {
   return (
     <div className="flex items-center gap-3 mb-4">
-      <span className="w-10 h-10 rounded-2xl bg-ink-100 dark:bg-ink-800 grid place-items-center text-lg">
+      <span className="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-500/15 via-pink-500/10 to-violet-500/15 dark:from-brand-500/20 dark:via-pink-500/15 dark:to-violet-500/20 grid place-items-center text-lg border border-brand-500/15">
         {icon}
       </span>
       <div className="flex-1 min-w-0">
-        <h2 className="font-display font-bold text-lg sm:text-xl">{title}</h2>
+        <h2 className="font-display font-bold text-lg sm:text-xl text-ink-900 dark:text-white">{title}</h2>
         {count > 0 && (
           <p className="text-xs text-ink-500">
             {count} commande{count > 1 ? 's' : ''}
             {live && (
-              <span className="ml-2 inline-flex items-center gap-1 text-emerald-600 font-bold">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="ml-2 inline-flex items-center gap-1 text-brand-600 dark:text-brand-400 font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
                 Live
               </span>
             )}
@@ -275,10 +275,9 @@ function FidelityBalanceCard() {
   const remaining = isGoalReached ? 0 : 6 - currentStep;
 
   return (
-    <div className="mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 text-white p-5 sm:p-7 shadow-xl border border-emerald-400/40 relative group">
-      {/* Decorative Blur Orbs */}
+    <div className="mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 via-pink-600 to-violet-700 text-white p-5 sm:p-7 shadow-xl border border-brand-400/40 relative group">
       <div className="absolute -right-12 -bottom-12 w-48 h-48 bg-amber-400/15 rounded-full blur-3xl pointer-events-none group-hover:scale-125 transition-transform duration-700" />
-      <div className="absolute -left-12 -top-12 w-40 h-40 bg-teal-300/15 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute -left-12 -top-12 w-40 h-40 bg-pink-300/15 rounded-full blur-2xl pointer-events-none" />
 
       <div className="relative flex flex-col gap-5">
         {/* Top Header Row */}
@@ -289,7 +288,7 @@ function FidelityBalanceCard() {
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-extrabold text-xs tracking-wider uppercase text-emerald-200">
+                <span className="font-extrabold text-xs tracking-wider uppercase text-brand-100">
                   Solde & Récompense Fidélité
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-black uppercase text-amber-200 border border-white/20">
@@ -385,47 +384,51 @@ export function MyOrdersPage({ onBack, onOpenOrder, onReorder, onLogin, onBrowse
 
   if (mine.length === 0 && !loadingOrders) {
     return (
-      <div className="page-enter max-w-lg mx-auto px-4 py-16 sm:py-24 text-center">
-        <div className="text-6xl sm:text-7xl mb-4 animate-bounce-vertical flex items-center justify-center">
-          🍽️
-        </div>
-        <h2 className="font-display font-black text-2xl sm:text-3xl text-ink-900 dark:text-white">
-          Aucune commande pour l&apos;instant
-        </h2>
-        <p className="mt-3 text-ink-500 dark:text-ink-400 text-sm leading-relaxed max-w-md mx-auto">
-          {isGuest
-            ? 'Commandez sans compte : vos commandes invité restent visibles sur cet appareil. Créez un compte pour les retrouver partout.'
-            : 'Passez votre première commande depuis la carte des restaurants.'}
-        </p>
-        
-        <div className="mt-8 space-y-3 max-w-sm mx-auto">
-          <button
-            type="button"
-            onClick={onBrowse}
-            className="cursor-grow w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-brand-500 to-pink-500 text-white font-extrabold text-sm shadow-lg shadow-brand-500/30 hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2"
-          >
-            <span>Voir les établissements</span>
-            <I.Right size={18} />
-          </button>
-
-          {isGuest && onLogin && (
+      <div className="page-enter relative max-w-lg mx-auto px-4 py-16 sm:py-24 text-center overflow-hidden">
+        <div className="absolute inset-0 mesh-bg opacity-60 pointer-events-none" aria-hidden />
+        <div className="yoha-ambient opacity-50" aria-hidden />
+        <div className="relative">
+          <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 text-white grid place-items-center text-4xl mb-5 shadow-glow animate-bounce-vertical">
+            🍽️
+          </div>
+          <h2 className="font-display font-black text-2xl sm:text-3xl text-ink-900 dark:text-white">
+            Aucune commande pour l&apos;instant
+          </h2>
+          <p className="mt-3 text-ink-500 dark:text-ink-400 text-sm leading-relaxed max-w-md mx-auto">
+            {isGuest
+              ? 'Commandez sans compte : vos commandes invité restent visibles sur cet appareil. Créez un compte pour les retrouver partout.'
+              : 'Passez votre première commande depuis la carte des restaurants.'}
+          </p>
+          
+          <div className="mt-8 space-y-3 max-w-sm mx-auto">
             <button
               type="button"
-              onClick={onLogin}
-              className="cursor-grow w-full py-3.5 px-6 rounded-2xl bg-white dark:bg-ink-900 text-ink-900 dark:text-white border border-ink-200 dark:border-ink-800 font-extrabold text-xs sm:text-sm shadow-sm hover:border-brand-500/50 hover:bg-brand-500/5 transition-all duration-300 flex items-center justify-center gap-2"
+              onClick={onBrowse}
+              className="cursor-grow w-full py-4 px-6 rounded-2xl cta-brand btn-shimmer border-0 text-white font-extrabold text-sm shadow-glow hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2"
             >
-              <I.User size={16} className="text-brand-500" />
-              <span>Créer un compte / Se connecter</span>
+              <span>Voir les établissements</span>
+              <I.Right size={18} />
             </button>
-          )}
 
-          <button
-            type="button"
-            onClick={onBack}
-            className="cursor-grow w-full py-3 px-6 rounded-xl text-ink-500 dark:text-ink-400 font-bold text-xs hover:text-ink-900 dark:hover:text-white transition-colors"
-          >
-            ← Retour à l&apos;accueil
-          </button>
+            {isGuest && onLogin && (
+              <button
+                type="button"
+                onClick={onLogin}
+                className="cursor-grow w-full py-3.5 px-6 rounded-2xl bg-white/90 dark:bg-ink-900/90 text-ink-900 dark:text-white border border-brand-500/25 font-extrabold text-xs sm:text-sm shadow-sm hover:border-brand-500/50 hover:bg-brand-500/5 transition-all duration-300 flex items-center justify-center gap-2 backdrop-blur"
+              >
+                <I.User size={16} className="text-brand-500" />
+                <span>Créer un compte / Se connecter</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={onBack}
+              className="cursor-grow w-full py-3 px-6 rounded-xl text-ink-500 dark:text-ink-400 font-bold text-xs hover:text-ink-900 dark:hover:text-white transition-colors"
+            >
+              ← Retour à l&apos;accueil
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -437,41 +440,47 @@ export function MyOrdersPage({ onBack, onOpenOrder, onReorder, onLogin, onBrowse
   const listPast = listOrders.filter((o) => !isActive(o.status));
 
   return (
-    <div className="page-enter max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <div className="page-enter relative max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12 overflow-hidden">
+      <div className="absolute inset-0 mesh-bg opacity-45 pointer-events-none" aria-hidden />
+      <div className="yoha-ambient opacity-60" aria-hidden />
       <button
         type="button"
         onClick={onBack}
-        className="cursor-grow inline-flex items-center gap-2 mb-6 px-3 py-2 rounded-xl hover:bg-ink-100 dark:hover:bg-ink-800 transition text-sm text-ink-600"
+        className="relative cursor-grow inline-flex items-center gap-2 mb-6 px-3 py-2 rounded-xl hover:bg-white/70 dark:hover:bg-ink-800 transition text-sm text-ink-600 backdrop-blur-sm"
       >
         <I.Left size={18} /> Retour
       </button>
 
-      {/* En-tête */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-ink-900 via-ink-800 to-ink-900 dark:from-black dark:via-ink-950 dark:to-black text-white p-6 sm:p-8 mb-8">
-        <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-brand-500/20 blur-3xl" aria-hidden />
-        <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-pink-500/15 blur-2xl" aria-hidden />
+      <div className="relative overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-brand-500 via-pink-500 to-violet-600 text-white p-6 sm:p-8 mb-8 shadow-glow-lg">
+        <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/20 blur-3xl animate-blob" aria-hidden />
+        <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-amber-300/25 blur-2xl" aria-hidden />
+        <div className="absolute top-1/2 right-1/4 w-24 h-24 rounded-full bg-violet-300/20 blur-2xl" aria-hidden />
+        <div className="absolute inset-0 card-shine opacity-40 pointer-events-none" aria-hidden />
         <div className="relative">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-white/50">Espace client</p>
-              <h1 className="mt-1 font-display font-extrabold text-3xl sm:text-4xl tracking-tight">
-                Mes commandes
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/80">Espace client</p>
+              <h1 className="mt-1.5 font-display font-black text-3xl sm:text-4xl tracking-tight leading-none">
+                Mes{' '}
+                <span className="text-amber-200">
+                  commandes
+                </span>
               </h1>
-              <p className="mt-2 text-sm text-white/70 max-w-md">
+              <p className="mt-2.5 text-sm text-white/80 max-w-md">
                 {isGuest
                   ? 'Mode invité — historique enregistré sur cet appareil.'
                   : 'Suivez vos livraisons en direct et recommandez en un clic.'}
               </p>
             </div>
-            <div className="shrink-0 text-center px-4 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10">
+            <div className="shrink-0 text-center px-4 py-3 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-inner">
               <div className="font-display font-extrabold text-2xl">{mine.length}</div>
-              <div className="text-[10px] uppercase tracking-wider text-white/60">total</div>
+              <div className="text-[10px] uppercase tracking-wider text-white/70">total</div>
             </div>
           </div>
 
           {activeOrders.length > 0 && (
-            <div className="mt-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold ring-1 ring-emerald-400/30">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="mt-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 text-white text-xs font-bold ring-1 ring-white/30 backdrop-blur-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
               {activeOrders.length} en cours
             </div>
           )}

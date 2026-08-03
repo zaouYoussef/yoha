@@ -5,17 +5,19 @@ import { Logo } from './Logo.jsx';
 
 export function Footer({ goto }) {
   return (
-    <footer className="relative mt-10 border-t border-ink-200/60 pb-24 dark:border-ink-800/60 md:pb-0">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="relative mt-10 overflow-hidden border-t border-ink-200/60 pb-24 dark:border-ink-800/60 md:pb-0">
+      <div className="pointer-events-none absolute inset-0 mesh-bg opacity-40 dark:opacity-25" aria-hidden />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-brand-500/0 via-pink-500/50 to-violet-500/0" />
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
         <div>
           <div className="flex items-center gap-2">
             <Logo/>
-            <span className="font-display font-extrabold text-xl">YoHa</span>
+            <span className="font-display font-black text-xl text-gradient">YoHa</span>
           </div>
           <p className="mt-3 text-sm text-ink-500 dark:text-ink-400 max-w-xs">Livraison de repas intelligente, pensée pour les résidences universitaires et les hôpitaux. Fait avec passion.</p>
           {goto && (
             <div className="mt-4 space-y-1.5">
-              <div className="text-[11px] uppercase tracking-wider font-bold text-brand-600">🚀 Espace Pro · Démo</div>
+              <div className="text-[11px] uppercase tracking-wider font-bold bg-gradient-to-r from-brand-600 to-pink-600 bg-clip-text text-transparent">Espace Pro · Démo</div>
               <button onClick={() => goto('admin')} className="cursor-grow block text-sm font-semibold text-ink-700 dark:text-ink-200 hover:text-brand-500 transition">→ Admin Dashboard</button>
               <button onClick={() => goto('delivery')} className="cursor-grow block text-sm font-semibold text-ink-700 dark:text-ink-200 hover:text-brand-500 transition">→ Dashboard Livreur</button>
               <button onClick={() => goto('restaurant-dash')} className="cursor-grow block text-sm font-semibold text-ink-700 dark:text-ink-200 hover:text-brand-500 transition">→ Dashboard Restaurant</button>
@@ -26,7 +28,7 @@ export function Footer({ goto }) {
         <FooterCol title="Entreprise"  links={['À propos','Presse','Blog','Contact']}/>
         <FooterCol title="Légal"       links={['CGU','Confidentialité','Cookies','Mentions légales']}/>
       </div>
-      <div className="border-t border-ink-200/60 dark:border-ink-800/60">
+      <div className="relative border-t border-ink-200/60 dark:border-ink-800/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-500">
           <span>© {new Date().getFullYear()} YoHa. Conçu à l&apos;Alliance, livré chez vous.</span>
           <span className="inline-flex items-center gap-3">
@@ -40,7 +42,7 @@ export function Footer({ goto }) {
 export function FooterCol({ title, links }) {
   return (
     <div>
-      <h4 className="font-display font-bold mb-3">{title}</h4>
+      <h4 className="font-display font-black mb-3">{title}</h4>
       <ul className="space-y-2">
         {links.map(l => <li key={l}><a className="cursor-grow text-sm text-ink-500 hover:text-brand-500 transition" href="#">{l}</a></li>)}
       </ul>

@@ -39,12 +39,22 @@ class Command(BaseCommand):
             self.stderr.write(self.style.WARNING("Synchro Glovo désactivée (GLOVO_SYNC_ENABLED=False)."))
             return
 
+        if len(reports) == 1 and reports[0].status == "skipped" and "verrou" in " ".join(reports[0].messages):
+            self.stderr.write(self.style.ERROR(
+                "Verrou Glovo occupé — une autre synchro tourne encore "
+                "(ou un worker gunicorn). Réessayez dans 1–2 min, ou "
+                "redémarrez gunicorn puis relancez --force."
+            ))
+            return
+
         for report in reports:
             for msg in report.messages[:20]:
                 self.stdout.write(f"  · {msg}")
             if report.status == "error":
                 self.stderr.write(self.style.ERROR(report.summary()))
             elif report.status == "up_to_date":
+                self.stdout.write(self.style.WARNING(report.summary()))
+            elif report.status == "skipped":
                 self.stdout.write(self.style.WARNING(report.summary()))
             else:
                 self.stdout.write(self.style.SUCCESS(report.summary()))

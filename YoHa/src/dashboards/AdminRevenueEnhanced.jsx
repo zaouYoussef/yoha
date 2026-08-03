@@ -96,7 +96,7 @@ export default function AdminRevenueEnhanced({ orders }) {
         <StatCard label="Chiffre d'affaires" value={formatMAD(totalRev)} sub={`${filtered.length} commandes`} icon={<I.Star size={16} />} color="from-brand-500 to-pink-500" animate />
         <StatCard label="Bénéfice brut" value={formatMAD(totalProfit)} sub={`${commissionRate}% commission`} icon={<I.Sparkle size={16} />} color="from-violet-500 to-fuchsia-500" animate />
         <KpiCard label="Bénéfice net" value={totalNet} sub={`Marge ${margin}%`} icon={<I.Award size={16} />} color="from-emerald-500 to-teal-500" format={(v) => formatMAD(v)} />
-        <StatCard label="Panier moyen" value={formatMAD(Math.round(avgOrder))} sub={`${filtered.length} commandes`} icon={<I.Bag size={16} />} color="from-sky-500 to-indigo-500" />
+        <StatCard label="Panier moyen" value={formatMAD(Math.round(avgOrder))} sub={`${filtered.length} commandes`} icon={<I.Bag size={16} />} color="from-brand-500 to-violet-500" />
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">

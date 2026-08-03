@@ -2,7 +2,6 @@ import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import { AppProviders } from '@/providers/AppProviders';
 import { AnalyticsTracker } from '@/components/ui/AnalyticsTracker';
 import './globals.css';
-
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
@@ -13,6 +12,7 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-jakarta',
   display: 'swap',
+  weight: ['500', '600', '700', '800'],
 });
 
 export const metadata = {
@@ -100,13 +100,13 @@ const jsonLd = {
   }
 };
 
-import { SmoothScrollProvider } from '@/components/effects/SmoothScrollProvider';
 
 export default function RootLayout({ children }) {
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#fff7ed" />
+        <meta name="theme-color" content="#f97316" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/logo.png" />
         <link rel="preload" as="image" href="/videos/hero-food-orbit-poster.webp" fetchPriority="high" type="image/webp" />
@@ -117,10 +117,8 @@ export default function RootLayout({ children }) {
       </head>
       <body className={`${inter.variable} ${jakarta.variable} font-sans min-h-screen min-h-[100dvh] bg-white dark:bg-ink-950 text-ink-900 dark:text-ink-50 overflow-x-hidden`}>
         <AppProviders>
-          <SmoothScrollProvider>
-            <AnalyticsTracker />
-            {children}
-          </SmoothScrollProvider>
+          <AnalyticsTracker />
+          {children}
         </AppProviders>
       </body>
     </html>

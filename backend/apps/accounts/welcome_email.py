@@ -29,8 +29,9 @@ def render_welcome_email_html(name: str, email: str) -> str:
     safe_name = _esc(name)
     logo_url = _esc(_abs_url("/logo.png"))
     browse_url = _esc(_abs_url("/browse"))
-    accent = "#f97316"
-    accent_secondary = "#ec4899"
+    orange = "#f97316"
+    pink = "#ec4899"
+    violet = "#8b5cf6"
 
     return f"""<!DOCTYPE html>
 <html lang="fr">
@@ -39,142 +40,169 @@ def render_welcome_email_html(name: str, email: str) -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light"/>
   <meta name="supported-color-schemes" content="light"/>
-  <title>Bienvenue sur YoHa 🎉</title>
+  <title>Bienvenue sur YoHa</title>
   <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
   <style>table,td,div,a {{font-family:Arial,sans-serif!important;}}</style>
   <![endif]-->
 </head>
-<body style="margin:0;padding:0;background-color:#fdfbfb;background-image:linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%, #ffdde1 100%);
-  background: radial-gradient(at 0% 0%, #ffe4e6 0px, transparent 50%), radial-gradient(at 100% 0%, #e0e7ff 0px, transparent 50%), radial-gradient(at 100% 100%, #fbcfe8 0px, transparent 50%), radial-gradient(at 0% 100%, #fce7f3 0px, transparent 50%);
-  font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#0f172a;">
+<body style="margin:0;padding:0;background-color:#fff7ed;
+  font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#1e1b4b;">
 
 <!-- Preheader -->
-<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#fdfbfb;">
-  Votre compte YoHa est prêt — commandez en quelques clics.
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#fff7ed;">
+  Votre compte YoHa est prêt — commandez en quelques clics sur le campus.
+  &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
 </div>
 
-<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px;">
-  <tr><td align="center">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#fff7ed;">
+  <tr>
+    <td align="center" style="padding:0;">
+      <!-- Soft brand wash (table-safe) -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="height:6px;line-height:6px;font-size:0;background:linear-gradient(90deg,{orange},{pink},{violet});">&nbsp;</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" style="padding:36px 16px 48px;">
 
-    <!-- Outer wrapper -->
-    <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
 
-      <!-- ═══ LOGO ═══ -->
-      <tr><td style="padding:8px 0 32px;">
-        <table cellpadding="0" cellspacing="0" align="center"><tr>
-          <td style="width:56px;height:56px;vertical-align:middle;">
-            <img src="{logo_url}" width="56" height="56" alt="YoHa"
-              style="display:block;border-radius:18px;object-fit:contain;background:#ffffff;
-              box-shadow:0 8px 24px rgba(249,115,22,0.15);" />
+      <!-- Brand mark -->
+      <tr><td align="center" style="padding:0 0 28px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
+          <td style="width:64px;height:64px;vertical-align:middle;">
+            <img src="{logo_url}" width="64" height="64" alt="YoHa"
+              style="display:block;border:0;border-radius:20px;object-fit:contain;background:#ffffff;
+              box-shadow:0 10px 28px rgba(249,115,22,0.28);" />
           </td>
-          <td style="padding-left:16px;">
-            <div style="font-size:28px;font-weight:900;letter-spacing:-0.04em;
-              background:linear-gradient(135deg,{accent},{accent_secondary});-webkit-background-clip:text;
-              -webkit-text-fill-color:transparent;background-clip:text;">YoHa</div>
-            <div style="font-size:11px;color:#64748b;font-weight:800;letter-spacing:0.08em;
-              text-transform:uppercase;">Campus &amp; CHU · Tanger</div>
+          <td style="padding-left:16px;vertical-align:middle;">
+            <div style="font-size:30px;font-weight:900;letter-spacing:-0.045em;line-height:1;
+              color:{orange};">YoHa</div>
+            <div style="font-size:11px;color:#9f7aea;font-weight:800;letter-spacing:0.12em;
+              text-transform:uppercase;margin-top:6px;">Campus &amp; CHU · Tanger</div>
           </td>
         </tr></table>
       </td></tr>
 
-      <!-- ═══ HERO CARD (GLASSMORPHISM) ═══ -->
-      <tr><td style="background:#ffffff;background:rgba(255,255,255,0.7);
-        backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-        border-radius:36px;border-top:1px solid rgba(255,255,255,0.9);border-left:1px solid rgba(255,255,255,0.9);
-        border-right:1px solid rgba(255,255,255,0.3);border-bottom:1px solid rgba(255,255,255,0.3);
-        overflow:hidden;box-shadow:0 24px 48px rgba(15,23,42,0.08), 0 1px 3px rgba(15,23,42,0.04);">
+      <!-- Hero card -->
+      <tr><td style="background-color:#ffffff;border-radius:28px;overflow:hidden;
+        border:1px solid #fed7aa;
+        box-shadow:0 24px 48px rgba(249,115,22,0.10), 0 4px 12px rgba(139,92,246,0.06);">
 
-        <table width="100%" cellpadding="0" cellspacing="0">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 
-          <!-- Hero section -->
-          <tr><td style="padding:48px 32px 32px;text-align:center;position:relative;">
+          <!-- Gradient header strip -->
+          <tr>
+            <td style="height:4px;line-height:4px;font-size:0;background:linear-gradient(90deg,{orange},{pink},{violet});">&nbsp;</td>
+          </tr>
 
-            <!-- Floating Glow Orbs -->
-            <div style="position:absolute;top:-20px;left:-20px;width:120px;height:120px;background:{accent};
-              filter:blur(70px);-webkit-filter:blur(70px);opacity:0.15;border-radius:50%;"></div>
-            <div style="position:absolute;bottom:-20px;right:-20px;width:120px;height:120px;background:{accent_secondary};
-              filter:blur(70px);-webkit-filter:blur(70px);opacity:0.15;border-radius:50%;"></div>
+          <tr><td style="padding:44px 36px 28px;text-align:center;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 22px;">
+              <tr>
+                <td align="center" style="width:72px;height:72px;border-radius:22px;
+                  background:linear-gradient(145deg,#fff7ed,#fce7f3);
+                  border:1px solid #fdba74;font-size:34px;line-height:72px;
+                  box-shadow:0 8px 24px rgba(236,72,153,0.18);">🎉</td>
+              </tr>
+            </table>
 
-            <!-- Emoji badge -->
-            <div style="display:inline-block;width:88px;height:88px;border-radius:28px;
-              background:linear-gradient(135deg,#ffffff,rgba(249,115,22,0.1));line-height:88px;
-              font-size:42px;text-align:center;margin-bottom:24px;border:1px solid rgba(255,255,255,0.8);
-              box-shadow:0 12px 32px rgba(249,115,22,0.15);text-shadow:0 4px 12px rgba(0,0,0,0.1);">🎉</div>
-
-            <h1 style="margin:0 0 12px;font-size:32px;font-weight:900;letter-spacing:-0.04em;
-              color:#0f172a;line-height:1.15;text-shadow:0 2px 10px rgba(255,255,255,0.8);">Bienvenue sur YoHa !</h1>
-            <p style="margin:0;font-size:16px;line-height:1.65;color:#475569;max-width:440px;font-weight:500;
-              margin-left:auto;margin-right:auto;">
-              Votre compte <strong style="color:#0f172a;font-weight:800;">{safe_name}</strong> a bien été créé.
-              Commandez vos plats, courses de supermarché, médicaments et plus encore — livrés
-              directement sur le campus, à l&apos;aile hospitalière ou à la BU. 🏍️
+            <h1 style="margin:0 0 14px;font-size:34px;font-weight:900;letter-spacing:-0.04em;
+              color:#1e1b4b;line-height:1.12;">Bienvenue sur YoHa</h1>
+            <p style="margin:0 auto;font-size:16px;line-height:1.65;color:#64748b;max-width:420px;font-weight:500;">
+              Bonjour <strong style="color:#1e1b4b;font-weight:800;">{safe_name}</strong> —
+              votre compte est prêt. Plats, courses et pharmacie, livrés sur le campus,
+              à l&apos;aile hospitalière ou à la BU.
             </p>
           </td></tr>
 
-          <!-- ═══ BENEFITS (FROSTED CARDS) ═══ -->
-          <tr><td style="padding:12px 24px 36px;">
-            <table width="100%" cellpadding="0" cellspacing="0">
+          <!-- Benefits -->
+          <tr><td style="padding:8px 28px 32px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td style="padding:6px;vertical-align:top;width:33.33%;">
-                  <div style="background:rgba(255,255,255,0.6);border-radius:20px;
-                    border:1px solid rgba(255,255,255,0.9);box-shadow:0 8px 24px rgba(15,23,42,0.04);
-                    padding:20px 12px;text-align:center;height:100%;">
-                    <div style="font-size:28px;margin-bottom:10px;text-shadow:0 4px 12px rgba(0,0,0,0.1);">⚡</div>
-                    <div style="font-size:13px;font-weight:900;color:#0f172a;letter-spacing:-0.01em;">Livraison rapide</div>
-                    <div style="font-size:11px;color:#64748b;font-weight:600;margin-top:4px;line-height:1.5;">
-                      En 30-45 min sur l&apos;Alliance Tangéroise.</div>
-                  </div>
+                <td width="33%" style="padding:6px;vertical-align:top;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                    style="background:#fff7ed;border-radius:18px;border:1px solid #fed7aa;">
+                    <tr><td style="padding:18px 12px;text-align:center;">
+                      <div style="font-size:24px;margin-bottom:8px;">⚡</div>
+                      <div style="font-size:13px;font-weight:900;color:#1e1b4b;">Livraison rapide</div>
+                      <div style="font-size:11px;color:#78716c;font-weight:600;margin-top:4px;line-height:1.45;">
+                        30–45 min sur le campus</div>
+                    </td></tr>
+                  </table>
                 </td>
-                <td style="padding:6px;vertical-align:top;width:33.33%;">
-                  <div style="background:rgba(255,255,255,0.6);border-radius:20px;
-                    border:1px solid rgba(255,255,255,0.9);box-shadow:0 8px 24px rgba(15,23,42,0.04);
-                    padding:20px 12px;text-align:center;height:100%;">
-                    <div style="font-size:28px;margin-bottom:10px;text-shadow:0 4px 12px rgba(0,0,0,0.1);">📍</div>
-                    <div style="font-size:13px;font-weight:900;color:#0f172a;letter-spacing:-0.01em;">Suivi en direct</div>
-                    <div style="font-size:11px;color:#64748b;font-weight:600;margin-top:4px;line-height:1.5;">
-                      Votre livreur, positionné en temps réel.</div>
-                  </div>
+                <td width="33%" style="padding:6px;vertical-align:top;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                    style="background:#fdf2f8;border-radius:18px;border:1px solid #fbcfe8;">
+                    <tr><td style="padding:18px 12px;text-align:center;">
+                      <div style="font-size:24px;margin-bottom:8px;">📍</div>
+                      <div style="font-size:13px;font-weight:900;color:#1e1b4b;">Suivi en direct</div>
+                      <div style="font-size:11px;color:#78716c;font-weight:600;margin-top:4px;line-height:1.45;">
+                        Votre livreur en live</div>
+                    </td></tr>
+                  </table>
                 </td>
-                <td style="padding:6px;vertical-align:top;width:33.33%;">
-                  <div style="background:rgba(255,255,255,0.6);border-radius:20px;
-                    border:1px solid rgba(255,255,255,0.9);box-shadow:0 8px 24px rgba(15,23,42,0.04);
-                    padding:20px 12px;text-align:center;height:100%;">
-                    <div style="font-size:28px;margin-bottom:10px;text-shadow:0 4px 12px rgba(0,0,0,0.1);">🎁</div>
-                    <div style="font-size:13px;font-weight:900;color:#0f172a;letter-spacing:-0.01em;">Offres exclusives</div>
-                    <div style="font-size:11px;color:#64748b;font-weight:600;margin-top:4px;line-height:1.5;">
-                      Codes promo et réductions pour les membres.</div>
-                  </div>
+                <td width="33%" style="padding:6px;vertical-align:top;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                    style="background:#f5f3ff;border-radius:18px;border:1px solid #ddd6fe;">
+                    <tr><td style="padding:18px 12px;text-align:center;">
+                      <div style="font-size:24px;margin-bottom:8px;">🎁</div>
+                      <div style="font-size:13px;font-weight:900;color:#1e1b4b;">Offres exclusives</div>
+                      <div style="font-size:11px;color:#78716c;font-weight:600;margin-top:4px;line-height:1.45;">
+                        Codes promo membres</div>
+                    </td></tr>
+                  </table>
                 </td>
               </tr>
             </table>
           </td></tr>
 
-          <!-- ═══ CTA ═══ -->
-          <tr><td style="padding:0 32px 48px;text-align:center;">
+          <!-- CTA -->
+          <tr><td style="padding:0 36px 44px;text-align:center;">
+            <!--[if mso]>
+            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
+              href="{browse_url}" style="height:54px;v-text-anchor:middle;width:280px;" arcsize="30%"
+              strokecolor="{orange}" fillcolor="{orange}">
+              <w:anchorlock/>
+              <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:16px;font-weight:bold;">
+                Commencer mes commandes
+              </center>
+            </v:roundrect>
+            <![endif]-->
+            <!--[if !mso]><!-->
             <a href="{browse_url}" style="display:inline-block;
-              background:linear-gradient(135deg,{accent},{accent_secondary});color:#ffffff;
-              font-size:16px;font-weight:900;text-decoration:none;padding:18px 48px;
-              border-radius:20px;box-shadow:0 12px 32px rgba(249,115,22,0.35);
-              letter-spacing:0.02em;border:1px solid rgba(255,255,255,0.2);">
-              <span style="mso-text-raise:14pt;">🛒 Commencer mes commandes</span>
+              background:linear-gradient(135deg,{orange} 0%,{pink} 100%);
+              background-color:{orange};color:#ffffff;
+              font-size:16px;font-weight:900;text-decoration:none;padding:18px 44px;
+              border-radius:16px;box-shadow:0 14px 32px rgba(249,115,22,0.38);
+              letter-spacing:0.01em;">
+              Commencer mes commandes →
             </a>
+            <!--<![endif]-->
           </td></tr>
 
         </table>
       </td></tr>
 
-      <!-- ═══ FOOTER ═══ -->
-      <tr><td style="padding:48px 16px 32px;text-align:center;">
-        <div style="height:2px;background:linear-gradient(90deg,transparent,rgba(15,23,42,0.1),transparent);
-          margin:0 auto 28px;max-width:240px;"></div>
-        <p style="margin:0 0 8px;font-size:12px;color:#64748b;line-height:1.6;font-weight:600;">
+      <!-- Footer -->
+      <tr><td style="padding:40px 16px 8px;text-align:center;">
+        <p style="margin:0 0 8px;font-size:12px;color:#78716c;line-height:1.6;font-weight:600;">
           YoHa · Livraison intelligente pour les résidences universitaires et les hôpitaux.
         </p>
-        <p style="margin:0 0 16px;font-size:12px;color:#94a3b8;font-weight:500;">
-          Conçu sur le campus, livré chez vous. 🎓
+        <p style="margin:0 0 14px;font-size:12px;color:#a8a29e;font-weight:500;">
+          Conçu sur le campus, livré chez vous.
         </p>
-        <p style="margin:0;font-size:11px;color:#cbd5e1;letter-spacing:0.02em;font-weight:500;">
-          © 2026 YoHa · Fait avec ❤️ à Tanger
+        <p style="margin:0;font-size:11px;color:#d6d3d1;letter-spacing:0.02em;font-weight:500;">
+          © 2026 YoHa · Tanger
         </p>
       </td></tr>
 
@@ -188,7 +216,7 @@ def render_welcome_email_html(name: str, email: str) -> str:
 def render_welcome_email_text(name: str, email: str) -> str:
     browse_url = _abs_url("/browse")
     return "\n".join([
-        "Bienvenue sur YoHa ! 🎉",
+        "Bienvenue sur YoHa !",
         "",
         f"Bonjour {name},",
         "Votre compte a bien été créé. Commandez vos plats, courses de supermarché,",
@@ -211,7 +239,7 @@ def send_welcome_email(user) -> bool:
         return False
 
     name = (getattr(user, "display_name", "") or "").strip() or email.split("@")[0]
-    subject = "Bienvenue sur YoHa 🎉 Votre compte est prêt !"
+    subject = "Bienvenue sur YoHa — votre compte est prêt"
     text_body = render_welcome_email_text(name, email)
     html_body = render_welcome_email_html(name, email)
     from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "YoHa <yohadelivery@gmail.com>")

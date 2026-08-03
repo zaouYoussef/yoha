@@ -9,7 +9,6 @@ import { FEATURES } from '../../data/features.jsx';
 import { HOW_STEPS } from '../../data/howSteps.jsx';
 import { TESTIMONIALS } from '../../data/testimonials.js';
 import { CAMPUS_HOSPITALS } from '../../data/campusHospitals.js';
-import { ParticleCanvas } from '../../components/effects/ParticleCanvas.jsx';
 import { InteractiveCampusMap } from '../../components/effects/InteractiveCampusMap.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { Magnetic } from '../../components/ui/Magnetic.jsx';
@@ -125,37 +124,18 @@ export function Hero({ onStart, onHowItWorks }) {
 
   return (
     <section ref={heroRef} className="relative overflow-hidden hero-spot">
-      {/* Rich Harmonized Background: Blobs + Mesh Gradient + Food Orbit Video + Grid */}
+      {/* Hero visual: video + soft brand wash (GPU-light) */}
       <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-        {/* Animated glowing color blobs */}
-        <div className="absolute top-[-10%] left-[-10%] w-[16rem] sm:w-[32rem] lg:w-[42rem] h-[16rem] sm:h-[32rem] lg:h-[42rem] rounded-full bg-brand-400/50 blur-3xl animate-blob"></div>
-        <div className="absolute top-[10%] right-[-15%] w-[14rem] sm:w-[28rem] lg:w-[36rem] h-[14rem] sm:h-[28rem] lg:h-[36rem] rounded-full bg-fuchsia-400/50 blur-3xl animate-blob" style={{ animationDelay:'4s' }}></div>
-        <div className="absolute bottom-[-20%] left-[20%] w-[18rem] sm:w-[34rem] lg:w-[44rem] h-[18rem] sm:h-[34rem] lg:h-[44rem] rounded-full bg-violet-400/40 blur-3xl animate-blob" style={{ animationDelay:'8s' }}></div>
-        
-        {/* Mesh Background & Conic Glow */}
-        <div className="absolute inset-0 mesh-bg opacity-75"></div>
-        <div className="mesh-conic-glow"></div>
-
-        {/* Video blended into the gradient light */}
         <BackgroundVideo
           webmSrc="/videos/hero-food-orbit.webm"
           mp4Src="/videos/hero-food-orbit.mp4"
           poster="/videos/hero-food-orbit-poster.webp"
-          className="absolute inset-0 h-full w-full object-cover opacity-40 dark:opacity-50 mix-blend-overlay transition-opacity duration-1000"
+          className="absolute inset-0 h-full w-full object-cover opacity-45 dark:opacity-55"
         />
-
-        {/* Tech Grid Pattern */}
-        <div className="absolute inset-0 grid-bg opacity-80"></div>
-
-        {/* Soft Contrast Mask for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-transparent to-white/85 dark:from-ink-950/25 dark:via-transparent dark:to-ink-950/85"></div>
-      </div>
-
-      {/* Particules — desktop uniquement */}
-      <div className="absolute inset-0 -z-[5] pointer-events-none hidden md:block">
-        <div className="absolute inset-0 pointer-events-auto">
-          <ParticleCanvas />
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-500/25 via-pink-500/15 to-violet-600/20 mix-blend-multiply dark:mix-blend-soft-light" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/20 to-white dark:from-ink-950/70 dark:via-ink-950/45 dark:to-ink-950" />
+        <div className="absolute -top-24 -left-16 w-[22rem] h-[22rem] rounded-full bg-brand-400/30 blur-3xl" />
+        <div className="absolute top-1/3 -right-20 w-[18rem] h-[18rem] rounded-full bg-violet-500/20 blur-3xl" />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-4 sm:pt-12 lg:pt-20 pb-6 sm:pb-16 lg:pb-28 grid lg:grid-cols-2 gap-6 sm:gap-10 lg:gap-12 items-center">
@@ -188,15 +168,13 @@ export function Hero({ onStart, onHowItWorks }) {
             <span className="hidden sm:inline">Commandez auprès de vos cuisines préférées et faites-vous livrer directement à votre chambre, à l&apos;aile hospitalière ou à la BU — en moins de 40 minutes. Aucun détour.</span>
           </p>
 
-          <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 animate-fade-up" style={{ animationDelay:'750ms' }}>
-            <Magnetic strength={20} className="block w-full sm:inline-block sm:w-auto">
-              <Button onClick={onStart} variant="primary" size="lg" className="w-full sm:w-auto shadow-lg shadow-brand-500/25">
-                Commander maintenant ⚡ <I.Right size={18}/>
-              </Button>
-            </Magnetic>
-            <Button type="button" variant="secondary" size="lg" onClick={onStart} className="w-full sm:w-auto bg-white/80 dark:bg-ink-900/80 border border-brand-500/30 text-brand-600 dark:text-brand-400 hover:bg-brand-500/10">
-              <I.Chef size={18}/> Voir tous les restaurants 🍕
+          <div className="mt-5 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 animate-fade-up" style={{ animationDelay:'750ms' }}>
+            <Button onClick={onStart} variant="primary" size="lg" className="w-full sm:w-auto shadow-glow-lg text-base sm:text-lg px-8 py-4">
+              Commander maintenant <I.Right size={18}/>
             </Button>
+            <button type="button" onClick={onHowItWorks} className="text-sm font-bold text-ink-500 hover:text-brand-600 dark:hover:text-brand-400 transition-colors sm:ml-2">
+              Comment ça marche ?
+            </button>
           </div>
 
           <div className="mt-4 sm:mt-10 flex flex-row items-center gap-2.5 sm:gap-6 animate-fade-up" style={{ animationDelay:'900ms' }}>
@@ -287,7 +265,23 @@ function BentoSpotlightCard({ spot, spotFade, n, restaurants, spotIdx, onSelectS
 }
 
 export function BentoHero() {
-  const restaurants = HERO_RESTAURANTS;
+  const { restaurants: allRestaurants } = useOrders();
+  const restaurants = useMemo(() => {
+    if (!Array.isArray(allRestaurants) || !allRestaurants.length) return HERO_RESTAURANTS;
+    const nonFood = ['pharmacy', 'parapharmacy', 'supermarket', 'shop'];
+    const food = allRestaurants.filter((r) => r && r.name && r.cover && !nonFood.includes(r.cuisine));
+    if (!food.length) return HERO_RESTAURANTS;
+    return food
+      .slice()
+      .sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0))
+      .slice(0, 6)
+      .map((r) => ({
+        id: r.id,
+        name: r.name,
+        cover: r.cover,
+        tags: Array.isArray(r.tags) && r.tags.length ? r.tags : [r.cuisine || 'Restaurant'],
+      }));
+  }, [allRestaurants]);
   const n = restaurants.length;
   const [spotIdx, setSpotIdx] = useState(0);
   const [spotFade, setSpotFade] = useState(true);
@@ -1237,22 +1231,23 @@ export function FinalCTA({ onStart }) {
   return (
     <section ref={sectionRef} className="max-w-7xl mx-auto px-4 sm:px-6 pb-12 sm:pb-24">
       <Reveal>
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-50 via-[#fffcf5] to-orange-50/50 border border-amber-200/60 p-5 sm:p-14 text-slate-900 flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 shadow-xl">
-          <div aria-hidden className="absolute -top-24 -right-24 w-[28rem] h-[28rem] rounded-full bg-amber-300/30 blur-3xl animate-pulse-slow"></div>
-          <div aria-hidden className="absolute -bottom-24 -left-24 w-[28rem] h-[28rem] rounded-full bg-rose-200/30 blur-3xl animate-pulse-slow" style={{ animationDelay:'1s' }}></div>
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-50 via-[#fffcf5] to-pink-50/60 dark:from-ink-900 dark:via-ink-950 dark:to-ink-900 border border-amber-200/60 dark:border-brand-500/20 p-5 sm:p-14 text-slate-900 dark:text-white flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 shadow-xl shadow-brand-500/5">
+          <div aria-hidden className="absolute -top-24 -right-24 w-[28rem] h-[28rem] rounded-full bg-brand-400/25 blur-3xl animate-pulse-slow"></div>
+          <div aria-hidden className="absolute -bottom-24 -left-24 w-[28rem] h-[28rem] rounded-full bg-pink-400/20 blur-3xl animate-pulse-slow" style={{ animationDelay:'1s' }}></div>
+          <div className="absolute inset-0 mesh-bg opacity-40 dark:opacity-30 pointer-events-none" aria-hidden />
           <div className="absolute inset-0 grid-bg opacity-[0.02]"></div>
           
           <div className="relative max-w-xl z-10 text-left">
-            <h3 className="font-display font-extrabold text-3xl sm:text-5xl tracking-tight text-slate-900 leading-tight">
-              Besoin de <span className="bg-gradient-to-r from-brand-600 to-rose-600 bg-clip-text text-transparent font-black">quelque chose</span> ? Tout est à portée de main.
+            <h3 className="font-display font-extrabold text-3xl sm:text-5xl tracking-tight text-slate-900 dark:text-white leading-tight">
+              Besoin de <span className="bg-gradient-to-r from-brand-600 via-pink-600 to-violet-600 bg-clip-text text-transparent font-black">quelque chose</span> ? Tout est à portée de main.
             </h3>
-            <p className="mt-4 text-slate-600 text-lg">Repas, médicaments, courses — commandez en 3 clics sans appli à télécharger.</p>
+            <p className="mt-4 text-slate-600 dark:text-white/70 text-lg">Repas, médicaments, courses — commandez en 3 clics sans appli à télécharger.</p>
             
             <div className="mt-6 flex flex-wrap gap-3">
               <div 
                 onClick={handleCopy}
                 title="Cliquez pour copier"
-                className="group/promo cursor-pointer inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-700 hover:bg-brand-500/15 transition-transform duration-300 shadow-sm active:scale-95"
+                className="group/promo cursor-pointer inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-700 dark:text-brand-300 hover:bg-brand-500/15 transition-transform duration-300 shadow-sm active:scale-95"
               >
                 <span className="text-xs font-bold uppercase tracking-wider">Code promo :</span>
                 <span className="font-mono font-black text-sm select-all">YOHA15</span>
@@ -1264,9 +1259,11 @@ export function FinalCTA({ onStart }) {
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <Magnetic strength={20}>
-                <Button onClick={onStart} variant="primary" size="lg">Commander maintenant <I.Right size={18}/></Button>
+                <Button onClick={onStart} variant="primary" size="lg" className="cta-brand btn-shimmer border-0 shadow-glow-lg">
+                  Commander maintenant <I.Right size={18}/>
+                </Button>
               </Magnetic>
-              <Button variant="outline" size="lg" className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900"><I.Headset size={18}/> Parler au support</Button>
+              <Button variant="outline" size="lg" className="border-brand-500/30 text-brand-700 dark:text-brand-300 hover:bg-brand-500/10 dark:hover:bg-brand-500/15"><I.Headset size={18}/> Parler au support</Button>
             </div>
           </div>
 

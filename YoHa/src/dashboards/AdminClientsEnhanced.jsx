@@ -90,7 +90,7 @@ export default function AdminClientsEnhanced() {
         title={`${clients.length} client${clients.length > 1 ? 's' : ''}`}
         subtitle={`${stats.customersWithOrders} ont commandé · ${formatMAD(stats.totalSpent)} dépensé`}
         icon="👥"
-        gradient="from-sky-500 via-blue-500 to-indigo-500"
+        gradient="from-brand-500 via-pink-500 to-violet-500"
         actions={
           <SearchBar value={search} onChange={setSearch} placeholder="Rechercher un client…" />
         }
@@ -102,7 +102,7 @@ export default function AdminClientsEnhanced() {
         <>
           {/* KPI Cards */}
           <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-3">
-            <KpiCard label="Clients inscrits" value={clients.length} sub={`${stats.customersWithOrders} ont commandé`} icon={<I.User size={16} />} color="from-sky-500 to-blue-500" />
+            <KpiCard label="Clients inscrits" value={clients.length} sub={`${stats.customersWithOrders} ont commandé`} icon={<I.User size={16} />} color="from-brand-500 to-pink-500" />
             <KpiCard label="Commandes total" value={stats.totalOrders} sub={`Moy. ${clients.length > 0 ? (stats.totalOrders / clients.length).toFixed(1) : 0}/client`} icon={<I.Bag size={16} />} color="from-brand-500 to-orange-500" />
             <KpiCard label="Dépenses total" value={stats.totalSpent} sub={`Avg. ${formatMAD(Math.round(stats.avgPerOrder))}/cmd`} icon={<I.Star size={16} />} color="from-emerald-500 to-teal-500" format={(v) => formatMAD(v)} />
             <KpiCard label="Taux de ré-achat" value={stats.repeatRate.toFixed(0)} sub={`${stats.repeatCustomers} clients fidèles`} icon={<I.Award size={16} />} color="from-violet-500 to-fuchsia-500" />
@@ -155,7 +155,7 @@ export default function AdminClientsEnhanced() {
                       <div key={d.label} className="flex items-center gap-2 text-xs">
                         <span className="w-14 shrink-0 text-ink-500">{d.label}</span>
                         <div className="flex-1 h-3 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden">
-                          <div className="h-full rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 transition-all" style={{ width: `${(d.value / maxV) * 100}%` }} />
+                          <div className="h-full rounded-full bg-gradient-to-r from-brand-500 to-violet-500 transition-all" style={{ width: `${(d.value / maxV) * 100}%` }} />
                         </div>
                         <span className="font-bold w-6 text-right">{d.value}</span>
                       </div>
@@ -201,7 +201,7 @@ export default function AdminClientsEnhanced() {
                 <button key={c.id} onClick={() => setSelected(c)}
                   className="w-full cursor-grow rounded-2xl border border-white/20 bg-white/70 px-4 py-3 text-left backdrop-blur-xl transition hover:bg-white hover:shadow-lg dark:border-ink-700/30 dark:bg-ink-900/70 dark:hover:bg-ink-800/70">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-blue-500 text-sm font-bold text-white">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-pink-500 text-sm font-bold text-white">
                       {(c.display_name || c.email || '?')[0].toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -265,7 +265,7 @@ function ClientDetailView({ client, onBack }) {
 
       <GlassCard className="mb-6 p-5" hover={false}>
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-blue-500 text-xl font-bold text-white">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-pink-500 text-xl font-bold text-white">
             {(client.display_name || client.email || '?')[0].toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
@@ -293,7 +293,7 @@ function ClientDetailView({ client, onBack }) {
             <KpiCard label="Commandes" value={client.total_orders} icon={<I.Bag size={16} />} color="from-brand-500 to-orange-500" />
             <KpiCard label="Dépensé" value={client.total_spent_mad || 0} icon={<I.Star size={16} />} color="from-emerald-500 to-teal-500" format={(v) => formatMAD(v)} />
             <KpiCard label="Panier moyen" value={Math.round(avgOrder)} icon={<I.Card size={16} />} color="from-violet-500 to-fuchsia-500" format={(v) => formatMAD(v)} />
-            <KpiCard label="Pages vues" value={client.total_page_views || 0} icon={<I.LayoutDashboard size={16} />} color="from-sky-500 to-indigo-500" />
+            <KpiCard label="Pages vues" value={client.total_page_views || 0} icon={<I.LayoutDashboard size={16} />} color="from-brand-500 to-violet-500" />
           </div>
 
           {detail.restaurants_viewed?.length > 0 && (

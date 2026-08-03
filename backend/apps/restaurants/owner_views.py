@@ -212,7 +212,9 @@ class MenuItemListCreateView(generics.ListCreateAPIView):
         resto = get_owned_restaurant(self.request.user)
         if not resto:
             raise Http404
-        return resto.menu_items.select_related("category")
+        return resto.menu_items.select_related("category").prefetch_related(
+            "modifier_groups__options"
+        )
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
@@ -243,7 +245,7 @@ class MenuItemDetailView(generics.RetrieveUpdateDestroyAPIView):
         resto = get_owned_restaurant(self.request.user)
         if not resto:
             raise Http404
-        return resto.menu_items.all()
+        return resto.menu_items.prefetch_related("modifier_groups__options")
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()

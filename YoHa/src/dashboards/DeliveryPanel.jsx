@@ -383,7 +383,7 @@ function OrderActionButtons({ order }) {
           href={mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 rounded-lg bg-sky-500/10 px-2.5 py-1.5 text-[10px] font-bold text-sky-600 transition hover:bg-sky-500/20 dark:text-sky-400"
+          className="inline-flex items-center gap-1 rounded-lg bg-violet-500/10 px-2.5 py-1.5 text-[10px] font-bold text-violet-600 transition hover:bg-violet-500/20 dark:text-violet-400"
         >
           <I.MapPin size={11} />
           Itinéraire
@@ -863,7 +863,7 @@ export function DeliveryMine({ courier }) {
         title={`${mine.length} course${mine.length > 1 ? 's' : ''} en cours`}
         subtitle={activeCount > 0 ? `${activeCount} en livraison active` : 'En attente de progression'}
         icon="📍"
-        gradient="from-sky-500 via-blue-500 to-indigo-500"
+        gradient="from-violet-500 via-fuchsia-500 to-pink-500"
       >
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <div className="rounded-xl bg-white/15 px-3 py-2 backdrop-blur-sm">
@@ -929,7 +929,7 @@ export function DeliveryMine({ courier }) {
                         className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold ${
                           o.status === 'preparing'
                             ? 'bg-violet-500/10 text-violet-600 dark:text-violet-400'
-                            : 'bg-sky-500/10 text-sky-700 dark:text-sky-300'
+                            : 'bg-violet-500/10 text-violet-700 dark:text-violet-300'
                         }`}
                       >
                         {o.status === 'preparing' ? (
@@ -967,7 +967,7 @@ export function DeliveryMine({ courier }) {
                           href={buildMapsDirectionsUrl(o.customer.address)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 rounded-xl bg-sky-500/10 px-3 py-2.5 text-sm font-bold text-sky-600 transition hover:bg-sky-500/20 dark:text-sky-400"
+                          className="flex items-center justify-center gap-2 rounded-xl bg-violet-500/10 px-3 py-2.5 text-sm font-bold text-violet-600 transition hover:bg-violet-500/20 dark:text-violet-400"
                         >
                           <I.MapPin size={16} />
                           Ouvrir dans Google Maps
@@ -1154,7 +1154,7 @@ export function DeliveryHistory({ courier }) {
         title="Historique des livraisons"
         subtitle={`Total : ${deliveredOnly.length} livraison${deliveredOnly.length > 1 ? 's' : ''} effectuée${deliveredOnly.length > 1 ? 's' : ''}`}
         icon="📊"
-        gradient="from-emerald-500 via-teal-500 to-cyan-500"
+        gradient="from-emerald-500 via-green-500 to-brand-500"
       />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -1187,7 +1187,7 @@ export function DeliveryHistory({ courier }) {
           value={`${avgPerDay}`}
           sub={`${MOCK_COURIER_GAIN_PER_DELIVERY_MAD} MAD / course`}
           icon={<I.Bike size={18} />}
-          color="from-sky-500 to-blue-500"
+          color="from-violet-500 to-fuchsia-500"
         />
       </div>
 
@@ -1276,7 +1276,7 @@ export function DeliveryOrderCard({ order, action, showMap, variant = 'available
   const isPreparingBadge = isPrep && variant === 'available';
 
   return (
-    <GlassCard className="p-0" glow={variant === 'active' ? 'from-sky-500 to-blue-500' : undefined}>
+    <GlassCard className="p-0" glow={variant === 'active' ? 'from-violet-500 to-fuchsia-500' : undefined}>
       <div className="p-4 sm:p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
@@ -1290,7 +1290,7 @@ export function DeliveryOrderCard({ order, action, showMap, variant = 'available
         </div>
 
         {showMap && (
-          <div className="relative mt-4 h-28 overflow-hidden rounded-xl border border-ink-200/60 bg-gradient-to-br from-sky-100 to-indigo-100 dark:border-ink-800 dark:from-sky-900/40 dark:to-indigo-900/40 sm:h-32">
+          <div className="relative mt-4 h-28 overflow-hidden rounded-xl border border-ink-200/60 bg-gradient-to-br from-violet-100 to-pink-100 dark:border-ink-800 dark:from-violet-900/40 dark:to-pink-900/40 sm:h-32">
             <AnimatedMapSvg />
           </div>
         )}
@@ -1361,7 +1361,7 @@ export function DeliveryOrderCard({ order, action, showMap, variant = 'available
                 href={mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-sky-500/10 text-sky-600 transition hover:bg-sky-500/20"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-violet-500/10 text-violet-600 transition hover:bg-violet-500/20"
                 title="Ouvrir dans Google Maps"
               >
                 <I.MapPin size={15} />

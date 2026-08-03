@@ -58,13 +58,13 @@ const CUISINES = [
 ];
 
 const CATEGORY_COLORS = [
-  'from-sky-400 to-blue-500',
+  'from-brand-400 to-pink-500',
   'from-violet-400 to-purple-500',
-  'from-emerald-400 to-teal-500',
+  'from-emerald-400 to-green-500',
   'from-amber-400 to-orange-500',
   'from-pink-400 to-rose-500',
-  'from-indigo-400 to-blue-500',
-  'from-cyan-400 to-sky-500',
+  'from-fuchsia-400 to-violet-500',
+  'from-orange-400 to-pink-500',
   'from-lime-400 to-green-500',
 ];
 
@@ -257,7 +257,7 @@ export function RestoCreate({ onCreated }) {
         title="Nouveau restaurant"
         subtitle="Configurez votre établissement en quelques étapes"
         icon="🍽️"
-        gradient="from-sky-500 via-blue-500 to-indigo-500"
+        gradient="from-brand-500 via-pink-500 to-violet-500"
       />
 
       <GlassCard className="p-6" hover={false}>
@@ -412,7 +412,7 @@ export function RestoProfile({ restaurant, onUpdated }) {
   return (
     <form onSubmit={save} className="space-y-6">
       {/* Hero Cover */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-500 shadow-glow-lg">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 shadow-glow-lg">
         {restaurant.cover && (
           <div className="absolute inset-0">
             <img src={restaurant.cover} alt="" className="h-full w-full object-cover opacity-40" />
@@ -707,7 +707,7 @@ export function RestoIncoming({ restoId }) {
     if (o.status === 'pickup_confirmed') {
       return (
         <div className="space-y-2">
-          <div className="px-3 py-2 rounded-xl bg-gradient-to-r from-sky-500/10 to-blue-500/10 border border-sky-200/50 dark:border-sky-500/20 text-sky-700 dark:text-sky-400 text-xs font-bold text-center">
+          <div className="px-3 py-2 rounded-xl bg-gradient-to-r from-brand-500/10 to-pink-500/10 border border-brand-200/50 dark:border-brand-500/20 text-brand-700 dark:text-brand-400 text-xs font-bold text-center">
             🛵 Livreur en route vers vous
           </div>
           <ActionButton onClick={() => updateOrderStatus(o.id, 'preparing')} variant="success" size="md" className="w-full justify-center" icon={<I.Check size={14} />}>
@@ -777,7 +777,7 @@ export function RestoIncoming({ restoId }) {
         title="Commandes"
         subtitle={`${activeOrders.length} en cours · ${cancelledOrders.length} annulées`}
         icon="🔔"
-        gradient="from-sky-500 via-blue-500 to-indigo-500"
+        gradient="from-brand-500 via-pink-500 to-violet-500"
         actions={
           <div className="flex items-center gap-2 text-white/80 text-xs">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 font-bold backdrop-blur-sm">
@@ -1042,6 +1042,7 @@ export function RestoMenu({ restaurant, onRefresh }) {
           ingredients: data.ingredients,
           price: data.price,
           is_available: data.is_available,
+          modifierGroups: data.modifierGroups || [],
         });
       } else {
         await restaurantsApi.createMenuItem(categoryDbId, {
@@ -1049,6 +1050,7 @@ export function RestoMenu({ restaurant, onRefresh }) {
           desc: data.desc,
           ingredients: data.ingredients,
           price: data.price,
+          modifierGroups: data.modifierGroups || [],
         });
       }
       setDraftItem(null);
@@ -1083,6 +1085,15 @@ export function RestoMenu({ restaurant, onRefresh }) {
         desc: item.desc,
         ingredients: item.ingredients,
         price: item.price,
+        modifierGroups: (item.modifierGroups || []).map((g) => ({
+          name: g.name,
+          min: Number(g.min || 0),
+          max: Number(g.max || 1),
+          options: (g.options || []).map((o) => ({
+            name: o.name,
+            price: Number(o.price || 0),
+          })),
+        })),
       });
       await onRefresh();
     } catch (e) {
@@ -1162,7 +1173,7 @@ export function RestoMenu({ restaurant, onRefresh }) {
           title="Mon menu"
           subtitle="Commencez par créer des catégories"
           icon="🍽️"
-          gradient="from-sky-500 via-blue-500 to-indigo-500"
+          gradient="from-brand-500 via-pink-500 to-violet-500"
         />
 
         <GlassCard className="p-6" hover={false}>
@@ -1195,7 +1206,7 @@ export function RestoMenu({ restaurant, onRefresh }) {
         title="Mon menu"
         subtitle={`${totalItems} plats · ${availableItems} disponibles`}
         icon="🍽️"
-        gradient="from-sky-500 via-blue-500 to-indigo-500"
+        gradient="from-brand-500 via-pink-500 to-violet-500"
       />
 
       {/* Controls */}
@@ -1331,7 +1342,7 @@ export function RestoMenu({ restaurant, onRefresh }) {
                 <GlassCard
                   key={it.db_id || it.id}
                   className={`overflow-hidden ${it.is_available === false ? 'opacity-50' : ''}`}
-                  glow={it.is_available !== false ? `from-sky-${300 + catIdx * 100} to-indigo-${300 + catIdx * 100}` : undefined}
+                  glow={it.is_available !== false ? (CATEGORY_COLORS[catIdx % CATEGORY_COLORS.length]) : undefined}
                 >
                   <ImageUpload
                     currentUrl={it.img}
@@ -1354,11 +1365,17 @@ export function RestoMenu({ restaurant, onRefresh }) {
                       )}
                     </div>
 
-                    {/* Price */}
-                    <div className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-brand-500/10 to-pink-500/10 px-2.5 py-1">
-                      <span className="font-display font-black text-brand-600 dark:text-brand-400 text-sm">
-                        {formatMad(it.price)}
-                      </span>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <div className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-brand-500/10 to-pink-500/10 px-2.5 py-1">
+                        <span className="font-display font-black text-brand-600 dark:text-brand-400 text-sm">
+                          {formatMad(it.price)}
+                        </span>
+                      </div>
+                      {(it.modifierGroups || []).length > 0 ? (
+                        <span className="inline-flex items-center rounded-lg bg-violet-500/10 px-2 py-1 text-[10px] font-bold text-violet-600 dark:text-violet-300">
+                          {(it.modifierGroups || []).length} option{(it.modifierGroups || []).length > 1 ? 's' : ''}
+                        </span>
+                      ) : null}
                     </div>
 
                     {/* Actions */}
@@ -1387,7 +1404,7 @@ export function RestoMenu({ restaurant, onRefresh }) {
               {/* Add Item Button */}
               <button
                 type="button"
-                onClick={() => setDraftItem({ categoryDbId: cat.db_id, name: '', desc: '', ingredients: '', price: '9.90' })}
+                onClick={() => setDraftItem({ categoryDbId: cat.db_id, name: '', desc: '', ingredients: '', price: '9.90', modifierGroups: [] })}
                 className="rounded-2xl border-2 border-dashed border-ink-200 dark:border-ink-700 min-h-[250px] flex flex-col items-center justify-center text-ink-500 hover:border-brand-400 hover:text-brand-600 hover:bg-brand-50/30 dark:hover:bg-brand-500/5 transition group"
               >
                 <div className="grid h-12 w-12 place-items-center rounded-2xl bg-ink-100 dark:bg-ink-800 group-hover:bg-brand-100 dark:group-hover:bg-brand-500/10 transition mb-2">
@@ -1443,12 +1460,100 @@ function ItemDraftModal({ item, busy, onClose, onSave }) {
     ingredients: item.ingredients || '',
     price: String(item.price ?? '9.90'),
     is_available: item.is_available !== false,
+    modifierGroups: (item.modifierGroups || []).map((g) => ({
+      name: g.name || '',
+      min: Number(g.min ?? 0),
+      max: Number(g.max ?? 1),
+      options: (g.options || []).map((o) => ({
+        name: o.name || '',
+        price: String(o.price ?? '0'),
+      })),
+    })),
   });
+
+  const updateGroup = (gi, patch) => {
+    setForm((f) => ({
+      ...f,
+      modifierGroups: f.modifierGroups.map((g, i) => (i === gi ? { ...g, ...patch } : g)),
+    }));
+  };
+
+  const updateOption = (gi, oi, patch) => {
+    setForm((f) => ({
+      ...f,
+      modifierGroups: f.modifierGroups.map((g, i) => {
+        if (i !== gi) return g;
+        return {
+          ...g,
+          options: g.options.map((o, j) => (j === oi ? { ...o, ...patch } : o)),
+        };
+      }),
+    }));
+  };
+
+  const addGroup = () => {
+    setForm((f) => ({
+      ...f,
+      modifierGroups: [
+        ...f.modifierGroups,
+        { name: '', min: 0, max: 1, options: [{ name: '', price: '0' }] },
+      ],
+    }));
+  };
+
+  const removeGroup = (gi) => {
+    setForm((f) => ({
+      ...f,
+      modifierGroups: f.modifierGroups.filter((_, i) => i !== gi),
+    }));
+  };
+
+  const addOption = (gi) => {
+    setForm((f) => ({
+      ...f,
+      modifierGroups: f.modifierGroups.map((g, i) =>
+        i === gi ? { ...g, options: [...g.options, { name: '', price: '0' }] } : g,
+      ),
+    }));
+  };
+
+  const removeOption = (gi, oi) => {
+    setForm((f) => ({
+      ...f,
+      modifierGroups: f.modifierGroups.map((g, i) => {
+        if (i !== gi) return g;
+        const options = g.options.filter((_, j) => j !== oi);
+        return { ...g, options: options.length ? options : [{ name: '', price: '0' }] };
+      }),
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const modifierGroups = (form.modifierGroups || [])
+      .map((g) => ({
+        name: (g.name || '').trim(),
+        min: Math.max(0, Number(g.min) || 0),
+        max: Math.max(0, Number(g.max) || 0),
+        options: (g.options || [])
+          .map((o) => ({
+            name: (o.name || '').trim(),
+            price: Number(o.price) || 0,
+          }))
+          .filter((o) => o.name),
+      }))
+      .filter((g) => g.name && g.options.length > 0)
+      .map((g) => ({
+        ...g,
+        max: Math.max(g.max, g.min || 0),
+      }));
+    onSave({ ...form, modifierGroups });
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm grid place-items-center p-4" onClick={onClose}>
       <GlassCard
-        className="p-6 w-full max-w-md space-y-4 max-h-[85vh] overflow-y-auto"
+        className="p-6 w-full max-w-xl space-y-4 max-h-[90vh] overflow-y-auto"
         hover={false}
         glow="from-brand-400 to-pink-500"
         onClick={(e) => e.stopPropagation()}
@@ -1459,14 +1564,11 @@ function ItemDraftModal({ item, busy, onClose, onSave }) {
           </span>
           <div>
             <h3 className="font-display font-bold text-lg">{item.db_id ? 'Modifier le plat' : 'Nouveau plat'}</h3>
-            <p className="text-xs text-ink-500">Remplissez les informations du plat</p>
+            <p className="text-xs text-ink-500">Infos, sauces et suppléments</p>
           </div>
         </div>
 
-        <form
-          onSubmit={(e) => { e.preventDefault(); onSave(form); }}
-          className="space-y-4"
-        >
+        <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block space-y-1.5">
             <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Nom du plat</span>
             <input required placeholder="Ex: Pizza Margherita" value={form.name}
@@ -1484,7 +1586,7 @@ function ItemDraftModal({ item, busy, onClose, onSave }) {
           <label className="block space-y-1.5">
             <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Ingrédients et description détaillée</span>
             <p className="text-[11px] text-ink-400">Visible quand le client clique sur le plat</p>
-            <textarea rows={4} placeholder="Tomate, mozzarella, basilic frais..." value={form.ingredients}
+            <textarea rows={3} placeholder="Tomate, mozzarella, basilic frais..." value={form.ingredients}
               onChange={(e) => setForm((f) => ({ ...f, ingredients: e.target.value }))}
               className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none resize-none" />
           </label>
@@ -1509,10 +1611,122 @@ function ItemDraftModal({ item, busy, onClose, onSave }) {
             </div>
           )}
 
+          <div className="space-y-3 rounded-2xl border border-brand-500/20 bg-brand-500/[0.04] p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-black text-ink-900 dark:text-white">Sauces & suppléments</p>
+                <p className="text-[11px] text-ink-500 mt-0.5">
+                  Groupes proposés au client (ex. sauce, extras). Min &gt; 0 = obligatoire.
+                </p>
+              </div>
+              <ActionButton type="button" size="sm" variant="secondary" onClick={addGroup} icon={<I.Plus size={12} />}>
+                Groupe
+              </ActionButton>
+            </div>
+
+            {form.modifierGroups.length === 0 ? (
+              <p className="text-xs text-ink-400 py-2">Aucun groupe. Exemple : &quot;Choisissez votre sauce&quot;.</p>
+            ) : (
+              <div className="space-y-3">
+                {form.modifierGroups.map((g, gi) => (
+                  <div key={gi} className="rounded-xl border border-ink-200/70 dark:border-ink-700/60 bg-white/70 dark:bg-ink-900/60 p-3 space-y-2.5">
+                    <div className="flex items-center gap-2">
+                      <input
+                        required
+                        placeholder="Nom du groupe (ex: Sauce)"
+                        value={g.name}
+                        onChange={(e) => updateGroup(gi, { name: e.target.value })}
+                        className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm font-semibold outline-none focus:border-brand-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeGroup(gi)}
+                        className="shrink-0 w-9 h-9 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 grid place-items-center"
+                        aria-label="Supprimer le groupe"
+                      >
+                        <I.Trash size={14} />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <label className="space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Min</span>
+                        <input
+                          type="number"
+                          min="0"
+                          max="99"
+                          value={g.min}
+                          onChange={(e) => updateGroup(gi, { min: Number(e.target.value) || 0 })}
+                          className="w-full px-3 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm outline-none focus:border-brand-400"
+                        />
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Max</span>
+                        <input
+                          type="number"
+                          min="0"
+                          max="99"
+                          value={g.max}
+                          onChange={(e) => updateGroup(gi, { max: Number(e.target.value) || 0 })}
+                          className="w-full px-3 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm outline-none focus:border-brand-400"
+                        />
+                      </label>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Options</span>
+                        <button
+                          type="button"
+                          onClick={() => addOption(gi)}
+                          className="text-[11px] font-bold text-brand-600 hover:text-brand-500"
+                        >
+                          + option
+                        </button>
+                      </div>
+                      {g.options.map((o, oi) => (
+                        <div key={oi} className="flex items-center gap-2">
+                          <input
+                            required
+                            placeholder="Ex: Algérienne"
+                            value={o.name}
+                            onChange={(e) => updateOption(gi, oi, { name: e.target.value })}
+                            className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm outline-none focus:border-brand-400"
+                          />
+                          <div className="relative w-24 shrink-0">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder="0"
+                              value={o.price}
+                              onChange={(e) => updateOption(gi, oi, { price: e.target.value })}
+                              className="w-full pl-2 pr-8 py-2 rounded-lg border border-ink-200/60 dark:border-ink-700/50 bg-white dark:bg-ink-950 text-sm outline-none focus:border-brand-400"
+                              title="Surcoût MAD"
+                            />
+                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-ink-400">+</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeOption(gi, oi)}
+                            className="shrink-0 w-8 h-8 rounded-lg text-ink-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 grid place-items-center"
+                            aria-label="Supprimer l option"
+                          >
+                            <I.X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-2 justify-end pt-2">
             <ActionButton type="button" variant="ghost" onClick={onClose}>Annuler</ActionButton>
             <ActionButton type="submit" variant="primary" disabled={busy} icon={item.db_id ? <I.Check size={14} /> : <I.Plus size={14} />}>
-              {busy ? '…' : item.db_id ? 'Enregistrer' : 'Créer le plat'}
+              {busy ? '\u2026' : item.db_id ? 'Enregistrer' : 'Créer le plat'}
             </ActionButton>
           </div>
         </form>
@@ -1925,7 +2139,7 @@ export function RestoStats({ restoId }) {
         title="Statistiques"
         subtitle={`${myOrders.length} commandes · ${formatMad(totalRev, { decimals: 0 })} de CA`}
         icon="📊"
-        gradient="from-sky-500 via-blue-500 to-indigo-500"
+        gradient="from-brand-500 via-pink-500 to-violet-500"
       />
 
       {!hasData && (
@@ -1942,7 +2156,7 @@ export function RestoStats({ restoId }) {
           label="Commandes"
           value={myOrders.length}
           icon={<I.Bag size={18} />}
-          color="from-sky-500 to-indigo-500"
+          color="from-brand-500 to-violet-500"
           animate
         />
         <StatCard
@@ -1974,7 +2188,7 @@ export function RestoStats({ restoId }) {
         <GlassCard className="p-5 sm:p-6" hover={false}>
           <SectionHeader title="Commandes par jour" subtitle="7 derniers jours" icon="📈" />
           <div className="mt-4">
-            <BarChart data={barData} labels={days} color1="from-sky-500" color2="to-indigo-400" />
+            <BarChart data={barData} labels={days} color1="from-brand-500" color2="to-violet-400" />
           </div>
         </GlassCard>
 
