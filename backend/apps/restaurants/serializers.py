@@ -208,13 +208,17 @@ class RestaurantListSerializer(serializers.ModelSerializer):
 class RestaurantOfferPublicSerializer(serializers.ModelSerializer):
     category_ids = serializers.ListField(child=serializers.IntegerField(), required=False)
     category_names = serializers.SerializerMethodField()
+    item_ids = serializers.ListField(child=serializers.IntegerField(), required=False)
+    item_names = serializers.SerializerMethodField()
 
     class Meta:
         model = RestaurantOffer
         fields = [
             "id", "offer_type", "title", "description",
             "discount_percent", "buy_quantity", "get_quantity", "free_item_name",
-            "min_amount", "is_active", "category_ids", "category_names",
+            "min_amount", "is_active",
+            "category_ids", "category_names",
+            "item_ids", "item_names",
         ]
 
     def get_category_names(self, obj):
@@ -225,6 +229,17 @@ class RestaurantOfferPublicSerializer(serializers.ModelSerializer):
         names = {
             c.id: c.name
             for c in resto.menu_categories.filter(id__in=ids)
+        }
+        return [names[i] for i in ids if i in names]
+
+    def get_item_names(self, obj):
+        ids = obj.item_ids or []
+        if not ids:
+            return []
+        resto = obj.restaurant
+        names = {
+            it.id: it.name
+            for it in MenuItem.objects.filter(category__restaurant=resto, id__in=ids)
         }
         return [names[i] for i in ids if i in names]
 
@@ -362,6 +377,12 @@ class RestaurantOfferSerializer(serializers.ModelSerializer):
         allow_empty=True,
     )
     category_names = serializers.SerializerMethodField(read_only=True)
+    item_ids = serializers.ListField(
+        child=serializers.IntegerField(min_value=1),
+        required=False,
+        allow_empty=True,
+    )
+    item_names = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = RestaurantOffer
@@ -370,8 +391,9 @@ class RestaurantOfferSerializer(serializers.ModelSerializer):
             "discount_percent", "buy_quantity", "get_quantity", "free_item_name",
             "min_amount", "is_active", "created_at",
             "category_ids", "category_names",
+            "item_ids", "item_names",
         ]
-        read_only_fields = ["id", "created_at", "category_names"]
+        read_only_fields = ["id", "created_at", "category_names", "item_names"]
         extra_kwargs = {
             "discount_percent": {"required": False, "allow_null": True},
             "buy_quantity": {"required": False, "allow_null": True},
@@ -392,6 +414,17 @@ class RestaurantOfferSerializer(serializers.ModelSerializer):
         }
         return [names[i] for i in ids if i in names]
 
+    def get_item_names(self, obj):
+        ids = obj.item_ids or []
+        if not ids:
+            return []
+        resto = obj.restaurant
+        names = {
+            it.id: it.name
+            for it in MenuItem.objects.filter(category__restaurant=resto, id__in=ids)
+        }
+        return [names[i] for i in ids if i in names]
+
     def _merged(self, data, field):
         if field in data:
             return data.get(field)
@@ -399,10 +432,9 @@ class RestaurantOfferSerializer(serializers.ModelSerializer):
             return getattr(self.instance, field, None)
         return None
 
-    def validate_category_ids(self, value):
+    def _dedupe_ids(self, value):
         if value is None:
             return []
-        # Déduplique en conservant l'ordre
         seen = set()
         out = []
         for cid in value:
@@ -411,6 +443,12 @@ class RestaurantOfferSerializer(serializers.ModelSerializer):
                 seen.add(n)
                 out.append(n)
         return out
+
+    def validate_category_ids(self, value):
+        return self._dedupe_ids(value)
+
+    def validate_item_ids(self, value):
+        return self._dedupe_ids(value)
 
     def validate(self, data):
         offer_type = data.get("offer_type") or (self.instance and self.instance.offer_type)
@@ -443,20 +481,34 @@ class RestaurantOfferSerializer(serializers.ModelSerializer):
             if float(ma) <= 0:
                 raise serializers.ValidationError({"min_amount": "Doit être > 0."})
 
-        # Vérifie que les catégories appartiennent au restaurant (si connu)
         resto = None
         if self.instance is not None:
             resto = self.instance.restaurant
         else:
             resto = self.context.get("restaurant")
+
         cat_ids = data.get("category_ids")
         if cat_ids is None and self.instance is not None:
             cat_ids = self.instance.category_ids or []
+        item_ids = data.get("item_ids")
+        if item_ids is None and self.instance is not None:
+            item_ids = self.instance.item_ids or []
+
         if resto and cat_ids:
             valid = set(resto.menu_categories.filter(id__in=cat_ids).values_list("id", flat=True))
             bad = [i for i in cat_ids if i not in valid]
             if bad:
                 raise serializers.ValidationError({
                     "category_ids": f"Catégories invalides pour ce restaurant : {bad}",
+                })
+        if resto and item_ids:
+            valid_items = set(
+                MenuItem.objects.filter(category__restaurant=resto, id__in=item_ids)
+                .values_list("id", flat=True)
+            )
+            bad_items = [i for i in item_ids if i not in valid_items]
+            if bad_items:
+                raise serializers.ValidationError({
+                    "item_ids": f"Plats invalides pour ce restaurant : {bad_items}",
                 })
         return data

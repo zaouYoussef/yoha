@@ -1810,6 +1810,21 @@ export function RestoPromos({ restaurant }) {
         .filter((c) => c.id > 0 && c.name),
     [restaurant?.menu],
   );
+  const menuItems = useMemo(
+    () =>
+      (restaurant?.menu || []).flatMap((c) =>
+        (c.items || [])
+          .map((it) => ({
+            id: Number(it.db_id),
+            name: it.name,
+            categoryId: Number(c.db_id),
+            categoryName: c.category,
+            price: it.price,
+          }))
+          .filter((it) => it.id > 0 && it.name),
+      ),
+    [restaurant?.menu],
+  );
 
   const loadOffers = useCallback(async () => {
     setLoading(true);
@@ -1909,8 +1924,8 @@ export function RestoPromos({ restaurant }) {
       />
 
       <p className="text-sm text-ink-500">
-        Les offres actives s&apos;affichent sur votre page restaurant. Pour une réduction %, choisissez les catégories
-        concernées : les clients voient le prix barré et le badge −X% sur les plats.
+        Les offres actives s&apos;affichent sur votre page restaurant. Pour une réduction %, choisissez
+        des catégories et/ou des plats précis : les clients voient le prix barré et le badge −X%.
       </p>
 
       {error && !showForm && (
@@ -2005,6 +2020,7 @@ export function RestoPromos({ restaurant }) {
           offer={editing}
           busy={busy}
           categories={menuCategories}
+          items={menuItems}
           onClose={() => { setShowForm(false); setEditing(null); setError(''); }}
           onSave={handleSave}
         />
@@ -2017,6 +2033,9 @@ function buildOfferPayload(form) {
   const categoryIds = Array.isArray(form.category_ids)
     ? form.category_ids.map(Number).filter((id) => id > 0)
     : [];
+  const itemIds = Array.isArray(form.item_ids)
+    ? form.item_ids.map(Number).filter((id) => id > 0)
+    : [];
   const base = {
     offer_type: form.offer_type,
     title: form.title.trim(),
@@ -2027,6 +2046,7 @@ function buildOfferPayload(form) {
       ...base,
       discount_percent: Number(form.discount_percent),
       category_ids: categoryIds,
+      item_ids: itemIds,
     };
   }
   if (form.offer_type === 'buy_get_free') {
@@ -2036,6 +2056,7 @@ function buildOfferPayload(form) {
       get_quantity: Number(form.get_quantity),
       free_item_name: (form.free_item_name || '').trim(),
       category_ids: [],
+      item_ids: [],
     };
   }
   return {
@@ -2043,11 +2064,13 @@ function buildOfferPayload(form) {
     min_amount: Number(form.min_amount),
     discount_percent: Number(form.discount_percent),
     category_ids: [],
+    item_ids: [],
   };
 }
 
-function OfferFormModal({ offer, busy, categories = [], onClose, onSave }) {
+function OfferFormModal({ offer, busy, categories = [], items = [], onClose, onSave }) {
   const formRef = useRef(null);
+  const [itemQuery, setItemQuery] = useState('');
   const [form, setForm] = useState({
     offer_type: offer?.offer_type || 'percentage',
     title: offer?.title || '',
@@ -2059,6 +2082,9 @@ function OfferFormModal({ offer, busy, categories = [], onClose, onSave }) {
     min_amount: offer?.min_amount != null ? String(offer.min_amount) : '',
     category_ids: Array.isArray(offer?.category_ids)
       ? offer.category_ids.map(Number).filter((id) => id > 0)
+      : [],
+    item_ids: Array.isArray(offer?.item_ids)
+      ? offer.item_ids.map(Number).filter((id) => id > 0)
       : [],
   });
   const [localError, setLocalError] = useState('');
@@ -2074,6 +2100,33 @@ function OfferFormModal({ offer, busy, categories = [], onClose, onSave }) {
       };
     });
   };
+
+  const toggleItem = (id) => {
+    setForm((f) => {
+      const has = f.item_ids.includes(id);
+      return {
+        ...f,
+        item_ids: has
+          ? f.item_ids.filter((x) => x !== id)
+          : [...f.item_ids, id],
+      };
+    });
+  };
+
+  const filteredItems = useMemo(() => {
+    const q = itemQuery.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter(
+      (it) =>
+        it.name.toLowerCase().includes(q) ||
+        (it.categoryName || '').toLowerCase().includes(q),
+    );
+  }, [items, itemQuery]);
+
+  const selectedItems = useMemo(
+    () => items.filter((it) => form.item_ids.includes(it.id)),
+    [items, form.item_ids],
+  );
 
   const validateClient = (payload) => {
     if (!payload.title) return 'Le titre est obligatoire.';
@@ -2207,10 +2260,10 @@ function OfferFormModal({ offer, busy, categories = [], onClose, onSave }) {
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Catégories concernées</span>
-                {form.category_ids.length > 0 && (
+                {(form.category_ids.length > 0 || form.item_ids.length > 0) && (
                   <button
                     type="button"
-                    onClick={() => setForm((f) => ({ ...f, category_ids: [] }))}
+                    onClick={() => setForm((f) => ({ ...f, category_ids: [], item_ids: [] }))}
                     className="text-[11px] font-semibold text-brand-600 dark:text-brand-400"
                   >
                     Tout le menu
@@ -2218,12 +2271,11 @@ function OfferFormModal({ offer, busy, categories = [], onClose, onSave }) {
                 )}
               </div>
               <p className="text-xs text-ink-500">
-                Sélectionnez une ou plusieurs catégories. Aucune sélection = réduction sur tout le menu.
-                Les clients verront le prix barré et −{form.discount_percent || 'X'}% sur ces plats.
+                Catégories et/ou plats précis. Aucune sélection = réduction sur tout le menu.
               </p>
               {categories.length === 0 ? (
                 <p className="text-xs text-amber-600 dark:text-amber-400 rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 px-3 py-2">
-                  Aucune catégorie menu pour le moment. Ajoutez des catégories dans Menu, sinon l&apos;offre s&apos;appliquera à tout le menu.
+                  Aucune catégorie menu pour le moment. Ajoutez des catégories dans Menu.
                 </p>
               ) : (
                 <div className="flex flex-wrap gap-2">
@@ -2245,6 +2297,87 @@ function OfferFormModal({ offer, busy, categories = [], onClose, onSave }) {
                     );
                   })}
                 </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-bold text-ink-700 dark:text-ink-300">
+                  Plats précis {form.item_ids.length > 0 ? `(${form.item_ids.length})` : ''}
+                </span>
+                {form.item_ids.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, item_ids: [] }))}
+                    className="text-[11px] font-semibold text-brand-600 dark:text-brand-400"
+                  >
+                    Effacer les plats
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-ink-500">
+                Idéal pour une promo sur un seul produit (ex. un bowl signature). Combinable avec les catégories.
+              </p>
+              {items.length === 0 ? (
+                <p className="text-xs text-amber-600 dark:text-amber-400 rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 px-3 py-2">
+                  Aucun plat dans le menu pour le moment.
+                </p>
+              ) : (
+                <>
+                  <input
+                    type="search"
+                    value={itemQuery}
+                    onChange={(e) => setItemQuery(e.target.value)}
+                    placeholder="Rechercher un plat…"
+                    className="w-full px-3 py-2.5 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
+                  />
+                  {selectedItems.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedItems.map((it) => (
+                        <button
+                          key={`sel-${it.id}`}
+                          type="button"
+                          onClick={() => toggleItem(it.id)}
+                          className="px-2.5 py-1 rounded-full text-[11px] font-bold border border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+                          title="Retirer"
+                        >
+                          ✓ {it.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <div className="max-h-48 overflow-y-auto rounded-xl border border-ink-200/60 dark:border-ink-700/50 divide-y divide-ink-100 dark:divide-ink-800">
+                    {filteredItems.length === 0 ? (
+                      <p className="px-3 py-3 text-xs text-ink-400">Aucun plat trouvé.</p>
+                    ) : (
+                      filteredItems.slice(0, 80).map((it) => {
+                        const selected = form.item_ids.includes(it.id);
+                        return (
+                          <button
+                            key={it.id}
+                            type="button"
+                            onClick={() => toggleItem(it.id)}
+                            className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 text-left text-sm transition ${
+                              selected
+                                ? 'bg-emerald-50/80 dark:bg-emerald-500/10'
+                                : 'hover:bg-ink-50 dark:hover:bg-ink-800/40'
+                            }`}
+                          >
+                            <span className="min-w-0">
+                              <span className={`font-semibold block truncate ${selected ? 'text-emerald-700 dark:text-emerald-300' : ''}`}>
+                                {selected ? '✓ ' : ''}{it.name}
+                              </span>
+                              <span className="text-[10px] text-ink-400 font-medium">{it.categoryName}</span>
+                            </span>
+                            <span className="text-xs font-bold text-ink-500 shrink-0 tabular-nums">
+                              {formatMad(Number(it.price) || 0)}
+                            </span>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </>
               )}
             </div>
           </>

@@ -225,11 +225,18 @@ class RestaurantOffer(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Catégories ciblées (IDs MenuCategory). Liste vide = tout le menu.
+    # Catégories ciblées (IDs MenuCategory). Liste vide = pas de filtre catégorie.
     category_ids = models.JSONField(
         default=list,
         blank=True,
-        help_text="IDs de MenuCategory concernées. Vide = toutes les catégories.",
+        help_text="IDs de MenuCategory concernées. Vide = pas de filtre catégorie.",
+    )
+    # Plats ciblés (IDs MenuItem). Liste vide = pas de filtre plat.
+    # Si category_ids et item_ids sont vides → tout le menu.
+    item_ids = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="IDs de MenuItem concernés. Vide = pas de filtre plat.",
     )
 
     class Meta:

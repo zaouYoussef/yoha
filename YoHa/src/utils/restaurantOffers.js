@@ -1,4 +1,4 @@
-/** Utilitaires offres resto — réduction % par catégories. */
+/** Utilitaires offres resto — réduction % par catégories et/ou plats. */
 
 function activeOffers(restaurant) {
   const list = Array.isArray(restaurant?.offers) ? restaurant.offers : [];
@@ -22,19 +22,41 @@ export function resolveItemCategoryId(item, restaurant) {
   return 0;
 }
 
-/** Meilleure offre % applicable à un plat (catégorie ciblée ou tout le menu). */
+/** ID DB d’un plat. */
+export function resolveItemDbId(item) {
+  return Number(item?.db_id ?? item?.pk ?? 0);
+}
+
+/** Une offre % s’applique-t-elle à ce plat ? */
+export function offerAppliesToItem(offer, item, restaurant) {
+  if (!offer || offer.offer_type !== 'percentage') return false;
+  if (!(Number(offer.discount_percent) > 0)) return false;
+
+  const itemIds = Array.isArray(offer.item_ids) ? offer.item_ids.map(Number) : [];
+  const catIds = Array.isArray(offer.category_ids) ? offer.category_ids.map(Number) : [];
+
+  // Aucun filtre → tout le menu
+  if (itemIds.length === 0 && catIds.length === 0) return true;
+
+  const itemId = resolveItemDbId(item);
+  if (itemIds.length > 0 && itemId > 0 && itemIds.includes(itemId)) return true;
+
+  const catId = resolveItemCategoryId(item, restaurant);
+  if (catIds.length > 0 && catId > 0 && catIds.includes(catId)) return true;
+
+  return false;
+}
+
+/** Meilleure offre % applicable à un plat (plat / catégorie / tout le menu). */
 export function findItemPercentageOffer(item, restaurant) {
   const offers = activeOffers(restaurant).filter(
     (o) => o.offer_type === 'percentage' && Number(o.discount_percent) > 0,
   );
   if (!offers.length) return null;
 
-  const catId = resolveItemCategoryId(item, restaurant);
   let best = null;
   for (const offer of offers) {
-    const ids = Array.isArray(offer.category_ids) ? offer.category_ids.map(Number) : [];
-    const applies = ids.length === 0 || (catId > 0 && ids.includes(catId));
-    if (!applies) continue;
+    if (!offerAppliesToItem(offer, item, restaurant)) continue;
     const pct = Number(offer.discount_percent);
     if (!best || pct > Number(best.discount_percent)) best = offer;
   }
@@ -72,12 +94,23 @@ export function withItemOfferPricing(item, restaurant) {
 }
 
 export function offerScopeLabel(offer) {
-  const names = Array.isArray(offer?.category_names) ? offer.category_names.filter(Boolean) : [];
-  if (!names.length && (!offer?.category_ids || offer.category_ids.length === 0)) {
-    return 'tout le menu';
-  }
-  if (names.length === 1) return names[0];
-  if (names.length === 2) return names.join(' & ');
-  if (names.length > 2) return `${names.slice(0, 2).join(', ')}…`;
-  return 'catégories sélectionnées';
+  const itemNames = Array.isArray(offer?.item_names) ? offer.item_names.filter(Boolean) : [];
+  const catNames = Array.isArray(offer?.category_names) ? offer.category_names.filter(Boolean) : [];
+  const hasItems = itemNames.length > 0 || (Array.isArray(offer?.item_ids) && offer.item_ids.length > 0);
+  const hasCats = catNames.length > 0 || (Array.isArray(offer?.category_ids) && offer.category_ids.length > 0);
+
+  if (!hasItems && !hasCats) return 'tout le menu';
+
+  const parts = [];
+  if (itemNames.length === 1) parts.push(itemNames[0]);
+  else if (itemNames.length === 2) parts.push(itemNames.join(' & '));
+  else if (itemNames.length > 2) parts.push(`${itemNames.slice(0, 2).join(', ')}…`);
+  else if (hasItems) parts.push('plats sélectionnés');
+
+  if (catNames.length === 1) parts.push(catNames[0]);
+  else if (catNames.length === 2) parts.push(catNames.join(' & '));
+  else if (catNames.length > 2) parts.push(`${catNames.slice(0, 2).join(', ')}…`);
+  else if (hasCats && !hasItems) parts.push('catégories sélectionnées');
+
+  return parts.filter(Boolean).join(' · ') || 'sélection';
 }
