@@ -270,7 +270,7 @@ export function FloatingCart({ count, total, items = [], onClick, hidden }) {
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 z-[55] bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-8 px-3 sm:px-4"
+      className="pointer-events-none fixed inset-x-0 z-[55] bottom-8 px-4 hidden md:block"
       aria-hidden={false}
     >
       <motion.button
