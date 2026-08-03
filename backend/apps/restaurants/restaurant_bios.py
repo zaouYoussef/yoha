@@ -105,4 +105,20 @@ RESTAURANT_BIOS = {
         "Burgers smash style, pain toasté et recettes addictives. "
         "Vicio pour céder — sans regret — à une bonne envie."
     ),
+    "bim-moulay-rachid": (
+        "Courses du quotidien, snacks et essentiels. "
+        "BIM en livraison YoHa : on récupère votre ticket, vous restez au campus."
+    ),
+    "bomos-kebab": (
+        "Kebabs, menus duo et formules étudiantes généreuses. "
+        "Bomo's Kebab, le classique qui nourrit bien après les cours."
+    ),
+    "healthy-bowl": (
+        "Bowls colorés, protéines et légumes frais. "
+        "Healthy Bowl pour un repas léger qui reste gourmand."
+    ),
+    "medeat": (
+        "Options adaptées et plats pensés pour le quotidien CHU. "
+        "MedEat, la pause repas fiable près de l'hôpital."
+    ),
 }
