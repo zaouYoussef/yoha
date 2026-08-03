@@ -126,28 +126,30 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
         onClick={(e) => e.stopPropagation()}
         className="relative flex flex-col w-full sm:max-w-lg max-h-[92vh] sm:max-h-[88vh] bg-white dark:bg-ink-900 rounded-t-[28px] sm:rounded-3xl shadow-2xl shadow-brand-500/10 border border-ink-200/70 dark:border-ink-800 ring-gradient overflow-hidden animate-slide-up sm:animate-scale-in"
       >
-        <div className="relative shrink-0 aspect-[16/11] sm:aspect-[16/10] overflow-hidden bg-ink-100 dark:bg-ink-950">
-          <MenuItemImage
-            src={item.img}
-            alt={item.name}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/20 dark:from-ink-900 dark:via-transparent dark:to-black/30" />
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-500/10 via-transparent to-pink-500/10 pointer-events-none" />
-          <div className="absolute top-3 inset-x-0 flex justify-center sm:hidden">
-            <span className="w-10 h-1 rounded-full bg-ink-300/80 dark:bg-white/25" />
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="cursor-grow absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 dark:bg-black/50 backdrop-blur-md text-ink-900 dark:text-white grid place-items-center active:scale-95 transition-transform shadow-md"
-            aria-label="Fermer"
-          >
-            <I.X size={18} />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="cursor-grow absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-white/90 dark:bg-black/50 backdrop-blur-md text-ink-900 dark:text-white grid place-items-center active:scale-95 transition-transform shadow-md"
+          aria-label="Fermer"
+        >
+          <I.X size={18} />
+        </button>
 
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 pt-4 pb-3 space-y-5">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+          <div className="relative aspect-[16/11] sm:aspect-[16/10] overflow-hidden bg-ink-100 dark:bg-ink-950">
+            <MenuItemImage
+              src={item.img}
+              alt={item.name}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/20 dark:from-ink-900 dark:via-transparent dark:to-black/30" />
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-500/10 via-transparent to-pink-500/10 pointer-events-none" />
+            <div className="absolute top-3 inset-x-0 flex justify-center sm:hidden">
+              <span className="w-10 h-1 rounded-full bg-ink-300/80 dark:bg-white/25" />
+            </div>
+          </div>
+
+          <div className="px-5 pt-4 pb-3 space-y-5">
           <div>
             {restaurant?.name ? (
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-400">
@@ -252,6 +254,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
               })}
             </div>
           ) : null}
+          </div>
         </div>
 
         <div className="shrink-0 border-t border-ink-100 dark:border-ink-800 bg-white/95 dark:bg-ink-900/95 backdrop-blur-md px-5 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] space-y-3">
