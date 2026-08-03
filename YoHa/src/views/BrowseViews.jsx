@@ -1651,6 +1651,37 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
         </div>
       </section>
 
+      {/* Offres actives du restaurant */}
+      {Array.isArray(r.offers) && r.offers.filter((o) => o.is_active !== false).length > 0 && (
+        <div className="relative z-10 -mt-4 px-4 sm:px-6">
+          <div className="max-w-3xl mx-auto space-y-2">
+            {r.offers.filter((o) => o.is_active !== false).map((offer) => (
+              <div
+                key={offer.id}
+                className="flex items-start gap-3 rounded-2xl border border-amber-500/25 bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 shadow-sm dark:from-amber-500/15 dark:to-orange-500/10 dark:border-amber-500/30"
+              >
+                <span className="text-xl shrink-0" aria-hidden>
+                  {offer.offer_type === 'buy_get_free' ? '🎁' : offer.offer_type === 'min_spend' ? '🎯' : '💰'}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-display font-bold text-sm text-ink-900 dark:text-white">{offer.title}</p>
+                  {offer.description && (
+                    <p className="mt-0.5 text-xs text-ink-500 dark:text-ink-400 line-clamp-2">{offer.description}</p>
+                  )}
+                  <p className="mt-1 text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                    {offer.offer_type === 'percentage' && `−${offer.discount_percent}% sur le menu`}
+                    {offer.offer_type === 'buy_get_free' &&
+                      `Achetez ${offer.buy_quantity}, ${offer.get_quantity} offert${Number(offer.get_quantity) > 1 ? 's' : ''}${offer.free_item_name ? ` (${offer.free_item_name})` : ''}`}
+                    {offer.offer_type === 'min_spend' &&
+                      `Dès ${formatMad(Number(offer.min_amount))} → −${offer.discount_percent}%`}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Sticky categories */}
       {!r.isStatic && (r.menu || []).length > 0 && (
         <div className="sticky top-14 z-30 bg-white/85 dark:bg-ink-950/85 backdrop-blur-xl border-b border-ink-100/70 dark:border-ink-800/80">

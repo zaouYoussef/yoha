@@ -346,31 +346,50 @@ class RestaurantOfferSerializer(serializers.ModelSerializer):
             "min_amount", "is_active", "created_at",
         ]
         read_only_fields = ["id", "created_at"]
+        extra_kwargs = {
+            "discount_percent": {"required": False, "allow_null": True},
+            "buy_quantity": {"required": False, "allow_null": True},
+            "get_quantity": {"required": False, "allow_null": True},
+            "min_amount": {"required": False, "allow_null": True},
+            "free_item_name": {"required": False, "allow_blank": True},
+            "description": {"required": False, "allow_blank": True},
+        }
+
+    def _merged(self, data, field):
+        if field in data:
+            return data.get(field)
+        if self.instance is not None:
+            return getattr(self.instance, field, None)
+        return None
 
     def validate(self, data):
         offer_type = data.get("offer_type") or (self.instance and self.instance.offer_type)
         if offer_type == "percentage":
-            dp = data.get("discount_percent")
-            if dp is None and not self.instance:
+            dp = self._merged(data, "discount_percent")
+            if dp is None:
                 raise serializers.ValidationError({"discount_percent": "Requis pour une réduction %."})
-            if dp is not None and (dp < 1 or dp > 100):
+            if dp < 1 or dp > 100:
                 raise serializers.ValidationError({"discount_percent": "La réduction doit être entre 1 et 100 %."})
         elif offer_type == "buy_get_free":
-            bq = data.get("buy_quantity")
-            gq = data.get("get_quantity")
-            if bq is None and not self.instance:
+            bq = self._merged(data, "buy_quantity")
+            gq = self._merged(data, "get_quantity")
+            if bq is None:
                 raise serializers.ValidationError({"buy_quantity": "Requis."})
-            if gq is None and not self.instance:
+            if gq is None:
                 raise serializers.ValidationError({"get_quantity": "Requis."})
-            if bq is not None and bq < 1:
+            if bq < 1:
                 raise serializers.ValidationError({"buy_quantity": "Doit être ≥ 1."})
-            if gq is not None and gq < 1:
+            if gq < 1:
                 raise serializers.ValidationError({"get_quantity": "Doit être ≥ 1."})
         elif offer_type == "min_spend":
-            ma = data.get("min_amount")
-            dp = data.get("discount_percent")
-            if ma is None and not self.instance:
+            ma = self._merged(data, "min_amount")
+            dp = self._merged(data, "discount_percent")
+            if ma is None:
                 raise serializers.ValidationError({"min_amount": "Requis."})
-            if dp is None and not self.instance:
+            if dp is None:
                 raise serializers.ValidationError({"discount_percent": "Requis (pourcentage de réduction)."})
+            if dp < 1 or dp > 100:
+                raise serializers.ValidationError({"discount_percent": "La réduction doit être entre 1 et 100 %."})
+            if float(ma) <= 0:
+                raise serializers.ValidationError({"min_amount": "Doit être > 0."})
         return data

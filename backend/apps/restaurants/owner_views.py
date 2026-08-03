@@ -316,6 +316,20 @@ class MenuItemImageUploadView(APIView):
 
 # ─── Restaurant-offer CRUD ─────────────────────────────────────────
 
+def _sync_restaurant_promo_label(resto: Restaurant) -> None:
+    """Met à jour le badge promo carte (= titre de la 1ʳᵉ offre active)."""
+    first = (
+        RestaurantOffer.objects.filter(restaurant=resto, is_active=True)
+        .order_by("-created_at")
+        .values_list("title", flat=True)
+        .first()
+    )
+    label = (first or "")[:120]
+    if (resto.promo_label or "") != label:
+        Restaurant.objects.filter(pk=resto.pk).update(promo_label=label)
+        resto.promo_label = label
+
+
 class RestaurantOfferListCreateView(APIView):
     permission_classes = [IsRestaurant]
 
@@ -333,8 +347,9 @@ class RestaurantOfferListCreateView(APIView):
             return Response({"detail": "Restaurant introuvable."}, status=404)
         serializer = RestaurantOfferSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(restaurant=resto)
-            return Response(serializer.data, status=201)
+            offer = serializer.save(restaurant=resto)
+            _sync_restaurant_promo_label(resto)
+            return Response(RestaurantOfferSerializer(offer).data, status=201)
         return Response(serializer.errors, status=400)
 
 
@@ -357,6 +372,7 @@ class RestaurantOfferDetailView(APIView):
         serializer = RestaurantOfferSerializer(offer, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            _sync_restaurant_promo_label(offer.restaurant)
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
 
@@ -364,5 +380,7 @@ class RestaurantOfferDetailView(APIView):
         offer = self.get_object(pk)
         if not offer:
             return Response({"detail": "Offre introuvable."}, status=404)
+        resto = offer.restaurant
         offer.delete()
+        _sync_restaurant_promo_label(resto)
         return Response(status=204)

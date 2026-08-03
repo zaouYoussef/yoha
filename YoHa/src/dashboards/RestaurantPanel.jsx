@@ -1808,8 +1808,10 @@ export function RestoPromos() {
     try {
       const data = await restaurantOffersApi.list();
       setOffers(Array.isArray(data) ? data : []);
-    } catch {
+      setError('');
+    } catch (err) {
       setOffers([]);
+      setError(err?.message || 'Impossible de charger les offres.');
     } finally {
       setLoading(false);
     }
@@ -1823,26 +1825,47 @@ export function RestoPromos() {
   const handleDelete = async (offer) => {
     if (!window.confirm(`Supprimer l'offre "${offer.title}" ?`)) return;
     setBusy(true);
-    try { await restaurantOffersApi.remove(offer.id); await loadOffers(); }
-    catch (err) { setError(err.message || 'Erreur.'); }
-    finally { setBusy(false); }
+    try {
+      await restaurantOffersApi.remove(offer.id);
+      await loadOffers();
+    } catch (err) {
+      setError(err.message || 'Erreur.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   const handleToggle = async (offer) => {
     setBusy(true);
-    try { await restaurantOffersApi.update(offer.id, { is_active: !offer.is_active }); await loadOffers(); }
-    catch (err) { setError(err.message || 'Erreur.'); }
-    finally { setBusy(false); }
+    try {
+      await restaurantOffersApi.update(offer.id, { is_active: !offer.is_active });
+      await loadOffers();
+    } catch (err) {
+      setError(err.message || 'Erreur.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   const handleSave = async (formData) => {
-    setBusy(true); setError('');
+    setBusy(true);
+    setError('');
     try {
-      if (editing) { await restaurantOffersApi.update(editing.id, formData); }
-      else { await restaurantOffersApi.create(formData); }
-      setShowForm(false); setEditing(null); await loadOffers();
-    } catch (err) { setError(err.message || 'Erreur.'); }
-    finally { setBusy(false); }
+      if (editing) {
+        await restaurantOffersApi.update(editing.id, formData);
+      } else {
+        await restaurantOffersApi.create(formData);
+      }
+      setShowForm(false);
+      setEditing(null);
+      await loadOffers();
+    } catch (err) {
+      const msg = err.message || 'Erreur lors de l’enregistrement.';
+      setError(msg);
+      throw err;
+    } finally {
+      setBusy(false);
+    }
   };
 
   const OFFER_ICONS = { percentage: '💰', buy_get_free: '🎁', min_spend: '🎯' };
@@ -1859,11 +1882,12 @@ export function RestoPromos() {
     );
   }
 
-  const activeCount = offers.filter((o) => o.is_active).length;
-  const inactiveCount = offers.length - activeCount;
+  const list = Array.isArray(offers) ? offers : [];
+  const activeCount = list.filter((o) => o.is_active).length;
+  const inactiveCount = list.length - activeCount;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       <GradientHeader
         title="Offres promotionnelles"
         subtitle={`${activeCount} active${activeCount > 1 ? 's' : ''} · ${inactiveCount} inactive${inactiveCount > 1 ? 's' : ''}`}
@@ -1871,27 +1895,28 @@ export function RestoPromos() {
         gradient="from-amber-500 via-orange-500 to-red-500"
         actions={
           <ActionButton onClick={handleCreate} variant="secondary" size="sm" icon={<I.Plus size={14} />}>
-            <span className="hidden sm:inline">Nouvelle offre</span>
-            <span className="sm:hidden">Nouvelle</span>
+            Nouvelle offre
           </ActionButton>
         }
       />
 
       <p className="text-sm text-ink-500">
-        Créez des offres promotionnelles pour attirer vos clients. Les offres s&apos;affichent sur votre page restaurant.
+        Les offres actives s&apos;affichent sur votre page restaurant et mettent à jour le badge promo des cartes.
       </p>
 
-      {error && (
-        <div className="rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
-          <I.X size={14} /> {error}
+      {error && !showForm && (
+        <div className="rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 px-4 py-3 text-sm text-red-600 flex items-start gap-2">
+          <I.X size={14} className="mt-0.5 shrink-0" />
+          <span className="flex-1">{error}</span>
+          <button type="button" onClick={() => setError('')} className="text-xs shrink-0">✕</button>
         </div>
       )}
 
-      {offers.length === 0 ? (
+      {list.length === 0 ? (
         <EmptyState
           icon="🎉"
-          title="Aucune offre active"
-          description="Créez votre première offre promotionnelle !"
+          title="Aucune offre"
+          description="Créez une réduction %, une offre 1 acheté 1 offert, ou un seuil minimum."
           action={
             <ActionButton onClick={handleCreate} variant="primary" icon={<I.Plus size={14} />}>
               Créer une offre
@@ -1899,8 +1924,8 @@ export function RestoPromos() {
           }
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {offers.map((offer) => (
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
+          {list.map((offer) => (
             <GlassCard
               key={offer.id}
               className={`p-4 ${!offer.is_active ? 'opacity-60' : ''}`}
@@ -1928,7 +1953,7 @@ export function RestoPromos() {
                         <span className="font-display font-black text-2xl bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">
                           -{offer.discount_percent}%
                         </span>
-                        <span className="text-xs text-ink-500">sur tout le menu</span>
+                        <span className="text-xs text-ink-500">sur le menu</span>
                       </div>
                     )}
                     {offer.offer_type === 'buy_get_free' && (
@@ -1941,7 +1966,7 @@ export function RestoPromos() {
                     )}
                     {offer.offer_type === 'min_spend' && (
                       <div className="text-sm font-semibold text-ink-600 dark:text-ink-300">
-                        Dès {formatMad(Number(offer.min_amount))} d&apos;achat →
+                        Dès {formatMad(Number(offer.min_amount))} →
                         <span className="bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent font-black ml-1">
                           -{offer.discount_percent}%
                         </span>
@@ -1950,14 +1975,14 @@ export function RestoPromos() {
                   </div>
                 </div>
 
-                <Toggle checked={offer.is_active} onChange={() => handleToggle(offer)} disabled={busy} />
+                <Toggle checked={!!offer.is_active} onChange={() => handleToggle(offer)} disabled={busy} />
               </div>
 
-              <div className="mt-4 flex gap-2">
-                <ActionButton size="sm" variant="secondary" onClick={() => handleEdit(offer)} disabled={busy} icon={<I.Sparkle size={10} />}>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <ActionButton size="sm" variant="secondary" className="w-full" onClick={() => handleEdit(offer)} disabled={busy} icon={<I.Sparkle size={10} />}>
                   Modifier
                 </ActionButton>
-                <ActionButton size="sm" variant="ghost" onClick={() => handleDelete(offer)} disabled={busy} className="text-red-500 hover:text-red-600" icon={<I.Trash size={10} />}>
+                <ActionButton size="sm" variant="ghost" className="w-full text-red-500 hover:text-red-600" onClick={() => handleDelete(offer)} disabled={busy} icon={<I.Trash size={10} />}>
                   Supprimer
                 </ActionButton>
               </div>
@@ -1967,40 +1992,97 @@ export function RestoPromos() {
       )}
 
       {showForm && (
-        <OfferFormModal offer={editing} busy={busy} onClose={() => { setShowForm(false); setEditing(null); }} onSave={handleSave} />
+        <OfferFormModal
+          offer={editing}
+          busy={busy}
+          onClose={() => { setShowForm(false); setEditing(null); setError(''); }}
+          onSave={handleSave}
+        />
       )}
     </div>
   );
 }
 
+function buildOfferPayload(form) {
+  const base = {
+    offer_type: form.offer_type,
+    title: form.title.trim(),
+    description: (form.description || '').trim(),
+  };
+  if (form.offer_type === 'percentage') {
+    return { ...base, discount_percent: Number(form.discount_percent) };
+  }
+  if (form.offer_type === 'buy_get_free') {
+    return {
+      ...base,
+      buy_quantity: Number(form.buy_quantity),
+      get_quantity: Number(form.get_quantity),
+      free_item_name: (form.free_item_name || '').trim(),
+    };
+  }
+  return {
+    ...base,
+    min_amount: Number(form.min_amount),
+    discount_percent: Number(form.discount_percent),
+  };
+}
+
 function OfferFormModal({ offer, busy, onClose, onSave }) {
+  const formRef = useRef(null);
   const [form, setForm] = useState({
     offer_type: offer?.offer_type || 'percentage',
     title: offer?.title || '',
     description: offer?.description || '',
-    discount_percent: offer?.discount_percent ? String(offer.discount_percent) : '',
-    buy_quantity: offer?.buy_quantity ? String(offer.buy_quantity) : '',
-    get_quantity: offer?.get_quantity ? String(offer.get_quantity) : '',
+    discount_percent: offer?.discount_percent != null ? String(offer.discount_percent) : '',
+    buy_quantity: offer?.buy_quantity != null ? String(offer.buy_quantity) : '',
+    get_quantity: offer?.get_quantity != null ? String(offer.get_quantity) : '',
     free_item_name: offer?.free_item_name || '',
-    min_amount: offer?.min_amount ? String(offer.min_amount) : '',
+    min_amount: offer?.min_amount != null ? String(offer.min_amount) : '',
   });
+  const [localError, setLocalError] = useState('');
 
-  const submit = (e) => {
-    e.preventDefault();
-    onSave({
-      offer_type: form.offer_type,
-      title: form.title.trim(),
-      description: form.description.trim(),
-      discount_percent: form.discount_percent ? Number(form.discount_percent) : null,
-      buy_quantity: form.buy_quantity ? Number(form.buy_quantity) : null,
-      get_quantity: form.get_quantity ? Number(form.get_quantity) : null,
-      free_item_name: form.free_item_name.trim(),
-      min_amount: form.min_amount ? Number(form.min_amount) : null,
-    });
+  const validateClient = (payload) => {
+    if (!payload.title) return 'Le titre est obligatoire.';
+    if (payload.offer_type === 'percentage') {
+      const n = Number(payload.discount_percent);
+      if (!Number.isFinite(n) || n < 1 || n > 100) return 'Indiquez un pourcentage entre 1 et 100.';
+    }
+    if (payload.offer_type === 'buy_get_free') {
+      if (!Number.isFinite(Number(payload.buy_quantity)) || Number(payload.buy_quantity) < 1) {
+        return 'Indiquez la quantité à acheter (≥ 1).';
+      }
+      if (!Number.isFinite(Number(payload.get_quantity)) || Number(payload.get_quantity) < 1) {
+        return 'Indiquez la quantité offerte (≥ 1).';
+      }
+    }
+    if (payload.offer_type === 'min_spend') {
+      if (!Number.isFinite(Number(payload.min_amount)) || Number(payload.min_amount) <= 0) {
+        return 'Indiquez un montant minimum valide.';
+      }
+      const n = Number(payload.discount_percent);
+      if (!Number.isFinite(n) || n < 1 || n > 100) return 'Indiquez un pourcentage entre 1 et 100.';
+    }
+    return '';
+  };
+
+  const submit = async (e) => {
+    e?.preventDefault?.();
+    setLocalError('');
+    const payload = buildOfferPayload(form);
+    const clientErr = validateClient(payload);
+    if (clientErr) {
+      setLocalError(clientErr);
+      return;
+    }
+    try {
+      await onSave(payload);
+    } catch (err) {
+      setLocalError(err?.message || 'Impossible d’enregistrer l’offre.');
+    }
   };
 
   const OFFER_TYPES = [
-    { value: 'percentage', label: '💰 Réduction %', desc: 'Ex: -50% sur tout le menu', color: 'from-emerald-500 to-teal-500' },
+    { value: 'percentage', label: '💰 Réduction %', desc: 'Ex: -10% sur le menu', color: 'from-emerald-500 to-teal-500' },
     { value: 'buy_get_free', label: '🎁 Acheté X, offert Y', desc: 'Ex: 1 achetée, 1 offerte', color: 'from-violet-500 to-purple-500' },
     { value: 'min_spend', label: '🎯 Montant minimum', desc: 'Ex: Dès 100 MAD → -15%', color: 'from-amber-500 to-orange-500' },
   ];
@@ -2010,25 +2092,30 @@ function OfferFormModal({ offer, busy, onClose, onSave }) {
       open
       onClose={onClose}
       title={offer ? "Modifier l'offre" : 'Nouvelle offre'}
-      subtitle="Configurez votre promotion"
+      subtitle="Visible sur votre page restaurant"
       icon={offer ? <I.Sparkle size={16} /> : <I.Plus size={16} />}
       footer={(
-        <div className="flex gap-2">
-          <ActionButton type="button" variant="ghost" className="flex-1" onClick={onClose}>Annuler</ActionButton>
-          <ActionButton
-            type="submit"
-            form="offer-form"
-            variant="primary"
-            className="flex-[1.4]"
-            disabled={busy}
-            icon={busy ? undefined : (offer ? <I.Check size={14} /> : <I.Plus size={14} />)}
-          >
-            {busy ? '…' : offer ? 'Enregistrer' : "Créer l'offre"}
-          </ActionButton>
+        <div className="space-y-2">
+          {localError && (
+            <p className="text-xs font-semibold text-red-500 text-center">{localError}</p>
+          )}
+          <div className="flex gap-2">
+            <ActionButton type="button" variant="ghost" className="flex-1" onClick={onClose}>Annuler</ActionButton>
+            <ActionButton
+              type="button"
+              variant="primary"
+              className="flex-[1.4]"
+              disabled={busy}
+              onClick={() => submit()}
+              icon={busy ? undefined : (offer ? <I.Check size={14} /> : <I.Plus size={14} />)}
+            >
+              {busy ? 'Enregistrement…' : offer ? 'Enregistrer' : "Créer l'offre"}
+            </ActionButton>
+          </div>
         </div>
       )}
     >
-      <form id="offer-form" onSubmit={submit} className="space-y-4">
+      <form ref={formRef} id="offer-form" onSubmit={submit} className="space-y-4">
         <div className="space-y-2">
           <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Type d&apos;offre</span>
           <div className="grid gap-2">
@@ -2059,7 +2146,7 @@ function OfferFormModal({ offer, busy, onClose, onSave }) {
 
         <label className="block space-y-1.5">
           <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Titre de l&apos;offre</span>
-          <input required maxLength={150} placeholder="Ex: -50% sur tout le menu"
+          <input required maxLength={150} placeholder="Ex: -10% sur les bowls"
             value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
             className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
         </label>
@@ -2075,12 +2162,11 @@ function OfferFormModal({ offer, busy, onClose, onSave }) {
           <label className="block space-y-1.5">
             <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Pourcentage de réduction</span>
             <div className="relative">
-              <input required type="number" min="1" max="100" placeholder="50"
+              <input required type="number" min="1" max="100" placeholder="10"
                 value={form.discount_percent} onChange={(e) => setForm((f) => ({ ...f, discount_percent: e.target.value }))}
                 className="w-full pl-4 pr-10 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-ink-400">%</span>
             </div>
-            <p className="text-xs text-ink-400">La réduction s&apos;applique sur le total de la commande.</p>
           </label>
         )}
 
@@ -2099,7 +2185,7 @@ function OfferFormModal({ offer, busy, onClose, onSave }) {
                 className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
             </label>
             <label className="block space-y-1.5 col-span-2">
-              <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Nom de l&apos;article offert (optionnel)</span>
+              <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Article offert (optionnel)</span>
               <input placeholder="Ex: Boisson 33cl"
                 value={form.free_item_name} onChange={(e) => setForm((f) => ({ ...f, free_item_name: e.target.value }))}
                 className="w-full px-4 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
