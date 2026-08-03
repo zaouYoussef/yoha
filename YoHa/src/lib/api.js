@@ -624,9 +624,12 @@ export const ordersApi = {
   },
 
   async updateLocation(publicId, latitude, longitude) {
+    // Arrondi 6 décimales : iOS envoie trop de précision → 400 côté Django
+    const lat = Number(Number(latitude).toFixed(6));
+    const lng = Number(Number(longitude).toFixed(6));
     return apiFetch(`/orders/${publicId}/location/`, {
       method: 'POST',
-      body: { latitude, longitude },
+      body: { latitude: lat, longitude: lng },
     });
   },
 

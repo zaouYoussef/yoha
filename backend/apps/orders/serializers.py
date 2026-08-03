@@ -297,8 +297,16 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class CourierLocationSerializer(serializers.Serializer):
-    latitude = serializers.DecimalField(max_digits=9, decimal_places=6)
-    longitude = serializers.DecimalField(max_digits=9, decimal_places=6)
+    # Float + arrondi : les GPS mobiles (iOS) envoient > 9 chiffres totaux
+    # ce qui faisait échouer DecimalField(max_digits=9) en 400 silencieux.
+    latitude = serializers.FloatField(min_value=-90, max_value=90)
+    longitude = serializers.FloatField(min_value=-180, max_value=180)
+
+    def validate_latitude(self, value):
+        return round(float(value), 6)
+
+    def validate_longitude(self, value):
+        return round(float(value), 6)
 
 
 class OrderStatusUpdateSerializer(serializers.Serializer):
