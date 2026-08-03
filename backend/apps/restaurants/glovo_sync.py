@@ -348,8 +348,6 @@ def _sync_store_profile(restaurant: Restaurant, store: GlovoStoreConfig) -> None
     fields: dict = {}
     if store.opening_hours:
         fields["opening_hours"] = normalize_opening_hours(store.opening_hours)
-    if store.phone:
-        fields["phone"] = store.phone[:30]
 
     profile = None
     if store.store_id:
@@ -359,9 +357,13 @@ def _sync_store_profile(restaurant: Restaurant, store: GlovoStoreConfig) -> None
         except GlovoError as exc:
             logger.info("glovo_store_profile_failed %s — %s", store.slug, exc)
 
+    # Priorité : téléphone Glovo live, sinon config GLOVO_STORES
+    if profile and (profile.phone or "").strip():
+        fields["phone"] = profile.phone.strip()[:30]
+    elif store.phone:
+        fields["phone"] = store.phone[:30]
+
     if profile:
-        if profile.phone and "phone" not in fields:
-            fields["phone"] = profile.phone[:30]
         if profile.address and not (restaurant.description or "").strip():
             fields["description"] = f"{profile.name or restaurant.name} — {profile.address}"[:500]
         if "opening_hours" not in fields and profile.latitude is not None and profile.longitude is not None:
