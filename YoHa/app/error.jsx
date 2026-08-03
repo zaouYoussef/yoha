@@ -3,9 +3,29 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 
+function isChunkLoadError(error) {
+  const name = String(error?.name || '');
+  const msg = String(error?.message || '');
+  return (
+    name === 'ChunkLoadError' ||
+    /Loading chunk [\d]+ failed/i.test(msg) ||
+    /Failed to fetch dynamically imported module/i.test(msg) ||
+    /Importing a module script failed/i.test(msg)
+  );
+}
+
 export default function Error({ error, reset }) {
   useEffect(() => {
     console.error('Unhandled runtime error in page:', error);
+    if (!isChunkLoadError(error) || typeof window === 'undefined') return;
+    try {
+      const key = 'yoha_chunk_reload';
+      if (sessionStorage.getItem(key) === '1') return;
+      sessionStorage.setItem(key, '1');
+      window.location.reload();
+    } catch {
+      // ignore
+    }
   }, [error]);
 
   return (
@@ -34,7 +54,14 @@ export default function Error({ error, reset }) {
       </p>
       <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
         <button
-          onClick={() => reset()}
+          onClick={() => {
+            try {
+              sessionStorage.removeItem('yoha_chunk_reload');
+            } catch {
+              // ignore
+            }
+            reset();
+          }}
           className="inline-flex items-center justify-center rounded-full bg-brand-500 hover:bg-brand-600 px-8 py-3 text-sm font-semibold text-white shadow-glow hover:shadow-glow-lg transition duration-200"
         >
           Réessayer

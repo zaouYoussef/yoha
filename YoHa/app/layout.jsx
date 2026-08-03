@@ -110,7 +110,6 @@ export default function RootLayout({ children }) {
         <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/logo.png" />
-        <link rel="preload" as="image" href="/videos/hero-food-orbit-poster.webp" fetchPriority="high" type="image/webp" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var ok=typeof Promise!=="undefined"&&typeof Symbol!=="undefined"&&typeof Map!=="undefined"&&typeof WeakMap!=="undefined"&&typeof Proxy!=="undefined"&&typeof fetch==="function"&&typeof Object.assign==="function"&&typeof Object.fromEntries==="function"&&!!Array.prototype.flat&&!!Array.prototype.includes;if(!ok){window.location.replace("/browser-update.html");}}catch(e){try{window.location.replace("/browser-update.html");}catch(_){}}})();`,

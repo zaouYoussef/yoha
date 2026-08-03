@@ -2,9 +2,29 @@
 
 import { useEffect } from 'react';
 
+function isChunkLoadError(error) {
+  const name = String(error?.name || '');
+  const msg = String(error?.message || '');
+  return (
+    name === 'ChunkLoadError' ||
+    /Loading chunk [\d]+ failed/i.test(msg) ||
+    /Failed to fetch dynamically imported module/i.test(msg) ||
+    /Importing a module script failed/i.test(msg)
+  );
+}
+
 export default function GlobalError({ error, reset }) {
   useEffect(() => {
     console.error('Unhandled global runtime error:', error);
+    if (!isChunkLoadError(error) || typeof window === 'undefined') return;
+    try {
+      const key = 'yoha_chunk_reload';
+      if (sessionStorage.getItem(key) === '1') return;
+      sessionStorage.setItem(key, '1');
+      window.location.reload();
+    } catch {
+      // ignore
+    }
   }, [error]);
 
   return (
@@ -46,7 +66,14 @@ export default function GlobalError({ error, reset }) {
           <div style={{ marginTop: 22, display: 'flex', flexDirection: 'column', gap: 10 }}>
             <button
               type="button"
-              onClick={() => reset()}
+              onClick={() => {
+                try {
+                  sessionStorage.removeItem('yoha_chunk_reload');
+                } catch {
+                  // ignore
+                }
+                reset();
+              }}
               style={{
                 minHeight: 48,
                 border: 0,
