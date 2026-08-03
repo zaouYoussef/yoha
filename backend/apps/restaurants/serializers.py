@@ -2,7 +2,14 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from rest_framework import serializers
 
-from .models import MenuCategory, MenuItem, Restaurant, RestaurantOffer
+from .models import (
+    MenuCategory,
+    MenuItem,
+    MenuItemModifierGroup,
+    MenuItemModifierOption,
+    Restaurant,
+    RestaurantOffer,
+)
 from .opening_hours import normalize_opening_hours, restaurant_open_status
 
 
@@ -23,16 +30,35 @@ def pick_image(file_key: str, thumb_key: str, fallback_url: str, *, prefer_thumb
     return fallback_url or ""
 
 
+class MenuItemModifierOptionSerializer(serializers.ModelSerializer):
+    price = serializers.DecimalField(source="price_impact", max_digits=10, decimal_places=2)
+
+    class Meta:
+        model = MenuItemModifierOption
+        fields = ("name", "price")
+
+
+class MenuItemModifierGroupSerializer(serializers.ModelSerializer):
+    min = serializers.IntegerField(source="min_selected")
+    max = serializers.IntegerField(source="max_selected")
+    options = MenuItemModifierOptionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = MenuItemModifierGroup
+        fields = ("name", "min", "max", "options")
+
+
 class MenuItemSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source="external_id")
     desc = serializers.CharField(source="description")
     price = serializers.DecimalField(source="price_mad", max_digits=10, decimal_places=2)
     img = serializers.SerializerMethodField()
     db_id = serializers.IntegerField(source="id", read_only=True)
+    modifierGroups = MenuItemModifierGroupSerializer(source="modifier_groups", many=True, read_only=True)
 
     class Meta:
         model = MenuItem
-        fields = ("id", "db_id", "name", "desc", "ingredients", "price", "img", "is_available")
+        fields = ("id", "db_id", "name", "desc", "ingredients", "price", "img", "is_available", "modifierGroups")
 
     def get_img(self, obj):
         prefer_thumb = self.context.get("prefer_thumbs", False)

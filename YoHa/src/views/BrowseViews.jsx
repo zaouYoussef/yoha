@@ -1380,7 +1380,7 @@ export function SearchBar({ value, onChange, variant = 'default' }) {
     </div>
   );
 }
-export function RestaurantPage({ restaurant, onBack, onAdd }) {
+export function RestaurantPage({ restaurant, onAdd, onBack }) {
   if (!restaurant) return null;
   const r = restaurant;
   const openStatus = r.openingHours ? restaurantOpenStatus(r.openingHours) : { isOpen: true, openLabel: 'Ouvert' };
@@ -1388,6 +1388,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
   const openLabel = r.openLabel ?? openStatus.openLabel ?? 'Ouvert';
   const [activeCat, setActiveCat] = useState(r.menu?.[0]?.category ?? '');
   const [selectedItem, setSelectedItem] = useState(null);
+  const [heroScrolled, setHeroScrolled] = useState(false);
   const sectionRefs = useRef({});
 
   const [storeName, setStoreName] = useState('');
@@ -1397,7 +1398,6 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
   const [isAdded, setIsAdded] = useState(false);
 
   const tags = Array.isArray(r.tags) ? r.tags : [];
-  const totalItems = (r.menu || []).reduce((s, c) => s + (c.items?.length || 0), 0);
   const isDuty = r.isDutyPharmacy;
   const isChain = r.isChain;
   const isServiceDetail = isServiceStore(r) || r.isCustomRequest;
@@ -1408,22 +1408,23 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
     setActiveCat(cat);
     const el = sectionRefs.current[cat];
     if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY - 140;
-      window.scrollTo({ top, behavior:'smooth' });
+      const top = el.getBoundingClientRect().top + window.scrollY - 120;
+      window.scrollTo({ top, behavior: 'smooth' });
     }
   };
 
   useEffect(() => {
     if (!r.menu) return;
     const onScroll = () => {
-      const offsets = r.menu.map(c => ({
+      setHeroScrolled(window.scrollY > 180);
+      const offsets = r.menu.map((c) => ({
         cat: c.category,
-        top: sectionRefs.current[c.category]?.getBoundingClientRect().top || 0
+        top: sectionRefs.current[c.category]?.getBoundingClientRect().top || 0,
       }));
-      const visible = offsets.filter(o => o.top < 200).pop();
+      const visible = offsets.filter((o) => o.top < 180).pop();
       if (visible) setActiveCat(visible.cat);
     };
-    window.addEventListener('scroll', onScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, [r]);
 
@@ -1434,118 +1435,148 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
     patisserie: '🥐',
   };
 
-  const populaires = (r.menu || []).flatMap(c =>
-    (c.items || []).filter(it => it.price > 12).slice(0, 4)
-  ).slice(0, 6);
+  const populaires = (r.menu || []).flatMap((c) =>
+    (c.items || []).filter((it) => it.price > 12).slice(0, 4),
+  ).slice(0, 8);
+
+  const feeLabel = r.fee
+    ? (r.fee.includes('DH') || r.fee.includes('MAD') || /offerte/i.test(r.fee) ? r.fee : `${r.fee} MAD`)
+    : 'Livraison offerte';
 
   return (
-    <div className="page-enter bg-white dark:bg-ink-950 min-h-screen">
-      {/* Cover */}
-      <div className={`relative h-[200px] sm:h-[280px] lg:h-[320px] overflow-hidden ${
-        r.coverBlend === 'screen' ? 'bg-ink-950' : 'bg-ink-100 dark:bg-ink-900'
-      }`}>
-        <img
+    <div className="page-enter bg-[#0a0806] min-h-screen text-white">
+      {/* Hero plein cadre — la marque vit dans la photo */}
+      <section
+        className={`relative overflow-hidden ${
+          r.coverBlend === 'screen' ? 'bg-ink-950' : 'bg-[#141010]'
+        } h-[min(72vh,560px)] sm:h-[min(68vh,620px)]`}
+      >
+        <motion.img
+          initial={{ scale: 1.08 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
           src={restaurantCover(r.cover)}
           alt={r.name || ''}
-          className={`w-full h-full ${
+          className={`absolute inset-0 w-full h-full ${
             r.coverBlend === 'screen' ? 'object-contain mix-blend-screen' : 'object-cover'
           }`}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/15 to-[#0a0806]" />
+        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#0a0806] via-[#0a0806]/85 to-transparent" />
+
         <button
           onClick={onBack}
-          className="absolute top-3 left-3 sm:top-5 sm:left-5 z-20 w-10 h-10 rounded-full bg-white/90 dark:bg-ink-900/90 backdrop-blur flex items-center justify-center shadow-md hover:bg-white dark:hover:bg-ink-800 active:scale-95 transition"
+          className="absolute top-3 left-3 sm:top-5 sm:left-5 z-20 w-11 h-11 rounded-full bg-black/45 backdrop-blur-md border border-white/15 flex items-center justify-center active:scale-95 transition"
           title="Retour"
         >
           <I.Left size={18} />
         </button>
-      </div>
 
-      {/* Info */}
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 -mt-10 relative z-10">
-        <div className="bg-white dark:bg-ink-900 rounded-2xl shadow-lg border border-ink-100 dark:border-ink-800 p-5 sm:p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 border-ink-100 dark:border-ink-800 bg-ink-50 dark:bg-ink-800 shrink-0 flex items-center justify-center">
-              {typeof r.logo === 'string' && (r.logo.startsWith('http') || r.logo.startsWith('/')) ? (
-                <img src={r.logo} alt={r.name || ''} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-3xl sm:text-4xl select-none">{r.logo || '💊'}</span>
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <h1 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white truncate">
-                {r.name}
-              </h1>
-              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-500 dark:text-ink-400">
-                {tags.map((t, i) => (
-                  <span key={i} className="flex items-center gap-1">
-                    {i > 0 && <span className="text-ink-300 dark:text-ink-600">·</span>}
-                    {formatTag(t)}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-ink-500 dark:text-ink-400">
-                {!isChain && !isServiceDetail && (
-                  <span className="flex items-center gap-1">
-                    <I.MapPin size={12} className="text-ink-400" /> {r.distance || 'Tanger'}
-                  </span>
-                )}
-                <span>·</span>
-                <span>{isOpen ? (openLabel || 'Ouvert') : (openLabel || 'Fermé')}</span>
-                <span>·</span>
-                <span>Min. {formatMad(40, { decimals: 0 })}</span>
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
-                {!isChain && !isServiceDetail && (
-                  <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
-                    <I.Star size={12} className="fill-emerald-500 text-emerald-500" />
-                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
-                      {(r.rating ?? 4.5).toString().replace('.', ',')}
-                    </span>
-                  </div>
-                )}
-                <span className="text-xs text-ink-500">Livraison {r.fee ? (r.fee.includes('DH') ? r.fee : `${r.fee} MAD`) : '0,00 MAD'}</span>
-                {isDuty && r.phone && (
-                  <a
-                    href={`tel:${r.phone.replace(/\s/g, '')}`}
-                    className="sm:ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500 text-white text-xs font-bold shadow-md hover:bg-emerald-600 transition-colors whitespace-nowrap"
-                  >
-                    <I.Phone size={12} /> {r.phone}
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
-          {r.description && (
-            <p className="mt-3 text-sm text-ink-500 dark:text-ink-400 leading-relaxed">
-              {isDuty && dutyHoursFr
-                ? dutyHoursFr
-                : `${r.name}, disponible en livraison directement chez vous ! ${CUISINE_ICONS[r.cuisine] || '🍽️'} 🚴‍♂️`}
+        <div className="absolute inset-x-0 bottom-0 z-10 px-4 sm:px-6 pb-7 sm:pb-9 max-w-3xl mx-auto">
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.5 }}
+            className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-400"
+          >
+            {formatTag(r.cuisine) || tags[0] || 'Cuisine'}
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-2 font-display font-black text-[clamp(2rem,9vw,3.4rem)] leading-[0.92] tracking-tight text-white uppercase"
+          >
+            {r.name}
+          </motion.h1>
+
+          {tags.length > 0 && (
+            <p className="mt-3 text-sm text-white/55 tracking-wide">
+              {tags.map(formatTag).filter(Boolean).join(' · ')}
             </p>
           )}
+
+          <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-[12px] text-white/70">
+            {!isChain && !isServiceDetail && (
+              <span className="inline-flex items-center gap-1.5">
+                <I.MapPin size={12} className="text-brand-400" />
+                {r.distance || 'Tanger'}
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1.5">
+              <span className={`relative flex h-2 w-2 ${isOpen ? '' : 'opacity-50'}`}>
+                {isOpen && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+                )}
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${isOpen ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+              </span>
+              {isOpen ? (openLabel || 'Ouvert') : (openLabel || 'Fermé')}
+            </span>
+            <span>Min. {formatMad(40, { decimals: 0 })}</span>
+            {!isChain && !isServiceDetail && (
+              <span className="inline-flex items-center gap-1 text-amber-300">
+                <I.Star size={11} className="fill-amber-300 text-amber-300" />
+                {(r.rating ?? 4.9).toString().replace('.', ',')}
+              </span>
+            )}
+            <span className="text-brand-300 font-semibold">{feeLabel}</span>
+          </div>
+
+          {(r.description || !isDuty) && (
+            <p className="mt-3 text-[13px] text-white/45 leading-relaxed max-w-md line-clamp-2">
+              {isDuty && dutyHoursFr
+                ? dutyHoursFr
+                : r.description ||
+                  `${r.name}, disponible en livraison directement chez vous ! ${CUISINE_ICONS[r.cuisine] || '🍽️'}`}
+            </p>
+          )}
+
+          {isDuty && r.phone && (
+            <a
+              href={`tel:${r.phone.replace(/\s/g, '')}`}
+              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-500 text-white text-xs font-bold shadow-lg active:scale-95 transition"
+            >
+              <I.Phone size={12} /> {r.phone}
+            </a>
+          )}
+        </div>
+      </section>
+
+      {/* Barre titre compacte au scroll */}
+      <div
+        className={`fixed top-14 inset-x-0 z-40 transition-all duration-300 ${
+          heroScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
+        }`}
+      >
+        <div className="bg-[#0a0806]/92 backdrop-blur-xl border-b border-white/[0.08] px-4 py-2.5 flex items-center gap-3">
+          <button
+            onClick={onBack}
+            className="w-9 h-9 rounded-full bg-white/[0.08] border border-white/10 flex items-center justify-center shrink-0"
+            title="Retour"
+          >
+            <I.Left size={16} />
+          </button>
+          <h2 className="font-display font-bold text-sm truncate">{r.name}</h2>
         </div>
       </div>
 
-      {/* Category Tabs */}
+      {/* Catégories sticky */}
       {!r.isStatic && (r.menu || []).length > 0 && (
-        <div className="sticky top-14 z-30 bg-white dark:bg-ink-950 border-b border-ink-100 dark:border-ink-800 mt-4">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 flex gap-0.5 overflow-x-auto no-scrollbar h-12 items-center">
-            {(r.menu || []).map(c => {
+        <div className="sticky top-14 z-30 bg-[#0a0806]/90 backdrop-blur-xl border-b border-white/[0.06]">
+          <div className="max-w-3xl mx-auto px-3 sm:px-6 flex gap-1.5 overflow-x-auto no-scrollbar h-[52px] items-center">
+            {(r.menu || []).map((c) => {
               const active = activeCat === c.category;
               return (
                 <button
                   key={c.category}
                   onClick={() => scrollToCat(c.category)}
-                  className={`cursor-grow relative shrink-0 px-3 sm:px-4 h-10 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
+                  className={`relative shrink-0 px-3.5 h-9 rounded-full text-[12px] sm:text-[13px] font-semibold whitespace-nowrap transition-all duration-200 ${
                     active
-                      ? 'text-ink-900 dark:text-white bg-ink-100 dark:bg-ink-800'
-                      : 'text-ink-400 dark:text-ink-500 hover:text-ink-600 dark:hover:text-ink-300'
+                      ? 'bg-brand-500 text-white shadow-glow'
+                      : 'text-white/45 hover:text-white/80 bg-white/[0.04]'
                   }`}
                 >
-                  {CUISINE_ICONS[c.category?.toLowerCase()] || ''} {c.category}
-                  {active && (
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-brand-500" />
-                  )}
+                  {c.category}
                 </button>
               );
             })}
@@ -1553,27 +1584,28 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
         </div>
       )}
 
-      {/* Content */}
       {!r.isStatic ? (
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 pb-32">
+        <div className="max-w-3xl mx-auto px-0 sm:px-6 py-6 pb-32">
           {!isOpen && (
-            <div className="mb-6 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-500/5 px-4 py-3 text-center">
-              <p className="font-bold text-amber-700 dark:text-amber-300 text-sm">
-                🔒 Fermé — {openLabel}
-              </p>
-              <p className="text-xs text-amber-600/80 dark:text-amber-300/70 mt-0.5">
-                Vous pouvez consulter le menu, la commande reprendra à l&apos;ouverture.
+            <div className="mx-4 sm:mx-0 mb-6 rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-center">
+              <p className="font-bold text-amber-300 text-sm">Fermé — {openLabel}</p>
+              <p className="text-xs text-amber-300/60 mt-0.5">
+                Consulte le menu, la commande reprend à l&apos;ouverture.
               </p>
             </div>
           )}
 
-          {/* Populaires */}
           {populaires.length > 0 && (
-            <div className="mb-8">
-              <h2 className="font-display font-bold text-base sm:text-lg text-ink-900 dark:text-white mb-3">
-                Populaires
-              </h2>
-              <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
+            <div className="mb-10">
+              <div className="px-4 sm:px-0 mb-4 flex items-end justify-between">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-brand-400 font-semibold">Top</p>
+                  <h2 className="font-display font-black text-2xl sm:text-3xl uppercase tracking-tight leading-none mt-1">
+                    Populaires
+                  </h2>
+                </div>
+              </div>
+              <div className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 sm:px-0">
                 {populaires.map((it, i) => (
                   <DeliverooItemCard
                     key={it.db_id || it.id || i}
@@ -1589,13 +1621,25 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
             </div>
           )}
 
-          {/* Menu Sections */}
-          {(r.menu || []).map(cat => (
-            <div key={cat.category} ref={el => sectionRefs.current[cat.category] = el} className="mb-10 scroll-mt-36">
-              <h2 className="font-display font-bold text-base sm:text-lg text-ink-900 dark:text-white mb-4">
-                {CUISINE_ICONS[cat.category?.toLowerCase()] || ''} {cat.category}
-              </h2>
-              <div className="space-y-0 divide-y divide-ink-100 dark:divide-ink-800/80">
+          {(r.menu || []).map((cat, catIdx) => (
+            <div
+              key={cat.category}
+              ref={(el) => { sectionRefs.current[cat.category] = el; }}
+              className="mb-12 scroll-mt-32"
+            >
+              <div className="px-4 sm:px-0 mb-4">
+                <motion.h2
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.4, delay: Math.min(catIdx * 0.04, 0.2) }}
+                  className="font-display font-black text-xl sm:text-2xl uppercase tracking-tight"
+                >
+                  {cat.category}
+                </motion.h2>
+                <div className="mt-2 h-px w-12 bg-brand-500/70" />
+              </div>
+              <div className="space-y-2.5 px-3 sm:px-0">
                 {(cat.items || []).map((it, i) => (
                   <DeliverooItemCard
                     key={it.db_id || it.id || i}
@@ -1612,11 +1656,11 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
         </div>
       ) : (
         <section className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
-          <div className="rounded-2xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 p-6 sm:p-8 shadow-sm">
-            <h2 className="font-display font-bold text-xl text-ink-900 dark:text-white mb-3">
-              📝 Commander sur-mesure
+          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 sm:p-8">
+            <h2 className="font-display font-bold text-xl text-white mb-3">
+              Commander sur-mesure
             </h2>
-            <p className="text-sm text-ink-500 leading-relaxed mb-6">
+            <p className="text-sm text-white/50 leading-relaxed mb-6">
               {isDuty
                 ? "Commandez vos médicaments depuis cette pharmacie de garde, notre livreur s'occupe de tout !"
                 : r.cuisine === 'pharmacy' ? "Indiquez-nous exactement ce que vous voulez, et notre livreur s'occupe de tout !" :
@@ -1706,7 +1750,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
               {needsCustomStoreInfo && (
                 <>
                   <label className="block space-y-1">
-                    <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">Nom de l&apos;établissement *</span>
+                    <span className="text-sm font-semibold text-white/80">Nom de l&apos;établissement *</span>
                     <PlaceAutocomplete
                       value={storeName}
                       onChange={setStoreName}
@@ -1720,7 +1764,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                     />
                   </label>
                   <label className="block space-y-1">
-                    <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">Adresse *</span>
+                    <span className="text-sm font-semibold text-white/80">Adresse *</span>
                     <PlaceAutocomplete
                       value={storeAddress}
                       onChange={setStoreAddress}
@@ -1732,26 +1776,26 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 </>
               )}
               {isChain && (
-                <div className="rounded-xl bg-teal-500/10 border border-teal-500/20 p-3 text-xs text-teal-800 dark:text-teal-300">
+                <div className="rounded-xl bg-teal-500/10 border border-teal-500/20 p-3 text-xs text-teal-300">
                   <p className="font-bold mb-0.5">🏪 {r.name}</p>
                   <p>Le livreur se rendra à la succursale la plus proche à Tanger et achètera votre commande.</p>
                 </div>
               )}
               <label className="block space-y-1">
-                <span className="text-sm font-semibold text-ink-700 dark:text-ink-200">Détaillez votre commande *</span>
+                <span className="text-sm font-semibold text-white/80">Détaillez votre commande *</span>
                 <textarea required value={orderDetails} onChange={(e) => setOrderDetails(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-ink-900 dark:text-white resize-none"
+                  className="w-full px-4 py-3 rounded-xl bg-white/[0.05] border border-white/10 outline-none focus:border-brand-500 transition text-white resize-none placeholder:text-white/30"
                   rows={4}
                   placeholder={isChain
                     ? 'Ex: 2 Big Mac, 1 grande frite, 2 boissons…'
                     : r.cuisine === 'pharmacy' || r.cuisine === 'parapharmacy'
                       ? 'Ex: 2 boîtes de Doliprane 1000mg, 1 boîte de Spasfon…'
                       : 'Ex: 1 plat de couscous, 2 brochettes, 1 thé…'} />
-                <p className="text-xs text-ink-500 dark:text-ink-400 leading-relaxed">
+                <p className="text-xs text-white/40 leading-relaxed">
                   Écrivez exactement ce que vous souhaitez commander. YoHa achètera votre commande auprès du restaurant sélectionné et vous la livrera. Les prix sont ceux pratiqués par le restaurant.
                 </p>
               </label>
-              <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs text-amber-800 dark:text-amber-300">
+              <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs text-amber-300">
                 <p className="font-bold mb-0.5">💵 Frais de livraison fixes : 20 MAD</p>
                 <p>Le prix d&apos;achat réel sera ajouté à la livraison.</p>
               </div>
@@ -1792,84 +1836,105 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
     setTimeout(() => setAdding(false), 1200);
   };
 
+  /* Carrousel Populaires — vignette immersive, texte dans la photo */
   if (compact) {
     return (
       <button
         type="button"
         onClick={() => onOpen?.()}
-        className="cursor-grow shrink-0 w-[42vw] sm:w-[200px] lg:w-[220px] text-left group"
+        className="cursor-grow shrink-0 w-[72vw] max-w-[280px] sm:w-[240px] snap-center text-left group"
       >
-        <div className="relative rounded-xl overflow-hidden bg-ink-50 dark:bg-ink-800 aspect-[4/3] border border-ink-100 dark:border-ink-800">
-          <MenuItemImage src={item.img} alt={item.name} loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        <div className="relative rounded-2xl overflow-hidden bg-[#1a1513] aspect-[5/4] ring-1 ring-white/[0.08]">
+          <MenuItemImage
+            src={item.img}
+            alt={item.name}
+            loading="lazy"
+            className="w-full h-full object-cover group-active:scale-105 transition-transform duration-700"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
           {item.price > 14 && (
-            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-white/90 dark:bg-ink-900/90 text-[10px] font-bold text-ink-900 dark:text-white shadow-sm">
-              Populaire
+            <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-brand-500 text-[9px] font-black uppercase tracking-wider text-white shadow-glow">
+              Top
             </span>
           )}
           {!orderingDisabled && (
             <button
               type="button"
               onClick={handleAdd}
-              className={`absolute bottom-2 right-2 w-10 h-10 rounded-lg grid place-items-center text-sm font-bold shadow transition-all ${
+              className={`absolute top-3 right-3 w-10 h-10 rounded-full grid place-items-center text-lg font-bold shadow-lg transition-all ${
                 adding
                   ? 'bg-emerald-500 text-white scale-110'
-                  : 'bg-white dark:bg-ink-900 text-ink-900 dark:text-white hover:bg-brand-500 hover:text-white active:scale-95'
+                  : 'bg-brand-500 text-white active:scale-90'
               }`}
             >
               {adding ? '✓' : '+'}
             </button>
           )}
-        </div>
-        <div className="mt-2 px-0.5">
-          <h3 className="font-semibold text-sm text-ink-900 dark:text-white truncate group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
-            {item.name}
-          </h3>
-          <p className="text-[11px] text-ink-400 dark:text-ink-500 line-clamp-1 mt-0.5">{item.desc}</p>
-          <div className="mt-1 font-bold text-sm text-ink-900 dark:text-white">{formatMad(item.price)}</div>
+          <div className="absolute inset-x-0 bottom-0 p-3.5">
+            <h3 className="font-display font-bold text-[15px] text-white leading-tight line-clamp-2">
+              {item.name}
+            </h3>
+            <div className="mt-1.5 font-display font-black text-brand-400 text-sm">
+              {formatMad(item.price)}
+            </div>
+          </div>
         </div>
       </button>
     );
   }
 
+  /* Ligne menu — photo dominante, fond charbon */
   return (
     <div
       role="button"
       tabIndex={0}
       onClick={() => onOpen?.()}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen?.(); } }}
-      className="flex gap-3 py-4 cursor-grow group"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onOpen?.();
+        }
+      }}
+      className="flex gap-3.5 p-3 rounded-2xl bg-white/[0.035] ring-1 ring-white/[0.06] active:bg-white/[0.06] cursor-grow group transition-colors"
     >
-      <div className="flex-1 min-w-0">
-        <h3 className="font-semibold text-sm sm:text-base text-ink-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors line-clamp-2">
+      <div className="shrink-0 w-[108px] h-[108px] sm:w-[120px] sm:h-[120px] rounded-xl overflow-hidden bg-[#1a1513] relative">
+        <MenuItemImage
+          src={item.img}
+          alt={item.name}
+          loading="lazy"
+          className="w-full h-full object-cover group-active:scale-105 transition-transform duration-500"
+        />
+        {item.price > 80 && (
+          <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-brand-500/95 text-[8px] font-black uppercase tracking-wider text-white">
+            Hit
+          </span>
+        )}
+      </div>
+      <div className="flex-1 min-w-0 flex flex-col py-0.5">
+        <h3 className="font-display font-bold text-[15px] sm:text-base text-white leading-snug line-clamp-2">
           {item.name}
         </h3>
-        <p className="text-xs text-ink-400 dark:text-ink-500 line-clamp-2 mt-1 leading-relaxed">{item.desc}</p>
-        <div className="mt-2 flex items-center gap-2">
-          <span className="font-bold text-sm text-ink-900 dark:text-white">{formatMad(item.price)}</span>
+        {item.desc ? (
+          <p className="text-[12px] text-white/40 line-clamp-2 mt-1.5 leading-relaxed">{item.desc}</p>
+        ) : null}
+        <div className="mt-auto pt-2.5 flex items-center gap-2">
+          <span className="font-display font-black text-[15px] text-brand-400">
+            {formatMad(item.price)}
+          </span>
           {!orderingDisabled && (
             <button
               type="button"
               onClick={handleAdd}
-              className={`ml-auto w-11 h-11 rounded-lg grid place-items-center text-sm font-bold shadow-sm transition-all ${
+              className={`ml-auto w-11 h-11 rounded-full grid place-items-center text-base font-bold shadow-glow transition-all ${
                 adding
                   ? 'bg-emerald-500 text-white scale-110'
-                  : 'bg-white dark:bg-ink-800 text-ink-900 dark:text-white border border-ink-200 dark:border-ink-700 hover:bg-brand-500 hover:text-white hover:border-brand-500 active:scale-95'
+                  : 'bg-brand-500 text-white active:scale-90'
               }`}
             >
               {adding ? '✓' : '+'}
             </button>
           )}
         </div>
-      </div>
-      <div className="shrink-0 w-[100px] sm:w-[120px] h-[80px] sm:h-[90px] rounded-xl overflow-hidden bg-ink-50 dark:bg-ink-800 relative">
-        <MenuItemImage src={item.img} alt={item.name} loading="lazy"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-        {item.price > 14 && (
-          <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-white/90 dark:bg-ink-900/90 text-[9px] font-bold text-ink-900 dark:text-white shadow-sm">
-            Populaire
-          </span>
-        )}
       </div>
     </div>
   );

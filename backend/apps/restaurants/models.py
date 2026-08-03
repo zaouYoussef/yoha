@@ -135,6 +135,48 @@ class MenuItem(models.Model):
         return self.name
 
 
+class MenuItemModifierGroup(models.Model):
+    """Groupe d'options personnalisant un produit (taille, sauce, extras…)."""
+
+    menu_item = models.ForeignKey(
+        MenuItem, on_delete=models.CASCADE, related_name="modifier_groups"
+    )
+    name = models.CharField(max_length=120)
+    min_selected = models.PositiveSmallIntegerField(default=0)
+    max_selected = models.PositiveSmallIntegerField(default=1)
+    sort_order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["sort_order", "id"]
+        unique_together = [("menu_item", "name")]
+        verbose_name = "groupe d'options"
+        verbose_name_plural = "groupes d'options"
+
+    def __str__(self):
+        return f"{self.menu_item.name} — {self.name}"
+
+
+class MenuItemModifierOption(models.Model):
+    """Option d'un groupe (ex. « Cheddar +5 MAD »)."""
+
+    group = models.ForeignKey(
+        MenuItemModifierGroup, on_delete=models.CASCADE, related_name="options"
+    )
+    external_id = models.CharField(max_length=40, blank=True)
+    name = models.CharField(max_length=120)
+    price_impact = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    sort_order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["sort_order", "id"]
+        unique_together = [("group", "name")]
+        verbose_name = "option"
+        verbose_name_plural = "options"
+
+    def __str__(self):
+        return self.name
+
+
 class RestaurantOffer(models.Model):
     """Offres promotionnelles d'un restaurant."""
 

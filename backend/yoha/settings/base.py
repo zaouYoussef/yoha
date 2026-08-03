@@ -322,17 +322,17 @@ PHARMACY_SCHEDULER_MINUTE = env.int("PHARMACY_SCHEDULER_MINUTE", default=0)
 PROMO_CAMPAIGN_MIN_DAYS = env.int("PROMO_CAMPAIGN_MIN_DAYS", default=2)
 PROMO_EMAIL_DELAY_SECONDS = env.float("PROMO_EMAIL_DELAY_SECONDS", default=1.0)
 
-# ——— Synchronisation des menus Glovo (Tanger, toutes les 2 jours) ———
+# ——— Synchronisation des menus Glovo (Tanger, toutes les 1 jours) ———
 GLOVO_SYNC_ENABLED = env.bool("GLOVO_SYNC_ENABLED", default=True)
-GLOVO_CITY_CODE = env("GLOVO_CITY_CODE", default="TAN")
+GLOVO_CITY_CODE = env("GLOVO_CITY_CODE", default="TNG")
 GLOVO_CITY_SLUG = env("GLOVO_CITY_SLUG", default="tanger")  # slug web (glovoapp.com/ma/fr/<city>/…)
 GLOVO_COUNTRY_CODE = env("GLOVO_COUNTRY_CODE", default="ma")
 GLOVO_LATITUDE = env.float("GLOVO_LATITUDE", default=35.7595)
 GLOVO_LONGITUDE = env.float("GLOVO_LONGITUDE", default=-5.8340)
 GLOVO_LANGUAGE = env("GLOVO_LANGUAGE", default="fr")
-GLOVO_SYNC_INTERVAL_DAYS = env.int("GLOVO_SYNC_INTERVAL_DAYS", default=2)
+GLOVO_SYNC_INTERVAL_DAYS = env.int("GLOVO_SYNC_INTERVAL_DAYS", default=1)
 GLOVO_NEXT_RUN_MINUTES = env.int("GLOVO_NEXT_RUN_MINUTES", default=60)
-GLOVO_REQUEST_DELAY = env.float("GLOVO_REQUEST_DELAY", default=2.0)
+GLOVO_REQUEST_DELAY = env.float("GLOVO_REQUEST_DELAY", default=6.0)
 # Outils exposés via /add-glovo/* — token optionnel pour déclenchement externe.
 GLOVO_TOOLS = {
     "add": env.bool("GLOVO_TOOL_ADD", default=True),
@@ -342,12 +342,13 @@ GLOVO_TOOLS = {
     "token": env("GLOVO_TOOL_TOKEN", default=""),
 }
 
-# Stores Glovo de Tanger (IDs découverts). Le menu provient de l'API Glovo ;
-# cuisine/tags restent ajustables via l'admin YoHa.
+# Stores Glovo de Tanger (IDs découverts). Le menu est scrappé depuis la page
+# publique (React Server Components) ; l'API ne sert que de secours pour les
+# stores au format « collections ». cuisine/tags restent ajustables via l'admin.
 GLOVO_STORES = [
     {
         "slug": "mr-tacos-tanger",
-        "glovo_slug": "mr-tacos-tgr",
+        "glovo_slug": "mrtacos-tgr",
         "store_id": 355376,
         "address_id": 860274,
         "name": "Mr.Tacos — Tanger",
@@ -438,6 +439,116 @@ GLOVO_STORES = [
         "tags": ["Kunafa", "Desserts"],
         "delivery_time": "25-40 min",
     },
+    {
+        "slug": "crumby",
+        "glovo_slug": "crumby-tng",
+        "store_id": 481455,
+        "address_id": 772401,
+        "name": "Crumby",
+        "cuisine": "dessert",
+        "tags": ["Cookies", "Desserts"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "little-mamma",
+        "glovo_slug": "little-mamma-tanger-tng",
+        "store_id": 430698,
+        "address_id": 639988,
+        "name": "Little Mamma",
+        "cuisine": "pizza",
+        "tags": ["Pizza"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "al-mahroussa",
+        "glovo_slug": "al-mahroussa-tng-tng",
+        "store_id": 81391,
+        "address_id": 869055,
+        "name": "Al Mahrousa",
+        "cuisine": "burger",
+        "tags": ["Marocain", "Traditionnel"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "soju-sushi",
+        "glovo_slug": "soju-sushi",
+        "store_id": 208580,
+        "address_id": 337456,
+        "name": "Soju Sushi",
+        "cuisine": "sushi",
+        "tags": ["Sushi", "Japonais"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "beug-s-restaurant",
+        "glovo_slug": "beug-s-restaurant-tng",
+        "store_id": 57572,
+        "address_id": 113926,
+        "name": "Beug's Restaurant",
+        "cuisine": "burger",
+        "tags": ["Burger", "Sandwich"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "indian-spice-tanger",
+        "glovo_slug": "indian-spice-tanger-tng",
+        "store_id": 437742,
+        "address_id": 655757,
+        "name": "Indian Spice Tanger",
+        "cuisine": "asian",
+        "tags": ["Indien", "Curry"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "big-bunn",
+        "glovo_slug": "big-bunn-tng",
+        "store_id": 421082,
+        "address_id": 624204,
+        "name": "Big Bunn",
+        "cuisine": "pizza",
+        "tags": ["Pizza", "Burger"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "matsco-food",
+        "glovo_slug": "matsco-food-tng",
+        "store_id": 442312,
+        "address_id": 677062,
+        "name": "Matsco Food",
+        "cuisine": "burger",
+        "tags": ["Tacos", "Pizza", "Burger"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "vicio",
+        "glovo_slug": "vicio-tng",
+        "store_id": 419338,
+        "address_id": 621064,
+        "name": "Vicio",
+        "cuisine": "burger",
+        "tags": ["Burger"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "oppa-chicken",
+        "glovo_slug": "oppa-chicken",
+        "store_id": 300831,
+        "address_id": 454243,
+        "name": "Oppa Chicken",
+        "cuisine": "asian",
+        "tags": ["Poulet", "Coréen"],
+        "delivery_time": "25-40 min",
+    },
+    {
+        "slug": "snack-roma",
+        "glovo_slug": "snack-roma-tng",
+        "store_id": 368152,
+        "address_id": 545011,
+        "name": "Snack Roma",
+        "cuisine": "kebab",
+        "tags": ["Snack", "Sandwich"],
+        "delivery_time": "25-40 min",
+    },
 ]
 
 # Réglages fins par store (recette de synchro) : renommages de sections,
@@ -452,6 +563,17 @@ GLOVO_STORE_CONFIGS = {
     "burns": {"prune": True},
     "melt-99": {"prune": True},
     "kunafita": {"prune": True},
+    "crumby": {"prune": True},
+    "little-mamma": {"prune": True},
+    "al-mahroussa": {"prune": True},
+    "soju-sushi": {"prune": True},
+    "beug-s-restaurant": {"prune": True},
+    "indian-spice-tanger": {"prune": True},
+    "big-bunn": {"prune": True},
+    "matsco-food": {"prune": True},
+    "vicio": {"prune": True},
+    "oppa-chicken": {"prune": True},
+    "snack-roma": {"prune": True},
 }
 
 # ——— Sécurité HTTP ———

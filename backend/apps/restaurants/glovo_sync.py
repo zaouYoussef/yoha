@@ -31,10 +31,18 @@ from apps.restaurants.glovo import (
     STORE_PAGE_URL,
     GlovoClient,
     GlovoError,
+    GlovoScraper,
     GlovoSection,
     discover_store,
 )
-from apps.restaurants.models import GlovoSyncLog, MenuCategory, MenuItem, Restaurant
+from apps.restaurants.models import (
+    GlovoSyncLog,
+    MenuCategory,
+    MenuItem,
+    MenuItemModifierGroup,
+    MenuItemModifierOption,
+    Restaurant,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -191,16 +199,40 @@ def build_sync_targets() -> List[GlovoStoreConfig]:
 
 # ————————————————————— Synchronisation —————————————————————
 
-def _client(store: GlovoStoreConfig) -> GlovoClient:
+def _client(store: GlovoStoreConfig) -> GlovoScraper:
+    return GlovoScraper(
+        slug=store.glovo_slug or store.slug,
+        country_code=getattr(settings, "GLOVO_COUNTRY_CODE", "ma"),
+        city_slug=getattr(settings, "GLOVO_CITY_SLUG", "tanger"),
+        language=getattr(settings, "GLOVO_LANGUAGE", "fr"),
+    )
+
+
+def _client_api(store: GlovoStoreConfig, store_id: int, address_id: int) -> GlovoClient:
     return GlovoClient(
-        store_id=store.store_id,
-        address_id=store.address_id,
+        store_id=store_id,
+        address_id=address_id,
         city_code=getattr(settings, "GLOVO_CITY_CODE", "TAN"),
         country_code=getattr(settings, "GLOVO_COUNTRY_CODE", "ma"),
         latitude=getattr(settings, "GLOVO_LATITUDE", 35.7595),
         longitude=getattr(settings, "GLOVO_LONGITUDE", -5.8340),
         language=getattr(settings, "GLOVO_LANGUAGE", "fr"),
     )
+
+
+def _fetch_menu(store: GlovoStoreConfig) -> List[GlovoSection]:
+    """Menu du store : API Glovo d'abord, page HTML en secours.
+
+    Depuis août 2026 Glovo ne sert plus le menu dans le HTML public (rendu
+    côté client, plus de `initialStoreContent`) : l'API est la source fiable.
+    Le scrap HTML reste un secours si les ids API manquent ou si l'API échoue.
+    """
+    if store.store_id and store.address_id:
+        try:
+            return _client_api(store, store.store_id, store.address_id).fetch_full_menu()
+        except GlovoError as exc:
+            logger.info("glovo_api_failed %s — %s ; fallback HTML", store.slug, exc)
+    return _client(store).fetch_full_menu()
 
 
 def _fill_store_images(store: GlovoStoreConfig) -> None:
@@ -301,6 +333,7 @@ def _apply_menu(restaurant: Restaurant, store: GlovoStoreConfig, sections: List[
             else:
                 report.updated_items += 1
             keep_item_ids.add(item.pk)
+            _apply_modifiers(item, product)
 
     if store.prune:
         removed_cats = MenuCategory.objects.filter(restaurant=restaurant).exclude(pk__in=keep_cat_ids)
@@ -309,6 +342,36 @@ def _apply_menu(restaurant: Restaurant, store: GlovoStoreConfig, sections: List[
         removed_items = MenuItem.objects.filter(restaurant=restaurant).exclude(pk__in=keep_item_ids)
         report.removed_items = removed_items.count()
         removed_items.delete()
+
+
+def _apply_modifiers(item: MenuItem, product: GlovoProduct) -> None:
+    """Upsert des groupes d'options (tailles, sauces, extras…) du produit."""
+    keep_group_ids: set[int] = set()
+    for group_order, group in enumerate(product.modifier_groups):
+        grp, _ = MenuItemModifierGroup.objects.update_or_create(
+            menu_item=item,
+            name=group.name[:120],
+            defaults={
+                "min_selected": min(int(group.min_selected), 99),
+                "max_selected": min(max(int(group.max_selected), 0), 99),
+                "sort_order": group_order,
+            },
+        )
+        keep_group_ids.add(grp.pk)
+        keep_option_ids: set[int] = set()
+        for option_order, option in enumerate(group.options):
+            opt, _ = MenuItemModifierOption.objects.update_or_create(
+                group=grp,
+                name=option.name[:120],
+                defaults={
+                    "external_id": option.external_id[:40],
+                    "price_impact": Decimal(str(option.price_impact)),
+                    "sort_order": option_order,
+                },
+            )
+            keep_option_ids.add(opt.pk)
+        MenuItemModifierOption.objects.filter(group=grp).exclude(pk__in=keep_option_ids).delete()
+    MenuItemModifierGroup.objects.filter(menu_item=item).exclude(pk__in=keep_group_ids).delete()
 
 
 def _finish_log(log: GlovoSyncLog, report: SyncReport) -> None:
@@ -366,9 +429,8 @@ def sync_glovo_menu(store: GlovoStoreConfig, *, dry_run: bool = False, force: bo
             dry_run=False,
         )
 
-    client = _client(store)
     try:
-        sections = client.fetch_full_menu()
+        sections = _fetch_menu(store)
     except GlovoError as exc:
         report.status = "error"
         report.errors += 1

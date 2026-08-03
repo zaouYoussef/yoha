@@ -8,20 +8,6 @@ import { formatMad } from '@/data/index.js';
 
 import { useCart } from '@/contexts/AppContexts.jsx';
 
-const CATEGORY_GLOW = {
-  pizza: 'from-orange-500/10 to-amber-500/10',
-  tacos: 'from-amber-600/10 to-yellow-500/10',
-  kebab: 'from-red-600/10 to-orange-500/10',
-  healthy: 'from-emerald-500/10 to-teal-500/10',
-  burger: 'from-amber-500/10 to-yellow-500/10',
-  sushi: 'from-pink-500/10 to-rose-500/10',
-  asian: 'from-purple-500/10 to-indigo-500/10',
-  medical: 'from-sky-500/10 to-indigo-500/10',
-  dessert: 'from-pink-500/10 to-rose-500/10',
-  pharmacy: 'from-emerald-500/10 to-teal-500/10',
-  drinks: 'from-cyan-500/10 to-blue-500/10',
-};
-
 export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, orderingDisabled = false }) {
   const { cart, setQty } = useCart();
   const cartItem = cart?.find((p) => p.id === item.id);
@@ -41,14 +27,13 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
     onAdd?.(item, restaurant, e.currentTarget);
   };
 
-  const glowClass = CATEGORY_GLOW[restaurant?.cuisine] || 'from-brand-500/10 to-orange-500/10';
   const detailText = item.ingredients?.trim() || item.desc?.trim();
 
   if (!mounted) return null;
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-ink-950/60 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-md animate-fade-in"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -56,113 +41,119 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full sm:max-w-lg max-h-[92vh] sm:max-h-[88vh] overflow-y-auto bg-white dark:bg-ink-900 rounded-t-3xl sm:rounded-3xl shadow-2xl animate-scale-in border border-ink-200/60 dark:border-ink-800"
+        className="relative w-full sm:max-w-lg max-h-[92vh] sm:max-h-[88vh] overflow-y-auto bg-[#12100e] rounded-t-[28px] sm:rounded-3xl shadow-2xl animate-slide-up sm:animate-scale-in ring-1 ring-white/10"
       >
-        {/* Ambient background glow */}
-        <div className={`absolute -top-40 -left-40 w-80 h-80 rounded-full bg-gradient-to-br ${glowClass} opacity-60 blur-3xl pointer-events-none -z-10`} />
-        
-        {/* Hero Image */}
-        <div className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden bg-ink-50 dark:bg-ink-950">
+        <div className="relative aspect-[16/11] sm:aspect-[16/10] overflow-hidden bg-[#1a1513]">
           <MenuItemImage
             src={item.img}
             alt={item.name}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700"
+            className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/25" />
-          
-          {/* Close button */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#12100e] via-transparent to-black/30" />
+
+          <div className="absolute top-3 inset-x-0 flex justify-center sm:hidden">
+            <span className="w-10 h-1 rounded-full bg-white/25" />
+          </div>
+
           <button
             type="button"
             onClick={onClose}
-            className="cursor-grow absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md text-white grid place-items-center hover:bg-brand-500 active:scale-95 transition-transform duration-300 shadow-md"
+            className="cursor-grow absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md text-white grid place-items-center active:scale-95 transition-transform shadow-md ring-1 ring-white/15"
             aria-label="Fermer"
           >
             <I.X size={18} />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="px-5 pb-7 pt-1 space-y-5">
           <div>
-            <h2 id="menu-item-detail-title" className="font-display font-black text-2xl sm:text-3xl leading-tight text-ink-900 dark:text-white">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-400">
+              {restaurant?.name}
+            </p>
+            <h2
+              id="menu-item-detail-title"
+              className="mt-1.5 font-display font-black text-[1.65rem] sm:text-3xl leading-[1.05] tracking-tight text-white uppercase"
+            >
               {item.name}
             </h2>
-            {item.desc && (
-              <p className="mt-2 text-sm text-brand-600 dark:text-brand-400 font-semibold leading-relaxed">{item.desc}</p>
-            )}
+            {item.desc ? (
+              <p className="mt-3 text-[13px] text-white/50 leading-relaxed">{item.desc}</p>
+            ) : null}
           </div>
 
-          {/* Description / Ingredients Card */}
-          {item.ingredients?.trim() && (
-            <div className="bg-ink-50 dark:bg-ink-950 p-4 rounded-2xl border border-ink-100 dark:border-ink-800/80">
-              <h3 className="text-[10px] font-black uppercase tracking-wider text-ink-400 dark:text-ink-500 mb-2">
-                Ingrédients & Préparation
+          {item.ingredients?.trim() ? (
+            <div className="bg-white/[0.04] p-4 rounded-2xl ring-1 ring-white/[0.06]">
+              <h3 className="text-[10px] font-black uppercase tracking-wider text-white/35 mb-2">
+                Ingrédients
               </h3>
-              <p className="text-sm text-ink-700 dark:text-ink-300 leading-relaxed whitespace-pre-line">
+              <p className="text-sm text-white/70 leading-relaxed whitespace-pre-line">
                 {item.ingredients}
               </p>
             </div>
-          )}
+          ) : null}
 
-          {!detailText && (
-            <p className="text-sm text-ink-400 italic">
-              Le restaurant n&apos;a pas encore ajouté la description de ce plat.
+          {!detailText ? (
+            <p className="text-sm text-white/35 italic">
+              Description bientôt disponible.
             </p>
-          )}
+          ) : null}
 
-          {/* Pricing and Cart Actions */}
-          <div className="pt-5 border-t border-ink-200 dark:border-ink-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-wider text-ink-400">Prix unitaire</span>
-              <span className="font-display font-black text-2xl text-ink-900 dark:text-white mt-0.5">{formatMad(item.price)}</span>
-            </div>
-
-            <div className="flex-1 sm:max-w-[280px]">
-              {orderingDisabled ? (
-                <button
-                  type="button"
-                  disabled
-                  className="w-full inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl font-bold bg-ink-100 text-ink-400 dark:bg-ink-900 dark:text-ink-500 cursor-not-allowed border border-ink-200/40 dark:border-ink-800"
-                >
-                  Restaurant fermé
-                </button>
-              ) : quantity === 0 ? (
-                <button
-                  type="button"
-                  onClick={handleAdd}
-                  className="cursor-grow w-full inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl font-bold text-sm bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 text-white shadow-glow active:scale-95 transition-transform"
-                >
-                  <I.Plus size={16} stroke={3} />
-                  <span>Ajouter au panier</span>
-                </button>
-              ) : (
-                <div className="flex items-center justify-between bg-ink-50 dark:bg-ink-950 p-1.5 rounded-xl border border-ink-200/50 dark:border-ink-800">
-                  <button
-                    type="button"
-                    onClick={() => setQty(item.id, quantity - 1)}
-                    className="cursor-grow w-10 h-10 rounded-lg bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 text-ink-600 dark:text-ink-400 font-black text-base grid place-items-center active:scale-95 shadow-sm transition-transform"
-                    aria-label="Moins"
-                  >
-                    -
-                  </button>
-                  <span className="font-display font-black text-sm text-ink-900 dark:text-white px-2 select-none">
-                    {quantity} dans le panier
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setQty(item.id, quantity + 1)}
-                    className="cursor-grow w-10 h-10 rounded-lg bg-white dark:bg-ink-900 border border-ink-200/60 dark:border-ink-800 text-ink-600 dark:text-ink-400 font-black text-base grid place-items-center active:scale-95 shadow-sm transition-transform"
-                    aria-label="Plus"
-                  >
-                    +
-                  </button>
+          <div className="pt-1 flex flex-col gap-4">
+            <div className="flex items-end justify-between">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-white/35">
+                  Prix
+                </span>
+                <div className="font-display font-black text-2xl text-brand-400 mt-0.5">
+                  {formatMad(item.price)}
                 </div>
-              )}
+              </div>
             </div>
+
+            {orderingDisabled ? (
+              <button
+                type="button"
+                disabled
+                className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold bg-white/[0.08] text-white/40 cursor-not-allowed"
+              >
+                Restaurant fermé
+              </button>
+            ) : quantity === 0 ? (
+              <button
+                type="button"
+                onClick={handleAdd}
+                className="cursor-grow w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-sm bg-brand-500 hover:bg-brand-600 text-white shadow-glow active:scale-[0.98] transition-transform"
+              >
+                <I.Plus size={16} stroke={3} />
+                <span>Ajouter au panier</span>
+              </button>
+            ) : (
+              <div className="flex items-center justify-between bg-white/[0.05] p-1.5 rounded-2xl ring-1 ring-white/10">
+                <button
+                  type="button"
+                  onClick={() => setQty(item.id, quantity - 1)}
+                  className="cursor-grow w-11 h-11 rounded-xl bg-white/[0.08] text-white font-black text-base grid place-items-center active:scale-95 transition-transform"
+                  aria-label="Moins"
+                >
+                  −
+                </button>
+                <span className="font-display font-black text-sm text-white px-2 select-none">
+                  {quantity} dans le panier
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQty(item.id, quantity + 1)}
+                  className="cursor-grow w-11 h-11 rounded-xl bg-brand-500 text-white font-black text-base grid place-items-center active:scale-95 transition-transform shadow-glow"
+                  aria-label="Plus"
+                >
+                  +
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }

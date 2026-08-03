@@ -10,7 +10,7 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 
 from apps.restaurants.glovo import GlovoError
-from apps.restaurants.glovo_sync import _client, build_sync_targets
+from apps.restaurants.glovo_sync import _fetch_menu, build_sync_targets
 
 MIGRATIONS_DIR = Path(__file__).resolve().parents[2] / "migrations"
 
@@ -29,7 +29,7 @@ class Command(BaseCommand):
         store = targets[0]
 
         try:
-            sections = _client(store).fetch_full_menu()
+            sections = _fetch_menu(store)
         except GlovoError as exc:
             raise CommandError(f"Récupération du menu : {exc}")
 

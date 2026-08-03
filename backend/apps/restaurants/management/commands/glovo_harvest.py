@@ -9,7 +9,7 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
 
-from apps.restaurants.glovo_sync import _client, build_sync_targets
+from apps.restaurants.glovo_sync import _fetch_menu, build_sync_targets
 
 
 class Command(BaseCommand):
@@ -26,7 +26,7 @@ class Command(BaseCommand):
         store = targets[0]
 
         try:
-            sections = _client(store).fetch_full_menu()
+            sections = _fetch_menu(store)
         except Exception as exc:  # noqa: BLE001
             raise CommandError(f"Récupération du menu : {exc}")
 

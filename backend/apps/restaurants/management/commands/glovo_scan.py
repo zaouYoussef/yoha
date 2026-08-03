@@ -8,7 +8,7 @@ l'API Glovo (diagnostic : détecte les layouts LIST/GRID, stores vides, etc.) :
 from django.core.management.base import BaseCommand
 
 from apps.restaurants.glovo import GlovoError
-from apps.restaurants.glovo_sync import _client, build_sync_targets
+from apps.restaurants.glovo_sync import _fetch_menu, build_sync_targets
 
 
 class Command(BaseCommand):
@@ -22,7 +22,7 @@ class Command(BaseCommand):
 
         for store in targets:
             try:
-                sections = _client(store).fetch_full_menu()
+                sections = _fetch_menu(store)
             except GlovoError as exc:
                 self.stderr.write(self.style.ERROR(f"{store.slug}: {exc}"))
                 continue
