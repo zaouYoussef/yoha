@@ -13,7 +13,7 @@ function groupLabel(g) {
   if (min > 0 && max >= min) {
     return min === max ? `Choisir ${min}` : `Entre ${min} et ${max}`;
   }
-  if (max > 0) return `Jusqu'à ${max}`;
+  if (max > 0) return `Jusqu'Ã  ${max}`;
   return 'Au choix';
 }
 
@@ -139,7 +139,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
           {item.ingredients?.trim() ? (
             <div className="bg-gradient-to-br from-brand-500/5 via-pink-500/5 to-violet-500/5 dark:from-brand-500/10 dark:via-pink-500/5 dark:to-violet-500/10 p-4 rounded-2xl border border-brand-500/15 dark:border-brand-500/20">
               <h3 className="text-[10px] font-black uppercase tracking-wider text-brand-600/80 dark:text-brand-400 mb-2">
-                Ingrédients
+                IngrÃ©dients
               </h3>
               <p className="text-sm text-ink-700 dark:text-ink-300 leading-relaxed whitespace-pre-line">
                 {item.ingredients}
@@ -148,7 +148,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
           ) : null}
 
           {!detailText ? (
-            <p className="text-sm text-ink-400 italic">Description bientôt disponible.</p>
+            <p className="text-sm text-ink-400 italic">Description bientÃ´t disponible.</p>
           ) : null}
 
           {groups.length > 0 && (
@@ -233,7 +233,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
                 disabled
                 className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold bg-ink-100 text-ink-400 dark:bg-ink-800 dark:text-ink-500 cursor-not-allowed"
               >
-                Restaurant fermé
+                Restaurant fermÃ©
               </button>
             ) : incomplete ? (
               <button
@@ -250,7 +250,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
                 className="cursor-grow w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-sm cta-brand btn-shimmer border-0 text-white active:scale-[0.98] transition-transform shadow-glow"
               >
                 <I.Plus size={16} stroke={3} />
-                <span>Ajouter au panier · {formatMad(unitPrice)}</span>
+                <span>Ajouter au panier Â· {formatMad(unitPrice)}</span>
               </button>
             ) : (
               <div className="flex items-center justify-between bg-gradient-to-r from-brand-500/5 via-pink-500/5 to-violet-500/5 dark:from-brand-500/10 dark:via-pink-500/5 dark:to-violet-500/10 p-1.5 rounded-2xl border border-brand-500/20 dark:border-brand-500/25">
