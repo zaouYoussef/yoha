@@ -562,6 +562,12 @@ function triggerClientNotification(title, body, orderId) {
           desc: `#${orderId} · ${ORDER_STATES[status]?.label || status}`,
           type: status === 'cancelled' ? 'default' : 'success',
         });
+        if (status === 'delivered' || status === 'cancelled') {
+          try {
+            const { clearCourierGps } = await import('@/utils/courierGps.js');
+            clearCourierGps(orderId);
+          } catch {}
+        }
         return updated;
       } catch (e) {
         if (previousStatus) {

@@ -654,11 +654,14 @@ export function AdminOrderGpsCell({ order }) {
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    if (!order?.id) return;
+    if (!order?.id || order.status === 'delivered' || order.status === 'cancelled') {
+      setGpsData(null);
+      setRemoteGps(null);
+      return undefined;
+    }
     const fetchGps = () => {
       let data = getCourierGps(order.id);
       if (!data && order.courierId) data = getCourierGps(order.courierId);
-      if (!data) data = getCourierGps('active_courier');
       setGpsData(data);
     };
     fetchGps();
@@ -668,18 +671,24 @@ export function AdminOrderGpsCell({ order }) {
       clearInterval(interval);
       window.removeEventListener('yoha_courier_gps_updated', fetchGps);
     };
-  }, [order?.id, order?.courierId]);
+  }, [order?.id, order?.courierId, order?.status]);
 
-  // Fetch GPS from backend API (cross-device) — only when active and assigned to courier
   useEffect(() => {
-    if (!order?.id || !order?.courierName || order.status === 'delivered' || order.status === 'cancelled') return;
+    if (!order?.id || !order?.courierName || order.status === 'delivered' || order.status === 'cancelled') {
+      setRemoteGps(null);
+      return undefined;
+    }
     const fetchRemote = () => {
       ordersApi.getLocation(order.id).then((data) => {
-        if (data?.latitude != null) setRemoteGps(data);
-      }).catch(() => {});
+        if (data?.active && data?.latitude != null && data?.longitude != null) {
+          setRemoteGps(data);
+        } else {
+          setRemoteGps(null);
+        }
+      }).catch(() => setRemoteGps(null));
     };
     fetchRemote();
-    const interval = setInterval(fetchRemote, 5000);
+    const interval = setInterval(fetchRemote, 4000);
     return () => clearInterval(interval);
   }, [order?.id, order?.courierName, order?.status]);
 
@@ -687,33 +696,47 @@ export function AdminOrderGpsCell({ order }) {
     return <span className="text-ink-400 text-xs">—</span>;
   }
 
+  const liveLat = remoteGps?.active ? Number(remoteGps.latitude) : (gpsData?.active ? gpsData.lat : null);
+  const liveLng = remoteGps?.active ? Number(remoteGps.longitude) : (gpsData?.active ? gpsData.lng : null);
+  const live = liveLat != null && liveLng != null && Boolean(order.courierName);
+
+  if (!order.courierName) {
+    return <span className="text-ink-400 text-xs">Aucun livreur</span>;
+  }
+
+  if (!live) {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-slate-100 dark:bg-ink-800 text-ink-500">
+        ⚪ GPS en attente
+      </span>
+    );
+  }
+
   const destInfo = resolveDestinationCoords(order.customerAddress || order.address || order.delivery_instructions || '');
-  const activeLat = gpsData?.active ? gpsData.lat : 35.68500;
-  const activeLng = gpsData?.active ? gpsData.lng : -5.92300;
-  const dist = calculateHaversineDistance(activeLat, activeLng, destInfo.lat, destInfo.lng);
-  const live = gpsData?.active && order.courierName;
+  const dist = calculateHaversineDistance(liveLat, liveLng, destInfo.lat, destInfo.lng);
 
   return (
     <div className="flex flex-col gap-1 text-xs">
       <button onClick={() => setExpanded(!expanded)} type="button"
-        className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-extrabold text-xs transition-all shrink-0 w-max shadow-xs cursor-pointer ${
-          live
-            ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-600'
-            : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/30'
-        }`}
-        title={`${expanded ? 'Masquer' : 'Afficher'} la carte de ${order.courierName || 'livreur'}`}
+        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-extrabold text-xs transition-all shrink-0 w-max shadow-xs cursor-pointer bg-emerald-500 text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-600"
+        title={`${expanded ? 'Masquer' : 'Afficher'} la carte de ${order.courierName}`}
       >
-        <span className={`w-2 h-2 rounded-full ${live ? 'bg-white animate-ping' : 'bg-amber-500'}`} />
-        <span>{live ? `📡 GPS Live (${dist.toFixed(1)} km)` : `🗺️ ${order.courierName || 'Aucun livreur'}`}</span>
+        <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+        <span>📡 GPS Live ({dist.toFixed(1)} km)</span>
         <span className={`text-[11px] transition-transform ${expanded ? 'rotate-180' : ''}`}>▾</span>
       </button>
-      {order.courierName && (
-        <span className="text-[10px] text-ink-400 font-semibold truncate max-w-[170px]">
-          {activeLat.toFixed(4)}, {activeLng.toFixed(4)} ➔ {destInfo.name.split(' ')[0]}
-        </span>
-      )}
-      {expanded && order.courierName && (
-        <LiveMapTracker orderId={order.id} courierName={order.courierName} address={order.customerAddress || order.address || ''} height="240px" />
+      <span className="text-[10px] text-ink-400 font-semibold truncate max-w-[170px]">
+        {liveLat.toFixed(4)}, {liveLng.toFixed(4)} ➔ {destInfo.name.split(' ')[0]}
+      </span>
+      {expanded && (
+        <LiveMapTracker
+          orderId={order.id}
+          courierName={order.courierName}
+          address={order.customerAddress || order.address || ''}
+          height="240px"
+          lat={liveLat}
+          lng={liveLng}
+        />
       )}
     </div>
   );
@@ -1232,15 +1255,16 @@ export function AdminCourierLiveGpsBadge({ courier, orders: propOrders }) {
   }, [orders, courier]);
 
   useEffect(() => {
+    if (!activeOrder?.id) {
+      setGpsData(null);
+      return undefined;
+    }
     const checkGps = () => {
-      const activeOrderId = activeOrder?.id || 'active_courier';
-      let data = getCourierGps(activeOrderId);
+      let data = getCourierGps(activeOrder.id);
       if (!data && courierId) data = getCourierGps(courierId);
       if (!data && courierName) data = getCourierGps(courierName);
-      if (!data) data = getCourierGps('active_courier');
       setGpsData(data);
     };
-
     checkGps();
     const interval = setInterval(checkGps, 3000);
     window.addEventListener('yoha_courier_gps_updated', checkGps);
@@ -1250,40 +1274,43 @@ export function AdminCourierLiveGpsBadge({ courier, orders: propOrders }) {
     };
   }, [activeOrder?.id, courierId, courierName]);
 
-  // Cross-device backend GPS polling for active order
   useEffect(() => {
-    if (!activeOrder?.id || activeOrder.status === 'delivered' || activeOrder.status === 'cancelled') return;
+    if (!activeOrder?.id || activeOrder.status === 'delivered' || activeOrder.status === 'cancelled') {
+      setRemoteGps(null);
+      return undefined;
+    }
     const fetchRemote = () => {
       ordersApi.getLocation(activeOrder.id).then((data) => {
-        if (data?.latitude != null) setRemoteGps(data);
-      }).catch(() => {});
+        if (data?.active && data?.latitude != null && data?.longitude != null) {
+          setRemoteGps(data);
+        } else {
+          setRemoteGps(null);
+        }
+      }).catch(() => setRemoteGps(null));
     };
     fetchRemote();
-    const interval = setInterval(fetchRemote, 5000);
+    const interval = setInterval(fetchRemote, 4000);
     return () => clearInterval(interval);
   }, [activeOrder?.id, activeOrder?.status]);
 
-  const activeLat = remoteGps?.latitude || gpsData?.lat || (activeOrder ? 35.68500 : null);
-  const activeLng = remoteGps?.longitude || gpsData?.lng || (activeOrder ? -5.92300 : null);
-  const isLive = Boolean((remoteGps && remoteGps.latitude != null) || (gpsData && gpsData.active));
+  const activeLat = remoteGps?.active ? Number(remoteGps.latitude) : (gpsData?.active ? gpsData.lat : null);
+  const activeLng = remoteGps?.active ? Number(remoteGps.longitude) : (gpsData?.active ? gpsData.lng : null);
+  const isLive = activeLat != null && activeLng != null;
 
-  if (activeLat != null && activeLng != null) {
+  if (isLive) {
     const mapsUrl = `https://www.google.com/maps?q=${activeLat},${activeLng}`;
     return (
-      <div className={`mt-3 p-2.5 rounded-xl border flex items-center justify-between text-xs ${
-        isLive
-          ? 'bg-emerald-500/10 border-emerald-500/20'
-          : 'bg-amber-500/15 border-amber-500/30'
-      }`}>
+      <div className="mt-3 p-2.5 rounded-xl border flex items-center justify-between text-xs bg-emerald-500/10 border-emerald-500/20">
         <div className="flex items-center gap-2 min-w-0">
-          <span className={`w-2 h-2 rounded-full shrink-0 ${isLive ? 'bg-emerald-500 animate-ping' : 'bg-amber-500'}`} />
+          <span className="w-2 h-2 rounded-full shrink-0 bg-emerald-500 animate-ping" />
           <div className="min-w-0 text-left">
-            <span className={`font-extrabold block truncate ${isLive ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-800 dark:text-amber-300'}`}>
-              {isLive ? '📡 GPS Live' : '📍 Pos. estimée'} : {activeLat.toFixed(4)}, {activeLng.toFixed(4)}
+            <span className="font-extrabold block truncate text-emerald-700 dark:text-emerald-300">
+              GPS Live : {activeLat.toFixed(4)}, {activeLng.toFixed(4)}
             </span>
             {activeOrder && (
               <span className="text-[10px] text-ink-500 dark:text-ink-400 block truncate font-medium">
-                Cmd #{activeOrder.id} ({activeOrder.restaurantName || 'En cours'})
+                Cmd #{activeOrder.id} · {ORDER_STATES[activeOrder.status]?.label || activeOrder.status}
+                {activeOrder.restaurantName ? ` · ${activeOrder.restaurantName}` : ''}
               </span>
             )}
           </div>
@@ -1292,19 +1319,28 @@ export function AdminCourierLiveGpsBadge({ courier, orders: propOrders }) {
           href={mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={`px-2.5 py-1 rounded-lg text-white font-extrabold text-[10px] transition shrink-0 ml-1.5 ${
-            isLive ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-amber-600 hover:bg-amber-700'
-          }`}
+          className="px-2.5 py-1 rounded-lg text-white font-extrabold text-[10px] transition shrink-0 ml-1.5 bg-emerald-600 hover:bg-emerald-700"
         >
-          Carte 📍
+          Carte
         </a>
+      </div>
+    );
+  }
+
+  if (activeOrder) {
+    return (
+      <div className="mt-3 p-2 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-800 dark:text-amber-300 text-[11px] font-semibold text-center">
+        Course active — GPS en attente du signal livreur
+        <div className="text-[10px] font-medium text-ink-500 dark:text-ink-400 mt-0.5">
+          Cmd #{activeOrder.id} · {ORDER_STATES[activeOrder.status]?.label || activeOrder.status}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="mt-3 p-2 rounded-xl bg-slate-100/80 dark:bg-ink-950/40 text-ink-400 text-[11px] font-semibold text-center">
-      ⚪ GPS non disponible / Hors-ligne
+      GPS non disponible / Hors-ligne
     </div>
   );
 }
@@ -1379,21 +1415,24 @@ export function AdminCouriers() {
       } catch {}
 
       if (users.length > 0) {
-        const merged = users.map((u) => {
-          const p = profiles.find((pr) => pr.userId === u.id || (pr.email && pr.email.toLowerCase() === u.email.toLowerCase()));
-          return {
-            id: u.id,
-            name: u.display_name,
-            displayName: u.display_name,
-            email: u.email,
-            vehicle: p?.vehicle || 'Moto Express',
-            isActive: u.is_active !== undefined ? u.is_active : true,
-            rating: p?.rating || '5.0',
-            totalDeliveries: p?.totalDeliveries || 0,
-            totalRevenue: p?.totalRevenue || 0,
-          };
-        });
+        const merged = users
+          .filter((u) => u.is_active !== false)
+          .map((u) => {
+            const p = profiles.find((pr) => pr.userId === u.id || (pr.email && pr.email.toLowerCase() === u.email.toLowerCase()));
+            return {
+              id: u.id,
+              name: u.display_name,
+              displayName: u.display_name,
+              email: u.email,
+              vehicle: p?.vehicle || 'Moto Express',
+              isActive: u.is_active !== undefined ? u.is_active : true,
+              rating: p?.rating || '5.0',
+              totalDeliveries: p?.totalDeliveries || 0,
+              totalRevenue: p?.totalRevenue || 0,
+            };
+          });
         localList.forEach((l) => {
+          if (!String(l.id || '').startsWith('c-')) return;
           if (!merged.some((m) => m.id === l.id || (m.email && l.email && m.email.toLowerCase() === l.email.toLowerCase()))) {
             merged.push(l);
           }

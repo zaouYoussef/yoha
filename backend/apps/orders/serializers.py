@@ -18,6 +18,12 @@ class CartLineInputSerializer(serializers.Serializer):
     item_name = serializers.CharField(required=False, allow_blank=True, default="")
     item_price = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, default=Decimal("0.00"))
     restaurant_name = serializers.CharField(required=False, allow_blank=True, default="")
+    item_options = serializers.ListField(
+        child=serializers.CharField(max_length=120),
+        required=False,
+        default=list,
+        allow_empty=True,
+    )
 
 
 class CheckoutSerializer(serializers.Serializer):
@@ -124,6 +130,7 @@ class CheckoutSerializer(serializers.Serializer):
                 "menu_item": item,
                 "qty": row["quantity"],
                 "unit_price_mad": row.get("item_price"),
+                "options": row.get("item_options") or [],
             })
 
         # Calculate dynamic delivery fee: 20 DH per unique custom/static pharmacy, patisserie, supermarket, shop, or parapharmacy restaurant name
@@ -179,26 +186,43 @@ class OrderLineSerializer(serializers.ModelSerializer):
     price = serializers.DecimalField(source="unit_price_mad", max_digits=10, decimal_places=2)
     qty = serializers.IntegerField(source="quantity")
     img = serializers.CharField(source="image_url")
-    restaurantId = serializers.CharField(source="order.restaurant.slug")
-    restaurantName = serializers.CharField(source="order.restaurant.name")
+    restaurantId = serializers.SerializerMethodField()
+    restaurantName = serializers.SerializerMethodField()
+    options = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderLine
-        fields = ("id", "name", "price", "qty", "img", "restaurantId", "restaurantName")
+        fields = ("id", "name", "price", "qty", "img", "restaurantId", "restaurantName", "options")
 
     def get_id(self, obj):
         if obj.menu_item_id and obj.menu_item:
             return obj.menu_item.external_id
         return f"line-{obj.pk}"
 
+    def get_restaurantId(self, obj):
+        if obj.order_id and obj.order.restaurant_id:
+            return obj.order.restaurant.slug
+        return ""
+
+    def get_restaurantName(self, obj):
+        if obj.order_id and obj.order.restaurant_id:
+            return obj.order.restaurant.name
+        return ""
+
+    def get_options(self, obj):
+        opts = getattr(obj, "options", None) or []
+        if isinstance(opts, list):
+            return [{"name": str(o)} for o in opts if str(o).strip()]
+        return []
+
 
 class OrderSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source="public_id")
     createdAt = serializers.SerializerMethodField()
     customer = serializers.SerializerMethodField()
-    restaurantId = serializers.CharField(source="restaurant.slug")
-    restaurantName = serializers.CharField(source="restaurant.name")
-    restaurantPhone = serializers.CharField(source="restaurant.phone", allow_blank=True)
+    restaurantId = serializers.SerializerMethodField()
+    restaurantName = serializers.SerializerMethodField()
+    restaurantPhone = serializers.SerializerMethodField()
     items = OrderLineSerializer(source="lines", many=True)
     totalDh = serializers.DecimalField(source="total_mad", max_digits=12, decimal_places=2)
     subtotalDh = serializers.DecimalField(source="subtotal_mad", max_digits=12, decimal_places=2)
@@ -250,6 +274,17 @@ class OrderSerializer(serializers.ModelSerializer):
             "address": obj.customer_address,
             "phone": obj.customer_phone,
         }
+
+    def get_restaurantId(self, obj):
+        return obj.restaurant.slug if obj.restaurant_id else ""
+
+    def get_restaurantName(self, obj):
+        return obj.restaurant.name if obj.restaurant_id else ""
+
+    def get_restaurantPhone(self, obj):
+        if not obj.restaurant_id:
+            return ""
+        return (obj.restaurant.phone or "").strip()
 
     def get_courierId(self, obj):
         return str(obj.courier_id) if obj.courier_id else None

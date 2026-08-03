@@ -22,7 +22,7 @@ import { RecentOrdersTable as AdminRecentOrdersTable } from './AdminPanel.jsx';
 import { OrderRestaurantNotes } from '../components/ui/OrderRestaurantNotes.jsx';
 import { CancelOrderButton, CancelPhaseBadge, OrderCancellationNote } from '../components/ui/CancelOrderButton.jsx';
 import { ordersApi, getTokens } from '../lib/api.js';
-import { updateCourierGps } from '../utils/courierGps.js';
+import { updateCourierGps, clearCourierGps } from '../utils/courierGps.js';
 
 function isOrderAssignedToCourier(order, courier) {
   if (!order || !courier) return false;
@@ -68,15 +68,20 @@ function buildOrderCopyText(order) {
     const qty = item.qty || 1;
     const unit = parseAmount(item.price);
     const lineTotal = unit * qty;
-    return `• ${qty}× ${item.name} — ${formatMad(lineTotal, { decimals: 2 })}`;
+    const opts = Array.isArray(item.options)
+      ? item.options.map((o) => (typeof o === 'string' ? o : o?.name)).filter(Boolean)
+      : [];
+    const optSuffix = opts.length ? ` (${opts.join(' · ')})` : '';
+    return `• ${qty}× ${item.name}${optSuffix} — ${formatMad(lineTotal, { decimals: 2 })}`;
   });
 
   return [
     `🛵 Commande YoHa #${order.id}`,
     `Restaurant : ${order.restaurantName}`,
+    order.restaurantPhone ? `Tél restaurant : ${order.restaurantPhone}` : null,
     `Client : ${order.customer?.name || '—'}`,
     `Adresse : ${order.customer?.address || '—'}`,
-    order.customer?.phone ? `Tél : ${order.customer.phone}` : null,
+    order.customer?.phone ? `Tél client : ${order.customer.phone}` : null,
     order.restaurantNotes?.trim()
       ? `Remarques restaurant : ${order.restaurantNotes.trim()}`
       : null,
@@ -267,6 +272,7 @@ function OrderItemsDetail({ order, restaurantPhone }) {
   const [copied, setCopied] = useState(false);
   const items = Array.isArray(order.items) ? order.items : [];
   const waDigits = whatsAppDigits(restaurantPhone);
+  const phoneHref = restaurantPhone ? `tel:${String(restaurantPhone).replace(/\s/g, '')}` : null;
 
   const handleCopy = useCallback(async () => {
     try {
@@ -293,6 +299,9 @@ function OrderItemsDetail({ order, restaurantPhone }) {
           <span className="text-xs font-bold uppercase tracking-wider text-ink-600 dark:text-ink-300">
             Détail commande
           </span>
+          <span className="rounded-full bg-brand-500/10 px-2 py-0.5 text-[10px] font-black text-brand-600 dark:text-brand-400">
+            {items.reduce((s, i) => s + (i.qty || 1), 0)} art.
+          </span>
         </div>
         <div className="grid grid-cols-2 gap-1.5 sm:flex sm:shrink-0">
           <button
@@ -311,10 +320,32 @@ function OrderItemsDetail({ order, restaurantPhone }) {
             className="inline-flex items-center justify-center gap-1 rounded-xl bg-emerald-600 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40 sm:py-1.5"
           >
             <I.Phone size={12} />
-            <span className="truncate">WhatsApp</span>
+            <span className="truncate">WhatsApp resto</span>
           </button>
         </div>
       </div>
+
+      {phoneHref ? (
+        <a
+          href={phoneHref}
+          className="flex items-center justify-between gap-3 border-b border-emerald-500/20 bg-emerald-500/10 px-4 py-3 transition hover:bg-emerald-500/15"
+        >
+          <div className="min-w-0">
+            <div className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+              Sonner au restaurant
+            </div>
+            <div className="truncate text-sm font-bold text-ink-900 dark:text-white">{restaurantPhone}</div>
+          </div>
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-[11px] font-black text-white shadow-sm">
+            <I.Phone size={13} />
+            Appeler
+          </span>
+        </a>
+      ) : (
+        <div className="border-b border-amber-500/20 bg-amber-500/10 px-4 py-2.5 text-[11px] font-semibold text-amber-800 dark:text-amber-300">
+          Numéro du restaurant indisponible — demandez-le à l&apos;accueil YoHa si besoin.
+        </div>
+      )}
 
       <ul className="divide-y divide-ink-200/50 dark:divide-ink-800/80">
         {items.length === 0 ? (
@@ -323,11 +354,21 @@ function OrderItemsDetail({ order, restaurantPhone }) {
           items.map((item, idx) => {
             const qty = item.qty || 1;
             const unit = parseAmount(item.price);
+            const opts = Array.isArray(item.options)
+              ? item.options.map((o) => (typeof o === 'string' ? o : o?.name)).filter(Boolean)
+              : [];
             return (
               <li key={item.id || idx} className="flex items-start justify-between gap-3 px-4 py-2.5 text-sm">
                 <div className="min-w-0 flex-1">
-                  <span className="font-bold text-brand-600 dark:text-brand-400">{qty}×</span>{' '}
-                  <span className="font-semibold text-ink-900 dark:text-white">{item.name}</span>
+                  <div>
+                    <span className="font-bold text-brand-600 dark:text-brand-400">{qty}×</span>{' '}
+                    <span className="font-semibold text-ink-900 dark:text-white">{item.name}</span>
+                  </div>
+                  {opts.length > 0 && (
+                    <div className="mt-1 text-[11px] font-semibold leading-snug text-ink-500 dark:text-ink-400">
+                      Options : {opts.join(' · ')}
+                    </div>
+                  )}
                 </div>
                 <span className="shrink-0 font-semibold text-ink-600 tabular-nums dark:text-ink-300">
                   {formatMad(unit * qty, { decimals: 2 })}
@@ -427,6 +468,19 @@ function useCourierAutoGps(courier, orders) {
     coords: null,
   });
 
+  const trackingOrders = useMemo(
+    () =>
+      (orders || []).filter(
+        (o) =>
+          isOrderAssignedToCourier(o, courier) &&
+          o.status !== 'delivered' &&
+          o.status !== 'cancelled' &&
+          // Dès confirmation livreur jusqu'à livraison
+          ['pickup_confirmed', 'preparing', 'delivering', 'placed'].includes(o.status),
+      ),
+    [orders, courier],
+  );
+
   const syncGpsRemote = useCallback((o, lat, lng) => {
     ordersApi.updateLocation(o.id, lat, lng).catch(() => {});
   }, []);
@@ -435,30 +489,22 @@ function useCourierAutoGps(courier, orders) {
     const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
     setGpsState({ active: true, denied: false, coords });
 
-    const activeOrders = orders.filter(
-      (o) => isOrderAssignedToCourier(o, courier) && o.status !== 'delivered' && o.status !== 'cancelled'
-    );
-    if (activeOrders.length > 0) {
-      activeOrders.forEach((o) => {
+    if (trackingOrders.length > 0) {
+      trackingOrders.forEach((o) => {
         updateCourierGps(o.id, coords.lat, coords.lng, true);
         syncGpsRemote(o, coords.lat, coords.lng);
       });
-    } else {
-      updateCourierGps('active_courier', coords.lat, coords.lng, true);
-      if (courier?.id) updateCourierGps(courier.id, coords.lat, coords.lng, true);
-      if (courier?.name) updateCourierGps(courier.name, coords.lat, coords.lng, true);
     }
-  }, [courier, orders, syncGpsRemote]);
+  }, [trackingOrders, syncGpsRemote]);
 
   const requestGps = useCallback(() => {
     if (typeof window === 'undefined' || !('geolocation' in navigator)) return;
+    if (trackingOrders.length === 0) return;
 
-    // 1. Try High Accuracy GPS first
     navigator.geolocation.getCurrentPosition(
       handlePosition,
       (err) => {
         console.warn('High accuracy mobile GPS failed, trying standard accuracy:', err);
-        // 2. Fallback to standard accuracy (WiFi / Cell towers for mobile phones)
         navigator.geolocation.getCurrentPosition(
           handlePosition,
           (err2) => {
@@ -467,16 +513,29 @@ function useCourierAutoGps(courier, orders) {
               setGpsState((prev) => ({ ...prev, denied: true }));
             }
           },
-          { enableHighAccuracy: false, timeout: 10000, maximumAge: 10000 }
+          { enableHighAccuracy: false, timeout: 10000, maximumAge: 10000 },
         );
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 },
     );
-  }, [handlePosition]);
+  }, [handlePosition, trackingOrders.length]);
 
-  // Continuous watchPosition for mobile background tracking
+  // Arrêt propre quand plus aucune course active
+  useEffect(() => {
+    const finished = (orders || []).filter(
+      (o) =>
+        isOrderAssignedToCourier(o, courier) &&
+        (o.status === 'delivered' || o.status === 'cancelled'),
+    );
+    finished.forEach((o) => clearCourierGps(o.id));
+  }, [orders, courier]);
+
   useEffect(() => {
     if (typeof window === 'undefined' || !('geolocation' in navigator)) return;
+    if (trackingOrders.length === 0) {
+      setGpsState((prev) => ({ ...prev, active: false, coords: null }));
+      return undefined;
+    }
 
     requestGps();
 
@@ -487,7 +546,7 @@ function useCourierAutoGps(courier, orders) {
           setGpsState((prev) => ({ ...prev, denied: true }));
         }
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 },
     );
 
     const interval = setInterval(requestGps, 8000);
@@ -496,9 +555,9 @@ function useCourierAutoGps(courier, orders) {
       navigator.geolocation.clearWatch(watchId);
       clearInterval(interval);
     };
-  }, [requestGps, handlePosition]);
+  }, [requestGps, handlePosition, trackingOrders.length]);
 
-  return { ...gpsState, requestGps };
+  return { ...gpsState, requestGps, trackingCount: trackingOrders.length };
 }
 
 export function DeliveryDashboard({ goto, dark, setDark }) {
@@ -510,7 +569,7 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
     couriers[0] ||
     { id: '0', name: user?.displayName || 'Livreur' };
 
-  const { active: gpsActive, coords: gpsCoords, denied: gpsDenied, requestGps } = useCourierAutoGps(COURIER_ME, orders);
+  const { active: gpsActive, coords: gpsCoords, denied: gpsDenied, requestGps, trackingCount } = useCourierAutoGps(COURIER_ME, orders);
 
   const titles = {
     available: 'Commandes disponibles',
@@ -523,6 +582,7 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
       title={titles[current]} subtitle={`Connecté en tant que ${COURIER_ME.name}`}>
 
       {/* Mobile-Friendly Active GPS Tracker Bar */}
+      {trackingCount > 0 && (
       <div className="mb-6 p-4 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 shadow-sm flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
         <div className="flex items-center gap-3">
           <div className="relative flex h-3 w-3">
@@ -547,7 +607,7 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
               )}
             </div>
             <p className="text-[11px] text-ink-500 dark:text-ink-400 font-medium">
-              Transmet votre position en direct aux clients &amp; à l&apos;administration.
+              Position transmise en direct dès confirmation — arrêt automatique à la livraison.
             </p>
           </div>
         </div>
@@ -559,6 +619,7 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
           <span>📡 Activer / Réactualiser GPS</span>
         </button>
       </div>
+      )}
 
       {current === 'available' && <DeliveryAvailable courier={COURIER_ME} />}
       {current === 'mine' && <DeliveryMine courier={COURIER_ME} />}
@@ -816,6 +877,9 @@ function CourierStatusButton({ orderId, nextStatus, label, className, updateOrde
     setBusy(true);
     try {
       await updateOrderStatus(orderId, nextStatus);
+      if (nextStatus === 'delivered' || nextStatus === 'cancelled') {
+        clearCourierGps(orderId);
+      }
     } catch {
       /* toast géré dans AppProviders */
     } finally {
@@ -1325,14 +1389,19 @@ export function DeliveryOrderCard({ order, action, showMap, variant = 'available
             <div className="min-w-0 flex-1">
               <div className="text-[10px] font-bold uppercase tracking-wider text-ink-500">Récupérer</div>
               <div className="break-words font-semibold">{order.restaurantName}</div>
-              {restaurantPhone && (
+              {restaurantPhone ? (
                 <a
                   href={`tel:${restaurantPhone.replace(/\s/g, '')}`}
-                  className="mt-0.5 flex items-center gap-1 text-xs text-ink-500 hover:text-brand-600"
+                  className="mt-1 inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-2.5 py-1.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-500/20 dark:text-emerald-300"
                 >
-                  <I.Phone size={11} className="shrink-0 text-emerald-600" />
+                  <I.Phone size={12} className="shrink-0" />
                   <span className="break-all">{restaurantPhone}</span>
+                  <span className="opacity-70">· Appeler</span>
                 </a>
+              ) : (
+                <div className="mt-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                  Tél. resto manquant
+                </div>
               )}
             </div>
           </div>

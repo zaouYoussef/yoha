@@ -105,7 +105,7 @@ class AdminUserListView(APIView):
         if request.user.role != "admin":
             return Response({"detail": "Accès refusé."}, status=status.HTTP_403_FORBIDDEN)
         role = request.query_params.get("role", "")
-        qs = User.objects.all()
+        qs = User.objects.filter(is_active=True)
         if role:
             qs = qs.filter(role=role)
         serializer = AdminUserListSerializer(qs, many=True)
@@ -166,6 +166,10 @@ class AdminUserDetailView(APIView):
         )
         user.is_active = False
         user.save(update_fields=["is_active"])
+        profile = getattr(user, "courier", None)
+        if profile and profile.is_active:
+            profile.is_active = False
+            profile.save(update_fields=["is_active"])
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

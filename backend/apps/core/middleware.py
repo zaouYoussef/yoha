@@ -21,7 +21,7 @@ class RequestIdMiddleware(MiddlewareMixin):
 
 class SecurityHeadersMiddleware(MiddlewareMixin):
     def process_response(self, request, response):
-        response.setdefault("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
+        response.setdefault("Permissions-Policy", "geolocation=(self), microphone=(), camera=()")
         response.setdefault("Cross-Origin-Opener-Policy", "same-origin")
         response.setdefault("Cross-Origin-Resource-Policy", "same-site")
         return response

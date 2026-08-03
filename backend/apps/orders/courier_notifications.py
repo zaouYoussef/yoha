@@ -53,16 +53,31 @@ def _build_courier_email(order: Order) -> tuple[str, str, str]:
     )
 
     subject = f"🛵 Nouvelle course #{order.public_id} · YoHa"
-    text = (
-        f"Nouvelle commande disponible — #{order.public_id}\n\n"
-        f"Restaurant : {order.restaurant.name}\n"
-        f"Client : {order.customer_name}\n"
-        f"Adresse : {order.customer_address}\n"
-        f"Total : {order.total_mad:.2f} MAD\n\n"
-        f"Articles :\n{items_lines}\n\n"
-        f"⚡ Le premier livreur qui confirme dans le dashboard prend la course.\n"
-        f"Dashboard livreur : {dash_url}\n"
-    )
+    resto_phone = (order.restaurant.phone or "").strip() if order.restaurant_id else ""
+    client_phone = (order.customer_phone or "").strip()
+    text_parts = [
+        f"Nouvelle commande disponible — #{order.public_id}",
+        "",
+        f"Restaurant : {order.restaurant.name}",
+    ]
+    if resto_phone:
+        text_parts.append(f"Tél restaurant : {resto_phone}")
+    text_parts.extend([
+        f"Client : {order.customer_name}",
+        f"Adresse : {order.customer_address}",
+    ])
+    if client_phone:
+        text_parts.append(f"Tél client : {client_phone}")
+    text_parts.extend([
+        f"Total : {order.total_mad:.2f} MAD",
+        "",
+        "Articles :",
+        items_lines,
+        "",
+        "⚡ Le premier livreur qui confirme dans le dashboard prend la course.",
+        f"Dashboard livreur : {dash_url}",
+    ])
+    text = "\n".join(text_parts) + "\n"
     esc = html.escape
     items_html = ""
     for line in lines:
@@ -180,6 +195,7 @@ def _build_courier_email(order: Order) -> tuple[str, str, str]:
               <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;
                 color:#a78bfa;margin-bottom:4px;">🏪 Restaurant</div>
               <div style="font-size:14px;font-weight:800;color:#0f172a;">{esc(order.restaurant.name)}</div>
+              {f'<div style="font-size:12px;color:#059669;font-weight:700;margin-top:4px;">📞 {esc(resto_phone)}</div>' if resto_phone else ''}
             </td>
             <td width="12"></td>
             <td style="padding:10px 12px;background:linear-gradient(135deg,#faf5ff,#f5f3ff);
@@ -199,6 +215,7 @@ def _build_courier_email(order: Order) -> tuple[str, str, str]:
             color:#10b981;margin-bottom:4px;">📍 Livrer à</div>
           <div style="font-size:13px;font-weight:700;color:#0f172a;">{esc(order.customer_name)}</div>
           <div style="font-size:12px;color:#475569;margin-top:2px;">{esc(order.customer_address)}</div>
+          {f'<div style="font-size:12px;color:#7c3aed;font-weight:700;margin-top:4px;">📞 {esc(client_phone)}</div>' if client_phone else ''}
         </div>
       </td></tr>
     </table>

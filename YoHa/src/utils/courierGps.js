@@ -94,3 +94,14 @@ export function updateCourierGps(orderId, lat, lng, active = true) {
     console.error('Error updating courier GPS:', e);
   }
 }
+
+/** Arrête / efface le GPS d'une commande (après livraison) */
+export function clearCourierGps(orderId) {
+  if (typeof window === 'undefined' || !orderId) return;
+  try {
+    localStorage.removeItem(`yoha_courier_gps_${orderId}`);
+    window.dispatchEvent(new Event('yoha_courier_gps_updated'));
+  } catch (_) {
+    /* ignore */
+  }
+}

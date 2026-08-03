@@ -11,6 +11,7 @@ import { formatMad } from '../data/index.js';
 import { OrderRatingCard } from '../components/ui/OrderRatingCard.jsx';
 import { LiveMapTracker } from '../components/ui/LiveMapTracker.jsx';
 import { getCourierGps, calculateHaversineDistance, resolveDestinationCoords } from '../utils/courierGps.js';
+import { ordersApi } from '../lib/api.js';
 import { subscribeWebPush } from '../lib/webPush.js';
 
 function useNotificationPermission() {
@@ -424,13 +425,35 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   }, [status, stepNum]);
 
   const syncGps = useCallback(() => {
-    if (!orderId) return;
-    setCourierGps(getCourierGps(orderId));
-  }, [orderId]);
+    if (!orderId || status === 'delivered' || status === 'cancelled') {
+      setCourierGps(null);
+      return;
+    }
+    const local = getCourierGps(orderId);
+    if (local?.active) {
+      setCourierGps(local);
+      return;
+    }
+    ordersApi.getLocation(orderId).then((data) => {
+      if (data?.active && data?.latitude != null && data?.longitude != null) {
+        setCourierGps({
+          active: true,
+          lat: Number(data.latitude),
+          lng: Number(data.longitude),
+          updatedAt: Date.now(),
+        });
+      } else {
+        setCourierGps(null);
+      }
+    }).catch(() => {});
+  }, [orderId, status]);
 
   useEffect(() => {
     syncGps();
-    const timer = setInterval(() => { setNowMs(Date.now()); syncGps(); }, 5000);
+    const timer = setInterval(() => {
+      setNowMs(Date.now());
+      syncGps();
+    }, 4000);
     window.addEventListener('yoha_courier_gps_updated', syncGps);
     return () => { clearInterval(timer); window.removeEventListener('yoha_courier_gps_updated', syncGps); };
   }, [syncGps]);

@@ -291,6 +291,11 @@ class OrderStatusView(APIView):
             )
         except ValueError as e:
             return Response({"detail": str(e)}, status=400)
+
+        # Arrêt du tracking GPS dès que la course est terminée / annulée
+        if order.status in (Order.Status.DELIVERED, Order.Status.CANCELLED):
+            CourierLocation.objects.filter(order=order).delete()
+
         return Response(OrderSerializer(order).data)
 
 
@@ -436,6 +441,11 @@ class CourierLocationView(APIView):
             if not order:
                 return Response({"latitude": None, "longitude": None, "active": False}, status=200)
 
+            # Plus de localisation après livraison / annulation
+            if order.status in (Order.Status.DELIVERED, Order.Status.CANCELLED):
+                CourierLocation.objects.filter(order=order).delete()
+                return Response({"latitude": None, "longitude": None, "active": False}, status=200)
+
             loc = CourierLocation.objects.filter(order=order).order_by("-updated_at").first()
             if not loc:
                 return Response({"latitude": None, "longitude": None, "active": False}, status=200)
@@ -458,22 +468,30 @@ class CourierLocationView(APIView):
         clean_id = str(public_id).replace("YH-", "").strip()
         order = Order.objects.filter(
             Q(public_id=public_id) | Q(public_id=clean_id) | Q(public_id=f"YH-{clean_id}")
-        ).first()
+        ).select_related("courier").first()
         if not order:
             return Response({"detail": "Commande introuvable."}, status=404)
+
+        if order.status in (Order.Status.DELIVERED, Order.Status.CANCELLED):
+            CourierLocation.objects.filter(order=order).delete()
+            return Response({"detail": "Course terminée — GPS arrêté.", "active": False}, status=400)
 
         ser = CourierLocationSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
 
-        courier_profile = getattr(user, 'courier_profile', None)
+        courier_profile = getattr(user, "courier_profile", None)
         if not order.courier_id and courier_profile:
             order.courier = courier_profile
             order.save(update_fields=["courier"])
 
+        courier = order.courier or courier_profile
+        if not courier:
+            return Response({"detail": "Aucun livreur associé à cette commande."}, status=400)
+
         loc, _ = CourierLocation.objects.update_or_create(
             order=order,
+            courier=courier,
             defaults={
-                "courier": order.courier or courier_profile,
                 "latitude": ser.validated_data["latitude"],
                 "longitude": ser.validated_data["longitude"],
             },
@@ -482,6 +500,7 @@ class CourierLocationView(APIView):
             "latitude": float(loc.latitude),
             "longitude": float(loc.longitude),
             "updated_at": loc.updated_at.isoformat(),
+            "active": True,
         })
 
 

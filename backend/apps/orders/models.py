@@ -176,7 +176,11 @@ class Order(models.Model):
             unit = Decimal(str(row.get("unit_price_mad") or 0)) or item.price_mad
             line_total = unit * qty
             subtotal += line_total
-            line_objects.append((item, qty, line_total, unit))
+            opts = row.get("options") or []
+            if isinstance(opts, str):
+                opts = [opts] if opts.strip() else []
+            opts = [str(o).strip() for o in opts if str(o).strip()]
+            line_objects.append((item, qty, line_total, unit, opts))
 
         if custom_delivery_fee is not None:
             fee = Decimal(str(custom_delivery_fee))
@@ -203,15 +207,19 @@ class Order(models.Model):
             idempotency_key=idempotency_key or None,
             scheduled_delivery_at=scheduled_delivery_at,
         )
-        for item, qty, line_total, unit in line_objects:
+        for item, qty, line_total, unit, opts in line_objects:
+            display_name = item.name
+            if opts:
+                display_name = f"{item.name} ({' · '.join(opts)})"
             OrderLine.objects.create(
                 order=order,
                 menu_item=item,
-                item_name=item.name,
+                item_name=display_name[:400],
                 unit_price_mad=unit,
                 quantity=qty,
                 line_total_mad=line_total,
                 image_url=item.image_url,
+                options=opts,
             )
         return order
 
@@ -224,11 +232,12 @@ class OrderLine(models.Model):
         null=True,
         blank=True,
     )
-    item_name = models.CharField(max_length=200)
+    item_name = models.CharField(max_length=400)
     unit_price_mad = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveSmallIntegerField()
     line_total_mad = models.DecimalField(max_digits=12, decimal_places=2)
     image_url = models.URLField(max_length=500, blank=True)
+    options = models.JSONField(default=list, blank=True)
 
     class Meta:
         ordering = ["id"]
