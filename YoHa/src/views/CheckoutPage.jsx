@@ -15,7 +15,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   const { user } = useAuth();
   const { setCart } = useCart();
   const [address, setAddress] = useState(CAMPUS_HOSPITALS[0]?.name || 'CHU Mohammed VI de Tanger');
-  const [phone, setPhone] = useState('+212 6 12 34 56 78');
+  const [phone, setPhone] = useState('');
   const [restaurantNotes, setRestaurantNotes] = useState('');
   const [scheduledTime, setScheduledTime] = useState('');
   const [name, setName] = useState('X Y');
@@ -236,9 +236,20 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
       setErr('Choisissez un lieu de livraison parmi les 4 zones YoHa.');
       return;
     }
+    const trimmedPhone = String(phone || '').trim();
+    const phoneDigits = trimmedPhone.replace(/\D/g, '');
+    if (!trimmedPhone) {
+      setErr('Numéro de téléphone obligatoire pour que le livreur puisse vous joindre.');
+      return;
+    }
+    // Accepte 06… / 07… / +2126… / 2126… (9+ chiffres utiles)
+    if (phoneDigits.length < 9 || phoneDigits.length > 15) {
+      setErr('Numéro de téléphone invalide. Ex. : +212 6 XX XX XX XX');
+      return;
+    }
     setSubmitting(true);
     const ordonnanceUrl = cart.find(i => i.customDetails?.ordonnanceUrl)?.customDetails?.ordonnanceUrl || '';
-    const customer = { name, address, phone, email: trimmedEmail, restaurantNotes: restaurantNotes.trim(), scheduledTime: scheduledTime || undefined, ordonnanceUrl };
+    const customer = { name, address, phone: trimmedPhone, email: trimmedEmail, restaurantNotes: restaurantNotes.trim(), scheduledTime: scheduledTime || undefined, ordonnanceUrl };
     try {
       const orderId = await addOrder(cart, grand, customer);
       try {
@@ -451,7 +462,10 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                 </div>
               </div>
 
-              <Input label="Numéro de téléphone" value={phone} onChange={setPhone} placeholder="+212 6 12 34 56 78" />
+              <Input label="Numéro de téléphone *" value={phone} onChange={setPhone} placeholder="+212 6 XX XX XX XX" type="tel" />
+              <p className="text-[11px] text-ink-500 -mt-2 font-medium">
+                Obligatoire — le livreur vous appelle si besoin à l&apos;arrivée.
+              </p>
 
               <label className="block space-y-1.5">
                 <span className="text-[11px] sm:text-xs font-bold text-ink-700 dark:text-ink-200 uppercase tracking-wider">Instructions pour le livreur / restaurant</span>
