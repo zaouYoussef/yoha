@@ -648,6 +648,19 @@ GLOVO_STORES = [
         "cover_url": "https://glovo.dhmedia.io/image/stores-glovo/stores/c5bccafd9f90c26083d6f48766caa00e12d4c4525c5aeecd93d29d6b3a83bf38",
         "delivery_time": "25-40 min",
     },
+    {
+        "slug": "matsco-sandwich",
+        "glovo_slug": "matsco-sandwich-tng",
+        "store_id": 554298,
+        "address_id": 896531,
+        "name": "Matsco Sandwich",
+        "cuisine": "kebab",
+        "tags": ["Sandwich", "Snack", "Tacos"],
+        "cover_url": "https://glovo.dhmedia.io/image/stores-glovo/stores/61c04855c7f8062af59d27a0a55d4229b2eef2238842d01ac37c1a68b35a9f22",
+        "logo_url": "https://glovo.dhmedia.io/image/customer-assets-glovo/store_logos/8f8c4d0825449f97c14d58631125ff73a465e9005339b0eb6f9a6ad76172d5f2",
+        "delivery_time": "25-40 min",
+        "phone": "+212776239310",
+    },
 ]
 
 # Réglages fins par store (recette de synchro) : renommages de sections,
@@ -677,6 +690,7 @@ GLOVO_STORE_CONFIGS = {
     "maison-glaces": {"prune": True},
     "crousty-house": {"prune": True},
     "crousty-signature": {"prune": True},
+    "matsco-sandwich": {"prune": True},
 }
 
 # ——— Sécurité HTTP ———

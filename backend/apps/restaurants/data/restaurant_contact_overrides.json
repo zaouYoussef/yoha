@@ -769,6 +769,54 @@
           ]
         }
       }
+    },
+    "matsco-sandwich": {
+      "phone": "+212776239310",
+      "address": "Av. Martil, 90000 Tanger, Morocco",
+      "opening_hours": {
+        "monday": {
+          "slots": [
+            { "open": "00:00", "close": "02:00" },
+            { "open": "12:00", "close": "23:59" }
+          ]
+        },
+        "tuesday": {
+          "slots": [
+            { "open": "00:00", "close": "02:00" },
+            { "open": "12:00", "close": "23:59" }
+          ]
+        },
+        "wednesday": {
+          "slots": [
+            { "open": "00:00", "close": "02:00" },
+            { "open": "12:00", "close": "23:59" }
+          ]
+        },
+        "thursday": {
+          "slots": [
+            { "open": "00:00", "close": "02:00" },
+            { "open": "12:00", "close": "23:59" }
+          ]
+        },
+        "friday": {
+          "slots": [
+            { "open": "00:00", "close": "02:00" },
+            { "open": "12:00", "close": "23:59" }
+          ]
+        },
+        "saturday": {
+          "slots": [
+            { "open": "00:00", "close": "02:00" },
+            { "open": "12:00", "close": "23:59" }
+          ]
+        },
+        "sunday": {
+          "slots": [
+            { "open": "00:00", "close": "02:00" },
+            { "open": "12:00", "close": "23:59" }
+          ]
+        }
+      }
     }
   }
 }
