@@ -100,19 +100,51 @@ function parseThrottleWaitMs(data) {
 async function refreshAccessToken() {
   const tokens = getTokens();
   if (!tokens?.refresh) return null;
-  const res = await fetch(`${API_BASE}/auth/refresh/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ refresh: tokens.refresh }),
-  });
-  if (!res.ok) {
+  // Anciens jetons démo → session invalide
+  if (String(tokens.refresh).startsWith('demo-') || String(tokens.access || '').startsWith('demo-')) {
     clearTokens();
+    try {
+      localStorage.removeItem('yoha_demo_user');
+    } catch {}
     return null;
   }
-  const data = await res.json();
-  const next = { ...tokens, access: data.access };
-  setTokens(next);
-  return next.access;
+  try {
+    const res = await fetch(`${API_BASE}/auth/refresh/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh: tokens.refresh }),
+    });
+    if (!res.ok) {
+      // Ne vider la session que si le serveur refuse vraiment le refresh
+      if (res.status === 401 || res.status === 403) {
+        clearTokens();
+      }
+      return null;
+    }
+    const data = await res.json();
+    // ROTATE_REFRESH_TOKENS : sauvegarder le nouveau refresh sinon la session meurt
+    const next = {
+      access: data.access,
+      refresh: data.refresh || tokens.refresh,
+    };
+    setTokens(next);
+    return next.access;
+  } catch {
+    // Erreur réseau : garder les tokens (reconnexion plus tard)
+    return null;
+  }
+}
+
+/** Rafraîchit proactivement l'access token pour rester connecté. */
+export async function ensureFreshSession() {
+  const tokens = getTokens();
+  if (!tokens?.refresh) return false;
+  if (String(tokens.refresh).startsWith('demo-')) {
+    clearTokens();
+    return false;
+  }
+  const access = await refreshAccessToken();
+  return !!access;
 }
 
 export async function apiFetch(
@@ -248,102 +280,46 @@ export const authApi = {
   async login(identifier, password) {
     const id = String(identifier ?? '').trim().toLowerCase();
     if (!id) throw new Error('Identifiant requis.');
-    
-    try {
-      const data = await apiFetch('/auth/login/', {
-        method: 'POST',
-        body: { email: id, password },
-        auth: false,
-      });
-      setTokens({ access: data.access, refresh: data.refresh });
-      const me = await apiFetch('/auth/me/');
-      if (typeof window !== 'undefined') localStorage.removeItem('yoha_demo_user');
-      return mapUser(me);
-    } catch (apiErr) {
-      // Fallback: Check local couriers or demo accounts
-      let localCouriers = [];
-      try {
-        if (typeof window !== 'undefined') {
-          const raw = localStorage.getItem('yoha_couriers');
-          if (raw) localCouriers = JSON.parse(raw);
-        }
-      } catch {}
 
-      const foundCourier = localCouriers.find(c => c.email && c.email.toLowerCase().trim() === id);
-      const isAdminEmail = id.includes('admin') || id.includes('youssef') || id === 'youssef@yoha.ma';
-      const isRestoEmail = id.includes('resto') || id.includes('snack') || id.includes('roma') || id.startsWith('roma');
-      const isCourierEmail = !!foundCourier || id.includes('livreur') || id.includes('courier');
-
-      let role = 'client';
-      if (isAdminEmail) role = 'admin';
-      else if (isRestoEmail) role = 'restaurant';
-      else if (foundCourier || isCourierEmail) role = 'courier';
-
-      const displayName = foundCourier?.name || foundCourier?.displayName || (id.split('@')[0].toUpperCase());
-
-      const demoUser = {
-        id: foundCourier?.id || `user-${Date.now()}`,
-        email: id,
-        displayName: displayName,
-        role: role,
-      };
-
-      setTokens({ access: `demo-access-${Date.now()}`, refresh: `demo-refresh-${Date.now()}` });
-      try {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('yoha_demo_user', JSON.stringify(demoUser));
-        }
-      } catch {}
-      return demoUser;
-    }
+    const data = await apiFetch('/auth/login/', {
+      method: 'POST',
+      body: { email: id, password },
+      auth: false,
+    });
+    setTokens({ access: data.access, refresh: data.refresh });
+    const me = await apiFetch('/auth/me/');
+    if (typeof window !== 'undefined') localStorage.removeItem('yoha_demo_user');
+    return mapUser(me);
   },
 
   async register({ email, password, displayName }) {
-    try {
-      await apiFetch('/auth/register/', {
-        method: 'POST',
-        body: {
-          email: email.trim().toLowerCase(),
-          password,
-          display_name: (displayName || '').trim(),
-        },
-        auth: false,
-      });
-    } catch {}
+    await apiFetch('/auth/register/', {
+      method: 'POST',
+      body: {
+        email: email.trim().toLowerCase(),
+        password,
+        display_name: (displayName || '').trim(),
+      },
+      auth: false,
+    });
     return authApi.login(email.trim().toLowerCase(), password);
   },
 
   async loginWithGoogle(idToken) {
-    try {
-      const data = await apiFetch('/auth/google/', {
-        method: 'POST',
-        body: { id_token: idToken },
-        auth: false,
-      });
-      setTokens({ access: data.access, refresh: data.refresh });
-      const me = await apiFetch('/auth/me/');
-      return mapUser(me);
-    } catch {
-      const demoUser = { id: `g-${Date.now()}`, email: 'google.user@gmail.com', displayName: 'Utilisateur Google', role: 'client' };
-      setTokens({ access: `demo-access-${Date.now()}`, refresh: `demo-refresh-${Date.now()}` });
-      try {
-        if (typeof window !== 'undefined') localStorage.setItem('yoha_demo_user', JSON.stringify(demoUser));
-      } catch {}
-      return demoUser;
-    }
+    const data = await apiFetch('/auth/google/', {
+      method: 'POST',
+      body: { id_token: idToken },
+      auth: false,
+    });
+    setTokens({ access: data.access, refresh: data.refresh });
+    if (typeof window !== 'undefined') localStorage.removeItem('yoha_demo_user');
+    const me = await apiFetch('/auth/me/');
+    return mapUser(me);
   },
 
   async me() {
-    try {
-      const data = await apiFetch('/auth/me/');
-      return mapUser(data);
-    } catch (e) {
-      if (typeof window !== 'undefined') {
-        const demoRaw = localStorage.getItem('yoha_demo_user');
-        if (demoRaw) return JSON.parse(demoRaw);
-      }
-      throw e;
-    }
+    const data = await apiFetch('/auth/me/');
+    return mapUser(data);
   },
 
   logout() {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { authApi, clearTokens, getTokens } from '@/lib/api';
+import { authApi, clearTokens, getTokens, ensureFreshSession } from '@/lib/api';
 
 export function migrateLegacyDisplayName(displayName) {
   if (!displayName || typeof displayName !== 'string') return displayName;
@@ -55,29 +55,67 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (!getTokens()) {
-        try {
-          const demoRaw = typeof window !== 'undefined' ? localStorage.getItem('yoha_demo_user') : null;
-          if (demoRaw && !cancelled) setUser(JSON.parse(demoRaw));
-        } catch {}
+      // Nettoyer l'ancien mode démo (fausses sessions)
+      try {
+        localStorage.removeItem('yoha_demo_user');
+      } catch {}
+
+      const tokens = getTokens();
+      if (!tokens?.refresh) {
+        if (tokens) clearTokens();
         if (!cancelled) setBooting(false);
         return;
       }
+
+      // Jetons démo → forcer reconnexion réelle
+      if (String(tokens.refresh).startsWith('demo-') || String(tokens.access || '').startsWith('demo-')) {
+        clearTokens();
+        if (!cancelled) {
+          setUser(null);
+          setBooting(false);
+        }
+        return;
+      }
+
       try {
+        // Garde la session vivante (nouveau access + refresh si rotation)
+        await ensureFreshSession();
         const me = await authApi.me();
         if (!cancelled) setUser(me);
       } catch {
-        clearTokens();
+        // Ne pas vider immédiatement si c'est juste un souci réseau :
+        // ensureFreshSession / apiFetch gèrent déjà les 401.
         try {
-          const demoRaw = typeof window !== 'undefined' ? localStorage.getItem('yoha_demo_user') : null;
-          if (demoRaw && !cancelled) setUser(JSON.parse(demoRaw));
-        } catch {}
+          const me = await authApi.me();
+          if (!cancelled) setUser(me);
+        } catch {
+          if (!cancelled) setUser(null);
+        }
       } finally {
         if (!cancelled) setBooting(false);
       }
     })();
+
+    // Refresh périodique (reste connecté longtemps)
+    const interval = setInterval(() => {
+      ensureFreshSession().catch(() => {});
+    }, 10 * 60 * 1000);
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        ensureFreshSession().catch(() => {});
+      }
+    };
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', onVisible);
+    }
+
     return () => {
       cancelled = true;
+      clearInterval(interval);
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', onVisible);
+      }
     };
   }, []);
 
