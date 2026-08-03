@@ -66,39 +66,13 @@ function buildOrderCopyText(order) {
   const items = Array.isArray(order.items) ? order.items : [];
   const lines = items.map((item) => {
     const qty = item.qty || 1;
-    const unit = parseAmount(item.price);
-    const lineTotal = unit * qty;
     const opts = Array.isArray(item.options)
       ? item.options.map((o) => (typeof o === 'string' ? o : o?.name)).filter(Boolean)
       : [];
     const optSuffix = opts.length ? ` (${opts.join(' · ')})` : '';
-    return `• ${qty}× ${item.name}${optSuffix} — ${formatMad(lineTotal, { decimals: 2 })}`;
+    return `${qty}× ${item.name}${optSuffix}`;
   });
-
-  return [
-    `🛵 Commande YoHa #${order.id}`,
-    `Restaurant : ${order.restaurantName}`,
-    order.restaurantPhone ? `Tél restaurant : ${order.restaurantPhone}` : null,
-    `Client : ${order.customer?.name || '—'}`,
-    `Adresse : ${order.customer?.address || '—'}`,
-    order.customer?.phone ? `Tél client : ${order.customer.phone}` : null,
-    order.restaurantNotes?.trim()
-      ? `Remarques restaurant : ${order.restaurantNotes.trim()}`
-      : null,
-    order.cancellationReason?.trim()
-      ? `Annulation : ${order.cancellationReason.trim()}`
-      : null,
-    order.ordonnanceUrl ? '📎 Ordonnance jointe (à montrer à la pharmacie)' : null,
-    '',
-    'Articles :',
-    ...(lines.length ? lines : ['• (détail indisponible)']),
-    '',
-    `Total : ${formatMad(order.totalDh, { decimals: 2 })}`,
-    '',
-    '— YoHa Livraison',
-  ]
-    .filter((line) => line !== null)
-    .join('\n');
+  return lines.length ? lines.join('\n') : '(détail indisponible)';
 }
 
 async function copyToClipboard(text) {
@@ -309,30 +283,10 @@ function OrdonnanceCard({ url }) {
   );
 }
 
-function OrderItemsDetail({ order, restaurantPhone }) {
-  const [copied, setCopied] = useState(false);
+function OrderItemsDetail({ order }) {
   const [open, setOpen] = useState(false);
   const items = Array.isArray(order.items) ? order.items : [];
-  const waDigits = whatsAppDigits(restaurantPhone);
-  const phoneHref = restaurantPhone ? `tel:${String(restaurantPhone).replace(/\s/g, '')}` : null;
   const itemCount = items.reduce((s, i) => s + (i.qty || 1), 0);
-
-  const handleCopy = useCallback(async () => {
-    try {
-      await copyToClipboard(buildOrderCopyText(order));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
-  }, [order]);
-
-  const handleWhatsApp = useCallback(() => {
-    const text = buildOrderCopyText(order);
-    const url = whatsAppUrl(restaurantPhone, text);
-    if (!url) return;
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }, [order, restaurantPhone]);
 
   return (
     <div className="mt-4 overflow-hidden rounded-2xl border border-ink-200/70 bg-white dark:border-ink-700/50 dark:bg-ink-900">
@@ -350,51 +304,6 @@ function OrderItemsDetail({ order, restaurantPhone }) {
 
       {open && (
         <>
-          <div className="flex flex-col gap-2 border-t border-ink-200/60 bg-ink-50/50 px-3 py-2.5 dark:border-ink-800 dark:bg-ink-950/40 sm:flex-row sm:items-center sm:justify-between sm:px-4">
-            <div className="grid grid-cols-2 gap-1.5 sm:flex sm:shrink-0 sm:ml-auto">
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-ink-900 px-3 py-2 text-[11px] font-bold text-white transition hover:opacity-90 dark:bg-white dark:text-ink-900 sm:py-1.5"
-              >
-                {copied ? <I.Check size={13} /> : <I.Copy size={13} />}
-                {copied ? 'Copié !' : 'Copier'}
-              </button>
-              <button
-                type="button"
-                onClick={handleWhatsApp}
-                disabled={!waDigits}
-                title={waDigits ? `WhatsApp ${restaurantPhone}` : 'Numéro restaurant indisponible'}
-                className="inline-flex items-center justify-center gap-1 rounded-xl bg-emerald-600 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40 sm:py-1.5"
-              >
-                <I.Phone size={12} />
-                <span className="truncate">WhatsApp resto</span>
-              </button>
-            </div>
-          </div>
-
-          {phoneHref ? (
-            <a
-              href={phoneHref}
-              className="flex items-center justify-between gap-3 border-t border-emerald-500/20 bg-emerald-500/10 px-4 py-3 transition hover:bg-emerald-500/15"
-            >
-              <div className="min-w-0">
-                <div className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
-                  Sonner au restaurant
-                </div>
-                <div className="truncate text-sm font-bold text-ink-900 dark:text-white">{restaurantPhone}</div>
-              </div>
-              <span className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-[11px] font-black text-white shadow-sm">
-                <I.Phone size={13} />
-                Appeler
-              </span>
-            </a>
-          ) : (
-            <div className="border-t border-amber-500/20 bg-amber-500/10 px-4 py-2.5 text-[11px] font-semibold text-amber-800 dark:text-amber-300">
-              Numéro du restaurant indisponible
-            </div>
-          )}
-
           <ul className="divide-y divide-ink-200/50 border-t border-ink-200/60 dark:divide-ink-800/80 dark:border-ink-800">
             {items.length === 0 ? (
               <li className="px-4 py-3 text-sm text-ink-500">Aucun article listé</li>
@@ -1329,15 +1238,16 @@ export function DeliveryOrderCard({ order, action, showMap, variant = 'available
                 {order.customer?.name}
                 {order.customer?.address ? ` · ${order.customer.address}` : ''}
               </div>
-              {customerPhone && (
+              {customerPhone ? (
                 <a
                   href={`tel:${customerPhone.replace(/\s/g, '')}`}
-                  className="mt-0.5 flex items-center gap-1 text-xs text-ink-500 hover:text-brand-600"
+                  className="mt-1 inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-2.5 py-1.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-500/20 dark:text-emerald-300"
                 >
-                  <I.Phone size={11} className="shrink-0 text-violet-600" />
+                  <I.Phone size={12} className="shrink-0" />
                   <span className="break-all">{customerPhone}</span>
+                  <span className="opacity-70">· Appeler</span>
                 </a>
-              )}
+              ) : null}
               {destMapsUrl && (
                 <a
                   href={destMapsUrl}
@@ -1367,7 +1277,7 @@ export function DeliveryOrderCard({ order, action, showMap, variant = 'available
           </div>
         )}
 
-        <OrderItemsDetail order={order} restaurantPhone={restaurantPhone} />
+        <OrderItemsDetail order={order} />
 
         <div className="mt-4 flex items-center justify-between gap-3 border-t border-dashed border-ink-200 pt-4 dark:border-ink-800">
           <div className="min-w-0">
