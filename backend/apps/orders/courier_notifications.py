@@ -292,10 +292,11 @@ def notify_couriers_new_order(order: Order) -> int:
     except Exception:
         logger.exception("courier_web_push_failed public_id=%s", order.public_id)
 
-    # Push Mobile Expo aux livreurs
+    # Push Mobile Expo aux livreurs (FCM/APNs — téléphone éteint ou app fermée)
     try:
-        from .push_notifications import send_courier_new_order_push
-        send_courier_new_order_push(order)
+        from .push_notifications import notify_couriers_mobile_push
+        expo_count = notify_couriers_mobile_push(order)
+        logger.info("courier_expo_push_sent public_id=%s count=%s", order.public_id, expo_count)
     except Exception:
         logger.exception("courier_expo_push_failed public_id=%s", order.public_id)
 

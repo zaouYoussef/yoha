@@ -2,6 +2,7 @@
 
 import json
 import logging
+import time
 import urllib.error
 import urllib.request
 
@@ -25,6 +26,7 @@ def send_expo_push(
 
     sent = 0
     batch_size = 100
+    expires_at = int(time.time()) + 86400
     for i in range(0, len(clean), batch_size):
         chunk = clean[i : i + batch_size]
         messages = [
@@ -35,6 +37,9 @@ def send_expo_push(
                 "sound": "default",
                 "priority": "high",
                 "channelId": channel_id,
+                # Garde la notif en file FCM/APNs si le téléphone est éteint (~24h)
+                "ttl": 86400,
+                "expiration": expires_at,
                 "data": data or {},
             }
             for token in chunk
@@ -55,6 +60,13 @@ def send_expo_push(
                 for item in payload["data"]:
                     if item.get("status") == "ok":
                         sent += 1
+                    else:
+                        logger.warning(
+                            "expo_push_item_error status=%s message=%s details=%s",
+                            item.get("status"),
+                            item.get("message"),
+                            item.get("details"),
+                        )
             else:
                 sent += len(chunk)
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:

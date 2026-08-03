@@ -36,6 +36,11 @@ def _get_vapid_private_key() -> str:
 def _send_web_push(sub, payload: str, vapid_private: str, vapid_claims_email: str) -> bool:
     from pywebpush import webpush, WebPushException
 
+    # pywebpush accepte PEM ou clé DER base64 ; normalise si besoin
+    key = vapid_private
+    if key and not key.startswith(_PEM_HEADER) and "BEGIN" not in key:
+        key = _get_vapid_private_key() or vapid_private
+
     try:
         webpush(
             subscription_info={
@@ -46,7 +51,7 @@ def _send_web_push(sub, payload: str, vapid_private: str, vapid_claims_email: st
                 },
             },
             data=payload,
-            vapid_private_key=vapid_private,
+            vapid_private_key=key,
             vapid_claims={"sub": f"mailto:{vapid_claims_email}"},
             headers={"Urgency": "high"},
             ttl=86400,
@@ -141,9 +146,12 @@ def send_restaurant_new_order_web_push(order) -> int:
     })
 
     from django.db.models import Q
-    query = Q(user__role__in=["restaurant", "admin", "superadmin"])
-    if order.restaurant_id and getattr(order.restaurant, "owner_id", None):
-        query |= Q(user_id=order.restaurant.owner_id)
+    owner_id = getattr(order.restaurant, "owner_id", None) if order.restaurant_id else None
+    if owner_id:
+        query = Q(user_id=owner_id) | Q(user__role__in=["admin", "superadmin"])
+    else:
+        # Pas de propriétaire lié : admins seulement (évite de spammer tous les restos)
+        query = Q(user__role__in=["admin", "superadmin"])
 
     subs = list(
         WebPushSubscription.objects.filter(query).iterator()
@@ -161,10 +169,15 @@ def send_restaurant_new_order_web_push(order) -> int:
 
 
 def send_client_web_push(*, order, title: str, body: str, data: dict | None = None) -> int:
-    """Envoie une notification Web Push au client d'une commande."""
+    """Envoie une notification Web Push au client de la commande uniquement."""
     vapid_private = _vapid_private_raw()
     vapid_claims_email = getattr(settings, "VAPID_CLAIMS_EMAIL", "no-reply@yoha.ma")
     if not vapid_private:
+        return 0
+
+    client_id = getattr(order, "client_id", None)
+    if not client_id:
+        logger.info("web_push_client_skip no_client_account order=%s", getattr(order, "public_id", ""))
         return 0
 
     payload = json.dumps({
@@ -173,11 +186,9 @@ def send_client_web_push(*, order, title: str, body: str, data: dict | None = No
         "data": data or {},
     })
 
-    # Client connecté (compte) ou tout admin/superadmin
-    query = WebPushSubscription.objects.select_related("user").filter(
-        user__role__in=["client", "admin", "superadmin"],
+    subs = list(
+        WebPushSubscription.objects.filter(user_id=client_id).iterator()
     )
-    subs = list(query.iterator())
     if not subs:
         return 0
 
