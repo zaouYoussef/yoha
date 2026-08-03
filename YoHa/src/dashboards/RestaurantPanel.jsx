@@ -375,7 +375,10 @@ export function RestoProfile({ restaurant, onUpdated }) {
     } catch {}
     try {
       await restaurantsApi.uploadMedia('cover', file);
-    } catch {}
+    } catch (e) {
+      setMsg(`Cover non enregistré sur le serveur : ${e?.message || 'erreur'}`);
+      throw e;
+    }
     try {
       const updated = await restaurantsApi.me();
       if (onUpdated) onUpdated(updated);
@@ -391,7 +394,10 @@ export function RestoProfile({ restaurant, onUpdated }) {
     } catch {}
     try {
       await restaurantsApi.uploadMedia('logo', file);
-    } catch {}
+    } catch (e) {
+      setMsg(`Logo non enregistré sur le serveur : ${e?.message || 'erreur'}`);
+      throw e;
+    }
     try {
       const updated = await restaurantsApi.me();
       if (onUpdated) onUpdated(updated);
@@ -959,15 +965,23 @@ export function RestoMenu({ restaurant, onRefresh }) {
   const [editingCatId, setEditingCatId] = useState(null);
   const [editingCatName, setEditingCatName] = useState('');
   const [confirmDeleteCat, setConfirmDeleteCat] = useState(null);
+  const [menuError, setMenuError] = useState('');
+
+  const fail = (err) => {
+    setMenuError(err?.message || err || 'Erreur inattendue.');
+  };
 
   const addCategory = async () => {
     const name = newCat.trim();
     if (!name) return;
     setAddingCat(true);
+    setMenuError('');
     try {
       await restaurantsApi.createCategory({ name });
       setNewCat('');
       await onRefresh();
+    } catch (e) {
+      fail(e);
     } finally {
       setAddingCat(false);
     }
@@ -977,11 +991,14 @@ export function RestoMenu({ restaurant, onRefresh }) {
     const name = editingCatName.trim();
     if (!name) return;
     setBusy(true);
+    setMenuError('');
     try {
       await restaurantsApi.updateCategory(catDbId, { name });
       setEditingCatId(null);
       setEditingCatName('');
       await onRefresh();
+    } catch (e) {
+      fail(e);
     } finally {
       setBusy(false);
     }
@@ -989,10 +1006,13 @@ export function RestoMenu({ restaurant, onRefresh }) {
 
   const deleteCategory = async (catDbId) => {
     setBusy(true);
+    setMenuError('');
     try {
       await restaurantsApi.deleteCategory(catDbId);
       setConfirmDeleteCat(null);
       await onRefresh();
+    } catch (e) {
+      fail(e);
     } finally {
       setBusy(false);
     }
@@ -1000,9 +1020,12 @@ export function RestoMenu({ restaurant, onRefresh }) {
 
   const moveCategory = async (catDbId, direction) => {
     setBusy(true);
+    setMenuError('');
     try {
       await restaurantsApi.updateCategory(catDbId, { sort_order: direction });
       await onRefresh();
+    } catch (e) {
+      fail(e);
     } finally {
       setBusy(false);
     }
@@ -1010,6 +1033,7 @@ export function RestoMenu({ restaurant, onRefresh }) {
 
   const saveItem = async (categoryDbId, data, dbId) => {
     setBusy(true);
+    setMenuError('');
     try {
       if (dbId) {
         await restaurantsApi.updateMenuItem(dbId, {
@@ -1029,6 +1053,8 @@ export function RestoMenu({ restaurant, onRefresh }) {
       }
       setDraftItem(null);
       await onRefresh();
+    } catch (e) {
+      fail(e);
     } finally {
       setBusy(false);
     }
@@ -1037,9 +1063,12 @@ export function RestoMenu({ restaurant, onRefresh }) {
   const removeItem = async (dbId) => {
     if (!window.confirm('Supprimer ce plat ?')) return;
     setBusy(true);
+    setMenuError('');
     try {
       await restaurantsApi.deleteMenuItem(dbId);
       await onRefresh();
+    } catch (e) {
+      fail(e);
     } finally {
       setBusy(false);
     }
@@ -1047,6 +1076,7 @@ export function RestoMenu({ restaurant, onRefresh }) {
 
   const duplicateItem = async (item, categoryDbId) => {
     setBusy(true);
+    setMenuError('');
     try {
       await restaurantsApi.createMenuItem(categoryDbId, {
         name: `${item.name} (copie)`,
@@ -1055,6 +1085,8 @@ export function RestoMenu({ restaurant, onRefresh }) {
         price: item.price,
       });
       await onRefresh();
+    } catch (e) {
+      fail(e);
     } finally {
       setBusy(false);
     }
@@ -1062,9 +1094,12 @@ export function RestoMenu({ restaurant, onRefresh }) {
 
   const toggleItemAvailability = async (dbId, current) => {
     setBusy(true);
+    setMenuError('');
     try {
       await restaurantsApi.updateMenuItem(dbId, { is_available: !current });
       await onRefresh();
+    } catch (e) {
+      fail(e);
     } finally {
       setBusy(false);
     }
@@ -1072,11 +1107,14 @@ export function RestoMenu({ restaurant, onRefresh }) {
 
   const toggleAllInCategory = async (cat, available) => {
     setBusy(true);
+    setMenuError('');
     try {
       for (const it of cat.items) {
         await restaurantsApi.updateMenuItem(it.db_id, { is_available: available });
       }
       await onRefresh();
+    } catch (e) {
+      fail(e);
     } finally {
       setBusy(false);
     }
@@ -1094,9 +1132,14 @@ export function RestoMenu({ restaurant, onRefresh }) {
       }
     } catch {}
 
-    try {
-      if (dbId) await restaurantsApi.uploadMenuItemImage(dbId, file);
-    } catch {}
+    if (dbId) {
+      try {
+        await restaurantsApi.uploadMenuItemImage(dbId, file);
+      } catch (e) {
+        setMenuError(`Photo non enregistrée sur le serveur : ${e?.message || 'erreur'}`);
+        throw e;
+      }
+    }
     await onRefresh();
   };
 
@@ -1176,6 +1219,14 @@ export function RestoMenu({ restaurant, onRefresh }) {
       <p className="text-xs text-ink-400">
         Photos compressées en WebP côté serveur — stockage objet, pas dans la base de données.
       </p>
+
+      {menuError && (
+        <div className="rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 px-4 py-3 text-sm text-red-600 flex items-start gap-2">
+          <I.X size={14} className="mt-0.5 shrink-0" />
+          <span>{menuError}</span>
+          <button type="button" onClick={() => setMenuError('')} className="ml-auto text-xs text-red-400 hover:text-red-600 shrink-0">✕</button>
+        </div>
+      )}
 
       {/* Categories */}
       {filteredMenu.map((cat, catIdx) => {
