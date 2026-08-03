@@ -55,7 +55,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
     [selectedOptions],
   );
   const basePrice = Number(priced.price || 0);
-  const originalBase = Number(priced.originalPrice ?? item.price || 0);
+  const originalBase = Number((priced.originalPrice ?? item.price) || 0);
   const unitPrice = basePrice + optionsPrice;
   const originalUnitPrice = priced.discountPercent ? originalBase + optionsPrice : null;
   const key = makeCartKey(item.id, selectedOptions);
