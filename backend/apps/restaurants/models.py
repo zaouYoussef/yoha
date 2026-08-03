@@ -225,6 +225,13 @@ class RestaurantOffer(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # Catégories ciblées (IDs MenuCategory). Liste vide = tout le menu.
+    category_ids = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="IDs de MenuCategory concernées. Vide = toutes les catégories.",
+    )
+
     class Meta:
         ordering = ["-created_at"]
         verbose_name = "Offre restaurant"

@@ -4,6 +4,15 @@ const nextConfig = {
   poweredByHeader: false,
   compress: true,
   skipTrailingSlashRedirect: true,
+  // Transpile les deps modernes pour les WebViews un peu anciens
+  transpilePackages: [
+    'framer-motion',
+    'motion-dom',
+    'motion-utils',
+    'firebase',
+    '@firebase/auth',
+    '@firebase/app',
+  ],
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },

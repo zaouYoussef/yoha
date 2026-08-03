@@ -20,6 +20,7 @@ import {
 import { useOrders } from '../contexts/AppContexts.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { restaurantsApi, restaurantOffersApi } from '@/lib/api';
+import { offerScopeLabel } from '@/utils/restaurantOffers.js';
 import {
   DashLayout,
   GlassCard,
@@ -217,7 +218,7 @@ export function RestaurantDashboard({ goto, dark, setDark }) {
       {current === 'incoming' && <RestoIncoming restoId={restoId}/>}
       {current === 'profile' && <RestoProfile restaurant={myResto} onUpdated={setMyResto} />}
       {current === 'menu' && <RestoMenu restaurant={myResto} onRefresh={reloadResto} />}
-      {current === 'promos' && <RestoPromos />}
+      {current === 'promos' && <RestoPromos restaurant={myResto} />}
       {current === 'stats' && <RestoStats restoId={restoId}/>}
     </DashLayout>
   );
@@ -1795,13 +1796,20 @@ function ItemDraftModal({ item, busy, onClose, onSave }) {
    PROMOS / OFFERS
    ═══════════════════════════════════════════ */
 
-export function RestoPromos() {
+export function RestoPromos({ restaurant }) {
   const [offers, setOffers] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const menuCategories = useMemo(
+    () =>
+      (restaurant?.menu || [])
+        .map((c) => ({ id: Number(c.db_id), name: c.category }))
+        .filter((c) => c.id > 0 && c.name),
+    [restaurant?.menu],
+  );
 
   const loadOffers = useCallback(async () => {
     setLoading(true);
@@ -1901,7 +1909,8 @@ export function RestoPromos() {
       />
 
       <p className="text-sm text-ink-500">
-        Les offres actives s&apos;affichent sur votre page restaurant et mettent à jour le badge promo des cartes.
+        Les offres actives s&apos;affichent sur votre page restaurant. Pour une réduction %, choisissez les catégories
+        concernées : les clients voient le prix barré et le badge −X% sur les plats.
       </p>
 
       {error && !showForm && (
@@ -1949,11 +1958,11 @@ export function RestoPromos() {
 
                   <div className="mt-2.5 rounded-xl bg-ink-50/50 dark:bg-ink-800/30 px-3 py-2">
                     {offer.offer_type === 'percentage' && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-display font-black text-2xl bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">
                           -{offer.discount_percent}%
                         </span>
-                        <span className="text-xs text-ink-500">sur le menu</span>
+                        <span className="text-xs text-ink-500">sur {offerScopeLabel(offer)}</span>
                       </div>
                     )}
                     {offer.offer_type === 'buy_get_free' && (
@@ -1995,6 +2004,7 @@ export function RestoPromos() {
         <OfferFormModal
           offer={editing}
           busy={busy}
+          categories={menuCategories}
           onClose={() => { setShowForm(false); setEditing(null); setError(''); }}
           onSave={handleSave}
         />
@@ -2004,13 +2014,20 @@ export function RestoPromos() {
 }
 
 function buildOfferPayload(form) {
+  const categoryIds = Array.isArray(form.category_ids)
+    ? form.category_ids.map(Number).filter((id) => id > 0)
+    : [];
   const base = {
     offer_type: form.offer_type,
     title: form.title.trim(),
     description: (form.description || '').trim(),
   };
   if (form.offer_type === 'percentage') {
-    return { ...base, discount_percent: Number(form.discount_percent) };
+    return {
+      ...base,
+      discount_percent: Number(form.discount_percent),
+      category_ids: categoryIds,
+    };
   }
   if (form.offer_type === 'buy_get_free') {
     return {
@@ -2018,16 +2035,18 @@ function buildOfferPayload(form) {
       buy_quantity: Number(form.buy_quantity),
       get_quantity: Number(form.get_quantity),
       free_item_name: (form.free_item_name || '').trim(),
+      category_ids: [],
     };
   }
   return {
     ...base,
     min_amount: Number(form.min_amount),
     discount_percent: Number(form.discount_percent),
+    category_ids: [],
   };
 }
 
-function OfferFormModal({ offer, busy, onClose, onSave }) {
+function OfferFormModal({ offer, busy, categories = [], onClose, onSave }) {
   const formRef = useRef(null);
   const [form, setForm] = useState({
     offer_type: offer?.offer_type || 'percentage',
@@ -2038,8 +2057,23 @@ function OfferFormModal({ offer, busy, onClose, onSave }) {
     get_quantity: offer?.get_quantity != null ? String(offer.get_quantity) : '',
     free_item_name: offer?.free_item_name || '',
     min_amount: offer?.min_amount != null ? String(offer.min_amount) : '',
+    category_ids: Array.isArray(offer?.category_ids)
+      ? offer.category_ids.map(Number).filter((id) => id > 0)
+      : [],
   });
   const [localError, setLocalError] = useState('');
+
+  const toggleCategory = (id) => {
+    setForm((f) => {
+      const has = f.category_ids.includes(id);
+      return {
+        ...f,
+        category_ids: has
+          ? f.category_ids.filter((x) => x !== id)
+          : [...f.category_ids, id],
+      };
+    });
+  };
 
   const validateClient = (payload) => {
     if (!payload.title) return 'Le titre est obligatoire.';
@@ -2159,15 +2193,61 @@ function OfferFormModal({ offer, busy, onClose, onSave }) {
         </label>
 
         {form.offer_type === 'percentage' && (
-          <label className="block space-y-1.5">
-            <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Pourcentage de réduction</span>
-            <div className="relative">
-              <input required type="number" min="1" max="100" placeholder="10"
-                value={form.discount_percent} onChange={(e) => setForm((f) => ({ ...f, discount_percent: e.target.value }))}
-                className="w-full pl-4 pr-10 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-ink-400">%</span>
+          <>
+            <label className="block space-y-1.5">
+              <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Pourcentage de réduction</span>
+              <div className="relative">
+                <input required type="number" min="1" max="100" placeholder="10"
+                  value={form.discount_percent} onChange={(e) => setForm((f) => ({ ...f, discount_percent: e.target.value }))}
+                  className="w-full pl-4 pr-10 py-3 rounded-xl border border-ink-200/60 dark:border-ink-700/50 bg-white/80 dark:bg-ink-900/80 backdrop-blur-sm text-sm font-medium transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 outline-none" />
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-ink-400">%</span>
+              </div>
+            </label>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-bold text-ink-700 dark:text-ink-300">Catégories concernées</span>
+                {form.category_ids.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, category_ids: [] }))}
+                    className="text-[11px] font-semibold text-brand-600 dark:text-brand-400"
+                  >
+                    Tout le menu
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-ink-500">
+                Sélectionnez une ou plusieurs catégories. Aucune sélection = réduction sur tout le menu.
+                Les clients verront le prix barré et −{form.discount_percent || 'X'}% sur ces plats.
+              </p>
+              {categories.length === 0 ? (
+                <p className="text-xs text-amber-600 dark:text-amber-400 rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 px-3 py-2">
+                  Aucune catégorie menu pour le moment. Ajoutez des catégories dans Menu, sinon l&apos;offre s&apos;appliquera à tout le menu.
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((cat) => {
+                    const selected = form.category_ids.includes(cat.id);
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => toggleCategory(cat.id)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-bold border transition ${
+                          selected
+                            ? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-400/50'
+                            : 'border-ink-200 dark:border-ink-700 text-ink-600 dark:text-ink-300 hover:border-ink-300'
+                        }`}
+                      >
+                        {selected ? '✓ ' : ''}{cat.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          </label>
+          </>
         )}
 
         {form.offer_type === 'buy_get_free' && (

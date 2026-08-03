@@ -1,4 +1,5 @@
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import Script from 'next/script';
 import { AppProviders } from '@/providers/AppProviders';
 import { AnalyticsTracker } from '@/components/ui/AnalyticsTracker';
 import './globals.css';
@@ -111,11 +112,17 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/logo.png" />
         <link rel="preload" as="image" href="/videos/hero-food-orbit-poster.webp" fetchPriority="high" type="image/webp" />
         <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var ok=typeof Promise!=="undefined"&&typeof Symbol!=="undefined"&&typeof Map!=="undefined"&&typeof WeakMap!=="undefined"&&typeof Proxy!=="undefined"&&typeof fetch==="function"&&typeof Object.assign==="function"&&typeof Object.fromEntries==="function"&&!!Array.prototype.flat&&!!Array.prototype.includes;if(!ok){window.location.replace("/browser-update.html");}}catch(e){try{window.location.replace("/browser-update.html");}catch(_){}}})();`,
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
       <body className={`${inter.variable} ${jakarta.variable} font-sans min-h-screen min-h-[100dvh] bg-white dark:bg-ink-950 text-ink-900 dark:text-ink-50 overflow-x-hidden`}>
+        <Script src="/legacy-polyfills.js" strategy="beforeInteractive" />
         <AppProviders>
           <AnalyticsTracker />
           {children}

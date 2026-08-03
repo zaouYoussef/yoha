@@ -5,7 +5,6 @@ import Link from 'next/link';
 
 export default function Error({ error, reset }) {
   useEffect(() => {
-    // Log exception safely to console
     console.error('Unhandled runtime error in page:', error);
   }, [error]);
 
@@ -18,7 +17,7 @@ export default function Error({ error, reset }) {
           viewBox="0 0 24 24"
           strokeWidth="1.5"
           stroke="currentColor"
-          className="h-12 w-12 animate-pulse-slow"
+          className="h-12 w-12"
         >
           <path
             strokeLinecap="round"
@@ -28,10 +27,10 @@ export default function Error({ error, reset }) {
         </svg>
       </div>
       <h2 className="text-3xl font-display font-bold tracking-tight text-ink-900 dark:text-ink-50 sm:text-4xl">
-        Une erreur est survenue !
+        Une erreur est survenue
       </h2>
       <p className="mt-4 max-w-md text-base text-ink-500 dark:text-ink-400">
-        Une erreur inattendue s'est produite lors du rendu de la page. Les détails techniques ont été masqués par mesure de sécurité.
+        Réessayez, ou mettez à jour Chrome / Safari si votre téléphone est ancien.
       </p>
       <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
         <button
@@ -44,7 +43,13 @@ export default function Error({ error, reset }) {
           href="/"
           className="inline-flex items-center justify-center rounded-full bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 px-8 py-3 text-sm font-semibold text-ink-700 dark:text-ink-300 shadow-sm hover:bg-ink-50 dark:hover:bg-ink-800 transition duration-200"
         >
-          Retourner à l'accueil
+          Retour à l&apos;accueil
+        </Link>
+        <Link
+          href="/browser-update.html"
+          className="inline-flex items-center justify-center rounded-full bg-ink-100 dark:bg-ink-800 px-8 py-3 text-sm font-semibold text-ink-600 dark:text-ink-300"
+        >
+          Aide navigateur
         </Link>
       </div>
     </div>

@@ -1,13 +1,14 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { ORDER_STATES } from '@/data/index.js';
+import { ORDER_STATES, formatMad } from '@/data/orderConstants.js';
 import { ToastCtx, OrdersCtx, CartIconRefCtx, CartCtx, makeCartKey } from '@/contexts/AppContexts.jsx';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext.jsx';
 import { YohaNavProvider } from '@/contexts/YohaNavContext.jsx';
 import { getTokens, ordersApi, restaurantsApi } from '@/lib/api';
 import { getGuestOrderIds, addGuestOrderId, clearGuestOrderIds } from '@/utils/guestOrders';
 import { orderToCartItems } from '@/utils/reorder';
+import { withItemOfferPricing } from '@/utils/restaurantOffers.js';
 
 const RESTAURANTS_CACHE_KEY = 'yoha-restaurants-cache';
 
@@ -697,15 +698,25 @@ function triggerClientNotification(title, body, orderId) {
             flyToCart(sourceEl, cartIconRef.current, item.img);
           });
         }
-        const price =
-          Number(item.price || 0) + opts.reduce((s, o) => s + (Number(o.price) || 0), 0);
+        // Prix promo (réduction % sur catégories) appliqué à l'ajout panier
+        const pricedItem = withItemOfferPricing(item, restaurant);
+        const unit = Number(pricedItem.price || 0);
+        const price = unit + opts.reduce((s, o) => s + (Number(o.price) || 0), 0);
         const key = makeCartKey(item.id, opts);
         setCart((prev) => {
           const e = prev.find((p) => (p.key || p.id) === key);
           if (e) return prev.map((p) => ((p.key || p.id) === key ? { ...p, qty: p.qty + 1 } : p));
           return [
             ...prev,
-            { ...item, key, options: opts, price, qty: 1, restaurantId: restaurant.id, restaurantName: restaurant.name },
+            {
+              ...pricedItem,
+              key,
+              options: opts,
+              price,
+              qty: 1,
+              restaurantId: restaurant.id,
+              restaurantName: restaurant.name,
+            },
           ];
         });
         setTimeout(() => {

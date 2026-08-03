@@ -271,24 +271,24 @@ export function FloatingCart({ count, total, items = [], onClick, hidden }) {
       initial={{ y: 80, opacity: 0, scale: 0.96 }}
       animate={{ y: 0, opacity: 1, scale: 1 }}
       transition={{ type: 'spring', stiffness: 340, damping: 26 }}
-      className="btn-shimmer cursor-pointer fixed z-50 left-3 right-3 bottom-[calc(5rem+env(safe-area-inset-bottom))] md:hidden group flex items-center justify-between gap-3 px-4 sm:px-5 py-3.5 rounded-2xl cta-brand text-white shadow-glow-lg active:scale-[0.98] transition-transform pointer-events-auto border border-white/25 touch-manipulation"
+      className="btn-shimmer cursor-pointer fixed z-[55] left-3 right-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:hidden group flex items-center justify-between gap-2 px-3.5 py-3 min-h-[3.25rem] rounded-2xl cta-brand text-white shadow-glow-lg active:scale-[0.98] transition-transform pointer-events-auto border border-white/25 touch-manipulation max-w-lg mx-auto"
     >
       <span className="flex items-center gap-2.5 min-w-0">
-        <span className="relative shrink-0 w-10 h-10 rounded-xl bg-white/20 backdrop-blur grid place-items-center">
-          <I.Bag size={18}/>
+        <span className="relative shrink-0 w-9 h-9 rounded-xl bg-white/20 backdrop-blur grid place-items-center">
+          <I.Bag size={17}/>
           <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-extrabold bg-white text-brand-600 grid place-items-center shadow-xs">{count}</span>
         </span>
-        <span className="font-extrabold text-sm sm:text-base truncate">Voir le panier</span>
+        <span className="font-extrabold text-sm truncate">Voir le panier</span>
       </span>
-      <span className="flex items-center gap-2 shrink-0">
-        <span className="font-black text-sm sm:text-base tabular-nums">
+      <span className="flex items-center gap-1.5 shrink-0">
+        <span className="font-black text-sm tabular-nums">
           {isCustom 
             ? (total > 0 ? `${formatMad(displayTotal)} + achats` : "20 DH + achats")
             : formatMad(displayTotal)
           }
         </span>
-        <span className="w-8 h-8 rounded-full bg-white/20 grid place-items-center">
-          <I.Right size={15}/>
+        <span className="w-7 h-7 rounded-full bg-white/20 grid place-items-center">
+          <I.Right size={14}/>
         </span>
       </span>
     </motion.button>

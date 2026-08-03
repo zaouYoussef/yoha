@@ -15,10 +15,12 @@ import { spotlightHandler } from '../utils/spotlight.js';
 import { formatMad, restaurantOpenStatus } from '../data/index.js';
 import { MenuItemImage, restaurantCover, restaurantLogo } from '../components/ui/MenuItemImage.jsx';
 import { MenuItemDetailModal } from '../components/ui/MenuItemDetailModal.jsx';
+import { withItemOfferPricing, offerScopeLabel } from '../utils/restaurantOffers.js';
 import PlaceAutocomplete from '../components/ui/PlaceAutocomplete.jsx';
 import { OrdonnanceUpload } from '../components/ui/OrdonnanceUpload.jsx';
 import { pharmaciesApi } from '../lib/api.js';
 import { browsePathForFilter, normalizeBrowseFilter } from '../data/browseSlugs.js';
+import { foldText } from '@/utils/textNormalize.js';
 
 function shuffleWithSeed(array, seed) {
   if (!array || !array.length) return [];
@@ -42,7 +44,7 @@ function shuffleWithSeed(array, seed) {
 }
 
 
-const norm = (s) => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+const norm = (s) => foldText(s);
 
 const SUB_CATEGORIES = {
   dessert: [
@@ -1495,7 +1497,10 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
   };
 
   const populaires = (r.menu || []).flatMap((c) =>
-    (c.items || []).filter((it) => Number(it.price) > 12).slice(0, 3),
+    (c.items || [])
+      .filter((it) => Number(it.price) > 12)
+      .slice(0, 3)
+      .map((it) => ({ ...it, categoryId: it.categoryId || c.db_id })),
   ).slice(0, 8);
 
   const feeLabel = r.fee
@@ -1669,7 +1674,8 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                     <p className="mt-0.5 text-xs text-ink-500 dark:text-ink-400 line-clamp-2">{offer.description}</p>
                   )}
                   <p className="mt-1 text-[11px] font-bold text-amber-700 dark:text-amber-300">
-                    {offer.offer_type === 'percentage' && `−${offer.discount_percent}% sur le menu`}
+                    {offer.offer_type === 'percentage' &&
+                      `−${offer.discount_percent}% sur ${offerScopeLabel(offer)}`}
                     {offer.offer_type === 'buy_get_free' &&
                       `Achetez ${offer.buy_quantity}, ${offer.get_quantity} offert${Number(offer.get_quantity) > 1 ? 's' : ''}${offer.free_item_name ? ` (${offer.free_item_name})` : ''}`}
                     {offer.offer_type === 'min_spend' &&
@@ -1776,10 +1782,10 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                 {(cat.items || []).map((it, i) => (
                   <DeliverooItemCard
                     key={it.db_id || it.id || i}
-                    item={it}
+                    item={{ ...it, categoryId: it.categoryId || cat.db_id }}
                     restaurant={r}
                     onAdd={onAdd}
-                    onOpen={() => setSelectedItem(it)}
+                    onOpen={() => setSelectedItem({ ...it, categoryId: it.categoryId || cat.db_id })}
                     orderingDisabled={!isOpen}
                     index={i}
                   />
@@ -1955,6 +1961,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
 
 function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled = false, compact = false, index = 0 }) {
   const [adding, setAdding] = useState(false);
+  const priced = withItemOfferPricing(item, restaurant);
 
   const handleAdd = (e) => {
     e.stopPropagation();
@@ -1967,6 +1974,26 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
     setAdding(true);
     setTimeout(() => setAdding(false), 1200);
   };
+
+  const priceBlock = (
+    <div className="flex items-center gap-2 flex-wrap">
+      {priced.discountPercent ? (
+        <>
+          <span className="font-display font-black text-emerald-600 dark:text-emerald-400">
+            {formatMad(priced.price)}
+          </span>
+          <span className="text-xs text-ink-400 line-through font-semibold">
+            {formatMad(priced.originalPrice)}
+          </span>
+          <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-emerald-500 text-white">
+            −{priced.discountPercent}%
+          </span>
+        </>
+      ) : (
+        <span className="font-display font-black">{formatMad(item.price)}</span>
+      )}
+    </div>
+  );
 
   if (compact) {
     return (
@@ -1983,9 +2010,15 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/25 to-transparent" />
-          <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-white/80 dark:bg-ink-900/80 text-[9px] font-bold uppercase tracking-wider text-brand-600/90 dark:text-brand-400/90 backdrop-blur-sm border border-brand-500/15">
-            Top
-          </span>
+          {priced.discountPercent ? (
+            <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-emerald-500 text-[9px] font-black uppercase tracking-wider text-white shadow-md">
+              −{priced.discountPercent}%
+            </span>
+          ) : (
+            <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-white/80 dark:bg-ink-900/80 text-[9px] font-bold uppercase tracking-wider text-brand-600/90 dark:text-brand-400/90 backdrop-blur-sm border border-brand-500/15">
+              Top
+            </span>
+          )}
           {!orderingDisabled && (
             <button
               type="button"
@@ -2003,9 +2036,9 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
             <h3 className="font-display font-bold text-[16px] text-white leading-tight line-clamp-2 drop-shadow">
               {item.name}
             </h3>
-            <p className="mt-1.5 font-display font-black text-brand-300 text-sm">
-              {formatMad(item.price)}
-            </p>
+            <div className="mt-1.5 text-sm text-brand-300 [&_*]:text-brand-300 [&_.line-through]:text-white/60 [&_.bg-emerald-500]:bg-emerald-500">
+              {priceBlock}
+            </div>
           </div>
         </div>
       </button>
@@ -2041,10 +2074,24 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
         {item.desc && item.desc.trim() !== item.name ? (
           <p className="text-[12px] text-ink-400 dark:text-ink-500 line-clamp-2 mt-1.5 leading-relaxed">{item.desc}</p>
         ) : null}
-        <div className="mt-auto pt-2.5 flex items-center gap-2">
-          <span className="font-display font-black text-[15px] text-ink-900 dark:text-white">
-            {formatMad(item.price)}
-          </span>
+        <div className="mt-auto pt-2.5 flex items-center gap-2 flex-wrap">
+          {priced.discountPercent ? (
+            <>
+              <span className="font-display font-black text-[15px] text-emerald-600 dark:text-emerald-400">
+                {formatMad(priced.price)}
+              </span>
+              <span className="text-xs text-ink-400 line-through font-semibold">
+                {formatMad(priced.originalPrice)}
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-emerald-500 text-white">
+                −{priced.discountPercent}%
+              </span>
+            </>
+          ) : (
+            <span className="font-display font-black text-[15px] text-ink-900 dark:text-white">
+              {formatMad(item.price)}
+            </span>
+          )}
           {!orderingDisabled && (
             <button
               type="button"
@@ -2066,6 +2113,7 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
 export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = false }) {
   const [adding, setAdding] = useState(false);
   const imgRef = useRef();
+  const priced = withItemOfferPricing(item, restaurant);
 
   const handleAdd = (e) => {
     e.stopPropagation();
@@ -2079,7 +2127,7 @@ export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = f
     setTimeout(() => setAdding(false), 1200);
   };
 
-  const isBestseller = item.price > 80;
+  const isBestseller = Number(item.price) > 80;
   const itemGlow = CATEGORY_GLOW[restaurant.cuisine] || '#f97316';
 
   return (
@@ -2097,23 +2145,40 @@ export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = f
           <div ref={imgRef} className="menu-img relative shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shadow-sm border border-ink-100 dark:border-ink-900">
             <MenuItemImage src={item.img} alt={item.name} loading="lazy"
               className="w-full h-full object-cover transition-transform duration-700" />
-            {isBestseller && (
+            {priced.discountPercent ? (
+              <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase bg-emerald-500 text-white shadow-md tracking-wider">
+                −{priced.discountPercent}%
+              </span>
+            ) : isBestseller ? (
               <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-glow tracking-wider animate-pulse">
                 Populaire
               </span>
-            )}
+            ) : null}
           </div>
           <div className="flex-1 min-w-0 flex flex-col">
             <h3 className="font-display font-bold text-sm sm:text-base leading-tight text-ink-900 dark:text-white line-clamp-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{item.name}</h3>
             <p className="mt-1 text-[11px] sm:text-xs text-ink-500 dark:text-ink-400 line-clamp-2 leading-relaxed">{item.desc}</p>
-            <div className="mt-auto pt-2 flex items-center justify-between">
-              <div className="font-display font-black text-base sm:text-lg text-ink-900 dark:text-white">{formatMad(item.price)}</div>
+            <div className="mt-auto pt-2 flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                {priced.discountPercent ? (
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-display font-black text-base sm:text-lg text-emerald-600 dark:text-emerald-400">
+                      {formatMad(priced.price)}
+                    </span>
+                    <span className="text-xs text-ink-400 line-through font-semibold">
+                      {formatMad(priced.originalPrice)}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="font-display font-black text-base sm:text-lg text-ink-900 dark:text-white">{formatMad(item.price)}</div>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={handleAdd}
                 disabled={orderingDisabled}
                 title={orderingDisabled ? 'Restaurant fermé' : 'Ajouter au panier'}
-                className={`cursor-grow relative w-10 h-10 rounded-xl grid place-items-center transition-transform ${
+                className={`cursor-grow relative w-10 h-10 rounded-xl grid place-items-center transition-transform shrink-0 ${
                   orderingDisabled
                     ? 'bg-ink-200 text-ink-400 dark:bg-ink-800 dark:text-ink-500 cursor-not-allowed'
                     : adding

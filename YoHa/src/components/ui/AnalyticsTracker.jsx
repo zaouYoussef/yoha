@@ -13,7 +13,7 @@ function handleClick(e) {
     let el = e.target;
     while (el && el !== document.body) {
       if (TRACKED_TAGS.has(el.tagName)) {
-        const hasExclude = [...el.classList].some((c) => EXCLUDED_CLASSES.has(c));
+        const hasExclude = Array.prototype.some.call(el.classList || [], (c) => EXCLUDED_CLASSES.has(c));
         if (hasExclude) return;
 
         const label = el.getAttribute('aria-label')

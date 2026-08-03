@@ -1,17 +1,29 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
 import { ScrollProgress } from '@/components/effects/ScrollProgress.jsx';
 import { Navbar } from '@/components/layout/Navbar.jsx';
 import { BottomNav } from '@/components/layout/BottomNav.jsx';
-import { CartSidebar, FloatingCart } from '@/views/CartViews.jsx';
 import { ToastViewport } from '@/components/ui/ToastViewport.jsx';
-import { CampusHospitalsSection } from '@/views/landing/LandingViews.jsx';
 import { useAuth, getStaffHomePath } from '@/contexts/AuthContext.jsx';
 import { useYohaNav } from '@/contexts/YohaNavContext.jsx';
 import { useCart, useToast, useOrders, CartUICtx } from '@/contexts/AppContexts.jsx';
 import { filterOrdersForClient } from '@/utils/clientOrders.js';
+
+const CartSidebar = dynamic(
+  () => import('@/views/CartViews.jsx').then((m) => ({ default: m.CartSidebar })),
+  { ssr: false },
+);
+const FloatingCart = dynamic(
+  () => import('@/views/CartViews.jsx').then((m) => ({ default: m.FloatingCart })),
+  { ssr: false },
+);
+const CampusHospitalsSection = dynamic(
+  () => import('@/views/landing/LandingViews.jsx').then((m) => ({ default: m.CampusHospitalsSection })),
+  { ssr: false, loading: () => null },
+);
 
 function pathToView(pathname) {
   if (pathname === '/') return 'landing';
@@ -22,6 +34,18 @@ function pathToView(pathname) {
   if (pathname === '/orders') return 'my-orders';
   if (pathname === '/auth') return 'auth';
   return 'home';
+}
+
+function safeScrollTop() {
+  try {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  } catch {
+    try {
+      window.scrollTo(0, 0);
+    } catch {
+      /* ignore */
+    }
+  }
 }
 
 export function ShopShell({ children, showCampus = false }) {
@@ -94,7 +118,7 @@ export function ShopShell({ children, showCampus = false }) {
   }, [orders, user, trackOrderId]);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    safeScrollTop();
   }, [pathname]);
 
   // Sur checkout : fermer le panier pour éviter le double écran mobile

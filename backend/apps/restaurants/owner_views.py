@@ -345,7 +345,7 @@ class RestaurantOfferListCreateView(APIView):
         resto = get_owned_restaurant(request.user)
         if not resto:
             return Response({"detail": "Restaurant introuvable."}, status=404)
-        serializer = RestaurantOfferSerializer(data=request.data)
+        serializer = RestaurantOfferSerializer(data=request.data, context={"restaurant": resto})
         if serializer.is_valid():
             offer = serializer.save(restaurant=resto)
             _sync_restaurant_promo_label(resto)

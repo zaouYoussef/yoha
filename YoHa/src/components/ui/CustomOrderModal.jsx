@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/AuthContext.jsx';
 import { useYohaNav } from '../../contexts/YohaNavContext.jsx';
 import { OrdonnanceUpload } from './OrdonnanceUpload.jsx';
 import { CAMPUS_HOSPITALS } from '../../data/index.js';
+import { stripDiacritics } from '@/utils/textNormalize.js';
 
 const CATEGORY_META = {
   all: {
@@ -92,7 +93,7 @@ async function getPlaces() {
 
 /** Normalise un texte (minuscules, sans accents) pour la recherche. */
 function norm(s = '') {
-  return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return stripDiacritics(s).toLowerCase();
 }
 
 /** Liste déroulante de suggestions. */

@@ -4,42 +4,80 @@ import { useEffect } from 'react';
 
 export default function GlobalError({ error, reset }) {
   useEffect(() => {
-    // Log exception safely to console
     console.error('Unhandled global runtime error:', error);
   }, [error]);
 
   return (
     <html lang="fr">
-      <body className="font-sans min-h-screen bg-ink-50 dark:bg-ink-950 text-ink-900 dark:text-ink-50 flex flex-col items-center justify-center p-6 text-center">
-        <div className="relative mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-brand-50 text-brand-500 dark:bg-brand-950/20 dark:text-brand-400 shadow-glow">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="h-12 w-12 animate-pulse-slow"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-            />
-          </svg>
-        </div>
-        <h2 className="text-3xl font-bold tracking-tight text-ink-900 dark:text-ink-50 sm:text-4xl">
-          Une erreur système est survenue !
-        </h2>
-        <p className="mt-4 max-w-md text-base text-ink-500 dark:text-ink-400">
-          Une erreur critique s'est produite au niveau de l'application globale. Les détails techniques ont été masqués par mesure de sécurité.
-        </p>
-        <div className="mt-8">
-          <button
-            onClick={() => reset()}
-            className="inline-flex items-center justify-center rounded-full bg-brand-500 hover:bg-brand-600 px-8 py-3 text-sm font-semibold text-white shadow-glow hover:shadow-glow-lg transition duration-200"
-          >
-            Réessayer
-          </button>
+      <body
+        style={{
+          margin: 0,
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 24,
+          textAlign: 'center',
+          fontFamily:
+            '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+          background: 'linear-gradient(180deg, #fff7ed 0%, #ffffff 55%, #faf5ff 100%)',
+          color: '#0f172a',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 420,
+            width: '100%',
+            background: '#fff',
+            border: '1px solid #e2e8f0',
+            borderRadius: 24,
+            padding: '28px 22px',
+            boxShadow: '0 18px 40px -24px rgba(15, 23, 42, 0.35)',
+          }}
+        >
+          <h2 style={{ margin: 0, fontSize: '1.45rem', lineHeight: 1.25 }}>
+            Une erreur est survenue
+          </h2>
+          <p style={{ margin: '12px 0 0', color: '#64748b', fontSize: '0.95rem', lineHeight: 1.55 }}>
+            L&apos;application a rencontré un problème. Sur un téléphone ancien, essayez Chrome
+            à jour, ou videz le cache du navigateur.
+          </p>
+          <div style={{ marginTop: 22, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <button
+              type="button"
+              onClick={() => reset()}
+              style={{
+                minHeight: 48,
+                border: 0,
+                borderRadius: 999,
+                background: '#f97316',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: '0.95rem',
+                cursor: 'pointer',
+              }}
+            >
+              Réessayer
+            </button>
+            <a
+              href="/browser-update.html"
+              style={{
+                minHeight: 48,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 999,
+                background: '#f1f5f9',
+                color: '#334155',
+                fontWeight: 700,
+                fontSize: '0.95rem',
+                textDecoration: 'none',
+              }}
+            >
+              Aide navigateur
+            </a>
+          </div>
         </div>
       </body>
     </html>

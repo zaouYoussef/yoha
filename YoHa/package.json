@@ -11,6 +11,14 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "browserslist": [
+    "chrome >= 80",
+    "android >= 80",
+    "ios >= 13",
+    "safari >= 13",
+    "samsung >= 13",
+    "not dead"
+  ],
   "dependencies": {
     "@types/three": "^0.185.1",
     "firebase": "^12.15.0",

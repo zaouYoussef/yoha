@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { stripDiacritics } from '@/utils/textNormalize.js';
 
 let placesCachePromise = null;
 
@@ -21,10 +22,8 @@ function loadPlaces() {
 }
 
 function norm(s) {
-  return String(s || '')
+  return stripDiacritics(s || '')
     .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9\u0600-\u06ff]/g, '');
 }
 

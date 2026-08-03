@@ -2,10 +2,11 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { authApi, clearTokens, getTokens, ensureFreshSession } from '@/lib/api';
+import { collapseSpaces } from '@/utils/textNormalize.js';
 
 export function migrateLegacyDisplayName(displayName) {
   if (!displayName || typeof displayName !== 'string') return displayName;
-  const collapsed = displayName.normalize('NFKC').trim().replace(/\s+/g, ' ');
+  const collapsed = collapseSpaces(displayName);
   return /^nouha bourouhou$/i.test(collapsed) ? 'X Y' : displayName;
 }
 
