@@ -157,6 +157,7 @@ class RestaurantListSerializer(serializers.ModelSerializer):
     isOpen = serializers.SerializerMethodField()
     openLabel = serializers.SerializerMethodField()
     ownerEmail = serializers.SerializerMethodField()
+    isActive = serializers.BooleanField(source="is_active", read_only=True)
 
     class Meta:
         model = Restaurant
@@ -178,6 +179,7 @@ class RestaurantListSerializer(serializers.ModelSerializer):
             "isOpen",
             "openLabel",
             "ownerEmail",
+            "isActive",
             "rating",
         )
 

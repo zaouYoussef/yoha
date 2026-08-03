@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { restaurantCover } from './MenuItemImage.jsx';
+import { fixGlovoImageUrl } from './MenuItemImage.jsx';
 
 /**
  * Upload d’image vers l’API YoHa (multipart).
@@ -15,17 +15,27 @@ export function ImageUpload({
   accept = 'image/jpeg,image/png,image/webp,image/gif',
   aspect = 'aspect-video',
   busy = false,
+  fallback = 'cover',
 }) {
   const inputRef = useRef(null);
   const [preview, setPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [broken, setBroken] = useState(false);
 
-  const displayUrl = preview || restaurantCover(currentUrl);
+  const rawUrl = preview || fixGlovoImageUrl(currentUrl);
+  const displayUrl = broken || !rawUrl ? null : rawUrl;
+
+  // Reset broken flag when the source URL changes
+  React.useEffect(() => {
+    setBroken(false);
+    setPreview(null);
+  }, [currentUrl]);
 
   const handleFile = async (file) => {
     if (!file || !onUpload) return;
     setError('');
+    setBroken(false);
     setPreview(URL.createObjectURL(file));
     setUploading(true);
     try {
@@ -44,13 +54,22 @@ export function ImageUpload({
       <div
         className={`relative rounded-2xl overflow-hidden border-2 border-dashed border-ink-200 dark:border-ink-700 bg-ink-50 dark:bg-ink-900/50 ${aspect}`}
       >
-        <img
-          src={displayUrl}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          loading="lazy"
-          decoding="async"
-        />
+        {displayUrl ? (
+          <img
+            key={displayUrl}
+            src={displayUrl}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            onError={() => setBroken(true)}
+          />
+        ) : (
+          <div className="absolute inset-0 grid place-items-center text-ink-400 text-xs font-semibold px-4 text-center">
+            {fallback === 'logo' ? 'Aucun logo' : 'Aucune photo de couverture'}
+          </div>
+        )}
         <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 focus-within:opacity-100 transition flex items-center justify-center">
           <button
             type="button"

@@ -131,13 +131,11 @@ export function RestaurantDashboard({ goto, dark, setDark }) {
         if (!resto) { setMyResto(null); return; }
         try {
           if (typeof window !== 'undefined') {
+            // Nettoyer d'anciens overrides locaux qui masquaient les images Glovo
+            localStorage.removeItem('yoha_resto_cover');
+            localStorage.removeItem('yoha_resto_logo');
+
             const stored = JSON.parse(localStorage.getItem('yoha_item_images') || '{}');
-            const restoCover = localStorage.getItem('yoha_resto_cover');
-            const restoLogo = localStorage.getItem('yoha_resto_logo');
-
-            if (restoCover) resto.cover = restoCover;
-            if (restoLogo) resto.logo = restoLogo;
-
             if (resto.menu && Array.isArray(resto.menu)) {
               resto.menu.forEach((cat) => {
                 if (cat.items && Array.isArray(cat.items)) {
@@ -335,13 +333,28 @@ export function RestoProfile({ restaurant, onUpdated }) {
   }, [restaurant]);
 
   const setDayHours = (day, patch) => {
-    setForm((f) => ({
-      ...f,
-      opening_hours: {
-        ...f.opening_hours,
-        [day]: { ...f.opening_hours[day], ...patch },
-      },
-    }));
+    setForm((f) => {
+      const prev = f.opening_hours[day] || defaultOpeningHours()[day];
+      const next = { ...prev, ...patch };
+      if ('open' in patch || 'close' in patch || 'is_24h' in patch || 'is_closed' in patch) {
+        if (next.is_closed) {
+          next.slots = [];
+        } else if (next.is_24h) {
+          next.open = '00:00';
+          next.close = '00:00';
+          next.slots = [{ open: '00:00', close: '00:00' }];
+        } else {
+          next.slots = [{ open: next.open, close: next.close }];
+        }
+      }
+      return {
+        ...f,
+        opening_hours: {
+          ...f.opening_hours,
+          [day]: next,
+        },
+      };
+    });
   };
 
   const save = async (e) => {
@@ -368,12 +381,6 @@ export function RestoProfile({ restaurant, onUpdated }) {
 
   const uploadCover = async (file) => {
     try {
-      const dataUrl = await fileToDataUrl(file);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('yoha_resto_cover', dataUrl);
-      }
-    } catch {}
-    try {
       await restaurantsApi.uploadMedia('cover', file);
     } catch (e) {
       setMsg(`Cover non enregistré sur le serveur : ${e?.message || 'erreur'}`);
@@ -386,12 +393,6 @@ export function RestoProfile({ restaurant, onUpdated }) {
   };
 
   const uploadLogo = async (file) => {
-    try {
-      const dataUrl = await fileToDataUrl(file);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('yoha_resto_logo', dataUrl);
-      }
-    } catch {}
     try {
       await restaurantsApi.uploadMedia('logo', file);
     } catch (e) {
@@ -415,14 +416,24 @@ export function RestoProfile({ restaurant, onUpdated }) {
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 shadow-glow-lg">
         {restaurant.cover && (
           <div className="absolute inset-0">
-            <img src={restaurant.cover} alt="" className="h-full w-full object-cover opacity-40" />
+            <img
+              src={restaurant.cover}
+              alt=""
+              className="h-full w-full object-cover opacity-50"
+              referrerPolicy="no-referrer"
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           </div>
         )}
         <div className="relative p-6 sm:p-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
             {restaurant.logo && (
-              <img src={restaurant.logo} alt="" className="h-20 w-20 rounded-2xl border-3 border-white/30 object-cover shadow-xl sm:h-24 sm:w-24" />
+              <img
+                src={restaurant.logo}
+                alt=""
+                className="h-20 w-20 rounded-2xl border-3 border-white/30 object-cover shadow-xl sm:h-24 sm:w-24 bg-white"
+                referrerPolicy="no-referrer"
+              />
             )}
             <div className="min-w-0 flex-1">
               <h2 className="font-display text-2xl font-black text-white sm:text-3xl truncate">{restaurant.name}</h2>
@@ -474,6 +485,7 @@ export function RestoProfile({ restaurant, onUpdated }) {
             currentUrl={restaurant.cover}
             onUpload={uploadCover}
             aspect="aspect-[16/9]"
+            fallback="cover"
           />
           <ImageUpload
             label="Logo"
@@ -481,6 +493,7 @@ export function RestoProfile({ restaurant, onUpdated }) {
             currentUrl={restaurant.logo}
             onUpload={uploadLogo}
             aspect="aspect-square max-w-[200px]"
+            fallback="logo"
           />
         </div>
       </GlassCard>
