@@ -320,8 +320,11 @@ export function BentoHero() {
   };
 
   const openSpot = () => {
-    if (spot?.id) goto('restaurant', { restaurant: spot });
-    else goto('home', { browseFilter: 'all' });
+    if (spot?.id && !String(spot.id).startsWith('hero-')) {
+      goto('restaurant', { restaurant: spot });
+    } else {
+      goto('home', { browseFilter: 'all' });
+    }
   };
   const goBrowse = () => goto('home', { browseFilter: 'all' });
 
