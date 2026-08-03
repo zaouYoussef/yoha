@@ -1347,7 +1347,7 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
               <span className="text-amber-300 font-extrabold">★</span>
               <span className="font-bold text-white">{(restaurant.rating ?? 4.4).toString().replace('.', ',')}</span>
               <span>·</span>
-              <span>{restaurant.distance || '1.5 km'}</span>
+              <span>{restaurant.distance || '—'}</span>
               <span>·</span>
               <span className="text-brand-300 font-bold">⚡ Rapide</span>
             </>
