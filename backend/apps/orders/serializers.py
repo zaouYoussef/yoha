@@ -223,6 +223,7 @@ class OrderSerializer(serializers.ModelSerializer):
     restaurantId = serializers.SerializerMethodField()
     restaurantName = serializers.SerializerMethodField()
     restaurantPhone = serializers.SerializerMethodField()
+    restaurantAddress = serializers.SerializerMethodField()
     items = OrderLineSerializer(source="lines", many=True)
     totalDh = serializers.DecimalField(source="total_mad", max_digits=12, decimal_places=2)
     subtotalDh = serializers.DecimalField(source="subtotal_mad", max_digits=12, decimal_places=2)
@@ -249,6 +250,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "restaurantId",
             "restaurantName",
             "restaurantPhone",
+            "restaurantAddress",
             "items",
             "totalDh",
             "subtotalDh",
@@ -285,6 +287,20 @@ class OrderSerializer(serializers.ModelSerializer):
         if not obj.restaurant_id:
             return ""
         return (obj.restaurant.phone or "").strip()
+
+    def get_restaurantAddress(self, obj):
+        if not obj.restaurant_id:
+            return ""
+        desc = (obj.restaurant.description or "").strip()
+        if "—" in desc:
+            addr = desc.split("—", 1)[1].strip(" ,")
+            if addr:
+                return addr
+        if " - " in desc:
+            addr = desc.split(" - ", 1)[1].strip(" ,")
+            if addr and len(addr) > 8:
+                return addr
+        return ""
 
     def get_courierId(self, obj):
         return str(obj.courier_id) if obj.courier_id else None

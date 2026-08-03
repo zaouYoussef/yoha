@@ -123,7 +123,7 @@ function buildMapsDirectionsUrl(address) {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}&travelmode=driving`;
 }
 
-function resolveRestaurantDirectionsQuery(order, restaurants = []) {
+function resolveRestaurantRecord(order, restaurants = []) {
   const rid = String(order?.restaurantId || '').toLowerCase();
   const rname = (order?.restaurantName || '').trim();
   const fromApi = (restaurants || []).find(
@@ -137,15 +137,34 @@ function resolveRestaurantDirectionsQuery(order, restaurants = []) {
       String(r.id || '').toLowerCase() === rid ||
       (rname && String(r.name || '').toLowerCase() === rname.toLowerCase()),
   );
+  return { fromApi, fromStatic };
+}
+
+function resolveRestaurantDisplayAddress(order, restaurants = []) {
+  const fromOrder = String(order?.restaurantAddress || '').trim();
+  if (fromOrder) {
+    return fromOrder.toLowerCase().includes('tanger') ? fromOrder : `${fromOrder}, Tanger, Maroc`;
+  }
+  const { fromApi, fromStatic } = resolveRestaurantRecord(order, restaurants);
   const address = (fromApi?.address || fromStatic?.address || '').trim();
   if (address) {
     return address.toLowerCase().includes('tanger') ? address : `${address}, Tanger, Maroc`;
   }
   const desc = (fromApi?.description || fromStatic?.description || '').trim();
-  if (desc && desc.length > 12 && desc.length < 180) {
-    const maybeAddr = desc.split('—').pop()?.trim() || desc;
-    if (maybeAddr) return maybeAddr.includes('Tanger') ? maybeAddr : `${maybeAddr}, Tanger`;
+  if (desc.includes('—') || desc.includes(' - ')) {
+    const sep = desc.includes('—') ? '—' : ' - ';
+    const maybeAddr = desc.split(sep).slice(1).join(sep).trim();
+    if (maybeAddr && maybeAddr.length > 8) {
+      return maybeAddr.toLowerCase().includes('tanger') ? maybeAddr : `${maybeAddr}, Tanger`;
+    }
   }
+  return '';
+}
+
+function resolveRestaurantDirectionsQuery(order, restaurants = []) {
+  const display = resolveRestaurantDisplayAddress(order, restaurants);
+  if (display) return display;
+  const rname = (order?.restaurantName || '').trim();
   if (!rname) return null;
   return `${rname}, Tanger, Maroc`;
 }
@@ -392,15 +411,7 @@ function OrderActionButtons({ order }) {
           WhatsApp
         </button>
       )}
-      {phone && (
-        <a
-          href={`tel:${phone.replace(/\s/g, '')}`}
-          className="inline-flex items-center gap-1 rounded-lg bg-violet-500/10 px-2.5 py-1.5 text-[10px] font-bold text-violet-600 transition hover:bg-violet-500/20 dark:text-violet-400"
-        >
-          <I.Phone size={10} />
-          Appeler
-        </a>
-      )}
+
     </div>
   );
 }
@@ -1144,6 +1155,7 @@ export function DeliveryOrderCard({ order, action, showMap, variant = 'available
     '';
 
   const customerPhone = order.customer?.phone || '';
+  const restaurantAddress = resolveRestaurantDisplayAddress(order, restaurants);
   const restoQuery = resolveRestaurantDirectionsQuery(order, restaurants);
   const restoMapsUrl = buildMapsDirectionsUrl(restoQuery);
   const destMapsUrl = buildMapsDirectionsUrl(order.customer?.address);
@@ -1201,6 +1213,11 @@ export function DeliveryOrderCard({ order, action, showMap, variant = 'available
             <div className="min-w-0 flex-1">
               <div className="text-[10px] font-bold uppercase tracking-wider text-ink-500">Récupérer</div>
               <div className="break-words font-semibold">{order.restaurantName}</div>
+              {restaurantAddress ? (
+                <div className="mt-0.5 break-words text-xs font-medium leading-snug text-ink-500 dark:text-ink-400">
+                  {restaurantAddress}
+                </div>
+              ) : null}
               {restaurantPhone ? (
                 <a
                   href={`tel:${restaurantPhone.replace(/\s/g, '')}`}
