@@ -306,7 +306,7 @@ export default function AdminClientsEnhanced() {
           {filtered.length === 0 ? (
             <EmptyState
               title="Aucun client trouvé"
-              desc={search ? 'Essayez un autre terme' : 'Les clients apparaîtront dès la première commande'}
+              description={search ? 'Essayez un autre terme' : 'Les clients apparaîtront dès la première commande'}
             />
           ) : (
             <div className="space-y-2">
