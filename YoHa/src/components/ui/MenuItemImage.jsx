@@ -18,17 +18,34 @@ export const FOOD_IMAGE_FALLBACK = UNSPLASH_FALLBACKS[0];
 export const RESTAURANT_COVER_FALLBACK = UNSPLASH_FALLBACKS[0];
 export const RESTAURANT_LOGO_FALLBACK = '/logo.webp';
 
-/** Répare les URLs Glovo mangled: dhmedia.iomenus-glovo → dhmedia.io/image/menus-glovo */
+/** Répare / normalise les URLs images Glovo (dhmedia + transform t=). */
+const GLOVO_IMAGE_TRANSFORM =
+  'W3sicmVzaXplIjp7Im1vZGUiOiJmaXQiLCJ3aWR0aCI6MzIwLCJoZWlnaHQiOjMyMH19LHsid2VicCI6e319XQ==';
+
 export function fixGlovoImageUrl(url) {
   if (!url || typeof url !== 'string') return '';
   let trimmed = url.trim();
   if (!trimmed) return '';
 
+  // CloudFront Glovo mort → laisser le fallback UI
+  if (/cloudfront\.net/i.test(trimmed) || /d52ouboplz7yg/i.test(trimmed)) {
+    return '';
+  }
+
+  // dhmedia.iomenus-glovo → dhmedia.io/image/menus-glovo
   const mangled = trimmed.match(/^https:\/\/glovo\.dhmedia\.io([a-z0-9-]+)\/(.*)$/i);
   if (mangled && !trimmed.includes('/image/')) {
     trimmed = `https://glovo.dhmedia.io/image/${mangled[1]}/${mangled[2]}`;
   } else if (trimmed.startsWith('https://glovo.dhmedia.io/') && !trimmed.includes('/image/')) {
     trimmed = trimmed.replace('https://glovo.dhmedia.io/', 'https://glovo.dhmedia.io/image/');
+  }
+
+  if (trimmed.startsWith('https://images.deliveryhero.io/image/')) {
+    trimmed = `https://glovo.dhmedia.io/image/${trimmed.slice('https://images.deliveryhero.io/image/'.length)}`;
+  }
+
+  if (trimmed.includes('glovo.dhmedia.io/image/') && !/[?&]t=/.test(trimmed)) {
+    trimmed += `${trimmed.includes('?') ? '&' : '?'}t=${GLOVO_IMAGE_TRANSFORM}`;
   }
 
   if (trimmed.includes('unsplash.com')) {

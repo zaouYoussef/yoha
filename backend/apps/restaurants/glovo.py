@@ -28,9 +28,13 @@ import requests
 logger = logging.getLogger(__name__)
 
 API_BASE = "https://api.glovoapp.com"
-# Le préfixe `dh:` des imageId se résout sur le même hôte que `imageUrl`
-# (images.deliveryhero.io/image/…), PAS sur glovo.dhmedia.io.
-IMAGE_BASE = "https://images.deliveryhero.io/image"
+# Préférer glovo.dhmedia.io (format officiel front Glovo). deliveryhero.io reste un alias.
+IMAGE_BASE = "https://glovo.dhmedia.io/image"
+# Transform Glovo (fit 320² + webp) — requis pour un rendu fiable côté navigateur.
+GLOVO_IMAGE_TRANSFORM = (
+    "W3sicmVzaXplIjp7Im1vZGUiOiJmaXQiLCJ3aWR0aCI6MzIwLCJoZWlnaHQiOjMyMH19"
+    "LHsid2VicCI6e319XQ=="
+)
 STORE_PAGE_URL = "https://glovoapp.com/{country}/{lang}/{city}/{slug}"
 
 USER_AGENT = (
@@ -112,24 +116,47 @@ _MANGLED_DHMEDIA_RE = re.compile(
 )
 
 
-def normalize_glovo_image_url(url: str) -> str:
-    """Corrige les URLs Glovo mangled (host `dhmedia.iomenus-glovo` sans `/image/`).
+def _is_broken_glovo_image_url(url: str) -> bool:
+    """URLs CloudFront Glovo (souvent DNS mort / 403) → inutilisables."""
+    if not url:
+        return True
+    low = url.lower()
+    return "cloudfront.net" in low or "d52ouboplz7yg" in low
 
-    Bug historique : concaténation `https://glovo.dhmedia.io` + `menus-glovo/...`
-    sans slash → `https://glovo.dhmedia.iomenus-glovo/products/...`.
-    """
+
+def _image_url_from_image_id(image_id: str) -> str:
+    if not isinstance(image_id, str):
+        return ""
+    image_id = image_id.strip()
+    if image_id.startswith("dh:"):
+        return f"{IMAGE_BASE}/{image_id[3:].lstrip('/')}"
+    return ""
+
+
+def normalize_glovo_image_url(url: str) -> str:
+    """Corrige / normalise les URLs images Glovo vers dhmedia + transform `t=`."""
     if not url or not isinstance(url, str):
         return ""
     url = url.strip()
     if not url:
         return ""
+    if _is_broken_glovo_image_url(url):
+        return ""
+
     m = _MANGLED_DHMEDIA_RE.match(url)
     if m and "/image/" not in url:
         bucket, rest = m.group(1), m.group(2)
-        return f"https://glovo.dhmedia.io/image/{bucket}/{rest}"
-    # Variante déjà partiellement corrigée mais sans segment image
-    if url.startswith("https://glovo.dhmedia.io/") and "/image/" not in url:
-        return url.replace("https://glovo.dhmedia.io/", "https://glovo.dhmedia.io/image/", 1)
+        url = f"https://glovo.dhmedia.io/image/{bucket}/{rest}"
+    elif url.startswith("https://glovo.dhmedia.io/") and "/image/" not in url:
+        url = url.replace("https://glovo.dhmedia.io/", "https://glovo.dhmedia.io/image/", 1)
+
+    # Alias Delivery Hero → hôte Glovo officiel
+    if url.startswith("https://images.deliveryhero.io/image/"):
+        url = "https://glovo.dhmedia.io/image/" + url[len("https://images.deliveryhero.io/image/") :]
+
+    if "glovo.dhmedia.io/image/" in url and "t=" not in url.split("?", 1)[-1]:
+        sep = "&" if "?" in url else "?"
+        url = f"{url}{sep}t={GLOVO_IMAGE_TRANSFORM}"
     return url
 
 
@@ -137,11 +164,17 @@ def _to_product(data: Dict[str, Any]) -> GlovoProduct:
     price = data.get("price") or 0.0
     promotion = data.get("promotion") or {}
     price_mad = promotion.get("price") or price
-    image_url = data.get("imageUrl") or ""
+
+    # Préférer imageId (dh:menus-glovo/…) : imageUrl peut être un CloudFront mort.
+    image_id = data.get("imageId") or ""
+    if not image_id:
+        images = data.get("images") or []
+        if images and isinstance(images[0], dict):
+            image_id = images[0].get("imageServiceId") or ""
+    image_url = _image_url_from_image_id(image_id)
     if not image_url:
-        image_id = data.get("imageId", "")
-        if isinstance(image_id, str) and image_id.startswith("dh:"):
-            image_url = f"{IMAGE_BASE}/{image_id[3:].lstrip('/')}"
+        image_url = data.get("imageUrl") or ""
+
     raw_id = data.get("id")
     product_id = None
     try:
@@ -505,16 +538,19 @@ class GlovoClient:
         delay: float = 0.35,
         max_products: int = 120,
     ) -> int:
-        """Complète sauces/tailles/extras via le détail produit quand la liste est vide.
+        """Complète sauces/tailles/extras (+ images manquantes) via le détail produit.
 
         L'API `content/main` omet souvent `attributeGroups` ; le détail
         `/products/{id}` les expose (Taille, Sauce, Extras…).
+        Les `imageUrl` CloudFront morts sont remplacés via `imageId` (dh:…).
         """
         enriched = 0
         seen: set[int] = set()
         for section in sections:
             for product in section.products:
-                if product.modifier_groups:
+                needs_mods = not product.modifier_groups
+                needs_img = not (product.image_url or "").strip()
+                if not needs_mods and not needs_img:
                     continue
                 pid = product.product_id
                 if not pid or pid in seen:
@@ -532,6 +568,13 @@ class GlovoClient:
                 if groups:
                     product.modifier_groups = groups
                     enriched += 1
+                if needs_img:
+                    fixed = normalize_glovo_image_url(
+                        _image_url_from_image_id(detail.get("imageId") or "")
+                        or (detail.get("imageUrl") or "")
+                    )
+                    if fixed:
+                        product.image_url = fixed
                 if not product.description and detail.get("description"):
                     product.description = detail.get("description") or ""
                 time.sleep(max(delay, 0.15))
