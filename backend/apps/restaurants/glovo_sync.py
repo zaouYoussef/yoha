@@ -16,6 +16,8 @@ En cas d'échec réseau/API, le dernier état connu en base reste servi.
 from __future__ import annotations
 
 import logging
+import os
+import tempfile
 import time
 from dataclasses import dataclass, field
 from datetime import timedelta
@@ -23,7 +25,6 @@ from decimal import Decimal
 from typing import List, Optional
 
 from django.conf import settings
-from django.core.cache import cache
 from django.utils import timezone
 
 from apps.restaurants.glovo import (
@@ -38,7 +39,7 @@ from apps.restaurants.models import GlovoSyncLog, MenuCategory, MenuItem, Restau
 logger = logging.getLogger(__name__)
 
 SOURCE = "glovo"
-_LOCK_KEY = "glovo_sync_lock"
+_LOCK_PATH = os.path.join(tempfile.gettempdir(), "yoha_glovo_sync.lock")
 _LOCK_TIMEOUT = 600  # 10 min — au-delà, une course est considérée comme perdue
 _STALE_LOG_MINUTES = 10
 
@@ -91,15 +92,31 @@ class SyncReport:
 
 def _acquire_lock() -> bool:
     try:
-        return bool(cache.add(_LOCK_KEY, "1", _LOCK_TIMEOUT))
-    except Exception:  # noqa: BLE001 — cache indisponible → on laisse passer
+        fd = os.open(_LOCK_PATH, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.close(fd)
+        return True
+    except FileExistsError:
+        try:
+            age = time.time() - os.path.getmtime(_LOCK_PATH)
+        except OSError:
+            return True
+        if age > _LOCK_TIMEOUT:
+            try:
+                os.unlink(_LOCK_PATH)
+                fd = os.open(_LOCK_PATH, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.close(fd)
+                return True
+            except (OSError, FileExistsError):
+                return False
+        return False
+    except OSError:
         return True
 
 
 def _release_lock() -> None:
     try:
-        cache.delete(_LOCK_KEY)
-    except Exception:  # noqa: BLE001
+        os.unlink(_LOCK_PATH)
+    except OSError:
         pass
 
 
