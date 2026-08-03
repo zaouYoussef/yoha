@@ -1355,7 +1355,7 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
         </div>
 
         <div className="flex items-center gap-1.5 text-xs mt-0.5 font-bold">
-          {isCustom || ['pharmacy','dessert','supermarket','shop','parapharmacy'].includes(restaurant.cuisine) ? (
+          {isCustom || isService ? (
             <span className="text-amber-400 text-[11px]">20 MAD de livraison</span>
           ) : (
             <>
@@ -2100,10 +2100,17 @@ export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = f
   );
 }
 
-const SERVICE_CUISINES = ['pharmacy', 'parapharmacy', 'dessert', 'patisserie', 'supermarket', 'shop'];
+/** Boutiques sans menu Glovo (sur-mesure / listing statique). */
+const SERVICE_CUISINES = ['pharmacy', 'parapharmacy', 'supermarket', 'shop'];
+/** Pâtisseries du listing Google Maps — pas les desserts Glovo (Kunafita, Crumby…). */
+const STATIC_DESSERT_CUISINES = ['dessert', 'patisserie'];
 
 function isServiceStore(r) {
-  return SERVICE_CUISINES.includes(r.cuisine) && !r.isCustomRequest;
+  if (!r || r.isCustomRequest) return false;
+  if (SERVICE_CUISINES.includes(r.cuisine)) return true;
+  // Restos dessert Glovo (menu + rating + distance) = cartes partenaires normales
+  if (STATIC_DESSERT_CUISINES.includes(r.cuisine) && r.isStatic) return true;
+  return false;
 }
 
 export function RestaurantCard({ restaurant, onClick }) {
