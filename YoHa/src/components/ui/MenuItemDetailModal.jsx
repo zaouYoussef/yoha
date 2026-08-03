@@ -87,11 +87,10 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
 
   const incomplete = groups.some((g) => (selections[g.name] || []).length < Number(g.min || 0));
 
-  /** Ajoute et ferme — le bandeau « Voir le panier » reste visible sous le modal. */
+  /** Ajoute au panier — le CTA devient « Voir le panier » (sans fermer). */
   const handleAdd = (e) => {
     if (orderingDisabled || incomplete) return;
     onAdd?.(item, restaurant, e.currentTarget, selectedOptions);
-    onClose?.();
   };
 
   const goToCart = () => {
@@ -340,7 +339,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
                 className="cursor-grow flex-1 min-h-12 inline-flex items-center justify-center gap-2 px-3 rounded-2xl font-bold text-sm cta-brand btn-shimmer border-0 text-white active:scale-[0.98] transition-transform shadow-glow"
               >
                 <I.Bag size={16} />
-                <span>Panier</span>
+                <span>Voir le panier</span>
                 <span className="tabular-nums opacity-90">{formatMad(unitPrice * quantity)}</span>
               </button>
             </div>

@@ -271,7 +271,7 @@ export function FloatingCart({ count, total, items = [], onClick, hidden }) {
       initial={{ y: 80, opacity: 0, scale: 0.96 }}
       animate={{ y: 0, opacity: 1, scale: 1 }}
       transition={{ type: 'spring', stiffness: 340, damping: 26 }}
-      className="btn-shimmer cursor-pointer fixed z-[55] left-3 right-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:hidden group flex items-center justify-between gap-2 px-3.5 py-3 min-h-[3.25rem] rounded-2xl cta-brand text-white shadow-glow-lg active:scale-[0.98] transition-transform pointer-events-auto border border-white/25 touch-manipulation max-w-lg mx-auto"
+      className="btn-shimmer cursor-pointer fixed z-[55] left-3 right-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:left-auto md:right-6 md:bottom-6 md:w-[min(22rem,calc(100vw-3rem))] group flex items-center justify-between gap-2 px-3.5 py-3 min-h-[3.25rem] rounded-2xl cta-brand text-white shadow-glow-lg active:scale-[0.98] transition-transform pointer-events-auto border border-white/25 touch-manipulation max-w-lg mx-auto md:mx-0"
     >
       <span className="flex items-center gap-2.5 min-w-0">
         <span className="relative shrink-0 w-9 h-9 rounded-xl bg-white/20 backdrop-blur grid place-items-center">
