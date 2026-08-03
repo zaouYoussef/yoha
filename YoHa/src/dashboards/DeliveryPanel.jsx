@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { I } from '../icons/Icons.jsx';
-import { MOCK_COURIER_GAIN_PER_DELIVERY_MAD, formatMad, isActiveOrderStatus } from '../data/index.js';
+import { MOCK_COURIER_GAIN_PER_DELIVERY_MAD, formatMad, isActiveOrderStatus, STATIC_STORES } from '../data/index.js';
 import { useOrders } from '../contexts/AppContexts.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import {
@@ -22,7 +22,7 @@ import { RecentOrdersTable as AdminRecentOrdersTable } from './AdminPanel.jsx';
 import { OrderRestaurantNotes } from '../components/ui/OrderRestaurantNotes.jsx';
 import { CancelOrderButton, CancelPhaseBadge, OrderCancellationNote } from '../components/ui/CancelOrderButton.jsx';
 import { ordersApi, getTokens } from '../lib/api.js';
-import { updateCourierGps, clearCourierGps } from '../utils/courierGps.js';
+import { updateCourierGps, clearCourierGps, resolveDestinationCoords } from '../utils/courierGps.js';
 
 function isOrderAssignedToCourier(order, courier) {
   if (!order || !courier) return false;
@@ -132,7 +132,48 @@ function whatsAppUrl(phone, text) {
 
 function buildMapsDirectionsUrl(address) {
   if (!address) return null;
-  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+  const str = String(address).toLowerCase();
+  const knownCampus =
+    str.includes('chu') ||
+    str.includes('fmpt') ||
+    str.includes('médecine') ||
+    str.includes('medecine') ||
+    str.includes('ispits') ||
+    str.includes('alliance') ||
+    str.includes('résidence') ||
+    str.includes('residence');
+  if (knownCampus) {
+    const dest = resolveDestinationCoords(address);
+    return `https://www.google.com/maps/dir/?api=1&destination=${dest.lat},${dest.lng}&travelmode=driving`;
+  }
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}&travelmode=driving`;
+}
+
+function resolveRestaurantDirectionsQuery(order, restaurants = []) {
+  const rid = String(order?.restaurantId || '').toLowerCase();
+  const rname = (order?.restaurantName || '').trim();
+  const fromApi = (restaurants || []).find(
+    (r) =>
+      String(r.id || '').toLowerCase() === rid ||
+      String(r.slug || '').toLowerCase() === rid ||
+      (rname && String(r.name || '').toLowerCase() === rname.toLowerCase()),
+  );
+  const fromStatic = (STATIC_STORES || []).find(
+    (r) =>
+      String(r.id || '').toLowerCase() === rid ||
+      (rname && String(r.name || '').toLowerCase() === rname.toLowerCase()),
+  );
+  const address = (fromApi?.address || fromStatic?.address || '').trim();
+  if (address) {
+    return address.toLowerCase().includes('tanger') ? address : `${address}, Tanger, Maroc`;
+  }
+  const desc = (fromApi?.description || fromStatic?.description || '').trim();
+  if (desc && desc.length > 12 && desc.length < 180) {
+    const maybeAddr = desc.split('—').pop()?.trim() || desc;
+    if (maybeAddr) return maybeAddr.includes('Tanger') ? maybeAddr : `${maybeAddr}, Tanger`;
+  }
+  if (!rname) return null;
+  return `${rname}, Tanger, Maroc`;
 }
 
 function useDeliveryTimer(assignedAt) {
@@ -415,21 +456,8 @@ function OrderActionButtons({ order }) {
     window.open(url, '_blank', 'noopener,noreferrer');
   }, [order, phone]);
 
-  const mapsUrl = buildMapsDirectionsUrl(order.customer?.address);
-
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      {mapsUrl && (
-        <a
-          href={mapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 rounded-lg bg-violet-500/10 px-2.5 py-1.5 text-[10px] font-bold text-violet-600 transition hover:bg-violet-500/20 dark:text-violet-400"
-        >
-          <I.MapPin size={11} />
-          Itinéraire
-        </a>
-      )}
       <button
         type="button"
         onClick={handleCopy}
@@ -986,17 +1014,6 @@ export function DeliveryMine({ courier }) {
                       <div className="flex items-center gap-2 rounded-xl bg-pink-500/10 px-3 py-2.5 text-sm font-semibold text-pink-600 dark:text-pink-400">
                         <I.MapPin size={16} /> Livraison en cours vers le client
                       </div>
-                      {o.customer?.address && (
-                        <a
-                          href={buildMapsDirectionsUrl(o.customer.address)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 rounded-xl bg-violet-500/10 px-3 py-2.5 text-sm font-bold text-violet-600 transition hover:bg-violet-500/20 dark:text-violet-400"
-                        >
-                          <I.MapPin size={16} />
-                          Ouvrir dans Google Maps
-                        </a>
-                      )}
                       <OrderActionButtons order={o} />
                       <CourierStatusButton
                         orderId={o.id}
@@ -1248,7 +1265,9 @@ export function DeliveryOrderCard({ order, action, showMap, variant = 'available
     '';
 
   const customerPhone = order.customer?.phone || '';
-  const mapsUrl = buildMapsDirectionsUrl(order.customer?.address);
+  const restoQuery = resolveRestaurantDirectionsQuery(order, restaurants);
+  const restoMapsUrl = buildMapsDirectionsUrl(restoQuery);
+  const destMapsUrl = buildMapsDirectionsUrl(order.customer?.address);
 
   const isPrep = order.status === 'preparing';
   const isPreparingBadge = isPrep && variant === 'available';
@@ -1317,6 +1336,17 @@ export function DeliveryOrderCard({ order, action, showMap, variant = 'available
                   Tél. resto manquant
                 </div>
               )}
+              {restoMapsUrl && (
+                <a
+                  href={restoMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-pink-500/10 px-3 py-2 text-xs font-extrabold text-pink-700 transition hover:bg-pink-500/20 dark:text-pink-300"
+                >
+                  <I.MapPin size={14} />
+                  Itinéraire vers le restaurant
+                </a>
+              )}
             </div>
           </div>
           <div className="flex items-start gap-2.5">
@@ -1338,18 +1368,18 @@ export function DeliveryOrderCard({ order, action, showMap, variant = 'available
                   <span className="break-all">{customerPhone}</span>
                 </a>
               )}
+              {destMapsUrl && (
+                <a
+                  href={destMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-500/10 px-3 py-2 text-xs font-extrabold text-violet-700 transition hover:bg-violet-500/20 dark:text-violet-300"
+                >
+                  <I.MapPin size={14} />
+                  Itinéraire vers la destination
+                </a>
+              )}
             </div>
-            {mapsUrl && (
-              <a
-                href={mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-violet-500/10 text-violet-600 transition hover:bg-violet-500/20"
-                title="Ouvrir dans Google Maps"
-              >
-                <I.MapPin size={15} />
-              </a>
-            )}
           </div>
         </div>
 
