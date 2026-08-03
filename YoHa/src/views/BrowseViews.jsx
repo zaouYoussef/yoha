@@ -655,7 +655,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       <HorizontalRow
         key="fast"
         title="⚡ Frais de livraison tout doux"
-        subtitle="Livraison ultra rapide en moins de 30 min"
+        subtitle="Livraison ultra rapide — au moins 45 min"
         count={fastDelivery.length}
         onSeeAll={() => applyFilter('fast')}
       >
@@ -1360,7 +1360,7 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
       {/* Time Badge */}
       <div className="absolute top-2.5 right-2.5 z-10">
         <span className="px-2.5 py-1 rounded-full bg-white text-ink-950 font-extrabold text-xs shadow-md">
-          {restaurant.eta || '30-45 min'}
+          {restaurant.eta || '45-60 min'}
         </span>
       </div>
 
@@ -2844,7 +2844,7 @@ function DeliverooPopularBrandsSection({ restaurants, onPick }) {
                     <span className="text-amber-500">★</span>
                     <span>{r.rating ?? 4.8}</span>
                     <span>·</span>
-                    <span>{r.eta || '30-45 min'}</span>
+                    <span>{r.eta || '45-60 min'}</span>
                   </div>
                   <div className="text-[11px] font-bold text-rose-600 dark:text-rose-400 truncate mt-0.5 flex items-center gap-1">
                     <span className="text-xs">%</span>

@@ -85,7 +85,7 @@ def get_offers(*, exclude_restaurant_id=None, limit: int = 3) -> list[dict]:
                 "promo": promo,
                 "cover": cover,
                 "slug": r.slug,
-                "eta": "15–20 min",
+                "eta": "45–60 min",
             }
         )
         if len(offers) >= limit:

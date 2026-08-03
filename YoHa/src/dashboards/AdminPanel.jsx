@@ -919,7 +919,7 @@ export function AdminRestaurants() {
   const [ownerPassword, setOwnerPassword] = useState('');
   const [ownerDisplayName, setOwnerDisplayName] = useState('');
   const [distanceLabel, setDistanceLabel] = useState('');
-  const [deliveryTime, setDeliveryTime] = useState('30-45 min');
+  const [deliveryTime, setDeliveryTime] = useState('45-60 min');
   const [restoRating, setRestoRating] = useState('4.8');
   const [selectedTags, setSelectedTags] = useState([]);
   const [error, setError] = useState('');
@@ -993,7 +993,7 @@ export function AdminRestaurants() {
       setDescription('');
       setPhone('');
       setDistanceLabel('');
-      setDeliveryTime('30-45 min');
+      setDeliveryTime('45-60 min');
       setRestoRating('4.8');
       setSelectedTags([]);
       setOwnerEmail('');
@@ -1050,7 +1050,7 @@ export function AdminRestaurants() {
             </div>
             <div>
               <label className="block text-xs font-bold text-ink-500 mb-1.5">Délai livraison</label>
-              <input value={deliveryTime} onChange={(e) => setDeliveryTime(e.target.value)} placeholder="30-45 min"
+              <input value={deliveryTime} onChange={(e) => setDeliveryTime(e.target.value)} placeholder="45-60 min"
                 className="w-full rounded-xl border border-ink-200/60 bg-white/80 px-3 py-2.5 text-sm outline-none backdrop-blur-sm transition focus:border-brand-400 dark:border-ink-700/50 dark:bg-ink-900/80 dark:text-white" />
             </div>
             <div>
@@ -1168,7 +1168,7 @@ export function AdminRestaurants() {
                     <input value={editDelivery[r.pk] ?? r.delivery ?? ''}
                       onChange={(e) => setEditDelivery((d) => ({ ...d, [r.pk]: e.target.value }))}
                       onBlur={() => { const v = editDelivery[r.pk]; if (v !== undefined && v !== r.delivery) saveRestoField(r, 'delivery', v); }}
-                      className="ml-auto w-24 text-right text-xs font-bold bg-transparent border-b border-dotted border-ink-300 dark:border-ink-600 focus:border-brand-400 focus:outline-none" placeholder="30-45 min" />
+                      className="ml-auto w-24 text-right text-xs font-bold bg-transparent border-b border-dotted border-ink-300 dark:border-ink-600 focus:border-brand-400 focus:outline-none" placeholder="45-60 min" />
                   </div>
                   <div className="flex items-center gap-2 text-xs">
                     <span className="text-amber-500 shrink-0 text-xs">⭐</span>

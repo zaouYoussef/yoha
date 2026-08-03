@@ -25,7 +25,7 @@ export const HOW_STEPS = [
 ];
 
 export const LANDING_FEATURES = [
-  { emoji: '⚡', title: 'Ultra rapide', desc: '26 min en moyenne sur le campus et dans les hôpitaux.', colors: ['#fbbf24', '#f97316'] as [string, string] },
+  { emoji: '⚡', title: 'Ultra rapide', desc: 'Au moins 45 min en moyenne sur le campus et dans les hôpitaux.', colors: ['#fbbf24', '#f97316'] as [string, string] },
   { emoji: '✨', title: 'Commandes smart', desc: 'Suggestions selon vos cours et vos gardes.', colors: ['#a78bfa', '#d946ef'] as [string, string] },
   { emoji: '👨‍🍳', title: 'Multi-restaurants', desc: 'Un panier, plusieurs cuisines — combinez vos préférés.', colors: ['#fb7185', '#ec4899'] as [string, string] },
   { emoji: '📍', title: 'Optimisé campus', desc: 'Livraison en chambre, à l\'aile hospitalière, à la BU.', colors: ['#38bdf8', '#6366f1'] as [string, string] },

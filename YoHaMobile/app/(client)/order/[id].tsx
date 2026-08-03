@@ -20,11 +20,11 @@ import { Sheet } from '../../../src/components/yoha/Sheet';
  * On raconte ce qui se passe en cuisine, pas un code d'état.
  */
 const PHASES = [
-  { key: 'pending', title: 'Commande reçue', line: 'On prévient la cuisine.', glyph: '🧾', eta: 28 },
-  { key: 'accepted', title: 'Acceptée', line: 'La cuisine a pris ta commande.', glyph: '👍', eta: 24 },
-  { key: 'preparing', title: 'En cuisine', line: 'Ça chauffe. Ça sent déjà bon.', glyph: '🔥', eta: 18 },
-  { key: 'ready', title: 'Prête', line: 'Un livreur récupère ton sac.', glyph: '🛍️', eta: 11 },
-  { key: 'delivering', title: 'En route', line: 'Le livreur file vers toi.', glyph: '🛵', eta: 6 },
+  { key: 'pending', title: 'Commande reçue', line: 'On prévient la cuisine.', glyph: '🧾', eta: 55 },
+  { key: 'accepted', title: 'Acceptée', line: 'La cuisine a pris ta commande.', glyph: '👍', eta: 50 },
+  { key: 'preparing', title: 'En cuisine', line: 'Ça chauffe. Ça sent déjà bon.', glyph: '🔥', eta: 40 },
+  { key: 'ready', title: 'Prête', line: 'Un livreur récupère ton sac.', glyph: '🛍️', eta: 25 },
+  { key: 'delivering', title: 'En route', line: 'Le livreur file vers toi.', glyph: '🛵', eta: 12 },
   { key: 'delivered', title: 'Livré', line: 'Bon appétit.', glyph: '🎉', eta: 0 },
 ] as const;
 

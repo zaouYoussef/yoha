@@ -3,7 +3,7 @@
 RESTAURANT_BIOS = {
     "al-mahroussa": (
         "Burgers généreux, frittes croustillantes et sauces maison. "
-        "Le street food tangérois livré en ~30 min sur Alliance & CHU."
+        "Le street food tangérois livré en ~45 min sur Alliance & CHU."
     ),
     "beug-s-restaurant": (
         "Burgers signature et recettes généreuses pour les vraies envies. "

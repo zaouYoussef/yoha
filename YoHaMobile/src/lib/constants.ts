@@ -82,7 +82,7 @@ export const ORDER_STATUS_TOASTS: Record<string, { title: string; desc: string }
 };
 
 export const DELIVERY_FEE_DH = 0;
-export const DEFAULT_ETA = '15–20 min';
+export const DEFAULT_ETA = '45–60 min';
 
 export const MOCK_COURIER_GAIN_PER_DELIVERY_MAD = 16;
 export const SERVICE_FEE_THRESHOLD_MAD = 3000;

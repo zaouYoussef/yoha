@@ -62,7 +62,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   }, new Map());
   const storeNames = [...uniqueStores.values()];
   const isMultiStore = storeNames.length > 1;
-  const deliveryEta = isMultiStore ? '45 min - 1h' : '30-45 min';
+  const deliveryEta = isMultiStore ? '45 min - 1h' : '45-60 min';
   const storeLabel = storeNames.length > 2
     ? `${storeNames.slice(0, 2).join(', ')} & ${storeNames.length - 2} autre${storeNames.length - 2 > 1 ? 's' : ''}`
     : storeNames.join(' & ');

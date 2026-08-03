@@ -136,7 +136,7 @@ def render_welcome_email_html(name: str, email: str) -> str:
                       <div style="font-size:24px;margin-bottom:8px;">⚡</div>
                       <div style="font-size:13px;font-weight:900;color:#1e1b4b;">Livraison rapide</div>
                       <div style="font-size:11px;color:#78716c;font-weight:600;margin-top:4px;line-height:1.45;">
-                        30–45 min sur le campus</div>
+                        45–60 min sur le campus</div>
                     </td></tr>
                   </table>
                 </td>
@@ -222,7 +222,7 @@ def render_welcome_email_text(name: str, email: str) -> str:
         "Votre compte a bien été créé. Commandez vos plats, courses de supermarché,",
         "médicaments et plus encore — livrés sur le campus, à l'aile hospitalière ou à la BU.",
         "",
-        "• Livraison rapide en 30-45 min",
+        "• Livraison rapide en 45-60 min",
         "• Suivi de votre livreur en direct",
         "• Offres et codes promo exclusifs",
         "",

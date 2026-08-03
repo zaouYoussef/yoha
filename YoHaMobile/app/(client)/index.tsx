@@ -49,10 +49,8 @@ const HOOKS = [
   'Livraison offerte sur ta première commande',
 ];
 
-function etaFor(r: Restaurant, i: number) {
-  const d = parseFloat(String(r.distance ?? '').replace(/[^\d.]/g, ''));
-  const base = Number.isFinite(d) ? 14 + d * 4 : 18 + (i % 4) * 3;
-  return Math.round(base);
+function etaFor(_r: Restaurant, _i: number) {
+  return 45;
 }
 
 export default function ClientDiscover() {

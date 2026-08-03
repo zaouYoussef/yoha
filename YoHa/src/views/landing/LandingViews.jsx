@@ -164,8 +164,8 @@ export function Hero({ onStart, onHowItWorks }) {
           </h1>
 
           <p className="mt-3 sm:mt-6 max-w-xl text-[13px] sm:text-base lg:text-lg text-ink-600 dark:text-ink-300 leading-relaxed animate-fade-up" style={{ animationDelay:'600ms' }}>
-            <span className="sm:hidden">Commandez et faites-vous livrer à la chambre, à l&apos;aile ou à la BU — en moins de 30 min.</span>
-            <span className="hidden sm:inline">Commandez auprès de vos cuisines préférées et faites-vous livrer directement à votre chambre, à l&apos;aile hospitalière ou à la BU — en moins de 40 minutes. Aucun détour.</span>
+            <span className="sm:hidden">Commandez et faites-vous livrer à la chambre, à l&apos;aile ou à la BU — en au moins 45 min.</span>
+            <span className="hidden sm:inline">Commandez auprès de vos cuisines préférées et faites-vous livrer directement à votre chambre, à l&apos;aile hospitalière ou à la BU — en au moins 45 minutes. Aucun détour.</span>
           </p>
 
           <div className="mt-5 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 animate-fade-up" style={{ animationDelay:'750ms' }}>
@@ -345,7 +345,7 @@ export function BentoHero() {
         <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
           <button type="button" onClick={goBrowse} className="rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 p-2 sm:p-3 text-white text-center border border-white/20 shadow-glow cursor-pointer active:scale-[0.98] transition-transform">
             <div className="text-[8px] sm:text-[9px] font-semibold uppercase tracking-wider opacity-90">Délai</div>
-            <div className="font-display font-black text-xl sm:text-2xl leading-none mt-0.5">~30<span className="text-[9px] sm:text-xs font-bold"> min</span></div>
+            <div className="font-display font-black text-xl sm:text-2xl leading-none mt-0.5">~45<span className="text-[9px] sm:text-xs font-bold"> min</span></div>
           </button>
           <button type="button" onClick={goBrowse} className="rounded-xl sm:rounded-2xl glass-card-premium p-2 sm:p-3 text-center border border-white/20 dark:border-white/5 cursor-pointer active:scale-[0.98] transition-transform">
             <div className="text-[8px] sm:text-[9px] font-semibold uppercase tracking-wider text-ink-500">Communauté</div>
@@ -425,7 +425,7 @@ export function BentoHero() {
           <div className="absolute inset-0 bg-[radial-gradient(at_10%_20%,rgba(255,255,255,0.15)_0,transparent_55%)]"></div>
           <div>
             <div className="text-xs font-semibold uppercase tracking-wider opacity-90">Livraison moyenne</div>
-            <div className="mt-2 font-display font-black text-5xl tracking-tight text-glow animate-pulse-slow">~30<span className="text-2xl font-bold"> min</span></div>
+            <div className="mt-2 font-display font-black text-5xl tracking-tight text-glow animate-pulse-slow">~45<span className="text-2xl font-bold"> min</span></div>
           </div>
           <div className="text-sm opacity-95 flex items-center gap-1.5 font-medium">
             <span>⚡</span> Du clic à la fourchette
@@ -1084,7 +1084,7 @@ export function ShowcaseSection({ onStart }) {
           {/* Premium Highlights Grid */}
           <div className="mt-6 sm:mt-10 grid grid-cols-2 gap-2.5 sm:gap-4">
             {[
-              { icon: '⚡', title: <><LiveCount to={30} /> min de livraison</>, desc: 'Moyenne sur le campus' },
+              { icon: '⚡', title: <><LiveCount to={45} /> min de livraison</>, desc: 'Au moins 45 min sur le campus' },
               { icon: '🍔', title: 'Gourmet & ultra-frais', desc: 'Préparé sous vos yeux' },
               { icon: '🛵', title: 'Suivi live interactif', desc: 'Savoir exactement où est le livreur' },
               { icon: '🔒', title: 'Zéro friction', desc: 'Commande en 3 clics, sans appli' }

@@ -111,7 +111,7 @@ export default function StoreScreen() {
             >
               <GhostButton glyph="back" label="Retour" onPress={() => router.back()} />
               <View style={{ flex: 1 }} />
-              <Pill>{store.eta || '30-45 min'}</Pill>
+              <Pill>{store.eta || '45-60 min'}</Pill>
             </View>
 
             <View style={{ position: 'absolute', left: 18, right: 18, bottom: 18 }}>

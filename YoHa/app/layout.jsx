@@ -19,10 +19,10 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata = {
   title: {
-    default: 'YoHa — Livraison Alliance & CHU à Tanger | repas en ~30 min',
+    default: 'YoHa — Livraison Alliance & CHU à Tanger | repas en ~45 min',
     template: '%s | YoHa'
   },
-  description: "Commandez vos repas et produits préférés avec YoHa et soyez livrés en moins de 30 minutes directement au CHU, à la BU ou en résidence universitaire Alliance. Livraison rapide et gratuite.",
+  description: "Commandez vos repas et produits préférés avec YoHa et soyez livrés en au moins 45 minutes directement au CHU, à la BU ou en résidence universitaire Alliance. Livraison rapide et gratuite.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://yoha.ma'),
   alternates: {
     canonical: './',
@@ -30,7 +30,7 @@ export const metadata = {
   keywords: ['YoHa', 'Livraison Tanger', 'Livraison Alliance', 'Livraison CHU', 'ENCG Tanger', 'FMP Tanger', 'repas étudiant', 'Tanger food delivery'],
   openGraph: {
     title: 'YoHa — Livraison Alliance & CHU · Tanger',
-    description: 'Ultra rapide. Livraison de repas intelligente sur les zones Alliance et CHU de Tanger.',
+    description: 'Livraison en au moins 45 minutes. Repas livrés sur les zones Alliance et CHU de Tanger.',
     url: 'https://yoha.ma',
     siteName: 'YoHa',
     images: [
@@ -47,7 +47,7 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'YoHa — Livraison Alliance & CHU · Tanger',
-    description: 'Livraison ultra rapide pensée pour la résidence Alliance et les hôpitaux.',
+    description: 'Livraison en au moins 45 minutes, pensée pour la résidence Alliance et les hôpitaux.',
     images: ['/logo.webp'],
   },
 };

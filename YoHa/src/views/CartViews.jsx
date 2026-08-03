@@ -88,7 +88,7 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                 const customItems = items.filter(i => i.isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes(i.restaurantCuisine));
                 const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
                 const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
-                const etaText = uniqueCustomShops.size > 1 ? 'Arrivée estimée dans 45 min - 1h ⚡' : 'Arrivée estimée dans 15-22 min ⚡';
+                const etaText = uniqueCustomShops.size > 1 ? 'Arrivée estimée dans 45 min - 1h ⚡' : 'Arrivée estimée dans au moins 45 min ⚡';
 
                 return (
                   <>
@@ -254,7 +254,8 @@ export function CartLine({ item, setQty, remove }) {
 }
 
 /* ============================================================================
-   FLOATING CART — fixe à droite, sticky au scroll (mobile + desktop)
+   FLOATING CART — barre centrée au-dessus de la bottom nav
+   (pas de btn-shimmer ici : il force position:relative et casse fixed)
 ============================================================================ */
 export function FloatingCart({ count, total, items = [], onClick, hidden }) {
   if (count === 0 || hidden) return null;
@@ -268,34 +269,33 @@ export function FloatingCart({ count, total, items = [], onClick, hidden }) {
     : formatMad(displayTotal);
 
   return (
-    <motion.button
-      type="button"
-      onClick={onClick}
-      initial={{ x: 72, opacity: 0, scale: 0.92 }}
-      animate={{ x: 0, opacity: 1, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 360, damping: 28 }}
-      aria-label={`Voir le panier, ${count} article${count > 1 ? 's' : ''}, ${priceLabel}`}
-      className="btn-shimmer cursor-pointer fixed z-[55] right-3 sm:right-5 md:right-6 bottom-[calc(5.25rem+env(safe-area-inset-bottom,0px))] md:bottom-8 group flex flex-col items-stretch gap-1.5 w-[min(11.5rem,calc(100vw-1.5rem))] sm:w-[12.75rem] px-3 py-2.5 sm:px-3.5 sm:py-3 rounded-2xl cta-brand text-white shadow-glow-lg active:scale-[0.97] transition-transform pointer-events-auto border border-white/25 touch-manipulation"
+    <div
+      className="pointer-events-none fixed inset-x-0 z-[55] bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-8 px-3 sm:px-4"
+      aria-hidden={false}
     >
-      <span className="flex items-center gap-2 min-w-0">
-        <span className="relative shrink-0 w-9 h-9 rounded-xl bg-white/20 backdrop-blur grid place-items-center">
-          <I.Bag size={17} />
-          <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-extrabold bg-white text-brand-600 grid place-items-center shadow-xs">
+      <motion.button
+        type="button"
+        onClick={onClick}
+        initial={{ y: 28, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+        aria-label={`Voir le panier, ${count} article${count > 1 ? 's' : ''}, ${priceLabel}`}
+        className="pointer-events-auto cursor-pointer mx-auto flex w-full max-w-md items-center gap-3 rounded-2xl px-4 py-3.5 text-white cta-brand shadow-glow-lg border border-white/20 active:scale-[0.98] transition-transform touch-manipulation"
+      >
+        <span className="relative shrink-0 grid h-10 w-10 place-items-center rounded-xl bg-white/20">
+          <I.Bag size={18} />
+          <span className="absolute -top-1.5 -right-1.5 grid h-[1.15rem] min-w-[1.15rem] place-items-center rounded-full bg-white px-1 text-[10px] font-extrabold text-brand-600 shadow-xs">
             {count}
           </span>
         </span>
         <span className="min-w-0 flex-1 text-left">
-          <span className="block font-extrabold text-[12px] sm:text-sm leading-tight truncate">
-            Voir le panier
-          </span>
-          <span className="block font-black text-[11px] sm:text-xs tabular-nums text-white/95 truncate">
-            {priceLabel}
-          </span>
+          <span className="block truncate text-sm font-extrabold leading-tight">Voir le panier</span>
+          <span className="block truncate text-xs font-bold tabular-nums text-white/90">{priceLabel}</span>
         </span>
-        <span className="w-7 h-7 shrink-0 rounded-full bg-white/20 grid place-items-center">
-          <I.Right size={14} />
+        <span className="shrink-0 grid h-8 w-8 place-items-center rounded-full bg-white/20">
+          <I.Right size={15} />
         </span>
-      </span>
-    </motion.button>
+      </motion.button>
+    </div>
   );
 }

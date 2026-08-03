@@ -811,10 +811,12 @@
   filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.35));
 }
 
-/* Premium micro-interactions & wow enhancements */
+/* Premium micro-interactions & wow enhancements
+   Ne pas forcer position:relative — ça écrase Tailwind `fixed` (FloatingCart).
+   transform crée le containing block pour le ::after. */
 .btn-shimmer {
-  position: relative;
   overflow: hidden;
+  transform: translateZ(0);
 }
 
 .btn-shimmer::after {

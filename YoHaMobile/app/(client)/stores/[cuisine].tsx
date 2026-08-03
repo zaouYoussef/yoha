@@ -57,7 +57,7 @@ function dutyToStore(p: DutyPharmacy): StaticStore {
     rating: 4.9,
     reviewsCount: 1,
     distance: p.address?.slice(0, 46) || 'Tanger',
-    eta: '30-45 min',
+    eta: '45-60 min',
     fee: '20 DH',
     cover: dutyCover(p.slug || String(p.id ?? '')),
     logo: '💊',

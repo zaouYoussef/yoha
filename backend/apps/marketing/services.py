@@ -101,7 +101,7 @@ def build_promo_context(*, restaurant: Restaurant, campaign_key: str) -> dict:
             "slug": restaurant.slug,
             "promo": restaurant.promo_label or "Livraison offerte campus",
             "cover": restaurant.cover_url or restaurant.logo_url or "",
-            "eta": "15–20 min",
+            "eta": "45–60 min",
         },
         "featured_items": pick_featured_items(restaurant),
         "other_offers": [

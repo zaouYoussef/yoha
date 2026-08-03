@@ -189,7 +189,7 @@ export function PhoneShowcase() {
               <Text style={{ fontSize: 32 }}>🍕</Text>
               <View>
                 <Text style={styles.phoneCardTitle}>Margherita</Text>
-                <Text style={styles.phoneCardSub}>89 MAD · 14 min</Text>
+                <Text style={styles.phoneCardSub}>89 MAD · 45 min</Text>
               </View>
               <View style={styles.phonePlus}><Text style={{ color: '#fff', fontWeight: '800' }}>+</Text></View>
             </View>
@@ -214,7 +214,7 @@ export function FinalCTABlock({ onStart }: { onStart: () => void }) {
     <FadeInView delay={100}>
       <LinearGradient colors={['#0f172a', '#312e81', '#0f172a']} style={[styles.finalCta, shadows.glow]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
         <Text style={styles.finalTitle}>
-          Faim ? Votre chambre est à <Text style={styles.accentLight}>14 minutes</Text> de quelque chose de génial.
+          Faim ? Votre chambre est à <Text style={styles.accentLight}>au moins 45 minutes</Text> de quelque chose de génial.
         </Text>
         <Text style={styles.finalSub}>Aucun stress. Ouvrez YoHa et commandez.</Text>
         <Pressable onPress={onStart} style={styles.finalBtn}>

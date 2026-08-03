@@ -58,7 +58,7 @@ export function LandingBento({ restaurants }: { restaurants: Restaurant[] }) {
 
         <LinearGradient colors={[...gradients.cta]} style={[styles.statCard, shadows.glowOrange]}>
           <Text style={styles.statLabel}>Livraison moy.</Text>
-          <Text style={styles.statValue}>26<Text style={styles.statUnit}>min</Text></Text>
+          <Text style={styles.statValue}>45<Text style={styles.statUnit}>min</Text></Text>
           <Text style={styles.statSub}>⚡ Du clic à la fourchette</Text>
         </LinearGradient>
       </View>

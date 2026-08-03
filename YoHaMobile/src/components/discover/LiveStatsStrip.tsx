@@ -5,7 +5,7 @@ import { brand, ink, radius, shadows } from '../../theme';
 import { fonts } from '../../theme/fonts';
 
 const STATS = [
-  { emoji: '⚡', value: '26 min', label: 'Livraison moy.' },
+  { emoji: '⚡', value: '45 min', label: 'Livraison min.' },
   { emoji: '🏪', value: '12+', label: 'Restos actifs' },
   { emoji: '⭐', value: '4.8', label: 'Note moyenne' },
 ];

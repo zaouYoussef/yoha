@@ -105,11 +105,11 @@ export const DiscoverBento = React.memo(function DiscoverBento({
         </Pressable>
 
         <LinearGradient colors={[...gradients.cta]} style={[styles.statCard, shadows.glowOrange]}>
-          <Text style={styles.statLabel}>LIVRAISON ÉCLAIR ⚡</Text>
+          <Text style={styles.statLabel}>LIVRAISON ⚡</Text>
           <Text style={styles.statValue}>
-            26<Text style={styles.statUnit}>min</Text>
+            45<Text style={styles.statUnit}>min</Text>
           </Text>
-          <Text style={styles.statSub}>🛵 Moyenne sur le campus</Text>
+          <Text style={styles.statSub}>🛵 Au moins 45 min sur le campus</Text>
         </LinearGradient>
       </View>
 

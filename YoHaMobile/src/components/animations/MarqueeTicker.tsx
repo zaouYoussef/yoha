@@ -6,7 +6,7 @@ import { fonts } from '../../theme/fonts';
 const CHIPS = [
   { emoji: '🍕', label: 'Pizza dès 25 MAD', tint: '#fff7ed' },
   { emoji: '🛵', label: 'Livraison offerte', tint: '#ecfdf5' },
-  { emoji: '⚡', label: '15–20 min CHU', tint: '#eff6ff' },
+  { emoji: '⚡', label: '45–60 min CHU', tint: '#eff6ff' },
   { emoji: '🎁', label: '-20% Sushi Zen', tint: '#fdf2f8' },
   { emoji: '👤', label: 'Sans compte', tint: '#f5f3ff' },
   { emoji: '🏥', label: 'MedEat dispo', tint: '#ecfeff' },

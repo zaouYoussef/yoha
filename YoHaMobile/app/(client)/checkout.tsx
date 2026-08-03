@@ -59,7 +59,7 @@ export default function ClientCheckout() {
   const isStatic = !!restaurantId && staticIds.has(restaurantId);
   const fee = isStatic ? STATIC_SERVICE_FEE : 0;
   const total = subtotal + fee;
-  const eta = useMemo(() => arrivalLabel(28), []);
+  const eta = useMemo(() => arrivalLabel(45), []);
 
   const address = useMemo(() => {
     if (addressId === 'other') return custom.trim();
