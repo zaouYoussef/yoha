@@ -195,16 +195,23 @@ class ClientsAnalyticsView(APIView):
 
     def get(self, request):
         from apps.orders.models import Order
-        clients = User.objects.filter(role="client").order_by("-created_at")
+
         data = []
+        seen_emails: set[str] = set()
+
+        # 1) Comptes inscrits (role=client)
+        clients = User.objects.filter(role="client").order_by("-created_at")
         for c in clients:
-            orders_qs = Order.objects.filter(client=c)
+            email_key = (c.email or "").strip().lower()
+            if email_key:
+                seen_emails.add(email_key)
+
+            orders_qs = Order.objects.filter(Q(client=c) | Q(customer_email__iexact=email_key)) if email_key else Order.objects.filter(client=c)
             total_orders = orders_qs.count()
             total_spent = orders_qs.aggregate(s=Sum("total_mad"))["s"] or Decimal("0")
-            last_order = orders_qs.order_by("-created_at").first()
+            last_order = orders_qs.select_related("restaurant").order_by("-created_at").first()
             restaurant_counts = list(
-                orders_qs.annotate(restaurant_name=F("restaurant__name"))
-                .values("restaurant_name")
+                orders_qs.values(restaurant_name=F("restaurant__name"))
                 .annotate(cnt=Count("id"))
                 .order_by("-cnt")[:5]
             )
@@ -223,12 +230,24 @@ class ClientsAnalyticsView(APIView):
                 .order_by("-cnt")[:5]
             )
 
+            phone = ""
+            try:
+                phone = (c.phone or "").strip()
+            except Exception:
+                phone = ""
+            if not phone and last_order:
+                try:
+                    phone = (last_order.customer_phone or "").strip()
+                except Exception:
+                    phone = ""
+
             data.append({
                 "id": str(c.id),
                 "email": c.email,
-                "display_name": c.display_name,
-                "phone": c.phone,
+                "display_name": c.display_name or (last_order.customer_name if last_order else ""),
+                "phone": phone,
                 "is_active": c.is_active,
+                "is_guest": False,
                 "created_at": c.created_at.isoformat() if c.created_at else None,
                 "last_login": c.last_login.isoformat() if c.last_login else None,
                 "total_orders": total_orders,
@@ -236,12 +255,88 @@ class ClientsAnalyticsView(APIView):
                 "avg_order_mad": round(float(total_spent) / total_orders, 2) if total_orders else 0,
                 "last_order_date": last_order.created_at.isoformat() if last_order else None,
                 "last_order_status": last_order.status if last_order else None,
-                "last_order_restaurant": last_order.restaurant_name if last_order else None,
+                "last_order_restaurant": (
+                    last_order.restaurant.name if last_order and last_order.restaurant_id else None
+                ),
                 "favorite_restaurants": restaurant_counts,
                 "total_page_views": total_views,
                 "total_time_seconds": round(total_time / 1000, 1),
                 "restaurants_viewed": list(restaurant_views),
             })
+
+        # 2) Clients invités (commandes sans compte) — groupés par e-mail ou téléphone/nom
+        guest_orders = (
+            Order.objects.filter(client__isnull=True)
+            .select_related("restaurant")
+            .order_by("-created_at")
+        )
+        guests: dict[str, dict] = {}
+        for o in guest_orders:
+            email = (o.customer_email or "").strip().lower()
+            if email and email in seen_emails:
+                continue
+            try:
+                phone = (o.customer_phone or "").strip()
+            except Exception:
+                phone = ""
+            name = (o.customer_name or "").strip()
+            if email:
+                key = f"email:{email}"
+            elif phone:
+                key = f"phone:{phone}"
+            elif name:
+                key = f"name:{name.lower()}"
+            else:
+                key = f"order:{o.public_id}"
+
+            g = guests.get(key)
+            if not g:
+                guests[key] = {
+                    "id": f"guest:{key}",
+                    "email": email or "",
+                    "display_name": name or email or "Client invité",
+                    "phone": phone,
+                    "is_active": True,
+                    "is_guest": True,
+                    "created_at": o.created_at.isoformat() if o.created_at else None,
+                    "last_login": None,
+                    "total_orders": 1,
+                    "total_spent_mad": float(o.total_mad or 0),
+                    "last_order_date": o.created_at.isoformat() if o.created_at else None,
+                    "last_order_status": o.status,
+                    "last_order_restaurant": o.restaurant.name if o.restaurant_id else None,
+                    "favorite_restaurants": {},
+                    "total_page_views": 0,
+                    "total_time_seconds": 0,
+                    "restaurants_viewed": [],
+                    "_orders": [o],
+                }
+            else:
+                g["total_orders"] += 1
+                g["total_spent_mad"] += float(o.total_mad or 0)
+                g["_orders"].append(o)
+                if not g["phone"] and phone:
+                    g["phone"] = phone
+                if name and (not g["display_name"] or g["display_name"] == "Client invité"):
+                    g["display_name"] = name
+
+        for g in guests.values():
+            resto_map = g.pop("favorite_restaurants")
+            orders_list = g.pop("_orders")
+            for o in orders_list:
+                rname = o.restaurant.name if o.restaurant_id else "—"
+                resto_map[rname] = resto_map.get(rname, 0) + 1
+            fav = sorted(
+                [{"restaurant_name": k, "cnt": v} for k, v in resto_map.items()],
+                key=lambda x: -x["cnt"],
+            )[:5]
+            total_orders = g["total_orders"]
+            total_spent = g["total_spent_mad"]
+            g["avg_order_mad"] = round(total_spent / total_orders, 2) if total_orders else 0
+            g["favorite_restaurants"] = fav
+            data.append(g)
+
+        data.sort(key=lambda x: x.get("last_order_date") or x.get("created_at") or "", reverse=True)
         return Response(data)
 
 
@@ -250,24 +345,112 @@ class ClientDetailAnalyticsView(APIView):
 
     def get(self, request, pk):
         from apps.orders.models import Order
+
+        pk_str = str(pk)
+
+        # Détail client invité
+        if pk_str.startswith("guest:"):
+            key = pk_str[len("guest:"):]
+            qs = Order.objects.filter(client__isnull=True).select_related("restaurant").order_by("-created_at")
+            matched = []
+            display_name = "Client invité"
+            email = ""
+            phone = ""
+            created_at = None
+
+            for o in qs:
+                o_email = (o.customer_email or "").strip().lower()
+                try:
+                    o_phone = (o.customer_phone or "").strip()
+                except Exception:
+                    o_phone = ""
+                o_name = (o.customer_name or "").strip()
+                if key.startswith("email:") and o_email == key[6:]:
+                    matched.append(o)
+                elif key.startswith("phone:") and o_phone == key[6:]:
+                    matched.append(o)
+                elif key.startswith("name:") and o_name.lower() == key[5:]:
+                    matched.append(o)
+                elif key.startswith("order:") and o.public_id == key[6:]:
+                    matched.append(o)
+
+            if not matched:
+                return Response({"error": "Client non trouvé"}, status=404)
+
+            first = matched[-1]
+            last = matched[0]
+            display_name = (last.customer_name or first.customer_name or "Client invité").strip()
+            email = (last.customer_email or first.customer_email or "").strip().lower()
+            try:
+                phone = (last.customer_phone or first.customer_phone or "").strip()
+            except Exception:
+                phone = ""
+            created_at = first.created_at
+
+            orders_list = []
+            for o in matched:
+                orders_list.append({
+                    "public_id": o.public_id,
+                    "restaurant_name": o.restaurant.name if o.restaurant_id else None,
+                    "status": o.status,
+                    "total_mad": o.total_mad,
+                    "customer_name": o.customer_name,
+                    "customer_address": o.customer_address,
+                    "delivery_instructions": o.delivery_instructions,
+                    "created_at": o.created_at,
+                    "eta_minutes": o.eta_minutes,
+                })
+
+            return Response({
+                "client": {
+                    "id": pk_str,
+                    "email": email,
+                    "display_name": display_name,
+                    "phone": phone,
+                    "is_active": True,
+                    "is_guest": True,
+                    "role": "guest",
+                    "created_at": created_at.isoformat() if created_at else None,
+                    "last_login": None,
+                },
+                "orders": orders_list,
+                "events": [],
+                "page_views_by_day": [],
+                "restaurants_viewed": [],
+            })
+
         try:
             client = User.objects.get(pk=pk, role="client")
         except User.DoesNotExist:
             return Response({"error": "Client non trouvé"}, status=404)
+        except Exception:
+            return Response({"error": "Client non trouvé"}, status=404)
 
-        orders_qs = Order.objects.filter(client=client).order_by("-created_at")
-        orders_list = list(orders_qs.annotate(
-            restaurant_name=F("restaurant__name")
-        ).values(
-            "public_id", "restaurant_name", "status", "total_mad",
-            "customer_name", "customer_address", "delivery_instructions",
-            "created_at", "eta_minutes",
-        ))
+        email_key = (client.email or "").strip().lower()
+        orders_qs = (
+            Order.objects.filter(Q(client=client) | Q(customer_email__iexact=email_key))
+            if email_key
+            else Order.objects.filter(client=client)
+        ).order_by("-created_at")
+
+        orders_list = list(
+            orders_qs.annotate(restaurant_name=F("restaurant__name")).values(
+                "public_id",
+                "restaurant_name",
+                "status",
+                "total_mad",
+                "customer_name",
+                "customer_address",
+                "delivery_instructions",
+                "created_at",
+                "eta_minutes",
+            )
+        )
 
         events = AnalyticsEvent.objects.filter(user=client).order_by("-created_at")[:100]
-        events_list = list(events.values(
-            "category", "label", "path", "metadata", "duration_ms", "created_at"
-        ))
+        events_list = list(
+            events.values("category", "label", "path", "metadata", "duration_ms", "created_at")
+        )
 
         page_views_by_day = list(
             AnalyticsEvent.objects.filter(user=client, category="pageview")
@@ -277,18 +460,33 @@ class ClientDetailAnalyticsView(APIView):
             .order_by("date")
         )
 
+        restaurants_viewed = list(
+            AnalyticsEvent.objects.filter(user=client, category="restaurant_view")
+            .values("label")
+            .annotate(cnt=Count("id"))
+            .order_by("-cnt")[:10]
+        )
+
+        phone = ""
+        try:
+            phone = (client.phone or "").strip()
+        except Exception:
+            phone = ""
+
         return Response({
             "client": {
                 "id": str(client.id),
                 "email": client.email,
                 "display_name": client.display_name,
-                "phone": client.phone,
+                "phone": phone,
                 "is_active": client.is_active,
                 "role": client.role,
+                "is_guest": False,
                 "created_at": client.created_at.isoformat() if client.created_at else None,
                 "last_login": client.last_login.isoformat() if client.last_login else None,
             },
             "orders": orders_list,
             "events": events_list,
             "page_views_by_day": page_views_by_day,
+            "restaurants_viewed": restaurants_viewed,
         })
