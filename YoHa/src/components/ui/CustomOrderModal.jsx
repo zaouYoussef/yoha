@@ -6,6 +6,7 @@ import { useOrders, useToast } from '../../contexts/AppContexts.jsx';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { useYohaNav } from '../../contexts/YohaNavContext.jsx';
 import { OrdonnanceUpload } from './OrdonnanceUpload.jsx';
+import { CAMPUS_HOSPITALS } from '../../data/index.js';
 
 const CATEGORY_META = {
   all: {
@@ -123,7 +124,7 @@ export function CustomOrderModal({ isOpen, onClose, category = 'all' }) {
   const [placeName, setPlaceName] = useState('');
   const [placeAddress, setPlaceAddress] = useState('');
   const [orderDetails, setOrderDetails] = useState('');
-  const [deliveryAddress, setDeliveryAddress] = useState(user?.address || 'CHU Tanger — Aile Principale');
+  const [deliveryAddress, setDeliveryAddress] = useState(CAMPUS_HOSPITALS[0]?.name || 'CHU Mohammed VI de Tanger');
   const [phone, setPhone] = useState(user?.phone || '');
   const [notes, setNotes] = useState('');
   const [ordonnanceUrl, setOrdonnanceUrl] = useState('');
@@ -358,16 +359,21 @@ export function CustomOrderModal({ isOpen, onClose, category = 'all' }) {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-ink-700 dark:text-ink-300 mb-1.5">
-                4. Lieu de livraison (Alliance / CHU) *
+                4. Lieu de livraison *
               </label>
-              <input
-                type="text"
+              <select
                 required
-                placeholder="ex: CHU Aile B - Chambre 204, BU..."
                 value={deliveryAddress}
                 onChange={(e) => setDeliveryAddress(e.target.value)}
                 className="w-full h-11 px-4 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 text-sm text-ink-900 dark:text-white focus:outline-none focus:border-brand-500 transition-colors"
-              />
+              >
+                {CAMPUS_HOSPITALS.map((place) => (
+                  <option key={place.name} value={place.name}>
+                    {place.name}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-[10px] text-ink-500 font-medium">4 zones YoHa uniquement</p>
             </div>
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-ink-700 dark:text-ink-300 mb-1.5">

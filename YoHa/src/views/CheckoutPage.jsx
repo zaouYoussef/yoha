@@ -8,13 +8,13 @@ import { Row } from '../components/ui/Row.jsx';
 import { Card, CardHeader, Input, Loader } from '../components/checkout/CheckoutForms.jsx';
 import { TimeSlotPicker } from '../components/checkout/TimeSlotPicker.jsx';
 import { MenuItemImage } from '../components/ui/MenuItemImage.jsx';
-import { getServiceFeeMad, formatMad } from '../data/index.js';
+import { getServiceFeeMad, formatMad, CAMPUS_HOSPITALS } from '../data/index.js';
 import { useCart, useOrders } from '../contexts/AppContexts.jsx';
 
 export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) {
   const { user } = useAuth();
   const { setCart } = useCart();
-  const [address, setAddress] = useState('CHU-Tanger');
+  const [address, setAddress] = useState(CAMPUS_HOSPITALS[0]?.name || 'CHU Mohammed VI de Tanger');
   const [phone, setPhone] = useState('+212 6 12 34 56 78');
   const [restaurantNotes, setRestaurantNotes] = useState('');
   const [scheduledTime, setScheduledTime] = useState('');
@@ -232,6 +232,10 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
       setErr('Adresse e-mail invalide.');
       return;
     }
+    if (!CAMPUS_HOSPITALS.some((p) => p.name === address)) {
+      setErr('Choisissez un lieu de livraison parmi les 4 zones YoHa.');
+      return;
+    }
     setSubmitting(true);
     const ordonnanceUrl = cart.find(i => i.customDetails?.ordonnanceUrl)?.customDetails?.ordonnanceUrl || '';
     const customer = { name, address, phone, email: trimmedEmail, restaurantNotes: restaurantNotes.trim(), scheduledTime: scheduledTime || undefined, ordonnanceUrl };
@@ -392,10 +396,62 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                 />
               )}
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
-                <Input label="Lieu de livraison" value={address} onChange={setAddress} placeholder="Campus, CHU, Bâtiment, Chambre..."/>
-                <Input label="Numéro de téléphone" value={phone} onChange={setPhone} placeholder="+212 6 12 34 56 78" />
+              <div>
+                <span className="text-[11px] sm:text-xs font-bold text-ink-700 dark:text-ink-200 uppercase tracking-wider">
+                  Lieu de livraison *
+                </span>
+                <p className="mt-1 text-[11px] text-ink-500 font-medium">
+                  Uniquement les 4 zones couvertes par YoHa
+                </p>
+                <div className="mt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {CAMPUS_HOSPITALS.map((place) => {
+                    const selected = address === place.name;
+                    return (
+                      <button
+                        key={place.name}
+                        type="button"
+                        onClick={() => setAddress(place.name)}
+                        className={`text-left rounded-2xl border p-3 transition-all ${
+                          selected
+                            ? 'border-brand-500 bg-brand-500/10 ring-2 ring-brand-500/25 shadow-sm'
+                            : 'border-ink-200 dark:border-ink-800 bg-slate-50 dark:bg-ink-950 hover:border-brand-400/50'
+                        }`}
+                      >
+                        <div className="flex items-start gap-2.5">
+                          <span
+                            className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full border-2 ${
+                              selected
+                                ? 'border-brand-500 bg-brand-500'
+                                : 'border-ink-300 dark:border-ink-600'
+                            }`}
+                          >
+                            {selected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                          </span>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                Disponible
+                              </span>
+                            </div>
+                            <div className="font-extrabold text-sm text-ink-900 dark:text-white leading-snug">
+                              {place.name}
+                            </div>
+                            <div className="mt-0.5 text-[11px] text-ink-500 font-medium leading-snug">
+                              {place.subtitle}
+                            </div>
+                            <div className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-bold text-brand-600 dark:text-brand-400">
+                              <I.Bike size={12} /> Livraison prioritaire
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+
+              <Input label="Numéro de téléphone" value={phone} onChange={setPhone} placeholder="+212 6 12 34 56 78" />
 
               <label className="block space-y-1.5">
                 <span className="text-[11px] sm:text-xs font-bold text-ink-700 dark:text-ink-200 uppercase tracking-wider">Instructions pour le livreur / restaurant</span>
