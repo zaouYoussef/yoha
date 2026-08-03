@@ -76,9 +76,16 @@ export function RestaurantMenuHero({ restaurant, scrollY, topInset, onBack }: Pr
           </View>
         </View>
 
-        {restaurant.description ? (
-          <Text style={styles.desc} numberOfLines={2}>{restaurant.description}</Text>
-        ) : null}
+        {(() => {
+          const raw = String(restaurant.description || '').trim();
+          if (!raw) return null;
+          if (raw.includes('—') || raw.includes(' - ')) {
+            const left = raw.split(/\s*[—-]\s*/)[0]?.trim() || '';
+            if (!left || left.toLowerCase() === String(restaurant.name || '').toLowerCase()) return null;
+            return <Text style={styles.desc} numberOfLines={2}>{left}</Text>;
+          }
+          return <Text style={styles.desc} numberOfLines={2}>{raw}</Text>;
+        })()}
 
         {restaurant.promo ? (
           <View style={styles.badges}>

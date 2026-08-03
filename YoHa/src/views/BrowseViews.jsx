@@ -21,6 +21,7 @@ import { OrdonnanceUpload } from '../components/ui/OrdonnanceUpload.jsx';
 import { pharmaciesApi } from '../lib/api.js';
 import { browsePathForFilter, normalizeBrowseFilter } from '../data/browseSlugs.js';
 import { foldText } from '@/utils/textNormalize.js';
+import { publicRestaurantBio } from '@/utils/restaurantBio.js';
 
 function shuffleWithSeed(array, seed) {
   if (!array || !array.length) return [];
@@ -1673,11 +1674,11 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
             </span>
           </motion.div>
 
-          {(r.description || (!isDuty && r.name)) && (
+          {(publicRestaurantBio(r.description, r.name) || (!isDuty && r.name)) && (
             <p className="mt-3 text-[13px] text-white/50 leading-relaxed line-clamp-2 max-w-lg">
               {isDuty && dutyHoursFr
                 ? dutyHoursFr
-                : r.description ||
+                : publicRestaurantBio(r.description, r.name) ||
                   `${r.name}, disponible en livraison directement chez vous ! ${CUISINE_ICONS[r.cuisine] || '🍽️'}`}
             </p>
           )}

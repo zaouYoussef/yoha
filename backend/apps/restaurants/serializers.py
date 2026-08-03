@@ -15,6 +15,47 @@ from .models import (
 from .opening_hours import normalize_opening_hours, restaurant_open_status
 
 
+def split_restaurant_description(description: str, name: str = "") -> tuple[str, str]:
+    """Sépare bio client et adresse (format « Nom — adresse »)."""
+    raw = (description or "").strip()
+    if not raw:
+        return "", ""
+    if "—" in raw:
+        left, right = raw.split("—", 1)
+    elif " - " in raw:
+        left, right = raw.split(" - ", 1)
+    else:
+        return raw, ""
+    left, right = left.strip(), right.strip(" ,")
+    if not right:
+        return left, ""
+    looks_addr = bool(
+        any(ch.isdigit() for ch in right)
+        or any(
+            token in right.lower()
+            for token in (
+                "tanger",
+                "tangier",
+                "morocco",
+                "maroc",
+                "rue ",
+                "av.",
+                "avenue",
+                "boulevard",
+                "route ",
+                "résidence",
+                "residence",
+            )
+        )
+        or "+" in right
+    )
+    if not looks_addr:
+        return raw, ""
+    name_norm = (name or "").strip().lower()
+    bio = "" if (not left or (name_norm and left.lower() == name_norm)) else left
+    return bio, right
+
+
 def media_url(file_key: str) -> str:
     if not file_key:
         return ""
@@ -157,6 +198,8 @@ class RestaurantListSerializer(serializers.ModelSerializer):
     delivery = serializers.CharField(source="delivery_time")
     cover = serializers.SerializerMethodField()
     logo = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    address = serializers.SerializerMethodField()
     openingHours = OpeningHoursSerializer(source="opening_hours")
     isOpen = serializers.SerializerMethodField()
     openLabel = serializers.SerializerMethodField()
@@ -180,6 +223,7 @@ class RestaurantListSerializer(serializers.ModelSerializer):
             "cover",
             "logo",
             "description",
+            "address",
             "phone",
             "openingHours",
             "isOpen",
@@ -189,6 +233,18 @@ class RestaurantListSerializer(serializers.ModelSerializer):
             "rating",
             "menuHints",
         )
+
+    def get_description(self, obj):
+        raw = (obj.description or "").strip()
+        # Dashboard gérant : texte brut (édition). Clients : bio sans adresse.
+        if self.context.get("manage"):
+            return raw
+        bio, _addr = split_restaurant_description(raw, obj.name)
+        return bio
+
+    def get_address(self, obj):
+        _bio, addr = split_restaurant_description(obj.description or "", obj.name)
+        return addr
 
     def get_isOpen(self, obj):
         return restaurant_open_status(obj.opening_hours)["isOpen"]
