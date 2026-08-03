@@ -569,7 +569,7 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
     couriers[0] ||
     { id: '0', name: user?.displayName || 'Livreur' };
 
-  const { active: gpsActive, coords: gpsCoords, denied: gpsDenied, requestGps, trackingCount } = useCourierAutoGps(COURIER_ME, orders);
+  useCourierAutoGps(COURIER_ME, orders);
 
   const titles = {
     available: 'Commandes disponibles',
@@ -580,46 +580,6 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
   return (
     <DashLayout kind="delivery" current={current} setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
       title={titles[current]} subtitle={`Connecté en tant que ${COURIER_ME.name}`}>
-
-      {/* Mobile-Friendly Active GPS Tracker Bar */}
-      {trackingCount > 0 && (
-      <div className="mb-6 p-4 rounded-2xl bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 shadow-sm flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
-        <div className="flex items-center gap-3">
-          <div className="relative flex h-3 w-3">
-            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${gpsCoords ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-            <span className={`relative inline-flex rounded-full h-3 w-3 ${gpsCoords ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-          </div>
-          <div>
-            <div className="font-extrabold text-xs text-ink-900 dark:text-white flex items-center gap-2">
-              <span>📍 Géolocalisation Mobile Live</span>
-              {gpsCoords ? (
-                <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/30">
-                  Signal GPS actif ({gpsCoords.lat.toFixed(4)}, {gpsCoords.lng.toFixed(4)})
-                </span>
-              ) : gpsDenied ? (
-                <span className="px-2 py-0.5 rounded-full text-[10px] bg-rose-500/15 text-rose-600 dark:text-rose-400 font-bold border border-rose-500/30">
-                  Permission GPS refusée sur le téléphone
-                </span>
-              ) : (
-                <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/30">
-                  Recherche du signal GPS...
-                </span>
-              )}
-            </div>
-            <p className="text-[11px] text-ink-500 dark:text-ink-400 font-medium">
-              Position transmise en direct dès confirmation — arrêt automatique à la livraison.
-            </p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={requestGps}
-          className="px-3.5 py-2 rounded-xl bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 dark:text-brand-400 font-extrabold text-xs transition-all border border-brand-500/30 flex items-center gap-1.5 shrink-0 cursor-pointer"
-        >
-          <span>📡 Activer / Réactualiser GPS</span>
-        </button>
-      </div>
-      )}
 
       {current === 'available' && <DeliveryAvailable courier={COURIER_ME} />}
       {current === 'mine' && <DeliveryMine courier={COURIER_ME} />}
@@ -1037,7 +997,6 @@ export function DeliveryMine({ courier }) {
                           Ouvrir dans Google Maps
                         </a>
                       )}
-                      <CourierGpsTrackerToggle orderId={o.id} />
                       <OrderActionButtons order={o} />
                       <CourierStatusButton
                         orderId={o.id}
@@ -1059,51 +1018,6 @@ export function DeliveryMine({ courier }) {
         </div>
       )}
     </div>
-  );
-}
-
-function CourierGpsTrackerToggle({ orderId }) {
-  const [active, setActive] = useState(false);
-
-  const toggleGps = () => {
-    if (active) {
-      updateCourierGps(orderId, 0, 0, false);
-      setActive(false);
-    } else {
-      if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const lat = pos.coords.latitude, lng = pos.coords.longitude;
-            updateCourierGps(orderId, lat, lng, true);
-            ordersApi.updateLocation(orderId, lat, lng).catch(() => {});
-            setActive(true);
-          },
-          () => {
-            updateCourierGps(orderId, 35.68500, -5.92300, true);
-            setActive(true);
-          },
-          { enableHighAccuracy: true }
-        );
-      } else {
-        updateCourierGps(orderId, 35.68500, -5.92300, true);
-        setActive(true);
-      }
-    }
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={toggleGps}
-      className={`w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl font-extrabold text-xs transition-all ${
-        active
-          ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
-          : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hover:bg-emerald-100'
-      }`}
-    >
-      <span className={active ? 'animate-pulse' : ''}>{active ? '🟢' : '📡'}</span>
-      <span>{active ? 'GPS Live Activé (Position transmise au client)' : 'Activer le GPS Live pour le client'}</span>
-    </button>
   );
 }
 
