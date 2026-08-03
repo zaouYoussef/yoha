@@ -2,11 +2,13 @@
 
 import { createContext, useCallback, useContext, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, DASHBOARD_REQUIRED_ROLE, ROLE_LABELS } from './AuthContext';
+import { useAuth, DASHBOARD_REQUIRED_ROLE, ROLE_LABELS, getStaffHomePath } from './AuthContext';
 import { useToast } from './AppContexts';
 import { browsePathForFilter } from '@/data/browseSlugs.js';
 
 const NavCtx = createContext(null);
+
+const CLIENT_SHOP_VIEWS = new Set(['landing', 'home', 'restaurant', 'checkout', 'success', 'my-orders']);
 
 function buildPath(name, params = {}) {
   switch (name) {
@@ -58,6 +60,14 @@ export function YohaNavProvider({ children }) {
   const goto = useCallback(
     (name, params = {}, opts = {}) => {
       const effectiveUser = opts.session ?? user;
+      const staffHome = getStaffHomePath(effectiveUser?.role);
+
+      // Staff : jamais landing / browse / resto public — panel uniquement
+      if (staffHome && CLIENT_SHOP_VIEWS.has(name)) {
+        router.push(staffHome);
+        return;
+      }
+
       const need = DASHBOARD_REQUIRED_ROLE[name];
       if (need) {
         if (!effectiveUser) {

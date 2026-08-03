@@ -170,11 +170,11 @@ export function RestaurantDashboard({ goto, dark, setDark }) {
 
   const restoId = myResto?.id;
   const titles = {
-    incoming: 'Commandes entrantes',
-    profile: 'Mon établissement',
-    menu: 'Mon menu',
+    incoming: 'Cuisine live',
+    profile: 'Établissement',
+    menu: 'Carte & menu',
     promos: 'Offres',
-    stats: 'Statistiques',
+    stats: 'Analytics',
   };
 
   if (myResto === undefined) {
@@ -214,7 +214,7 @@ export function RestaurantDashboard({ goto, dark, setDark }) {
 
   return (
     <DashLayout kind="restaurant" current={current} setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
-      title={titles[current]} subtitle={`Connecté en tant que ${myResto.name}`}>
+      title={titles[current]} subtitle={myResto.name}>
       {current === 'incoming' && <RestoIncoming restoId={restoId}/>}
       {current === 'profile' && <RestoProfile restaurant={myResto} onUpdated={setMyResto} />}
       {current === 'menu' && <RestoMenu restaurant={myResto} onRefresh={reloadResto} />}
@@ -707,10 +707,10 @@ export function RestoIncoming({ restoId }) {
     if (o.status === 'pickup_confirmed') {
       return (
         <div className="space-y-2">
-          <div className="px-3 py-2 rounded-xl bg-gradient-to-r from-brand-500/10 to-pink-500/10 border border-brand-200/50 dark:border-brand-500/20 text-brand-700 dark:text-brand-400 text-xs font-bold text-center">
-            🛵 Livreur en route vers vous
+          <div className="px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-800 dark:text-amber-300 text-xs font-bold text-center">
+            Livreur en route — à accepter
           </div>
-          <ActionButton onClick={() => updateOrderStatus(o.id, 'preparing')} variant="success" size="md" className="w-full justify-center" icon={<I.Check size={14} />}>
+          <ActionButton onClick={() => updateOrderStatus(o.id, 'preparing')} variant="success" size="md" className="w-full justify-center py-3 text-sm font-black" icon={<I.Check size={14} />}>
             Accepter & préparer
           </ActionButton>
           <CancelOrderButton
@@ -753,40 +753,55 @@ export function RestoIncoming({ restoId }) {
 
   return (
     <div className="space-y-6">
-      {/* Notification Banner */}
       {!notifGranted && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white shadow-lg border border-violet-400/40">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-slate-900 text-white shadow-lg border border-slate-700">
           <div className="flex items-center gap-3 text-center sm:text-left">
             <span className="text-2xl">🔔</span>
             <div>
-              <p className="font-extrabold text-sm text-white">Activer les notifications push</p>
-              <p className="text-xs text-violet-100 font-medium">Recevez les alertes de nouvelles commandes m&ecirc;me page ferm&eacute;e.</p>
+              <p className="font-extrabold text-sm text-white">Notifications cuisine</p>
+              <p className="text-xs text-slate-300 font-medium">Alertes nouvelles commandes même page fermée.</p>
             </div>
           </div>
           <button
             type="button"
             onClick={requestNotif}
-            className="shrink-0 px-4 py-2.5 rounded-xl bg-white text-slate-950 font-black text-xs uppercase tracking-wider shadow-md hover:scale-105 transition-all cursor-pointer"
+            className="shrink-0 px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md hover:bg-amber-400 transition-all cursor-pointer"
           >
             Activer
           </button>
         </div>
       )}
-      {/* Header with stats */}
-      <GradientHeader
-        title="Commandes"
-        subtitle={`${activeOrders.length} en cours · ${cancelledOrders.length} annulées`}
-        icon="🔔"
-        gradient="from-brand-500 via-pink-500 to-violet-500"
-        actions={
-          <div className="flex items-center gap-2 text-white/80 text-xs">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 font-bold backdrop-blur-sm">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-              Live
-            </span>
+
+      {/* Kitchen Display header */}
+      <div className="rounded-2xl border border-slate-200 bg-slate-900 text-white p-4 sm:p-5 shadow-lg dark:border-ink-700">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400">Kitchen Display</div>
+            <h2 className="font-display text-xl font-black sm:text-2xl mt-0.5">Commandes en cuisine</h2>
+            <p className="text-sm text-slate-300 mt-1">
+              {activeOrders.length} active{activeOrders.length !== 1 ? 's' : ''} · {pickupOrders.length} à accepter · {preparingOrders.length} en prep
+            </p>
           </div>
-        }
-      />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-3 py-1.5 text-xs font-bold text-emerald-300">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+            Live
+          </span>
+        </div>
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <div className="rounded-xl bg-white/5 border border-white/10 px-3 py-2.5 text-center">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">File</div>
+            <div className="font-display text-2xl font-black text-white">{activeOrders.length}</div>
+          </div>
+          <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-3 py-2.5 text-center">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-amber-300/80">À accepter</div>
+            <div className="font-display text-2xl font-black text-amber-300">{pickupOrders.length}</div>
+          </div>
+          <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-3 py-2.5 text-center">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300/80">Prep</div>
+            <div className="font-display text-2xl font-black text-emerald-300">{preparingOrders.length}</div>
+          </div>
+        </div>
+      </div>
 
       {/* Filter tabs */}
       <PillTabs
@@ -890,64 +905,69 @@ export function RestoOrderCard({ order, action, completed = false }) {
 
   return (
     <GlassCard
-      className={`p-4 ${completed ? 'opacity-80' : ''}`}
-      glow={!completed && isNew ? 'from-amber-400 to-orange-500' : undefined}
+      className={`p-0 overflow-hidden ${completed ? 'opacity-80' : ''} ${!completed && isNew ? 'ring-2 ring-amber-400/60' : ''}`}
+      hover={false}
+      glow={undefined}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="font-display font-black text-sm">#{order.id}</span>
-            {!completed && statusLabel && (
-              <StatusPill status={order.status} className="text-[9px] px-2 py-0.5" />
-            )}
-          </div>
-          <div className="text-xs text-ink-500 mt-0.5 truncate">{order.customer?.name}</div>
-          <div className="flex items-center gap-2 mt-1">
-            {timer && (
-              <span className="text-[10px] text-ink-400 inline-flex items-center gap-1">
-                <I.Clock size={10} /> {timer}
-              </span>
-            )}
-            {order.createdAt && (
-              <span className="text-[10px] text-ink-400">{formatOrderWhen(order.createdAt)}</span>
-            )}
-          </div>
+      <div className={`px-4 py-2.5 flex items-center justify-between gap-2 border-b ${
+        order.status === 'pickup_confirmed'
+          ? 'bg-amber-500 text-slate-950 border-amber-600'
+          : order.status === 'preparing'
+            ? 'bg-slate-800 text-white border-slate-700'
+            : 'bg-ink-100 dark:bg-ink-800 border-ink-200 dark:border-ink-700'
+      }`}>
+        <div className="min-w-0 flex items-center gap-2">
+          <span className="font-display font-black text-sm truncate">#{order.id}</span>
+          {!completed && statusLabel && (
+            <span className="text-[10px] font-bold uppercase tracking-wide opacity-80 truncate">{statusLabel}</span>
+          )}
         </div>
-        <div className="text-right shrink-0">
-          <div className="font-display font-black text-brand-600 dark:text-brand-400">
-            {formatMad(orderFoodTotalMad(order), { decimals: 0 })}
+        <div className="shrink-0 font-display font-black tabular-nums">
+          {formatMad(orderFoodTotalMad(order), { decimals: 0 })}
+        </div>
+      </div>
+
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <div className="font-bold text-sm text-ink-900 dark:text-white truncate">{order.customer?.name}</div>
+            <div className="flex items-center gap-2 mt-1">
+              {timer && (
+                <span className="text-[10px] text-ink-400 inline-flex items-center gap-1">
+                  <I.Clock size={10} /> {timer}
+                </span>
+              )}
+              {order.createdAt && (
+                <span className="text-[10px] text-ink-400">{formatOrderWhen(order.createdAt)}</span>
+              )}
+            </div>
           </div>
-          <div className="text-[10px] text-ink-500 mt-0.5">
+          <div className="text-[10px] font-bold text-ink-500 shrink-0">
             {(order.items || []).reduce((s, i) => s + i.qty, 0)} art.
           </div>
         </div>
-      </div>
 
-      {/* Items */}
-      <div className="mt-3 space-y-1 rounded-xl bg-ink-50/50 dark:bg-ink-800/30 p-2.5">
-        {(order.items || []).map((it) => (
-          <div key={it.db_id || it.id} className="flex items-center gap-2 text-xs">
-            <span className="font-black text-brand-600 bg-brand-50 dark:bg-brand-500/10 px-1.5 py-0.5 rounded-md text-[10px]">
-              {it.qty}×
-            </span>
-            <span className="truncate flex-1 text-ink-700 dark:text-ink-300">{it.name}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Notes */}
-      <OrderRestaurantNotes notes={order.restaurantNotes} className="mt-2" />
-
-      {/* Courier */}
-      {order.courierName && (
-        <div className="mt-2 text-[10px] text-ink-500 flex items-center gap-1">
-          <I.Bike size={10}/> {order.courierName}
+        <div className="mt-3 space-y-1.5 rounded-xl bg-slate-50 dark:bg-ink-950/50 border border-slate-100 dark:border-ink-800 p-3">
+          {(order.items || []).map((it) => (
+            <div key={it.db_id || it.id} className="flex items-start gap-2 text-sm">
+              <span className="font-black text-amber-700 bg-amber-100 dark:bg-amber-500/15 dark:text-amber-300 px-1.5 py-0.5 rounded-md text-[11px] shrink-0">
+                {it.qty}×
+              </span>
+              <span className="font-semibold text-ink-800 dark:text-ink-200 leading-snug">{it.name}</span>
+            </div>
+          ))}
         </div>
-      )}
 
-      {/* Action */}
-      <div className="mt-3">{action}</div>
+        <OrderRestaurantNotes notes={order.restaurantNotes} className="mt-2" />
+
+        {order.courierName && (
+          <div className="mt-2 text-[11px] font-semibold text-ink-500 flex items-center gap-1.5">
+            <I.Bike size={12} /> Livreur : {order.courierName}
+          </div>
+        )}
+
+        <div className="mt-3">{action}</div>
+      </div>
     </GlassCard>
   );
 }

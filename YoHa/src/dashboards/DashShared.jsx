@@ -5,6 +5,8 @@ import { I } from '../icons/Icons.jsx';
 import { Logo } from '../components/layout/Logo.jsx';
 import { ORDER_STATES } from '../data/index.js';
 import { spotlightHandler } from '../utils/spotlight.js';
+import { useAuth, getStaffHomePath } from '../contexts/AuthContext.jsx';
+import { useRouter } from 'next/navigation';
 
 const gerantPhoto = '/logo.webp';
 
@@ -21,23 +23,23 @@ const DASH_LINKS = {
     { id: 'reviews', label: 'Avis & Notes', icon: <I.Star size={18} /> },
   ],
   delivery: [
-    { id: 'available', label: 'Disponibles', icon: <I.Bell size={18} />, badge: true },
-    { id: 'mine', label: 'En cours', icon: <I.Bike size={18} /> },
+    { id: 'available', label: 'À prendre', icon: <I.Bell size={18} />, badge: true },
+    { id: 'mine', label: 'Mes courses', icon: <I.Bike size={18} /> },
     { id: 'history', label: 'Historique', icon: <I.Clock size={18} /> },
   ],
   restaurant: [
-    { id: 'incoming', label: 'Commandes', icon: <I.Bell size={18} />, badge: true },
-    { id: 'profile', label: 'Profil', icon: <I.Chef size={18} /> },
-    { id: 'menu', label: 'Menu', icon: <I.Bag size={18} /> },
+    { id: 'incoming', label: 'Cuisine', icon: <I.Bell size={18} />, badge: true },
+    { id: 'profile', label: 'Établissement', icon: <I.Chef size={18} /> },
+    { id: 'menu', label: 'Carte', icon: <I.Bag size={18} /> },
     { id: 'promos', label: 'Offres', icon: <I.Zap size={18} /> },
-    { id: 'stats', label: 'Stats', icon: <I.Sparkle size={18} /> },
+    { id: 'stats', label: 'Analytics', icon: <I.Sparkle size={18} /> },
   ],
 };
 
 const DASH_ACCENT = {
   admin: { from: 'from-brand-500', to: 'to-pink-500', name: 'Admin', emoji: '✨', gradient: 'from-brand-500 via-pink-500 to-violet-500' },
-  delivery: { from: 'from-violet-500', to: 'to-fuchsia-500', name: 'Livreur', emoji: '🚴', gradient: 'from-violet-500 via-fuchsia-500 to-pink-500' },
-  restaurant: { from: 'from-brand-500', to: 'to-violet-500', name: 'Restaurant', emoji: '🍽️', gradient: 'from-brand-500 via-pink-500 to-violet-500' },
+  delivery: { from: 'from-emerald-600', to: 'to-teal-500', name: 'Livreur', emoji: '🚴', gradient: 'from-emerald-600 via-teal-500 to-cyan-500' },
+  restaurant: { from: 'from-slate-800', to: 'to-amber-600', name: 'Partner', emoji: '🍽️', gradient: 'from-slate-800 via-slate-700 to-amber-600' },
 };
 
 function pillBg(color) {
@@ -412,14 +414,36 @@ export function DashLayout({
   const links = DASH_LINKS[kind] || [];
   const accent = DASH_ACCENT[kind] || DASH_ACCENT.admin;
   const [open, setOpen] = useState(false);
+  const { logout, user } = useAuth();
+  const router = useRouter();
 
   const pickTab = (id) => {
     setCurrent(id);
     setOpen(false);
   };
 
+  const goHomeOrPanel = () => {
+    const home = getStaffHomePath(user?.role);
+    if (home) {
+      router.push(home);
+      return;
+    }
+    goto('landing');
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push('/auth');
+  };
+
   return (
-    <div className="page-enter relative flex min-h-screen min-h-[100dvh] overflow-x-hidden bg-gradient-to-b from-amber-50/60 via-ink-50 to-violet-50/30 dark:from-ink-950 dark:via-ink-950 dark:to-ink-950">
+    <div className={`page-enter relative flex min-h-screen min-h-[100dvh] overflow-x-hidden ${
+      kind === 'restaurant'
+        ? 'bg-gradient-to-b from-slate-100 via-white to-amber-50/40 dark:from-ink-950 dark:via-ink-950 dark:to-ink-950'
+        : kind === 'delivery'
+          ? 'bg-gradient-to-b from-emerald-50/50 via-white to-teal-50/30 dark:from-ink-950 dark:via-ink-950 dark:to-ink-950'
+          : 'bg-gradient-to-b from-amber-50/60 via-ink-50 to-violet-50/30 dark:from-ink-950 dark:via-ink-950 dark:to-ink-950'
+    }`}>
       <div className="pointer-events-none absolute inset-0 mesh-bg opacity-70 dark:opacity-50" aria-hidden />
       <div className="pointer-events-none absolute inset-0 grid-bg opacity-40 dark:opacity-30" aria-hidden />
 
@@ -444,7 +468,7 @@ export function DashLayout({
         <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-white/20 px-4 dark:border-ink-800/80 sm:px-5">
           <button
             type="button"
-            onClick={() => goto('landing')}
+            onClick={goHomeOrPanel}
             className="group flex min-w-0 cursor-grow items-center gap-2"
           >
             <Logo />
@@ -499,10 +523,10 @@ export function DashLayout({
           </button>
           <button
             type="button"
-            onClick={() => goto('landing')}
-            className="flex w-full cursor-grow items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-ink-600 transition hover:bg-brand-500/8 dark:text-ink-300 dark:hover:bg-white/5"
+            onClick={handleLogout}
+            className="flex w-full cursor-grow items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-rose-600 transition hover:bg-rose-500/10 dark:text-rose-400"
           >
-            <I.Left size={18} /> Retour à YoHa
+            <I.Left size={18} /> Déconnexion
           </button>
         </div>
       </aside>

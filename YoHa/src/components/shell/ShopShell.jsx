@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ScrollProgress } from '@/components/effects/ScrollProgress.jsx';
 import { SocialOrderPopup } from '@/components/effects/SocialOrderPopup.jsx';
 import { Navbar } from '@/components/layout/Navbar.jsx';
@@ -9,7 +9,7 @@ import { BottomNav } from '@/components/layout/BottomNav.jsx';
 import { CartSidebar, FloatingCart } from '@/views/CartViews.jsx';
 import { ToastViewport } from '@/components/ui/ToastViewport.jsx';
 import { CampusHospitalsSection } from '@/views/landing/LandingViews.jsx';
-import { useAuth } from '@/contexts/AuthContext.jsx';
+import { useAuth, getStaffHomePath } from '@/contexts/AuthContext.jsx';
 import { useYohaNav } from '@/contexts/YohaNavContext.jsx';
 import { useCart, useToast, useOrders, CartUICtx } from '@/contexts/AppContexts.jsx';
 import { filterOrdersForClient } from '@/utils/clientOrders.js';
@@ -28,9 +28,10 @@ function pathToView(pathname) {
 
 export function ShopShell({ children, showCampus = false }) {
   const pathname = usePathname();
+  const router = useRouter();
   const viewName = pathToView(pathname);
   const { goto } = useYohaNav();
-  const { user } = useAuth();
+  const { user, booting } = useAuth();
   const { cart, setQty, removeFromCart, cartCount, cartTotal, theme } = useCart();
   const { dark, setDark } = theme;
   const { orders, restaurants } = useOrders();
@@ -38,6 +39,23 @@ export function ShopShell({ children, showCampus = false }) {
   const [cartOpen, setCartOpen] = useState(false);
   const [cartShake, setCartShake] = useState(false);
   const [trackOrderId, setTrackOrderId] = useState(null);
+
+  // Livreurs / restos / admin → panel direct (pas landing / browse)
+  useEffect(() => {
+    if (booting || !user) return;
+    if (pathname === '/auth') return;
+    const home = getStaffHomePath(user.role);
+    if (!home) return;
+    if (pathname === home || pathname.startsWith(`${home}/`)) return;
+    router.replace(home);
+  }, [booting, user, pathname, router]);
+
+  const staffHome = !booting && user ? getStaffHomePath(user.role) : null;
+  const redirectingStaff =
+    !!staffHome &&
+    pathname !== '/auth' &&
+    pathname !== staffHome &&
+    !pathname.startsWith(`${staffHome}/`);
 
   useEffect(() => {
     try {
@@ -107,6 +125,17 @@ export function ShopShell({ children, showCampus = false }) {
     }),
     [cartOpen],
   );
+
+  if (redirectingStaff) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-ink-50 dark:bg-ink-950">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
+          <p className="text-sm text-ink-500 font-medium">Redirection vers votre espace…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <CartUICtx.Provider value={cartUI}>

@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { I } from '../icons/Icons.jsx';
 import { Button } from '../components/ui/Button.jsx';
-import { useAuth, DASHBOARD_REQUIRED_ROLE, AUTH_ROLES } from '../contexts/AuthContext.jsx';
+import { useAuth, DASHBOARD_REQUIRED_ROLE, AUTH_ROLES, getStaffHomePath } from '../contexts/AuthContext.jsx';
 import { useToast } from '../contexts/AppContexts.jsx';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../lib/firebase.js';
+import { useRouter } from 'next/navigation';
 
 function roleLabelForDashboard(viewName) {
   if (viewName === 'admin') return 'gérant';
@@ -18,6 +19,7 @@ function roleLabelForDashboard(viewName) {
 export function AuthPage({ redirect, goto, goHome }) {
   const { login, register, loginWithGoogle, logout, user, ROLE_LABELS } = useAuth();
   const toast = useToast();
+  const router = useRouter();
   const [tab, setTab] = useState('login');
   const [loginId, setLoginId] = useState('');
   const [email, setEmail] = useState('');
@@ -38,6 +40,13 @@ export function AuthPage({ redirect, goto, goHome }) {
     [AUTH_ROLES.restaurant]: 'restaurant-dash',
     [AUTH_ROLES.client]: 'home',
   };
+
+  // Déjà connecté en staff → panel (sauf changement de compte requis)
+  useEffect(() => {
+    if (!user || wrongAccount) return;
+    const home = getStaffHomePath(user.role);
+    if (home) router.replace(home);
+  }, [user, wrongAccount, router]);
 
   const finishSuccess = (sessionUser) => {
     const opts = { session: sessionUser };

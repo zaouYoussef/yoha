@@ -29,6 +29,17 @@ export const DASHBOARD_REQUIRED_ROLE = {
   'restaurant-dash': 'restaurant',
 };
 
+/** Page d’accueil forcée pour le staff (pas de landing / browse). */
+export const ROLE_HOME_PATH = {
+  [AUTH_ROLES.courier]: '/delivery',
+  [AUTH_ROLES.restaurant]: '/restaurant-dash',
+  [AUTH_ROLES.admin]: '/youssef',
+};
+
+export function getStaffHomePath(role) {
+  return ROLE_HOME_PATH[role] || null;
+}
+
 export const AuthCtx = createContext(null);
 
 export function useAuth() {

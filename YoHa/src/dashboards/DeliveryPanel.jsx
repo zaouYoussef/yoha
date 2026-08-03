@@ -311,9 +311,11 @@ function OrdonnanceCard({ url }) {
 
 function OrderItemsDetail({ order, restaurantPhone }) {
   const [copied, setCopied] = useState(false);
+  const [open, setOpen] = useState(false);
   const items = Array.isArray(order.items) ? order.items : [];
   const waDigits = whatsAppDigits(restaurantPhone);
   const phoneHref = restaurantPhone ? `tel:${String(restaurantPhone).replace(/\s/g, '')}` : null;
+  const itemCount = items.reduce((s, i) => s + (i.qty || 1), 0);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -333,104 +335,109 @@ function OrderItemsDetail({ order, restaurantPhone }) {
   }, [order, restaurantPhone]);
 
   return (
-    <div className="mt-4 overflow-hidden rounded-2xl border border-white/20 bg-white/70 backdrop-blur-xl dark:border-ink-700/30 dark:bg-ink-900/70">
-      <div className="flex flex-col gap-2 border-b border-ink-200/60 bg-white/60 px-3 py-2.5 dark:border-ink-800 dark:bg-ink-900/40 sm:flex-row sm:items-center sm:justify-between sm:px-4">
-        <div className="flex min-w-0 items-center gap-2">
-          <I.Receipt size={15} className="shrink-0 text-brand-500" />
-          <span className="text-xs font-bold uppercase tracking-wider text-ink-600 dark:text-ink-300">
-            Détail commande
-          </span>
-          <span className="rounded-full bg-brand-500/10 px-2 py-0.5 text-[10px] font-black text-brand-600 dark:text-brand-400">
-            {items.reduce((s, i) => s + (i.qty || 1), 0)} art.
-          </span>
-        </div>
-        <div className="grid grid-cols-2 gap-1.5 sm:flex sm:shrink-0">
-          <button
-            type="button"
-            onClick={handleCopy}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-ink-900 px-3 py-2 text-[11px] font-bold text-white transition hover:opacity-90 dark:bg-white dark:text-ink-900 sm:py-1.5"
-          >
-            {copied ? <I.Check size={13} /> : <I.Copy size={13} />}
-            {copied ? 'Copié !' : 'Copier'}
-          </button>
-          <button
-            type="button"
-            onClick={handleWhatsApp}
-            disabled={!waDigits}
-            title={waDigits ? `WhatsApp ${restaurantPhone}` : 'Numéro restaurant indisponible'}
-            className="inline-flex items-center justify-center gap-1 rounded-xl bg-emerald-600 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40 sm:py-1.5"
-          >
-            <I.Phone size={12} />
-            <span className="truncate">WhatsApp resto</span>
-          </button>
-        </div>
-      </div>
+    <div className="mt-4 overflow-hidden rounded-2xl border border-ink-200/70 bg-white dark:border-ink-700/50 dark:bg-ink-900">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left"
+      >
+        <span className="flex items-center gap-2 text-sm font-bold text-ink-800 dark:text-ink-100">
+          <I.Receipt size={15} className="text-emerald-600" />
+          Articles ({itemCount})
+        </span>
+        <span className="text-xs font-bold text-ink-400">{open ? 'Masquer ▴' : 'Voir ▾'}</span>
+      </button>
 
-      {phoneHref ? (
-        <a
-          href={phoneHref}
-          className="flex items-center justify-between gap-3 border-b border-emerald-500/20 bg-emerald-500/10 px-4 py-3 transition hover:bg-emerald-500/15"
-        >
-          <div className="min-w-0">
-            <div className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
-              Sonner au restaurant
+      {open && (
+        <>
+          <div className="flex flex-col gap-2 border-t border-ink-200/60 bg-ink-50/50 px-3 py-2.5 dark:border-ink-800 dark:bg-ink-950/40 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+            <div className="grid grid-cols-2 gap-1.5 sm:flex sm:shrink-0 sm:ml-auto">
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-ink-900 px-3 py-2 text-[11px] font-bold text-white transition hover:opacity-90 dark:bg-white dark:text-ink-900 sm:py-1.5"
+              >
+                {copied ? <I.Check size={13} /> : <I.Copy size={13} />}
+                {copied ? 'Copié !' : 'Copier'}
+              </button>
+              <button
+                type="button"
+                onClick={handleWhatsApp}
+                disabled={!waDigits}
+                title={waDigits ? `WhatsApp ${restaurantPhone}` : 'Numéro restaurant indisponible'}
+                className="inline-flex items-center justify-center gap-1 rounded-xl bg-emerald-600 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40 sm:py-1.5"
+              >
+                <I.Phone size={12} />
+                <span className="truncate">WhatsApp resto</span>
+              </button>
             </div>
-            <div className="truncate text-sm font-bold text-ink-900 dark:text-white">{restaurantPhone}</div>
           </div>
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-[11px] font-black text-white shadow-sm">
-            <I.Phone size={13} />
-            Appeler
-          </span>
-        </a>
-      ) : (
-        <div className="border-b border-amber-500/20 bg-amber-500/10 px-4 py-2.5 text-[11px] font-semibold text-amber-800 dark:text-amber-300">
-          Numéro du restaurant indisponible — demandez-le à l&apos;accueil YoHa si besoin.
-        </div>
-      )}
 
-      <ul className="divide-y divide-ink-200/50 dark:divide-ink-800/80">
-        {items.length === 0 ? (
-          <li className="px-4 py-3 text-sm text-ink-500">Aucun article listé</li>
-        ) : (
-          items.map((item, idx) => {
-            const qty = item.qty || 1;
-            const unit = parseAmount(item.price);
-            const opts = Array.isArray(item.options)
-              ? item.options.map((o) => (typeof o === 'string' ? o : o?.name)).filter(Boolean)
-              : [];
-            return (
-              <li key={item.id || idx} className="flex items-start justify-between gap-3 px-4 py-2.5 text-sm">
-                <div className="min-w-0 flex-1">
-                  <div>
-                    <span className="font-bold text-brand-600 dark:text-brand-400">{qty}×</span>{' '}
-                    <span className="font-semibold text-ink-900 dark:text-white">{item.name}</span>
-                  </div>
-                  {opts.length > 0 && (
-                    <div className="mt-1 text-[11px] font-semibold leading-snug text-ink-500 dark:text-ink-400">
-                      Options : {opts.join(' · ')}
-                    </div>
-                  )}
+          {phoneHref ? (
+            <a
+              href={phoneHref}
+              className="flex items-center justify-between gap-3 border-t border-emerald-500/20 bg-emerald-500/10 px-4 py-3 transition hover:bg-emerald-500/15"
+            >
+              <div className="min-w-0">
+                <div className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+                  Sonner au restaurant
                 </div>
-                <span className="shrink-0 font-semibold text-ink-600 tabular-nums dark:text-ink-300">
-                  {formatMad(unit * qty, { decimals: 2 })}
-                </span>
-              </li>
-            );
-          })
-        )}
-      </ul>
+                <div className="truncate text-sm font-bold text-ink-900 dark:text-white">{restaurantPhone}</div>
+              </div>
+              <span className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-[11px] font-black text-white shadow-sm">
+                <I.Phone size={13} />
+                Appeler
+              </span>
+            </a>
+          ) : (
+            <div className="border-t border-amber-500/20 bg-amber-500/10 px-4 py-2.5 text-[11px] font-semibold text-amber-800 dark:text-amber-300">
+              Numéro du restaurant indisponible
+            </div>
+          )}
 
-      {items.length > 0 && (
-        <div className="flex items-center justify-between border-t border-ink-200/60 bg-white/40 px-4 py-2.5 text-sm dark:border-ink-800 dark:bg-ink-900/30">
-          <span className="font-semibold text-ink-500">Total commande</span>
-          <span className="font-display font-extrabold text-brand-600 dark:text-brand-400">
-            {formatMad(order.totalDh, { decimals: 2 })}
-          </span>
-        </div>
+          <ul className="divide-y divide-ink-200/50 border-t border-ink-200/60 dark:divide-ink-800/80 dark:border-ink-800">
+            {items.length === 0 ? (
+              <li className="px-4 py-3 text-sm text-ink-500">Aucun article listé</li>
+            ) : (
+              items.map((item, idx) => {
+                const qty = item.qty || 1;
+                const unit = parseAmount(item.price);
+                const opts = Array.isArray(item.options)
+                  ? item.options.map((o) => (typeof o === 'string' ? o : o?.name)).filter(Boolean)
+                  : [];
+                return (
+                  <li key={item.id || idx} className="flex items-start justify-between gap-3 px-4 py-2.5 text-sm">
+                    <div className="min-w-0 flex-1">
+                      <div>
+                        <span className="font-bold text-emerald-600 dark:text-emerald-400">{qty}×</span>{' '}
+                        <span className="font-semibold text-ink-900 dark:text-white">{item.name}</span>
+                      </div>
+                      {opts.length > 0 && (
+                        <div className="mt-1 text-[11px] font-semibold leading-snug text-ink-500 dark:text-ink-400">
+                          Options : {opts.join(' · ')}
+                        </div>
+                      )}
+                    </div>
+                    <span className="shrink-0 font-semibold text-ink-600 tabular-nums dark:text-ink-300">
+                      {formatMad(unit * qty, { decimals: 2 })}
+                    </span>
+                  </li>
+                );
+              })
+            )}
+          </ul>
+          {items.length > 0 && (
+            <div className="flex items-center justify-between border-t border-ink-200/60 bg-ink-50/80 px-4 py-2.5 text-sm dark:border-ink-800 dark:bg-ink-950/40">
+              <span className="font-semibold text-ink-500">Total</span>
+              <span className="font-display font-extrabold text-emerald-600 dark:text-emerald-400">
+                {formatMad(order.totalDh, { decimals: 2 })}
+              </span>
+            </div>
+          )}
+          <OrderRestaurantNotes notes={order.restaurantNotes} className="m-3 mt-0" title="Remarques client" />
+          <OrdonnanceCard url={order.ordonnanceUrl} />
+        </>
       )}
-
-      <OrderRestaurantNotes notes={order.restaurantNotes} className="m-4 mt-0" title="Remarques client (restaurant)" />
-      <OrdonnanceCard url={order.ordonnanceUrl} />
     </div>
   );
 }
@@ -589,7 +596,6 @@ function useCourierAutoGps(courier, orders) {
 }
 
 export function DeliveryDashboard({ goto, dark, setDark }) {
-  const [current, setCurrent] = useState('available');
   const { orders, couriers } = useOrders();
   const { user } = useAuth();
   const COURIER_ME =
@@ -597,17 +603,23 @@ export function DeliveryDashboard({ goto, dark, setDark }) {
     couriers[0] ||
     { id: '0', name: user?.displayName || 'Livreur' };
 
+  const hasMine = (orders || []).some(
+    (o) => isOrderAssignedToCourier(o, COURIER_ME) && isActiveOrderStatus(o.status),
+  );
+
+  const [current, setCurrent] = useState(() => (hasMine ? 'mine' : 'available'));
+
   useCourierAutoGps(COURIER_ME, orders);
 
   const titles = {
-    available: 'Commandes disponibles',
-    mine: 'Mes courses en cours',
+    available: 'À prendre',
+    mine: 'Mes courses',
     history: 'Historique',
   };
 
   return (
     <DashLayout kind="delivery" current={current} setCurrent={setCurrent} goto={goto} dark={dark} setDark={setDark}
-      title={titles[current]} subtitle={`Connecté en tant que ${COURIER_ME.name}`}>
+      title={titles[current]} subtitle={COURIER_ME.name}>
 
       {current === 'available' && <DeliveryAvailable courier={COURIER_ME} />}
       {current === 'mine' && <DeliveryMine courier={COURIER_ME} />}
@@ -769,42 +781,21 @@ export function DeliveryAvailable({ courier }) {
         </div>
       )}
 
-      <GradientHeader
-        title={`${available.length} commande${available.length > 1 ? 's' : ''} en attente`}
-        subtitle="Confirmez en premier — la course est à vous. Les autres livreurs la verront disparaître."
-        icon="🛵"
-        gradient="from-violet-500 via-fuchsia-500 to-pink-500"
-        actions={
-          <button
-            type="button"
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className="flex items-center gap-1.5 rounded-xl bg-white/15 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm transition hover:bg-white/25 disabled:opacity-50"
-          >
-            <I.Refresh size={14} className={refreshing ? 'animate-spin' : ''} />
-            {refreshing ? '…' : 'Rafraîchir'}
-          </button>
-        }
-      >
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <div className="rounded-xl bg-white/15 px-3 py-2 backdrop-blur-sm">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-white/70">Disponibles</div>
-            <div className="font-display text-xl font-extrabold">{available.length}</div>
-          </div>
-          <div className="rounded-xl bg-white/15 px-3 py-2 backdrop-blur-sm">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-white/70">Prêtes</div>
-            <div className="font-display text-xl font-extrabold">
-              {available.filter((o) => o.status === 'preparing').length}
-            </div>
-          </div>
-          <div className="hidden rounded-xl bg-white/15 px-3 py-2 backdrop-blur-sm sm:block">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-white/70">Programmées</div>
-            <div className="font-display text-xl font-extrabold">
-              {available.filter((o) => o.scheduledDeliveryAt).length}
-            </div>
-          </div>
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-600 px-4 py-3.5 text-white shadow-md">
+        <div className="min-w-0">
+          <div className="font-display text-lg font-black">{available.length} à prendre</div>
+          <div className="text-xs font-medium text-emerald-100">Touche « Prendre » — la course est à toi</div>
         </div>
-      </GradientHeader>
+        <button
+          type="button"
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="flex shrink-0 items-center gap-1.5 rounded-xl bg-white/15 px-3 py-2 text-xs font-bold backdrop-blur-sm transition hover:bg-white/25 disabled:opacity-50"
+        >
+          <I.Refresh size={14} className={refreshing ? 'animate-spin' : ''} />
+          {refreshing ? '…' : 'Maj'}
+        </button>
+      </div>
 
       {available.length === 0 ? (
         <EmptyState
@@ -833,9 +824,9 @@ export function DeliveryAvailable({ courier }) {
                     variant="success"
                     size="lg"
                     icon={<I.Check size={16} />}
-                    className="mt-3 w-full justify-center"
+                    className="mt-3 w-full justify-center text-base py-3.5"
                   >
-                    Confirmer la course
+                    Prendre cette course
                   </ActionButton>
                   <CancelOrderButton
                     phase="before_pickup"
@@ -945,7 +936,7 @@ export function DeliveryMine({ courier }) {
             <DeliveryOrderCard
               key={o.id}
               order={o}
-              showMap
+              showMap={false}
               variant="active"
               action={
                 <div className="space-y-3">
