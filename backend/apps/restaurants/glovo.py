@@ -259,10 +259,24 @@ def _modifier_groups(data: Dict[str, Any]) -> List[GlovoModifierGroup]:
     return groups
 
 
+def scrub_glovo_branding(text: str, *, fallback: str = "") -> str:
+    """Retire toute mention « Glovo » des libellés visibles client (ex. Glovopromos → Promos)."""
+    if not text:
+        return fallback
+    cleaned = re.sub(r"(?i)glovo", "", text)
+    cleaned = re.sub(r"\s{2,}", " ", cleaned).strip(" \t-–—·|/\\_")
+    if not cleaned:
+        return fallback
+    if cleaned.lower() in {"promo", "promos"}:
+        return "Promos"
+    return cleaned
+
+
 def _clean_name(name: str) -> str:
     """Retire le marqueur de variante Glovo en fin de nom (ex. « Tacos XXL (fm) »)."""
     name = (name or "").strip()
     cleaned = _VARIANT_RE.sub("", name).strip()
+    cleaned = scrub_glovo_branding(cleaned or name)
     return cleaned or name
 
 

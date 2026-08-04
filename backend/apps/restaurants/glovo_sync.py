@@ -31,9 +31,11 @@ from apps.restaurants.glovo import (
     STORE_PAGE_URL,
     GlovoClient,
     GlovoError,
+    GlovoProduct,
     GlovoScraper,
     GlovoSection,
     discover_store,
+    scrub_glovo_branding,
 )
 from apps.restaurants.models import (
     GlovoSyncLog,
@@ -464,12 +466,13 @@ def _apply_menu(restaurant: Restaurant, store: GlovoStoreConfig, sections: List[
     for cat_order, section in enumerate(sections):
         if not section.products:
             continue
-        cat_name = (store.overrides.get(section.title) or section.title).strip()
+        raw_title = (store.overrides.get(section.title) or section.title).strip()
+        cat_name = scrub_glovo_branding(raw_title, fallback="Promos")[:120]
         if not cat_name:
             continue
         cat, created = MenuCategory.objects.update_or_create(
             restaurant=restaurant,
-            name=cat_name[:120],
+            name=cat_name,
             defaults={"sort_order": cat_order},
         )
         if created:
@@ -494,14 +497,16 @@ def _apply_menu(restaurant: Restaurant, store: GlovoStoreConfig, sections: List[
             elif incoming_img and ("cloudfront.net" in incoming_img.lower() or "d52ouboplz7yg" in incoming_img.lower()):
                 incoming_img = ""
 
+            item_name = scrub_glovo_branding(product.name, fallback=product.name)[:200]
+            item_desc = scrub_glovo_branding(product.description or "", fallback="")[:300]
             item, created = MenuItem.objects.update_or_create(
                 restaurant=restaurant,
                 external_id=product.external_id[:40],
                 defaults={
                     "category": cat,
-                    "name": product.name[:200],
-                    "description": product.description[:300],
-                    "ingredients": product.description,
+                    "name": item_name,
+                    "description": item_desc,
+                    "ingredients": item_desc,
                     "price_mad": Decimal(str(product.price_mad)),
                     "image_url": incoming_img,
                     "is_available": not product.out_of_stock,
@@ -536,9 +541,10 @@ def _apply_modifiers(item: MenuItem, product: GlovoProduct) -> None:
         return
     keep_group_ids: set[int] = set()
     for group_order, group in enumerate(product.modifier_groups):
+        group_name = scrub_glovo_branding(group.name, fallback=group.name)[:120]
         grp, _ = MenuItemModifierGroup.objects.update_or_create(
             menu_item=item,
-            name=group.name[:120],
+            name=group_name,
             defaults={
                 "min_selected": min(int(group.min_selected), 99),
                 "max_selected": min(max(int(group.max_selected), 0), 99),
@@ -548,9 +554,10 @@ def _apply_modifiers(item: MenuItem, product: GlovoProduct) -> None:
         keep_group_ids.add(grp.pk)
         keep_option_ids: set[int] = set()
         for option_order, option in enumerate(group.options):
+            option_name = scrub_glovo_branding(option.name, fallback=option.name)[:120]
             opt, _ = MenuItemModifierOption.objects.update_or_create(
                 group=grp,
-                name=option.name[:120],
+                name=option_name,
                 defaults={
                     "external_id": option.external_id[:40],
                     "price_impact": Decimal(str(option.price_impact)),
