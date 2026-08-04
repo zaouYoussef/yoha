@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { I } from '../icons/Icons.jsx';
-import { Button } from '../components/ui/Button.jsx';
 import { useAuth, DASHBOARD_REQUIRED_ROLE, AUTH_ROLES, getStaffHomePath } from '../contexts/AuthContext.jsx';
 import { useToast } from '../contexts/AppContexts.jsx';
 import { signInWithPopup } from 'firebase/auth';
@@ -30,10 +29,8 @@ export function AuthPage({ redirect, goto, goHome }) {
   const [googleLoading, setGoogleLoading] = useState(false);
 
   const requiredRole = redirect ? DASHBOARD_REQUIRED_ROLE[redirect] : null;
-  const wrongAccount =
-    user && requiredRole && user.role !== requiredRole;
+  const wrongAccount = user && requiredRole && user.role !== requiredRole;
 
-  /** Après connexion / inscription : tableau de bord pro ou accueil client. */
   const ROLE_DEFAULT_VIEW = {
     [AUTH_ROLES.admin]: 'admin',
     [AUTH_ROLES.courier]: 'delivery',
@@ -41,7 +38,6 @@ export function AuthPage({ redirect, goto, goHome }) {
     [AUTH_ROLES.client]: 'home',
   };
 
-  // Déjà connecté en staff → panel (sauf changement de compte requis)
   useEffect(() => {
     if (!user || wrongAccount) return;
     const home = getStaffHomePath(user.role);
@@ -134,56 +130,47 @@ export function AuthPage({ redirect, goto, goHome }) {
   };
 
   return (
-    <div className="page-enter relative min-h-[calc(100dvh-8rem)] flex flex-col items-center justify-center px-4 py-10 overflow-hidden bg-gradient-to-b from-amber-50/50 via-white to-pink-50/30 dark:from-ink-950 dark:via-ink-950 dark:to-ink-950">
-      <div className="absolute inset-0 bg-gradient-to-br from-brand-500/10 via-pink-500/5 to-violet-500/10 pointer-events-none" aria-hidden />
-      <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute top-[-15%] left-[-10%] w-[18rem] h-[18rem] rounded-full bg-brand-400/25 blur-3xl" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[20rem] h-[20rem] rounded-full bg-violet-400/20 blur-3xl" />
-      </div>
-
-      <div className="relative w-full max-w-md stagger-children">
-        <button
-          type="button"
-          onClick={goHome}
-          className="cursor-grow inline-flex items-center gap-2 mb-6 px-3 py-2 rounded-xl text-sm text-ink-500 hover:text-brand-500 hover:bg-white/60 dark:hover:bg-ink-900/60 transition"
-        >
-          <I.Left size={18}/> Retour
-        </button>
-
-        <div className="relative rounded-[1.75rem] border border-ink-200/70 bg-white/95 dark:bg-ink-900/85 dark:border-ink-800 shadow-cardhover shadow-glow backdrop-blur-xl p-6 sm:p-8 ring-gradient overflow-hidden">
-          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" aria-hidden />
-          <p className="text-center text-[10px] font-bold uppercase tracking-[0.22em] text-brand-600 dark:text-brand-400">
-            YoHa Account
+    <div className="page-enter relative min-h-[calc(100dvh-8rem)] flex flex-col overflow-hidden bg-white dark:bg-ink-950">
+      <section className="relative overflow-hidden bg-ink-950 text-white">
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[radial-gradient(80%_70%_at_20%_0%,rgba(249,115,22,0.38),transparent_55%),radial-gradient(55%_50%_at_90%_50%,rgba(234,88,12,0.2),transparent_50%)]"
+        />
+        <div className="relative max-w-md mx-auto px-4 pt-6 pb-10 sm:pt-8 sm:pb-12">
+          <button
+            type="button"
+            onClick={goHome}
+            className="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-sm font-semibold transition"
+          >
+            <I.Left size={16} /> Retour
+          </button>
+          <p className="mt-7 font-display font-black text-transparent bg-clip-text bg-gradient-to-br from-orange-200 via-brand-400 to-orange-600 text-4xl sm:text-5xl tracking-tight leading-none">
+            YoHa
           </p>
-          <h1 className="mt-2 font-display font-black text-2xl sm:text-3xl tracking-tight text-center text-ink-900 dark:text-white">
-            {tab === 'login' ? (
-              <>
-                Bon retour{' '}
-                <span className="bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 bg-clip-text text-transparent">👋</span>
-              </>
-            ) : (
-              <span className="bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 bg-clip-text text-transparent">
-                Créer un compte
-              </span>
-            )}
+          <h1 className="mt-3 font-display font-bold text-[clamp(1.75rem,5vw,2.4rem)] tracking-tight leading-[1.05]">
+            {tab === 'login' ? 'Bon retour' : 'Créer un compte'}
           </h1>
-          <p className="mt-2 text-center text-sm text-ink-500 dark:text-ink-400">
+          <p className="mt-2.5 text-sm text-white/60 font-medium max-w-sm leading-relaxed">
             {tab === 'login'
-              ? 'Connectez-vous avec votre e-mail ou votre nom d’utilisateur, et le mot de passe associé à votre compte.'
-              : 'Créez un compte client pour retrouver vos infos. Pour les accès professionnels, veuillez utiliser l’e-mail et le mot de passe fournis par YoHa.'}
+              ? 'E-mail ou identifiant, et ton mot de passe YoHa.'
+              : 'Compte client pour retrouver tes commandes partout. Accès pro : identifiants fournis par YoHa.'}
           </p>
+        </div>
+      </section>
 
+      <div className="relative flex-1 flex flex-col items-center px-4 -mt-5 pb-12">
+        <div className="relative w-full max-w-md rounded-[1.5rem] border border-ink-100 dark:border-white/8 bg-white dark:bg-ink-900 shadow-[0_24px_60px_-28px_rgba(15,23,42,0.45)] p-5 sm:p-7">
           {redirect && (
-            <div className="mt-4 rounded-2xl bg-gradient-to-r from-brand-500/10 via-pink-500/10 to-violet-500/10 border border-brand-500/25 px-4 py-3 text-sm text-ink-700 dark:text-ink-200">
-              Connexion requise pour l’espace <strong>{roleLabelForDashboard(redirect)}</strong>.
+            <div className="mb-4 rounded-2xl bg-ink-50 dark:bg-ink-950 border border-ink-100 dark:border-white/8 px-4 py-3 text-sm text-ink-700 dark:text-ink-200">
+              Connexion requise pour l’espace <strong className="font-bold">{roleLabelForDashboard(redirect)}</strong>.
             </div>
           )}
 
           {wrongAccount && (
-            <div className="mt-4 rounded-2xl bg-amber-500/15 border border-amber-500/30 px-4 py-3 text-sm">
+            <div className="mb-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/25 px-4 py-3 text-sm">
               <p className="text-ink-800 dark:text-ink-100">
-                Vous êtes connecté en tant que <strong>{ROLE_LABELS[user.role]}</strong>. Utilisez un compte{' '}
-                <strong>{ROLE_LABELS[requiredRole]}</strong> ou déconnectez-vous.
+                Connecté en tant que <strong>{ROLE_LABELS[user.role]}</strong>. Utilise un compte{' '}
+                <strong>{ROLE_LABELS[requiredRole]}</strong> ou déconnecte-toi.
               </p>
               <button
                 type="button"
@@ -198,18 +185,26 @@ export function AuthPage({ redirect, goto, goHome }) {
             </div>
           )}
 
-          <div className="mt-6 flex rounded-2xl bg-ink-100/80 dark:bg-ink-800/80 p-1">
+          <div className="flex rounded-2xl bg-ink-100/80 dark:bg-ink-950 p-1">
             <button
               type="button"
               onClick={() => { setTab('login'); setErr(''); }}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition ${tab === 'login' ? 'bg-white dark:bg-ink-900 shadow-sm text-brand-600 dark:text-brand-400' : 'text-ink-500'}`}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition ${
+                tab === 'login'
+                  ? 'bg-white dark:bg-ink-900 shadow-sm text-ink-950 dark:text-white'
+                  : 'text-ink-500'
+              }`}
             >
               Connexion
             </button>
             <button
               type="button"
               onClick={() => { setTab('register'); setErr(''); }}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition ${tab === 'register' ? 'bg-white dark:bg-ink-900 shadow-sm text-brand-600 dark:text-brand-400' : 'text-ink-500'}`}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition ${
+                tab === 'register'
+                  ? 'bg-white dark:bg-ink-900 shadow-sm text-ink-950 dark:text-white'
+                  : 'text-ink-500'
+              }`}
             >
               Inscription
             </button>
@@ -219,80 +214,84 @@ export function AuthPage({ redirect, goto, goHome }) {
             type="button"
             onClick={handleGoogle}
             disabled={googleLoading}
-            className="cursor-grow mt-5 w-full inline-flex items-center justify-center gap-3 rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 px-4 py-3 text-sm font-semibold text-ink-700 dark:text-ink-200 shadow-sm hover:border-brand-400/40 hover:shadow-md disabled:opacity-60 transition"
+            className="cursor-pointer mt-5 w-full inline-flex items-center justify-center gap-3 rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-950 px-4 py-3 text-sm font-semibold text-ink-700 dark:text-ink-200 hover:border-brand-400/50 disabled:opacity-60 transition"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
             </svg>
             {googleLoading ? 'Connexion…' : 'Continuer avec Google'}
           </button>
 
           <div className="mt-5 flex items-center gap-3">
-            <div className="flex-1 h-px bg-ink-200 dark:bg-ink-800"></div>
-            <span className="text-xs text-ink-500">ou</span>
-            <div className="flex-1 h-px bg-ink-200 dark:bg-ink-800"></div>
+            <div className="flex-1 h-px bg-ink-200 dark:bg-ink-800" />
+            <span className="text-xs text-ink-400 font-medium">ou</span>
+            <div className="flex-1 h-px bg-ink-200 dark:bg-ink-800" />
           </div>
 
           {tab === 'login' ? (
-            <form key="login" onSubmit={handleLogin} className="mt-6 space-y-4 animate-fade-in">
-              <label className="block">
-                <span className="text-xs font-semibold text-ink-500 uppercase tracking-wider">Identifiant</span>
+            <form key="login" onSubmit={handleLogin} className="mt-5 space-y-4">
+              <label className="block space-y-1.5">
+                <span className="text-[12px] font-semibold text-ink-600 dark:text-ink-300 tracking-tight">Identifiant</span>
                 <input
                   type="text"
                   autoComplete="username"
                   value={loginId}
                   onChange={(e) => setLoginId(e.target.value)}
                   required
-                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm"
+                  className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm text-ink-950 dark:text-white"
                   placeholder="E-mail ou nom d'utilisateur"
                 />
               </label>
-              <label className="block">
-                <span className="text-xs font-semibold text-ink-500 uppercase tracking-wider">Mot de passe</span>
+              <label className="block space-y-1.5">
+                <span className="text-[12px] font-semibold text-ink-600 dark:text-ink-300 tracking-tight">Mot de passe</span>
                 <input
                   type="password"
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm"
+                  className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm text-ink-950 dark:text-white"
                   placeholder="••••••••"
                 />
               </label>
-              {err && <p className="text-sm text-red-600 dark:text-red-400">{err}</p>}
-              <Button type="submit" variant="primary" size="lg" className="w-full justify-center btn-shimmer cta-brand border-0" disabled={loading}>
+              {err && <p className="text-sm font-medium text-red-600 dark:text-red-400">{err}</p>}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm transition-all disabled:opacity-50 active:scale-[0.99]"
+              >
                 {loading ? 'Connexion…' : 'Se connecter'}
-              </Button>
+              </button>
             </form>
           ) : (
-            <form key="register" onSubmit={handleRegister} className="mt-6 space-y-4 animate-fade-in">
-              <label className="block">
-                <span className="text-xs font-semibold text-ink-500 uppercase tracking-wider">Nom affiché</span>
+            <form key="register" onSubmit={handleRegister} className="mt-5 space-y-4">
+              <label className="block space-y-1.5">
+                <span className="text-[12px] font-semibold text-ink-600 dark:text-ink-300 tracking-tight">Nom affiché</span>
                 <input
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm"
+                  className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm text-ink-950 dark:text-white"
                   placeholder="Prénom Nom"
                 />
               </label>
-              <label className="block">
-                <span className="text-xs font-semibold text-ink-500 uppercase tracking-wider">E-mail</span>
+              <label className="block space-y-1.5">
+                <span className="text-[12px] font-semibold text-ink-600 dark:text-ink-300 tracking-tight">E-mail</span>
                 <input
                   type="email"
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm"
+                  className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm text-ink-950 dark:text-white"
                   placeholder="vous@exemple.ma"
                 />
               </label>
-              <label className="block">
-                <span className="text-xs font-semibold text-ink-500 uppercase tracking-wider">Mot de passe</span>
+              <label className="block space-y-1.5">
+                <span className="text-[12px] font-semibold text-ink-600 dark:text-ink-300 tracking-tight">Mot de passe</span>
                 <input
                   type="password"
                   autoComplete="new-password"
@@ -300,14 +299,18 @@ export function AuthPage({ redirect, goto, goHome }) {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={4}
-                  className="mt-1 w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm"
+                  className="w-full px-4 py-3 rounded-xl bg-ink-50 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 transition text-base sm:text-sm text-ink-950 dark:text-white"
                   placeholder="Au moins 10 caractères"
                 />
               </label>
-              {err && <p className="text-sm text-red-600 dark:text-red-400">{err}</p>}
-              <Button type="submit" variant="primary" size="lg" className="w-full justify-center btn-shimmer cta-brand border-0" disabled={loading}>
+              {err && <p className="text-sm font-medium text-red-600 dark:text-red-400">{err}</p>}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm transition-all disabled:opacity-50 active:scale-[0.99]"
+              >
                 {loading ? 'Création…' : 'Créer mon compte'}
-              </Button>
+              </button>
             </form>
           )}
         </div>
