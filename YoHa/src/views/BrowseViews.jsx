@@ -1766,7 +1766,7 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
         <div className="relative max-w-3xl mx-auto px-0 sm:px-6 py-7 pb-36">
           {!isOpen && (
             <div className="mx-4 sm:mx-0 mb-6 rounded-2xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-500/5 px-4 py-3 text-center">
-              <p className="font-bold text-amber-700 dark:text-amber-300 text-sm">Fermé — {openLabel}</p>
+              <p className="font-bold text-amber-700 dark:text-amber-300 text-sm">{openLabel || 'Fermé'}</p>
               <p className="text-xs text-amber-600/80 dark:text-amber-300/70 mt-0.5">
                 Consulte le menu, la commande reprend à l&apos;ouverture.
               </p>
