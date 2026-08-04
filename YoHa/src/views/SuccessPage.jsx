@@ -38,6 +38,30 @@ const HERO = {
   delivered:        { title: 'Commande livrée', subtitle: 'Bon appétit.', accent: 'from-emerald-200 via-emerald-400 to-teal-500' },
 };
 
+/** Plages de progression (0–100) pour les 4 étapes client. */
+const STEP_PROGRESS_BAND = {
+  1: { min: 8, max: 24 },
+  2: { min: 26, max: 48 },
+  3: { min: 50, max: 94 },
+  4: { min: 100, max: 100 },
+};
+
+function clamp(n, lo, hi) {
+  return Math.min(hi, Math.max(lo, n));
+}
+
+/** Progression GPS : plus le livreur se rapproche de la destination, plus la barre avance dans l’étape 3. */
+function progressFromGpsDistance(distanceKm, refMaxKm, step = 3) {
+  const band = STEP_PROGRESS_BAND[step] || STEP_PROGRESS_BAND[3];
+  const ref = Math.max(1.2, Number(refMaxKm) || 4);
+  const dist = Math.max(0, Number(distanceKm) || 0);
+  const approach = 1 - clamp(dist / ref, 0, 1); // 0 loin → 1 arrivé
+  // Courbe un peu accélérée en fin de parcours
+  const eased = approach * approach * (3 - 2 * approach);
+  return band.min + eased * (band.max - band.min);
+}
+
+
 function DeliveryWindowBanner({ liveEtaWindow, status }) {
   if (!liveEtaWindow || status === 'delivered') return null;
   return (
@@ -186,14 +210,16 @@ function ProgressBarSection({ status, stepNum, displayedProgressPct, gpsCalculat
         {gpsCalculated ? (
           <span className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            GPS {courierName || 'Livreur'} · {gpsCalculated.distanceKm.toFixed(1)} km · ~{gpsCalculated.travelMins} min
+            GPS · {gpsCalculated.distanceKm.toFixed(1)} km de {gpsCalculated.destName || destInfo?.name || 'toi'}
+            {' · ~'}{gpsCalculated.travelMins} min
+            {courierName ? ` · ${courierName}` : ''}
           </span>
         ) : (
           <span className="inline-flex items-center gap-1.5 text-ink-500 dark:text-ink-400">
             {liveMove && (
               <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse shrink-0" />
             )}
-            {liveMove ? 'Livreur en mouvement…' : destInfo.name}
+            {liveMove ? `Livreur en mouvement vers ${destInfo?.name || 'toi'}…` : destInfo?.name}
           </span>
         )}
       </div>
@@ -272,11 +298,34 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   const prevStatusRef = useRef(undefined);
   const [nowMs, setNowMs] = useState(Date.now());
   const [courierGps, setCourierGps] = useState(null);
-  const [smoothOffset, setSmoothOffset] = useState(0);
+  /** Offset aléatoire / crawl quand pas de GPS (reste dans la bande de l’étape). */
+  const [wanderOffset, setWanderOffset] = useState(0);
+  /** Distance max observée vers la destination (référence pour % d’approche). */
+  const gpsRefMaxKm = useRef(null);
+  const lastGpsPctRef = useRef(null);
 
   useEffect(() => {
-    if (status === 'delivered') { setSmoothOffset(0); return; }
-    const timer = setInterval(() => setSmoothOffset((prev) => (prev < 4.5 ? prev + 0.15 : prev)), 2000);
+    // Reset référence GPS à chaque changement d’étape / commande
+    gpsRefMaxKm.current = null;
+    lastGpsPctRef.current = null;
+    setWanderOffset(0);
+  }, [status, stepNum, orderId]);
+
+  useEffect(() => {
+    if (status === 'delivered' || status === 'cancelled') {
+      setWanderOffset(0);
+      return undefined;
+    }
+    // Crawl aléatoire : avance doucement, parfois un micro-recul, sans dépasser la bande
+    const timer = setInterval(() => {
+      setWanderOffset((prev) => {
+        const band = STEP_PROGRESS_BAND[stepNum] || STEP_PROGRESS_BAND[1];
+        const span = Math.max(4, band.max - band.min - 3);
+        const jitter = (Math.random() - 0.28) * 1.35; // biais vers l’avant
+        const next = clamp(prev + jitter, 0, span);
+        return next;
+      });
+    }, 1800);
     return () => clearInterval(timer);
   }, [status, stepNum]);
 
@@ -322,23 +371,50 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   const gpsCalculated = useMemo(() => {
     if (!courierGps || !courierGps.active || status === 'delivered') return null;
     const dist = calculateHaversineDistance(courierGps.lat, courierGps.lng, destInfo.lat, destInfo.lng);
+    if (!Number.isFinite(dist)) return null;
+
+    const stepForGps = status === 'delivering' ? 3 : status === 'pickup_confirmed' || status === 'preparing' ? 2 : 1;
+    const band = STEP_PROGRESS_BAND[stepForGps] || STEP_PROGRESS_BAND[3];
+
+    if (gpsRefMaxKm.current == null || dist > gpsRefMaxKm.current) {
+      gpsRefMaxKm.current = Math.max(dist, 1.5);
+    }
+    const ref = Math.max(gpsRefMaxKm.current, dist, 1.5);
+    gpsRefMaxKm.current = ref;
+
+    let pct = progressFromGpsDistance(dist, ref, stepForGps);
+    if (lastGpsPctRef.current != null && pct < lastGpsPctRef.current - 1.5) {
+      pct = lastGpsPctRef.current - 0.4;
+    }
+    lastGpsPctRef.current =
+      lastGpsPctRef.current == null || pct > lastGpsPctRef.current
+        ? pct
+        : Math.max(lastGpsPctRef.current - 0.15, pct);
+    pct = lastGpsPctRef.current;
+
     return {
       distanceKm: dist,
       travelMins: Math.max(2, Math.ceil((dist / 22) * 60 + 2)),
-      pct: Math.min(98, Math.max(30, Math.round(100 - (dist / 3.2) * 65))),
+      pct: clamp(pct, band.min, band.max),
+      destName: destInfo.name,
     };
   }, [courierGps, destInfo, status]);
 
   const smartProgressPct = useMemo(() => {
     if (status === 'delivered') return 100;
-    if (gpsCalculated) return gpsCalculated.pct;
-    return Math.min(95, Math.max(15, (stepNum / 4) * 100));
-  }, [status, gpsCalculated, stepNum]);
+    const band = STEP_PROGRESS_BAND[stepNum] || STEP_PROGRESS_BAND[1];
+    if (gpsCalculated) {
+      // GPS prioritaire : rapprochement réel vers Alliance / CHU / FMPT / ISPITS
+      return gpsCalculated.pct;
+    }
+    // Sans GPS : base d’étape + crawl aléatoire dans la bande
+    return clamp(band.min + wanderOffset, band.min, band.max - 1);
+  }, [status, gpsCalculated, stepNum, wanderOffset]);
 
   const displayedProgressPct = useMemo(() => {
     if (status === 'delivered') return 100;
-    return Math.min(98, Math.round(smartProgressPct + smoothOffset));
-  }, [status, smartProgressPct, smoothOffset]);
+    return clamp(Math.round(smartProgressPct * 10) / 10, 6, 98);
+  }, [status, smartProgressPct]);
 
   const storeCount = useMemo(() => {
     if (!order?.items?.length) return 1;
