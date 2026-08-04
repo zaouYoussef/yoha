@@ -65,16 +65,20 @@ function progressFromGpsDistance(distanceKm, refMaxKm, step = 3) {
 function DeliveryWindowBanner({ liveEtaWindow, status }) {
   if (!liveEtaWindow || status === 'delivered') return null;
   const delayed = Boolean(liveEtaWindow.delayed);
+  const scheduled = Boolean(liveEtaWindow.scheduled);
   return (
     <div className="mx-auto max-w-sm mt-5">
       <div className="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md px-4 py-3.5 flex items-center gap-3">
         <div className="min-w-0 flex-1">
           <div className="text-[11px] font-semibold uppercase tracking-wider text-pink-200/90">
-            {delayed ? 'Nouveau créneau' : 'Livraison estimée'}
+            {delayed ? 'Nouveau créneau' : scheduled ? 'Livraison planifiée' : 'Livraison estimée'}
           </div>
           <div className="font-display font-bold text-xl text-white tabular-nums tracking-tight mt-0.5">
             {liveEtaWindow.start} – {liveEtaWindow.end}
           </div>
+          {scheduled && liveEtaWindow.dayLabel ? (
+            <p className="mt-1.5 text-[12px] leading-snug text-white/75">{liveEtaWindow.dayLabel}</p>
+          ) : null}
           {delayed && (
             <p className="mt-2 text-[12px] leading-snug text-white/80">
               Le livreur est proche — juste un peu de patience. Désolé pour l’attente.
@@ -84,10 +88,12 @@ function DeliveryWindowBanner({ liveEtaWindow, status }) {
         <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-full shrink-0 border ${
           delayed
             ? 'bg-amber-500/20 text-amber-100 border-amber-400/30'
-            : 'bg-emerald-500/20 text-emerald-200 border-emerald-400/25'
+            : scheduled
+              ? 'bg-violet-500/20 text-violet-100 border-violet-400/30'
+              : 'bg-emerald-500/20 text-emerald-200 border-emerald-400/25'
         }`}>
-          <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${delayed ? 'bg-amber-300' : 'bg-emerald-400'}`} />
-          {delayed ? 'Bientôt' : 'Live'}
+          <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${delayed ? 'bg-amber-300' : scheduled ? 'bg-violet-300' : 'bg-emerald-400'}`} />
+          {delayed ? 'Bientôt' : scheduled ? 'Planifié' : 'Live'}
         </span>
       </div>
     </div>
@@ -302,7 +308,13 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   const { cart } = useCart();
   const order = orders.find((o) => o.id === orderId);
   const status = order?.status || 'placed';
-  const hero = HERO[status] || HERO.placed;
+  const hero = useMemo(() => {
+    const base = HERO[status] || HERO.placed;
+    if (status === 'placed' && (order?.scheduledDeliveryAt || order?.scheduled_delivery_at)) {
+      return { ...base, subtitle: 'Livraison planifiée — on s’occupe du timing.' };
+    }
+    return base;
+  }, [status, order?.scheduledDeliveryAt, order?.scheduled_delivery_at]);
   const st = ORDER_STATES[status] || ORDER_STATES.placed;
   const stepNum = st.step;
   const prevStatusRef = useRef(undefined);
@@ -434,24 +446,53 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
 
   const liveEtaWindow = useMemo(() => {
     if (status === 'delivered') return null;
-    const baseTime = order?.createdAt ? new Date(order.createdAt).getTime() : Date.now();
-    if (!Number.isFinite(baseTime)) return null;
     const fmt = (ms) => {
       const d = new Date(ms);
       return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     };
+
+    // Créneau choisi au checkout (« Planifier »)
+    const scheduledRaw = order?.scheduledDeliveryAt || order?.scheduled_delivery_at;
+    if (scheduledRaw) {
+      const startMs = new Date(scheduledRaw).getTime();
+      if (Number.isFinite(startMs)) {
+        const endMs = startMs + 30 * 60 * 1000;
+        let delayed = false;
+        let s = startMs;
+        let e = endMs;
+        while (nowMs > e && status !== 'delivered') {
+          s = e;
+          e += 15 * 60 * 1000;
+          delayed = true;
+        }
+        const dayLabel = new Date(startMs).toLocaleDateString('fr-FR', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+        });
+        return {
+          start: fmt(s),
+          end: fmt(e),
+          delayed,
+          scheduled: !delayed,
+          dayLabel: delayed ? null : dayLabel,
+        };
+      }
+    }
+
+    const baseTime = order?.createdAt ? new Date(order.createdAt).getTime() : Date.now();
+    if (!Number.isFinite(baseTime)) return null;
     // Créneau fixe : 45–60 min après la commande
     let startMs = baseTime + 45 * 60 * 1000;
     let endMs = baseTime + 60 * 60 * 1000;
     let delayed = false;
-    // Dépassé et pas encore livré → +15 min et message « livreur proche »
     while (nowMs > endMs && status !== 'delivered') {
       startMs = endMs;
       endMs += 15 * 60 * 1000;
       delayed = true;
     }
-    return { start: fmt(startMs), end: fmt(endMs), delayed };
-  }, [order?.createdAt, status, nowMs]);
+    return { start: fmt(startMs), end: fmt(endMs), delayed, scheduled: false };
+  }, [order?.createdAt, order?.scheduledDeliveryAt, order?.scheduled_delivery_at, status, nowMs]);
 
   useEffect(() => {
     if (!orderId) return undefined;

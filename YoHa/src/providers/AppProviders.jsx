@@ -458,6 +458,7 @@ function triggerClientNotification(title, body, orderId) {
           restaurantName: storeName,
           totalDh: _orderTotalMad,
           createdAt: new Date().toISOString(),
+          scheduledDeliveryAt: customer.scheduledTime || null,
           customer: {
             name: customer.name,
             email: customer.email,

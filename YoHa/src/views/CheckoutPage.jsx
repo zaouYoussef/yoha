@@ -479,8 +479,17 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                   title="Quand livrer ?"
                   subtitle="ASAP ou créneau planifié"
                 />
-                <div className="p-4 sm:p-5">
+                <div className="p-4 sm:p-5 space-y-3">
                   <TimeSlotPicker selected={scheduledTime} onSelect={setScheduledTime} />
+                  {scheduledTime ? (
+                    <p className="text-[12px] font-medium text-ink-600 dark:text-ink-300 leading-snug rounded-xl bg-violet-500/10 border border-violet-500/20 px-3 py-2.5">
+                      Commande planifiée — le livreur enverra la commande au restaurant au bon moment pour ce créneau.
+                    </p>
+                  ) : (
+                    <p className="text-[12px] text-ink-500 font-medium leading-snug">
+                      Dès que possible : livraison estimée sous 45–60 min.
+                    </p>
+                  )}
                 </div>
               </Card>
 
