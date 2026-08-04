@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext.jsx';
-import { subscribeWebPush, isSubscribed } from '../lib/webPush.js';
+import { useAuth } from '../../contexts/AuthContext.jsx';
+import { subscribeWebPush, isSubscribed } from '../../lib/webPush.js';
 
 const STORAGE_KEY = 'yoha_offer_push_prompt_v1';
 
