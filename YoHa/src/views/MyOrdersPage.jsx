@@ -9,24 +9,6 @@ import { Button } from '../components/ui/Button.jsx';
 import { OrderStatusBadge } from '../components/ui/OrderStep.jsx';
 import { getVisibleOrders } from '../utils/clientOrders.js';
 
-const STATUS_EMOJI = {
-  placed: '🎉',
-  pickup_confirmed: '🛵',
-  preparing: '👨‍🍳',
-  delivering: '📦',
-  delivered: '✅',
-  cancelled: '✕',
-};
-
-const STATUS_GRADIENT = {
-  placed: 'from-amber-400/20 to-orange-500/10',
-  pickup_confirmed: 'from-sky-400/20 to-blue-500/10',
-  preparing: 'from-violet-400/20 to-purple-500/10',
-  delivering: 'from-pink-400/20 to-rose-500/10',
-  delivered: 'from-emerald-400/15 to-teal-500/10',
-  cancelled: 'from-red-400/15 to-orange-500/10',
-};
-
 function formatScheduledRange(iso) {
   if (!iso) return '';
   try {
@@ -60,8 +42,7 @@ function itemCount(order) {
 }
 
 function coverImage(order) {
-  const img = order?.items?.find((i) => i.img)?.img;
-  return img || null;
+  return order?.items?.find((i) => i.img)?.img || null;
 }
 
 function isActive(status) {
@@ -76,12 +57,11 @@ function progressPct(status) {
 
 function OrderThumb({ order, size = 'md' }) {
   const img = coverImage(order);
-  const emoji = STATUS_EMOJI[order.status] || '🍽️';
-  const sz = size === 'lg' ? 'w-16 h-16 sm:w-20 sm:h-20 rounded-2xl text-3xl' : 'w-14 h-14 rounded-xl text-2xl';
+  const sz = size === 'lg' ? 'w-16 h-16 sm:w-20 sm:h-20 rounded-2xl' : 'w-14 h-14 rounded-xl';
 
   if (img) {
     return (
-      <div className={`${sz} shrink-0 overflow-hidden bg-ink-100 dark:bg-ink-800 ring-2 ring-white dark:ring-ink-900 shadow-sm`}>
+      <div className={`${sz} shrink-0 overflow-hidden bg-ink-100 dark:bg-ink-800 ring-1 ring-black/5 dark:ring-white/10`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={img} alt="" className="w-full h-full object-cover" />
       </div>
@@ -89,8 +69,8 @@ function OrderThumb({ order, size = 'md' }) {
   }
 
   return (
-    <div className={`${sz} shrink-0 grid place-items-center bg-gradient-to-br from-brand-500/15 to-pink-500/15 ring-2 ring-white dark:ring-ink-900`}>
-      {emoji}
+    <div className={`${sz} shrink-0 grid place-items-center bg-ink-950 text-white dark:bg-white dark:text-ink-950 font-display font-bold text-lg`}>
+      {(order.restaurantName || 'Y').charAt(0).toUpperCase()}
     </div>
   );
 }
@@ -100,16 +80,14 @@ function MiniProgress({ status }) {
   const live = isActive(status);
   return (
     <div className="mt-3">
-      <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-ink-400 mb-1">
+      <div className="flex justify-between text-[11px] font-semibold text-ink-400 mb-1.5">
         <span>Progression</span>
         <span>{ORDER_STATES[status]?.step ?? 1}/4</span>
       </div>
       <div className="h-1.5 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-500 ${
-            live
-              ? 'bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500'
-              : 'bg-emerald-500'
+            live ? 'bg-gradient-to-r from-brand-500 to-orange-600' : 'bg-emerald-500'
           }`}
           style={{ width: `${pct}%` }}
         />
@@ -122,19 +100,16 @@ function OrderCard({ order, onOpenOrder, onReorder, featured = false }) {
   const st = ORDER_STATES[order.status] || ORDER_STATES.placed;
   const active = isActive(order.status);
   const count = itemCount(order);
-  const gradient = STATUS_GRADIENT[order.status] || STATUS_GRADIENT.placed;
 
   return (
     <article
-      className={`group relative overflow-hidden rounded-3xl border transition-all duration-300 hover:shadow-cardhover animate-fade-up pressable ${
+      className={`group relative overflow-hidden rounded-[1.35rem] border transition-all duration-300 hover:-translate-y-0.5 ${
         featured
-          ? 'bg-gradient-to-br from-brand-500/12 via-pink-500/8 to-orange-500/5 border-brand-500/25 shadow-glow'
-          : `bg-white dark:bg-ink-900 border-ink-200/70 dark:border-ink-800 shadow-card`
+          ? 'bg-white dark:bg-ink-900 border-brand-500/25 shadow-[0_24px_50px_-28px_rgba(249,115,22,0.35)]'
+          : 'bg-white dark:bg-ink-900 border-ink-100 dark:border-white/8 shadow-[0_14px_36px_-24px_rgba(15,23,42,0.4)]'
       }`}
     >
-      {active && (
-        <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${gradient.replace('/20', '').replace('/10', '').replace('/15', '')} opacity-80`} />
-      )}
+      {active && <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-500 to-orange-600" />}
 
       <div className={`p-5 sm:p-6 ${featured ? 'sm:flex sm:items-start sm:gap-6' : ''}`}>
         <div className={`flex gap-4 ${featured ? 'flex-1 min-w-0' : ''}`}>
@@ -144,36 +119,33 @@ function OrderCard({ order, onOpenOrder, onReorder, featured = false }) {
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
                 {featured && (
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400 mb-1">
-                    {active ? 'Commande en cours' : 'Votre dernière commande'}
+                  <p className="text-[11px] font-semibold text-brand-600 dark:text-brand-400 mb-1">
+                    {active ? 'Commande en cours' : 'Dernière commande'}
                   </p>
                 )}
-                <h3 className="font-display font-extrabold text-lg sm:text-xl truncate">
+                <h3 className="font-display font-bold text-lg sm:text-xl truncate text-ink-950 dark:text-white tracking-tight">
                   {order.restaurantName}
                 </h3>
-                <p className="text-xs text-ink-400 mt-0.5 font-mono">#{order.id}</p>
+                <p className="text-[12px] text-ink-400 mt-0.5 font-mono">#{order.id}</p>
               </div>
               <OrderStatusBadge status={order.status} />
             </div>
 
-            <p className="mt-2 text-sm text-ink-500 dark:text-ink-400 line-clamp-1">
+            <p className="mt-2 text-sm text-ink-500 dark:text-ink-400 line-clamp-2">
               {order.status === 'cancelled'
                 ? 'Cette commande a été annulée.'
                 : active
-                ? st.clientMsg
-                : `${count} article${count > 1 ? 's' : ''} · ${formatDate(order.createdAt)}`}
+                  ? st.clientMsg
+                  : `${count} article${count > 1 ? 's' : ''} · ${formatDate(order.createdAt)}`}
             </p>
 
             {order.status === 'cancelled' && (
               <div className="mt-3 p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs space-y-1">
-                <div className="font-extrabold flex items-center gap-1.5">
-                  <span>❌</span>
-                  <span>Commande Annulée</span>
-                </div>
-                <p className="text-[11px] font-medium text-rose-600/90 dark:text-rose-300/90">
+                <div className="font-bold">Commande annulée</div>
+                <p className="text-[12px] font-medium text-rose-600/90 dark:text-rose-300/90">
                   {order.cancellationReason
                     ? `Motif : ${order.cancellationReason}`
-                    : "Cette commande a été annulée (ex. client injoignable par le livreur)."}
+                    : 'Cette commande a été annulée.'}
                 </p>
               </div>
             )}
@@ -181,7 +153,7 @@ function OrderCard({ order, onOpenOrder, onReorder, featured = false }) {
             {active && <MiniProgress status={order.status} />}
 
             <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-              <span className="font-display font-extrabold text-brand-600 dark:text-brand-400">
+              <span className="font-display font-bold text-ink-950 dark:text-white">
                 {formatMad(order.totalDh, { decimals: 0 })}
               </span>
               {!active && (
@@ -189,13 +161,13 @@ function OrderCard({ order, onOpenOrder, onReorder, featured = false }) {
               )}
               {order.courierName && active && (
                 <span className="inline-flex items-center gap-1 text-xs text-ink-500">
-                  <I.Bike size={12} className="text-sky-500" />
+                  <I.Bike size={12} className="text-brand-500" />
                   {order.courierName}
                 </span>
               )}
               {order.scheduledDeliveryAt && (
                 <span className="inline-flex items-center gap-1 text-xs text-amber-600 font-semibold">
-                  🕐 {formatScheduledRange(order.scheduledDeliveryAt)}
+                  {formatScheduledRange(order.scheduledDeliveryAt)}
                 </span>
               )}
             </div>
@@ -204,14 +176,13 @@ function OrderCard({ order, onOpenOrder, onReorder, featured = false }) {
 
         <div className={`mt-4 flex flex-col sm:flex-row gap-2 ${featured ? 'sm:mt-0 sm:shrink-0 sm:flex-col sm:min-w-[160px]' : ''}`}>
           {active ? (
-            <Button
-              variant="primary"
-              size={featured ? 'lg' : 'md'}
-              className="justify-center w-full cta-brand border-0 shadow-glow btn-shimmer"
+            <button
+              type="button"
+              className="inline-flex items-center justify-center gap-2 w-full rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm px-4 py-3 transition-all active:scale-[0.98]"
               onClick={() => onOpenOrder(order.id)}
             >
               Suivre en direct <I.Right size={16} />
-            </Button>
+            </button>
           ) : (
             <Button
               variant="ghost"
@@ -236,19 +207,16 @@ function OrderCard({ order, onOpenOrder, onReorder, featured = false }) {
   );
 }
 
-function SectionTitle({ icon, title, count, live }) {
+function SectionTitle({ title, count, live }) {
   return (
-    <div className="flex items-center gap-3 mb-4">
-      <span className="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-500/15 via-pink-500/10 to-violet-500/15 dark:from-brand-500/20 dark:via-pink-500/15 dark:to-violet-500/20 grid place-items-center text-lg border border-brand-500/15">
-        {icon}
-      </span>
-      <div className="flex-1 min-w-0">
-        <h2 className="font-display font-bold text-lg sm:text-xl text-ink-900 dark:text-white">{title}</h2>
+    <div className="flex items-end justify-between gap-3 mb-4">
+      <div>
+        <h2 className="font-display font-bold text-xl text-ink-950 dark:text-white tracking-tight">{title}</h2>
         {count > 0 && (
-          <p className="text-xs text-ink-500">
+          <p className="text-[13px] text-ink-500 mt-1 font-medium">
             {count} commande{count > 1 ? 's' : ''}
             {live && (
-              <span className="ml-2 inline-flex items-center gap-1 text-brand-600 dark:text-brand-400 font-bold">
+              <span className="ml-2 inline-flex items-center gap-1.5 text-brand-600 dark:text-brand-400 font-semibold">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
                 Live
               </span>
@@ -261,11 +229,12 @@ function SectionTitle({ icon, title, count, live }) {
 }
 
 function FidelityBalanceCard() {
-  const { user } = useAuth() || {};
   const { orders = [] } = useOrders() || {};
 
   const deliveredOrders = useMemo(() => {
-    return orders.filter(o => o.status === 'delivered' || o.status === 'DELIVERED' || o.status === 'LIVRÉ' || o.status === 'COMPLETED');
+    return orders.filter((o) =>
+      ['delivered', 'DELIVERED', 'LIVRÉ', 'COMPLETED'].includes(o.status),
+    );
   }, [orders]);
 
   const deliveredCount = deliveredOrders.length;
@@ -275,81 +244,67 @@ function FidelityBalanceCard() {
   const remaining = isGoalReached ? 0 : 6 - currentStep;
 
   return (
-    <div className="mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 via-pink-600 to-violet-700 text-white p-5 sm:p-7 shadow-xl border border-brand-400/40 relative group">
-      <div className="absolute -right-12 -bottom-12 w-48 h-48 bg-amber-400/15 rounded-full blur-3xl pointer-events-none group-hover:scale-125 transition-transform duration-700" />
-      <div className="absolute -left-12 -top-12 w-40 h-40 bg-pink-300/15 rounded-full blur-2xl pointer-events-none" />
-
+    <div className="mb-7 overflow-hidden rounded-[1.5rem] bg-ink-950 text-white p-5 sm:p-6 relative">
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-[radial-gradient(70%_80%_at_100%_0%,rgba(249,115,22,0.35),transparent_55%)]"
+      />
       <div className="relative flex flex-col gap-5">
-        {/* Top Header Row */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl shrink-0 shadow-inner border border-white/20">
-              🎁
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-orange-300">
+                Fidélité YoHa
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-[11px] font-semibold text-white/80">
+                {deliveredCount} livrée{deliveredCount > 1 ? 's' : ''}
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-extrabold text-xs tracking-wider uppercase text-brand-100">
-                  Solde & Récompense Fidélité
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-black uppercase text-amber-200 border border-white/20">
-                  {deliveredCount} commande{deliveredCount > 1 ? 's' : ''} livrée{deliveredCount > 1 ? 's' : ''}
-                </span>
-              </div>
-              <h3 className="font-display font-black text-base sm:text-lg text-white mt-0.5 leading-snug">
-                {isGoalReached ? (
-                  <span>🎉 Réduction de <span className="text-amber-300 underline">50 MAD</span> débloquée ! (Code : <strong className="text-amber-300 font-black">YOHA50</strong>)</span>
-                ) : (
-                  <span>Accumulez 6 commandes livrées pour recevoir <span className="text-amber-300 font-black">-50 MAD</span> !</span>
-                )}
-              </h3>
-            </div>
+            <h3 className="font-display font-bold text-base sm:text-lg text-white mt-1.5 leading-snug">
+              {isGoalReached ? (
+                <>
+                  −50 MAD débloqués · code <span className="text-orange-300">YOHA50</span>
+                </>
+              ) : (
+                <>
+                  6 livraisons = <span className="text-orange-300">−50 MAD</span>
+                </>
+              )}
+            </h3>
           </div>
 
           {!isGoalReached && (
-            <div className="shrink-0 self-start sm:self-center px-3.5 py-1.5 rounded-xl bg-slate-950/40 backdrop-blur-md border border-white/10 text-xs font-bold text-emerald-100 shadow-inner">
-              Plus que <strong className="text-amber-300 font-black text-sm">{remaining}</strong> commande{remaining > 1 ? 's' : ''}
+            <div className="shrink-0 self-start sm:self-center px-3 py-1.5 rounded-xl bg-white/10 text-[12px] font-semibold text-white/85">
+              Plus que <strong className="text-orange-300">{remaining}</strong>
             </div>
           )}
         </div>
 
-        {/* 6 Connected Circles Stamp Strip */}
-        <div className="w-full bg-slate-950/40 backdrop-blur-md border border-white/15 p-4 sm:p-5 rounded-2xl flex flex-col items-center justify-center gap-3 shadow-inner">
-          <div className="w-full flex items-center justify-between max-w-lg px-1 sm:px-4">
+        <div className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl">
+          <div className="w-full flex items-center justify-between max-w-lg mx-auto px-1">
             {[1, 2, 3, 4, 5, 6].map((step, idx) => {
               const isDone = activeStepCount >= step;
               const isCurrent = !isGoalReached && currentStep + 1 === step;
               return (
                 <React.Fragment key={step}>
-                  {/* Circle Node */}
                   <div className="flex flex-col items-center gap-1.5 relative">
                     <div
-                      className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-black text-xs sm:text-sm transition-all duration-300 ${
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all ${
                         isDone
-                          ? 'bg-gradient-to-tr from-amber-400 via-amber-300 to-yellow-200 text-slate-950 shadow-lg shadow-amber-400/30 scale-105 border-2 border-white'
+                          ? 'bg-brand-500 text-white'
                           : isCurrent
-                          ? 'bg-white/20 border-2 border-amber-300 text-amber-300 animate-pulse shadow-md ring-4 ring-amber-400/20'
-                          : 'bg-white/10 text-white/50 border border-white/20'
+                            ? 'bg-white/15 border border-orange-300 text-orange-300'
+                            : 'bg-white/10 text-white/40 border border-white/10'
                       }`}
-                      title={`Commande ${step}/6 ${isDone ? 'livrée' : ''}`}
+                      title={`Commande ${step}/6`}
                     >
-                      {isDone ? (
-                        step === 6 ? '🎁' : '✓'
-                      ) : (
-                        step
-                      )}
+                      {isDone ? (step === 6 ? '−50' : '✓') : step}
                     </div>
-                    <span className={`text-[10px] font-bold ${isDone ? 'text-amber-300' : isCurrent ? 'text-white font-extrabold' : 'text-white/40'}`}>
-                      {step === 6 ? '-50 MAD' : `${step}`}
-                    </span>
                   </div>
-
-                  {/* Connecting Bar */}
                   {idx < 5 && (
                     <div
-                      className={`h-1.5 flex-1 rounded-full transition-colors duration-500 mx-1 sm:mx-2 -mt-5 ${
-                        activeStepCount > step
-                          ? 'bg-gradient-to-r from-amber-400 to-yellow-300 shadow-xs'
-                          : 'bg-white/15'
+                      className={`h-1 flex-1 rounded-full mx-1 -mt-0 ${
+                        activeStepCount > step ? 'bg-brand-500' : 'bg-white/10'
                       }`}
                     />
                   )}
@@ -374,8 +329,6 @@ export function MyOrdersPage({ onBack, onOpenOrder, onReorder, onLogin, onBrowse
   );
 
   const activeOrders = useMemo(() => mine.filter((o) => isActive(o.status)), [mine]);
-  const pastOrders = useMemo(() => mine.filter((o) => !isActive(o.status)), [mine]);
-  const lastOrder = mine[0] ?? null;
   const isGuest = !user || user.role !== 'client';
 
   const handleReorder = (order) => {
@@ -384,29 +337,28 @@ export function MyOrdersPage({ onBack, onOpenOrder, onReorder, onLogin, onBrowse
 
   if (mine.length === 0 && !loadingOrders) {
     return (
-      <div className="page-enter relative max-w-lg mx-auto px-4 py-16 sm:py-24 text-center overflow-hidden">
-        <div className="absolute inset-0 mesh-bg opacity-60 pointer-events-none" aria-hidden />
-        <div className="yoha-ambient opacity-50" aria-hidden />
+      <div className="page-enter relative max-w-lg mx-auto px-4 py-20 sm:py-24 text-center overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(70%_50%_at_50%_0%,rgba(249,115,22,0.16),transparent_60%)] pointer-events-none" aria-hidden />
         <div className="relative">
-          <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 text-white grid place-items-center text-4xl mb-5 shadow-glow animate-bounce-vertical">
-            🍽️
-          </div>
-          <h2 className="font-display font-black text-2xl sm:text-3xl text-ink-900 dark:text-white">
-            Aucune commande pour l&apos;instant
+          <p className="font-display font-black text-4xl text-transparent bg-clip-text bg-gradient-to-br from-orange-300 via-brand-500 to-orange-700">
+            YoHa
+          </p>
+          <h2 className="mt-4 font-display font-bold text-2xl sm:text-3xl text-ink-950 dark:text-white tracking-tight">
+            Aucune commande
           </h2>
           <p className="mt-3 text-ink-500 dark:text-ink-400 text-sm leading-relaxed max-w-md mx-auto">
             {isGuest
-              ? 'Commandez sans compte : vos commandes invité restent visibles sur cet appareil. Créez un compte pour les retrouver partout.'
-              : 'Passez votre première commande depuis la carte des restaurants.'}
+              ? 'Commande sans compte : l’historique reste sur cet appareil. Crée un compte pour le retrouver partout.'
+              : 'Passe ta première commande depuis les restaurants.'}
           </p>
-          
+
           <div className="mt-8 space-y-3 max-w-sm mx-auto">
             <button
               type="button"
               onClick={onBrowse}
-              className="cursor-grow w-full py-4 px-6 rounded-2xl cta-brand btn-shimmer border-0 text-white font-extrabold text-sm shadow-glow hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2"
+              className="cursor-pointer w-full py-3.5 px-6 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2"
             >
-              <span>Voir les établissements</span>
+              <span>Voir les restaurants</span>
               <I.Right size={18} />
             </button>
 
@@ -414,19 +366,19 @@ export function MyOrdersPage({ onBack, onOpenOrder, onReorder, onLogin, onBrowse
               <button
                 type="button"
                 onClick={onLogin}
-                className="cursor-grow w-full py-3.5 px-6 rounded-2xl bg-white/90 dark:bg-ink-900/90 text-ink-900 dark:text-white border border-brand-500/25 font-extrabold text-xs sm:text-sm shadow-sm hover:border-brand-500/50 hover:bg-brand-500/5 transition-all duration-300 flex items-center justify-center gap-2 backdrop-blur"
+                className="cursor-pointer w-full py-3.5 px-6 rounded-2xl bg-ink-950 dark:bg-white text-white dark:text-ink-950 font-bold text-sm transition-all flex items-center justify-center gap-2"
               >
-                <I.User size={16} className="text-brand-500" />
-                <span>Créer un compte / Se connecter</span>
+                <I.User size={16} />
+                <span>Se connecter</span>
               </button>
             )}
 
             <button
               type="button"
               onClick={onBack}
-              className="cursor-grow w-full py-3 px-6 rounded-xl text-ink-500 dark:text-ink-400 font-bold text-xs hover:text-ink-900 dark:hover:text-white transition-colors"
+              className="cursor-pointer w-full py-3 px-6 rounded-xl text-ink-500 font-semibold text-xs hover:text-ink-900 dark:hover:text-white transition-colors"
             >
-              ← Retour à l&apos;accueil
+              ← Retour
             </button>
           </div>
         </div>
@@ -434,135 +386,139 @@ export function MyOrdersPage({ onBack, onOpenOrder, onReorder, onLogin, onBrowse
     );
   }
 
-  const showFeatured = lastOrder && (activeOrders.length <= 1 || lastOrder.status !== 'delivered' || mine.length === 1);
+  const showFeatured = lastOrderGuard(mine, activeOrders);
+  const lastOrder = mine[0] ?? null;
   const listOrders = showFeatured ? mine.slice(1) : mine;
   const listActive = listOrders.filter((o) => isActive(o.status));
   const listPast = listOrders.filter((o) => !isActive(o.status));
 
   return (
-    <div className="page-enter relative max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12 overflow-hidden">
-      <div className="absolute inset-0 mesh-bg opacity-45 pointer-events-none" aria-hidden />
-      <div className="yoha-ambient opacity-60" aria-hidden />
-      <button
-        type="button"
-        onClick={onBack}
-        className="relative cursor-grow inline-flex items-center gap-2 mb-6 px-3 py-2 rounded-xl hover:bg-white/70 dark:hover:bg-ink-800 transition text-sm text-ink-600 backdrop-blur-sm"
-      >
-        <I.Left size={18} /> Retour
-      </button>
+    <div className="page-enter relative w-full overflow-x-hidden">
+      <section className="relative overflow-hidden bg-ink-950 text-white">
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[radial-gradient(80%_70%_at_15%_0%,rgba(249,115,22,0.35),transparent_55%),radial-gradient(55%_45%_at_90%_40%,rgba(234,88,12,0.18),transparent_50%)]"
+        />
+        <div className="relative max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-8 sm:pb-10">
+          <button
+            type="button"
+            onClick={onBack}
+            className="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-sm font-semibold transition"
+          >
+            <I.Left size={16} /> Retour
+          </button>
 
-      <div className="relative overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-brand-500 via-pink-500 to-violet-600 text-white p-6 sm:p-8 mb-8 shadow-glow-lg">
-        <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/20 blur-3xl animate-blob" aria-hidden />
-        <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-amber-300/25 blur-2xl" aria-hidden />
-        <div className="absolute top-1/2 right-1/4 w-24 h-24 rounded-full bg-violet-300/20 blur-2xl" aria-hidden />
-        <div className="absolute inset-0 card-shine opacity-40 pointer-events-none" aria-hidden />
-        <div className="relative">
-          <div className="flex items-start justify-between gap-4">
+          <div className="mt-6 flex items-end justify-between gap-4">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/80">Espace client</p>
-              <h1 className="mt-1.5 font-display font-black text-3xl sm:text-4xl tracking-tight leading-none">
-                Mes{' '}
-                <span className="text-amber-200">
-                  commandes
-                </span>
+              <p className="font-display font-black text-transparent bg-clip-text bg-gradient-to-br from-orange-200 via-brand-400 to-orange-600 text-3xl sm:text-4xl tracking-tight leading-none">
+                YoHa
+              </p>
+              <h1 className="mt-3 font-display font-bold text-[clamp(1.75rem,5vw,2.5rem)] tracking-tight leading-[1.05]">
+                Mes commandes
               </h1>
-              <p className="mt-2.5 text-sm text-white/80 max-w-md">
+              <p className="mt-2 text-sm text-white/60 font-medium max-w-md">
                 {isGuest
-                  ? 'Mode invité — historique enregistré sur cet appareil.'
-                  : 'Suivez vos livraisons en direct et recommandez en un clic.'}
+                  ? 'Mode invité — historique sur cet appareil.'
+                  : 'Suivi live et recommande en un clic.'}
               </p>
             </div>
-            <div className="shrink-0 text-center px-4 py-3 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-inner">
-              <div className="font-display font-extrabold text-2xl">{mine.length}</div>
-              <div className="text-[10px] uppercase tracking-wider text-white/70">total</div>
+            <div className="shrink-0 text-center px-4 py-3 rounded-2xl bg-white/10 border border-white/15">
+              <div className="font-display font-bold text-2xl">{mine.length}</div>
+              <div className="text-[10px] uppercase tracking-wider text-white/55">total</div>
             </div>
           </div>
 
           {activeOrders.length > 0 && (
-            <div className="mt-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 text-white text-xs font-bold ring-1 ring-white/30 backdrop-blur-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
+            <div className="mt-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-white text-[12px] font-semibold border border-white/15">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               {activeOrders.length} en cours
             </div>
           )}
         </div>
-      </div>
+      </section>
 
-      {/* Solde & Récompense Fidélité */}
-      <FidelityBalanceCard />
+      <div className="relative max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <FidelityBalanceCard />
 
-      {isGuest && onLogin && (
-        <div className="mb-6 rounded-2xl bg-brand-500/10 border border-brand-500/25 px-4 py-3.5 text-sm text-ink-700 dark:text-ink-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <span className="flex items-center gap-2">
-            <I.User size={16} className="text-brand-500 shrink-0" />
-            Connectez-vous pour garder l&apos;historique sur tous vos appareils.
-          </span>
-          <button type="button" onClick={onLogin} className="font-semibold text-brand-600 hover:underline shrink-0 text-left sm:text-right">
-            Se connecter →
-          </button>
-        </div>
-      )}
+        {isGuest && onLogin && (
+          <div className="mb-6 rounded-2xl bg-ink-50 dark:bg-ink-900 border border-ink-100 dark:border-white/8 px-4 py-3.5 text-sm text-ink-700 dark:text-ink-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <span className="flex items-center gap-2">
+              <I.User size={16} className="text-brand-500 shrink-0" />
+              Connecte-toi pour garder l&apos;historique partout.
+            </span>
+            <button type="button" onClick={onLogin} className="font-semibold text-brand-600 hover:underline shrink-0 text-left sm:text-right">
+              Se connecter →
+            </button>
+          </div>
+        )}
 
-      {loadingOrders && mine.length === 0 ? (
-        <div className="py-16 text-center">
-          <div className="inline-block w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mb-3" />
-          <p className="text-ink-500">Chargement de vos commandes…</p>
-        </div>
-      ) : (
-        <div className="space-y-10">
-          {showFeatured && lastOrder && (
-            <section>
-              <OrderCard
-                order={lastOrder}
-                featured
-                onOpenOrder={onOpenOrder}
-                onReorder={handleReorder}
-              />
-            </section>
-          )}
+        {loadingOrders && mine.length === 0 ? (
+          <div className="py-16 text-center">
+            <div className="inline-block w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-ink-500">Chargement…</p>
+          </div>
+        ) : (
+          <div className="space-y-9">
+            {showFeatured && lastOrder && (
+              <section>
+                <OrderCard
+                  order={lastOrder}
+                  featured
+                  onOpenOrder={onOpenOrder}
+                  onReorder={handleReorder}
+                />
+              </section>
+            )}
 
-          {listActive.length > 0 && (
-            <section>
-              <SectionTitle icon="🔴" title="En cours" count={listActive.length} live />
-              <ul className="space-y-4">
-                {listActive.map((o, i) => (
-                  <li key={o.id} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 6) * 60}ms` }}>
+            {listActive.length > 0 && (
+              <section>
+                <SectionTitle title="En cours" count={listActive.length} live />
+                <ul className="space-y-3.5">
+                  {listActive.map((o) => (
+                    <li key={o.id}>
+                      <OrderCard order={o} onOpenOrder={onOpenOrder} onReorder={handleReorder} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {listPast.length > 0 && (
+              <section>
+                <SectionTitle title="Historique" count={listPast.length} />
+                <ul className="space-y-3">
+                  {listPast.map((o) => (
+                    <li key={o.id}>
+                      <OrderCard order={o} onOpenOrder={onOpenOrder} onReorder={handleReorder} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {!showFeatured && listActive.length === 0 && listPast.length === 0 && (
+              <ul className="space-y-3.5">
+                {mine.map((o) => (
+                  <li key={o.id}>
                     <OrderCard order={o} onOpenOrder={onOpenOrder} onReorder={handleReorder} />
                   </li>
                 ))}
               </ul>
-            </section>
-          )}
+            )}
+          </div>
+        )}
 
-          {listPast.length > 0 && (
-            <section>
-              <SectionTitle icon="📋" title="Historique" count={listPast.length} />
-              <ul className="space-y-3">
-                {listPast.map((o, i) => (
-                  <li key={o.id} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 6) * 60}ms` }}>
-                    <OrderCard order={o} onOpenOrder={onOpenOrder} onReorder={handleReorder} />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {!showFeatured && listActive.length === 0 && listPast.length === 0 && (
-            <ul className="space-y-4">
-              {mine.map((o) => (
-                <li key={o.id}>
-                  <OrderCard order={o} onOpenOrder={onOpenOrder} onReorder={handleReorder} />
-                </li>
-              ))}
-            </ul>
-          )}
+        <div className="mt-10 text-center">
+          <Button variant="ghost" onClick={onBrowse}>
+            Découvrir les restaurants <I.Right size={16} />
+          </Button>
         </div>
-      )}
-
-      <div className="mt-10 text-center">
-        <Button variant="ghost" onClick={onBrowse}>
-          Découvrir de nouveaux restaurants <I.Right size={16} />
-        </Button>
       </div>
     </div>
   );
+}
+
+function lastOrderGuard(mine, activeOrders) {
+  const lastOrder = mine[0] ?? null;
+  return Boolean(lastOrder && (activeOrders.length <= 1 || lastOrder.status !== 'delivered' || mine.length === 1));
 }
