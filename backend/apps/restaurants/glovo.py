@@ -536,7 +536,7 @@ class GlovoClient:
         sections: List[GlovoSection],
         *,
         delay: float = 0.35,
-        max_products: int = 120,
+        max_products: int = 250,
     ) -> int:
         """Complète sauces/tailles/extras (+ images manquantes) via le détail produit.
 
@@ -549,7 +549,8 @@ class GlovoClient:
         for section in sections:
             for product in section.products:
                 needs_mods = not product.modifier_groups
-                needs_img = not (product.image_url or "").strip()
+                raw_img = (product.image_url or "").strip()
+                needs_img = (not raw_img) or _is_broken_glovo_image_url(raw_img)
                 if not needs_mods and not needs_img:
                     continue
                 pid = product.product_id
@@ -569,12 +570,21 @@ class GlovoClient:
                     product.modifier_groups = groups
                     enriched += 1
                 if needs_img:
+                    # imageId (dh:menus-glovo/…) d'abord — imageUrl peut rester CloudFront.
+                    image_id = detail.get("imageId") or ""
+                    if not image_id:
+                        images = detail.get("images") or []
+                        if images and isinstance(images[0], dict):
+                            image_id = images[0].get("imageServiceId") or ""
                     fixed = normalize_glovo_image_url(
-                        _image_url_from_image_id(detail.get("imageId") or "")
-                        or (detail.get("imageUrl") or "")
+                        _image_url_from_image_id(image_id) or (detail.get("imageUrl") or "")
                     )
                     if fixed:
                         product.image_url = fixed
+                        enriched += 1
+                    elif _is_broken_glovo_image_url(raw_img):
+                        # Ne pas garder une URL CloudFront morte en base.
+                        product.image_url = ""
                 if not product.description and detail.get("description"):
                     product.description = detail.get("description") or ""
                 time.sleep(max(delay, 0.15))

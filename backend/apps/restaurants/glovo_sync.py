@@ -479,6 +479,21 @@ def _apply_menu(restaurant: Restaurant, store: GlovoStoreConfig, sections: List[
         keep_cat_ids.add(cat.pk)
 
         for item_order, product in enumerate(section.products):
+            incoming_img = (product.image_url or "").strip()[:500]
+            existing = MenuItem.objects.filter(
+                restaurant=restaurant,
+                external_id=product.external_id[:40],
+            ).only("image_url").first()
+            if not incoming_img and existing:
+                old = (existing.image_url or "").strip()
+                # Garder une image dhmedia valide ; jeter les CloudFront morts.
+                if old and "cloudfront.net" not in old.lower() and "d52ouboplz7yg" not in old.lower():
+                    incoming_img = old[:500]
+                else:
+                    incoming_img = ""
+            elif incoming_img and ("cloudfront.net" in incoming_img.lower() or "d52ouboplz7yg" in incoming_img.lower()):
+                incoming_img = ""
+
             item, created = MenuItem.objects.update_or_create(
                 restaurant=restaurant,
                 external_id=product.external_id[:40],
@@ -488,7 +503,7 @@ def _apply_menu(restaurant: Restaurant, store: GlovoStoreConfig, sections: List[
                     "description": product.description[:300],
                     "ingredients": product.description,
                     "price_mad": Decimal(str(product.price_mad)),
-                    "image_url": (product.image_url or "")[:500],
+                    "image_url": incoming_img,
                     "is_available": not product.out_of_stock,
                     "sort_order": item_order,
                 },
