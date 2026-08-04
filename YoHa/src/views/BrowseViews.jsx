@@ -162,7 +162,11 @@ function isRestaurantOpen(r) {
   return r.isOpen ?? st.isOpen;
 }
 
-function prioritizeOpenFirst(list, enabled = false) {
+function restoKey(r) {
+  return String(r?.id || r?.slug || r?.name || '').toLowerCase().trim();
+}
+
+function prioritizeOpenFirst(list, enabled = true) {
   if (!enabled || !Array.isArray(list) || list.length <= 1) return list || [];
   const open = [];
   const closed = [];
@@ -170,6 +174,24 @@ function prioritizeOpenFirst(list, enabled = false) {
     (isRestaurantOpen(r) ? open : closed).push(r);
   }
   return [...open, ...closed];
+}
+
+/** Prend jusqu'à `limit` restos d'une liste en évitant les déjà utilisés. */
+function takeUnique(list, used, limit = 10) {
+  const out = [];
+  for (const r of list || []) {
+    const key = restoKey(r);
+    if (!key || used.has(key)) continue;
+    used.add(key);
+    out.push(r);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+function ratingOf(r) {
+  const n = Number(String(r?.rating || '').replace(',', '.'));
+  return Number.isFinite(n) ? n : 0;
 }
 
 export function formatTag(tag) {
@@ -538,53 +560,106 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     setHomeSeed(Date.now() + Math.random());
   }, []);
 
-  const closedFoodCount = useMemo(
-    () => foodRestaurants.filter((r) => !isRestaurantOpen(r)).length,
-    [foodRestaurants],
-  );
-  const prioritizeOpen = closedFoodCount > 15;
+  // Toujours ouverts d'abord (surtout quand beaucoup sont fermés).
+  const prioritizeOpen = true;
   const prioritizedFoodRestaurants = useMemo(
-    () => prioritizeOpenFirst(foodRestaurants, prioritizeOpen),
-    [foodRestaurants, prioritizeOpen],
+    () => prioritizeOpenFirst(shuffleWithSeed(foodRestaurants, homeSeed + 11), true),
+    [foodRestaurants, homeSeed],
   );
 
-  const freeDeliveryList = useMemo(
-    () => prioritizeOpenFirst(shuffleWithSeed(foodRestaurants, homeSeed + 101), prioritizeOpen),
-    [foodRestaurants, homeSeed, prioritizeOpen],
-  );
-  const featuredList = useMemo(
-    () => prioritizeOpenFirst(shuffleWithSeed(foodRestaurants, homeSeed + 202), prioritizeOpen),
-    [foodRestaurants, homeSeed, prioritizeOpen],
-  );
-  const popularRestaurants = useMemo(
-    () => prioritizeOpenFirst(shuffleWithSeed(foodRestaurants, homeSeed + 303), prioritizeOpen),
-    [foodRestaurants, homeSeed, prioritizeOpen],
-  );
-  const fastDelivery = useMemo(
-    () => prioritizeOpenFirst(shuffleWithSeed(foodRestaurants, homeSeed + 404), prioritizeOpen),
-    [foodRestaurants, homeSeed, prioritizeOpen],
-  );
-  const promoRestaurants = useMemo(
-    () => prioritizeOpenFirst(shuffleWithSeed(foodRestaurants, homeSeed + 505), prioritizeOpen),
-    [foodRestaurants, homeSeed, prioritizeOpen],
-  );
-  const topRatedList = useMemo(
-    () => prioritizeOpenFirst(shuffleWithSeed(foodRestaurants, homeSeed + 606), prioritizeOpen),
-    [foodRestaurants, homeSeed, prioritizeOpen],
-  );
-  const favoritesList = useMemo(
-    () => prioritizeOpenFirst(shuffleWithSeed(foodRestaurants, homeSeed + 707), prioritizeOpen),
-    [foodRestaurants, homeSeed, prioritizeOpen],
+  const openNowList = useMemo(
+    () => shuffleWithSeed(foodRestaurants.filter((r) => isRestaurantOpen(r)), homeSeed + 21),
+    [foodRestaurants, homeSeed],
   );
 
-  const burgerList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter(r => r.cuisine === 'burger' || r.tags?.includes('Burgers') || r.name.toLowerCase().includes('burger')), prioritizeOpen), [foodRestaurants, prioritizeOpen]);
-  const pizzaList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter(r => r.cuisine === 'pizza' || r.tags?.includes('Pizza') || r.name.toLowerCase().includes('pizza')), prioritizeOpen), [foodRestaurants, prioritizeOpen]);
-  const asianList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter(r => r.cuisine === 'sushi' || r.cuisine === 'asian' || r.tags?.includes('Sushi') || r.name.toLowerCase().includes('sushi') || r.name.toLowerCase().includes('wok')), prioritizeOpen), [foodRestaurants, prioritizeOpen]);
-  const tacosList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter(r => r.cuisine === 'tacos' || r.tags?.includes('Tacos') || r.name.toLowerCase().includes('tacos') || r.name.toLowerCase().includes('wrap')), prioritizeOpen), [foodRestaurants, prioritizeOpen]);
-  const kebabList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter(r => r.cuisine === 'kebab' || r.tags?.includes('Kebab') || r.name.toLowerCase().includes('kebab') || r.name.toLowerCase().includes('shawarma') || r.name.toLowerCase().includes('mevlana') || r.name.toLowerCase().includes('bomo')), prioritizeOpen), [foodRestaurants, prioritizeOpen]);
-  const sandwichList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter(r => r.cuisine === 'sandwich' || r.tags?.includes('Sandwich') || r.name.toLowerCase().includes('snack') || r.name.toLowerCase().includes('roma') || r.name.toLowerCase().includes('subway')), prioritizeOpen), [foodRestaurants, prioritizeOpen]);
-  const healthyList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter(r => r.cuisine === 'healthy' || r.cuisine === 'medical' || r.tags?.includes('Healthy') || r.name.toLowerCase().includes('healthy') || r.name.toLowerCase().includes('bowl') || r.name.toLowerCase().includes('medeat')), prioritizeOpen), [foodRestaurants, prioritizeOpen]);
-  const chickenList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter(r => r.cuisine === 'chicken' || r.tags?.includes('Chicken') || r.name.toLowerCase().includes('chicken') || r.name.toLowerCase().includes('poulet')), prioritizeOpen), [foodRestaurants, prioritizeOpen]);
+  /** Rails curated sans doublon entre elles (hors cuisines & grille finale). */
+  const homeRails = useMemo(() => {
+    const used = new Set();
+    const shuffled = shuffleWithSeed(foodRestaurants, homeSeed + 31);
+
+    // 1) Ouverts maintenant — priorité absolue
+    const openRail = [];
+    for (const r of openNowList) {
+      const k = restoKey(r);
+      if (!k || used.has(k)) continue;
+      used.add(k);
+      openRail.push(r);
+    }
+
+    // 2) Mieux notés (parmi le reste)
+    const topRail = takeUnique(
+      shuffled.filter((r) => ratingOf(r) >= 4.5).sort((a, b) => ratingOf(b) - ratingOf(a)),
+      used,
+      8,
+    );
+
+    // 3) Offres / promo
+    const promoRail = takeUnique(
+      shuffled.filter((r) => r.promo || (Array.isArray(r.offers) && r.offers.some((o) => o?.is_active !== false))),
+      used,
+      8,
+    );
+
+    // 4) À découvrir — restos pas encore montrés (souvent fermés mais utiles)
+    const discoverRail = takeUnique(shuffled, used, 10);
+
+    return { openRail, topRail, promoRail, discoverRail, used };
+  }, [foodRestaurants, openNowList, homeSeed]);
+
+  const freeDeliveryList = prioritizedFoodRestaurants;
+  const featuredList = homeRails.openRail;
+  const popularRestaurants = homeRails.openRail.length ? homeRails.openRail : prioritizedFoodRestaurants;
+  const fastDelivery = homeRails.discoverRail;
+  const promoRestaurants = homeRails.promoRail.length ? homeRails.promoRail : prioritizedFoodRestaurants.filter((r) => r.promo);
+  const topRatedList = homeRails.topRail.length
+    ? homeRails.topRail
+    : prioritizeOpenFirst(
+        [...foodRestaurants].sort((a, b) => ratingOf(b) - ratingOf(a)).filter((r) => ratingOf(r) >= 4.5),
+        true,
+      );
+  const favoritesList = homeRails.discoverRail;
+
+  const matchCuisine = (r, predicates) => predicates.some((fn) => fn(r));
+  const burgerList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
+    (x) => x.cuisine === 'burger',
+    (x) => x.tags?.includes('Burgers') || x.tags?.includes('Burger'),
+    (x) => x.name.toLowerCase().includes('burger'),
+  ])), true), [foodRestaurants]);
+  const pizzaList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
+    (x) => x.cuisine === 'pizza',
+    (x) => x.tags?.includes('Pizza'),
+    (x) => x.name.toLowerCase().includes('pizza'),
+  ])), true), [foodRestaurants]);
+  const asianList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
+    (x) => x.cuisine === 'sushi' || x.cuisine === 'asian',
+    (x) => x.tags?.includes('Sushi') || x.tags?.includes('Japonais'),
+    (x) => /sushi|wok|asian|japonais/i.test(x.name),
+  ])), true), [foodRestaurants]);
+  const tacosList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
+    (x) => x.cuisine === 'tacos',
+    (x) => x.tags?.includes('Tacos'),
+    (x) => /tacos|wrap/i.test(x.name),
+  ])), true), [foodRestaurants]);
+  const kebabList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
+    (x) => x.cuisine === 'kebab',
+    (x) => x.tags?.includes('Kebab') || x.tags?.includes('Shawarma'),
+    (x) => /kebab|shawarma|mevlana|bomo/i.test(x.name),
+  ])), true), [foodRestaurants]);
+  const sandwichList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
+    (x) => x.cuisine === 'sandwich',
+    (x) => x.tags?.includes('Sandwich') || x.tags?.includes('Snack'),
+    (x) => /snack|roma|subway|sandwich/i.test(x.name),
+  ])), true), [foodRestaurants]);
+  const healthyList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
+    (x) => x.cuisine === 'healthy' || x.cuisine === 'medical',
+    (x) => x.tags?.includes('Healthy') || x.tags?.includes('Salades'),
+    (x) => /healthy|bowl|medeat|salade/i.test(x.name),
+  ])), true), [foodRestaurants]);
+  const chickenList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
+    (x) => x.cuisine === 'chicken',
+    (x) => x.tags?.includes('Chicken') || x.tags?.includes('Poulet'),
+    (x) => /chicken|poulet/i.test(x.name),
+  ])), true), [foodRestaurants]);
 
   const dessertItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'dessert' || s.cuisine === 'patisserie'), []);
   const customPharmacy = useMemo(() => STATIC_STORES.find((s) => s.id === 'custom-pharmacy'), []);
@@ -610,12 +685,12 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   const shopItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'shop'), []);
 
   const displayedList = useMemo(() => {
-    if (filter === 'offers') return promoRestaurants;
+    if (filter === 'offers') return promoRestaurants.length ? promoRestaurants : prioritizedFoodRestaurants;
     if (filter === 'popular') return popularRestaurants;
-    if (filter === 'fast') return fastDelivery;
+    if (filter === 'fast') return fastDelivery.length ? fastDelivery : prioritizedFoodRestaurants;
     if (filter === 'free_delivery') return prioritizedFoodRestaurants;
-    if (filter === 'top_rated') return topRatedList;
-    if (filter === 'favorites') return favoritesList;
+    if (filter === 'top_rated') return topRatedList.length ? topRatedList : prioritizedFoodRestaurants;
+    if (filter === 'favorites') return favoritesList.length ? favoritesList : prioritizedFoodRestaurants;
     if (filter === 'burgers_sec') return burgerList.length ? burgerList : prioritizeOpenFirst(foodRestaurants.filter(r => r.cuisine === 'burger'), prioritizeOpen);
     if (filter === 'pizzas_sec') return pizzaList.length ? pizzaList : prioritizeOpenFirst(foodRestaurants.filter(r => r.cuisine === 'pizza'), prioritizeOpen);
     if (filter === 'asian_sec') return asianList.length ? asianList : prioritizeOpenFirst(foodRestaurants.filter(r => r.cuisine === 'sushi' || r.cuisine === 'asian'), prioritizeOpen);
@@ -660,10 +735,46 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       r.cuisine === filter ||
       (Array.isArray(r.tags) && r.tags.some(t => t.toLowerCase() === filter.toLowerCase()))
     ), prioritizeOpen);
-  }, [filter, promoRestaurants, popularRestaurants, fastDelivery, prioritizedFoodRestaurants, topRatedList, favoritesList, burgerList, pizzaList, asianList, dessertItems, pharmacyItems, paraItems, marketItems, shopItems, foodRestaurants, prioritizeOpen]);
+  }, [filter, promoRestaurants, popularRestaurants, fastDelivery, prioritizedFoodRestaurants, topRatedList, favoritesList, burgerList, pizzaList, asianList, dessertItems, pharmacyItems, paraItems, marketItems, shopItems, foodRestaurants, prioritizeOpen, tacosList, kebabList, sandwichList, healthyList, chickenList]);
+
+  const cuisineRails = useMemo(() => {
+    const rails = [
+      { key: 'burger', title: '🍔 Burgers', subtitle: 'Smash, double cheese & frites', list: burgerList, filterId: 'burgers_sec' },
+      { key: 'pizza', title: '🍕 Pizzas', subtitle: 'Napolitaines & recettes italiennes', list: pizzaList, filterId: 'pizzas_sec' },
+      { key: 'asian', title: '🍣 Asian & Sushi', subtitle: 'Maki, nigiri, pad thaï & ramen', list: asianList, filterId: 'asian_sec' },
+      { key: 'kebab', title: '🥙 Shawarma & Kebab', subtitle: 'Grillades & sauces maison', list: kebabList, filterId: 'kebab_sec' },
+      { key: 'tacos', title: '🌮 Tacos & Wraps', subtitle: 'French tacos & wraps gourmands', list: tacosList, filterId: 'tacos_sec' },
+      { key: 'sandwich', title: '🥪 Sandwichs & Snacks', subtitle: 'Chauds, paninis & snacks', list: sandwichList, filterId: 'sandwich_sec' },
+      { key: 'healthy', title: '🥗 Bowls & Healthy', subtitle: 'Salades, bowls & MedEat', list: healthyList, filterId: 'healthy_sec' },
+      { key: 'chicken', title: '🍗 Poulet & Crispy', subtitle: 'Tenders, wings & poulet rôti', list: chickenList, filterId: 'chicken_sec' },
+    ].filter((rail) => (rail.list || []).length > 0);
+
+    // Prefers rails that still have open restos, then shuffle.
+    const withOpen = rails.filter((rail) => rail.list.some((r) => isRestaurantOpen(r)));
+    const closedOnly = rails.filter((rail) => !rail.list.some((r) => isRestaurantOpen(r)));
+    return [
+      ...shuffleWithSeed(withOpen, homeSeed + 77),
+      ...shuffleWithSeed(closedOnly, homeSeed + 88),
+    ];
+  }, [burgerList, pizzaList, asianList, kebabList, tacosList, sandwichList, healthyList, chickenList, homeSeed]);
 
   const homeSections = useMemo(() => {
-    const top = [
+    const { openRail, topRail, promoRail, discoverRail } = homeRails;
+
+    const sections = [
+      openRail.length > 0 && (
+        <HorizontalRow
+          key="open-now"
+          title="🟢 Disponibles maintenant"
+          subtitle={`${openRail.length} resto${openRail.length > 1 ? 's' : ''} prêt${openRail.length > 1 ? 's' : ''} à te livrer`}
+          count={openRail.length}
+        >
+          {openRail.map((r) => (
+            <RestaurantCardHorizontal key={`open-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          ))}
+        </HorizontalRow>
+      ),
+
       chainsList.length > 0 && (
         <HorizontalRow
           key="chains"
@@ -677,233 +788,92 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
         </HorizontalRow>
       ),
 
-      <HorizontalRow
-        key="free"
-        title="Frais de livraison offerts"
-        subtitle="Livraison 0 MAD sur tout l'Alliance & CHU"
-        count={freeDeliveryList.length}
-        onSeeAll={() => applyFilter('free_delivery')}
-      >
-        {freeDeliveryList.map((r) => (
-          <RestaurantCardHorizontal key={`free-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
-        ))}
-      </HorizontalRow>,
-
-      <section key="featured" className="px-4 sm:px-0">
-        <div className="flex flex-col mb-2">
-          <h2 className="font-display font-black text-lg sm:text-xl text-ink-900 dark:text-white">À la une</h2>
-          <p className="text-xs text-ink-500 dark:text-ink-400 font-medium mt-0.5">Annonces payantes de nos partenaires</p>
-        </div>
-        <div className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
-          {featuredList.map((r) => (
-            <RestaurantCardHorizontal key={`featured-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
+      topRail.length > 0 && (
+        <HorizontalRow
+          key="top"
+          title="🌟 Coups de cœur notés"
+          subtitle="Les meilleures notes — sans doublon"
+          count={topRail.length}
+          onSeeAll={() => applyFilter('top_rated')}
+        >
+          {topRail.map((r) => (
+            <RestaurantCardHorizontal key={`top-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
           ))}
-        </div>
-      </section>,
+        </HorizontalRow>
+      ),
 
-      <div key="brands">
-        <DeliverooPopularBrandsSection restaurants={prioritizedFoodRestaurants} onPick={onPickRestaurant} />
-      </div>,
-
-      <HorizontalRow
-        key="popular"
-        title="🔥 Populaires dans votre quartier"
-        subtitle="Établissements très prisés au campus & hôpitaux"
-        count={popularRestaurants.length}
-        onSeeAll={() => applyFilter('popular')}
-      >
-        {popularRestaurants.slice(0, 10).map((r) => (
-          <RestaurantCardHorizontal key={`pop-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-        ))}
-      </HorizontalRow>,
-
-      <HorizontalRow
-        key="fast"
-        title="⚡ Frais de livraison tout doux"
-        subtitle="Livraison ultra rapide — au moins 45 min"
-        count={fastDelivery.length}
-        onSeeAll={() => applyFilter('fast')}
-      >
-        {fastDelivery.slice(0, 10).map((r) => (
-          <RestaurantCardHorizontal key={`fast-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-        ))}
-      </HorizontalRow>,
-
-      promoRestaurants.length > 0 && (
+      promoRail.length > 0 && (
         <HorizontalRow
           key="promo"
-          title="🎁 Offres près de chez vous"
-          subtitle="Promotions actives et menus avantageux"
-          count={promoRestaurants.length}
+          title="🎁 Offres du moment"
+          subtitle="Promos actives près de l'Alliance"
+          count={promoRail.length}
           onSeeAll={() => applyFilter('offers')}
         >
-          {promoRestaurants.slice(0, 10).map((r) => (
+          {promoRail.map((r) => (
             <RestaurantCardHorizontal key={`promo-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
           ))}
         </HorizontalRow>
       ),
 
-      <HorizontalRow
-        key="top"
-        title="🌟 Mieux notés"
-        subtitle="Les meilleures adresses notées 4.8 et plus"
-        count={topRatedList.length}
-        onSeeAll={() => applyFilter('top_rated')}
-      >
-        {topRatedList.slice(0, 10).map((r) => (
-          <RestaurantCardHorizontal key={`top-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-        ))}
-      </HorizontalRow>,
-
-      <HorizontalRow
-        key="fav"
-        title="❤️ Favoris les plus populaires"
-        subtitle="Adresses fréquemment ajoutées en coup de cœur"
-        count={favoritesList.length}
-        onSeeAll={() => applyFilter('favorites')}
-      >
-        {favoritesList.slice(0, 10).map((r) => (
-          <RestaurantCardHorizontal key={`fav-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-        ))}
-      </HorizontalRow>,
-  ];
-
-  const end = [
-
-      burgerList.length > 0 && (
+      discoverRail.length > 0 && (
         <HorizontalRow
-          key="burger"
-          title="🍔 Burgers"
-          subtitle="Smash burgers, double cheese et frites dorées"
-          count={burgerList.length}
-          onSeeAll={() => applyFilter('burgers_sec')}
+          key="discover"
+          title="✨ À découvrir"
+          subtitle="D'autres adresses de la flotte YoHa"
+          count={discoverRail.length}
         >
-          {burgerList.slice(0, 10).map((r) => (
-            <RestaurantCardHorizontal key={`burger-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          {discoverRail.map((r) => (
+            <RestaurantCardHorizontal key={`disc-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
           ))}
         </HorizontalRow>
       ),
 
-      pizzaList.length > 0 && (
+      ...cuisineRails.map((rail) => (
         <HorizontalRow
-          key="pizza"
-          title="🍕 Pizzas"
-          subtitle="Pizzas napolitaines et recettes italiennes"
-          count={pizzaList.length}
-          onSeeAll={() => applyFilter('pizzas_sec')}
+          key={rail.key}
+          title={rail.title}
+          subtitle={rail.subtitle}
+          count={rail.list.length}
+          onSeeAll={() => applyFilter(rail.filterId)}
         >
-          {pizzaList.slice(0, 10).map((r) => (
-            <RestaurantCardHorizontal key={`pizza-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          {rail.list.slice(0, 8).map((r) => (
+            <RestaurantCardHorizontal key={`${rail.key}-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
           ))}
         </HorizontalRow>
-      ),
+      )),
 
-      asianList.length > 0 && (
-        <HorizontalRow
-          key="asian"
-          title="🍣 Asian & Sushi"
-          subtitle="Maki, nigiri, pad thaï et ramen chaud"
-          count={asianList.length}
-          onSeeAll={() => applyFilter('asian_sec')}
-        >
-          {asianList.slice(0, 10).map((r) => (
-            <RestaurantCardHorizontal key={`asian-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-          ))}
-        </HorizontalRow>
+      prioritizedFoodRestaurants.length > 0 && (
+        <section key="all-grid" className="px-4 sm:px-0">
+          <div className="mb-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400 mb-1">
+              Catalogue
+            </p>
+            <h2 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white tracking-tight">
+              Tous les restaurants
+            </h2>
+            <p className="text-xs text-ink-500 dark:text-ink-400 mt-1.5 font-medium">
+              {openRail.length} ouvert{openRail.length > 1 ? 's' : ''} · {prioritizedFoodRestaurants.length} au total · ouverts en premier
+            </p>
+            <div className="mt-2.5 h-1 w-11 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {prioritizedFoodRestaurants.map((r, i) => (
+              <div key={`all-${r.id}`} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 12) * 40}ms` }}>
+                <RestaurantCard restaurant={r} onClick={() => onPickRestaurant(r)} />
+              </div>
+            ))}
+          </div>
+        </section>
       ),
+    ].filter(Boolean);
 
-      kebabList.length > 0 && (
-        <HorizontalRow
-          key="kebab"
-          title="🥙 Shawarma & Kebab"
-          subtitle="Kebab grillé au feu de bois, shawarma libanais & sauces maison"
-          count={kebabList.length}
-          onSeeAll={() => applyFilter('kebab_sec')}
-        >
-          {kebabList.slice(0, 10).map((r) => (
-            <RestaurantCardHorizontal key={`kebab-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-          ))}
-        </HorizontalRow>
-      ),
-
-      tacosList.length > 0 && (
-        <HorizontalRow
-          key="tacos"
-          title="🌮 Tacos & Wraps"
-          subtitle="French tacos généreux, gratinés au fromage & wraps gourmands"
-          count={tacosList.length}
-          onSeeAll={() => applyFilter('tacos_sec')}
-        >
-          {tacosList.slice(0, 10).map((r) => (
-            <RestaurantCardHorizontal key={`tacos-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-          ))}
-        </HorizontalRow>
-      ),
-
-      sandwichList.length > 0 && (
-        <HorizontalRow
-          key="sandwich"
-          title="🥪 Sandwichs & Snacks"
-          subtitle="Sandwichs chauds, paninis croustillants & snacks de quartier"
-          count={sandwichList.length}
-          onSeeAll={() => applyFilter('sandwich_sec')}
-        >
-          {sandwichList.map((r) => (
-            <RestaurantCardHorizontal key={`snack-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-          ))}
-        </HorizontalRow>
-      ),
-
-      healthyList.length > 0 && (
-        <HorizontalRow
-          key="healthy"
-          title="🥗 Bowls & Salades Healthy"
-          subtitle="Poke bowls frais, salades composées & menus hôpital MedEat"
-          count={healthyList.length}
-          onSeeAll={() => applyFilter('healthy_sec')}
-        >
-          {healthyList.slice(0, 10).map((r) => (
-            <RestaurantCardHorizontal key={`healthy-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-          ))}
-        </HorizontalRow>
-      ),
-
-      chickenList.length > 0 && (
-        <HorizontalRow
-          key="chicken"
-          title="🍗 Poulet Rôti & Crispy Chicken"
-          subtitle="Poulet braisé, tenders croustillants & wings épicés"
-          count={chickenList.length}
-          onSeeAll={() => applyFilter('chicken_sec')}
-        >
-          {chickenList.slice(0, 10).map((r) => (
-            <RestaurantCardHorizontal key={`chicken-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-          ))}
-        </HorizontalRow>
-      ),
-  ].filter(Boolean);
-
-  return [...(homeSeed ? shuffleWithSeed(top, homeSeed + 888) : top), ...end];
+    return sections;
   }, [
-    homeSeed,
-    foodRestaurants,
-    prioritizedFoodRestaurants,
+    homeRails,
     chainsList,
-    freeDeliveryList,
-    featuredList,
-    popularRestaurants,
-    fastDelivery,
-    promoRestaurants,
-    topRatedList,
-    favoritesList,
-    burgerList,
-    pizzaList,
-    asianList,
-    kebabList,
-    tacosList,
-    sandwichList,
-    healthyList,
-    chickenList,
+    cuisineRails,
+    prioritizedFoodRestaurants,
     onPickRestaurant,
     applyFilter,
   ]);
