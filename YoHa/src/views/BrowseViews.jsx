@@ -258,7 +258,6 @@ function pharmacyCoverFor(key) {
 /** Transforme une pharmacie de garde (API) en objet affichable comme une carte. */
 export function toDutyPharmacyItem(p) {
   const guard = p.guard === '24h' ? '24h' : p.guard || '24h';
-  const dist = formatDistanceKm(p.lat, p.lng);
   return {
     id: `duty-${p.slug || p.id}`,
     name: p.name,
@@ -273,7 +272,7 @@ export function toDutyPharmacyItem(p) {
     cover: pharmacyCoverFor(p.slug || String(p.id)),
     description: 'Pharmacie de garde. Dites-nous ce que vous cherchez, notre livreur s\u2019occupe de tout !',
     tags: [`Garde ${guard === '24h' ? '24H' : guard === 'night' ? 'de nuit' : 'de jour'}`],
-    distance: dist || '',
+    distance: '',
     address: p.address || '',
     phone: p.phone || '',
     lat: p.lat,
@@ -2408,9 +2407,6 @@ export function RestaurantCard({ restaurant, onClick }) {
           {isDuty ? (
             <>
               {restaurant.phone && <span className="truncate shrink-0">{restaurant.phone}</span>}
-              {restaurant.distance && (
-                <span className="shrink-0 text-emerald-300 font-bold">{restaurant.distance}</span>
-              )}
             </>
           ) : (
             <span className="truncate">{formatTags(restaurant.tags, ' • ')}</span>
