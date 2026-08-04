@@ -1061,53 +1061,6 @@
 }
 .animate-fade-in { animation: fade-in 0.2s ease-out; }
 
-@keyframes browse-ken {
-  0%, 100% { transform: scale(1.08) translate(0%, 0%); }
-  50% { transform: scale(1.18) translate(-2%, 1.5%); }
-}
-
-.browse-scene {
-  background:
-    radial-gradient(90% 50% at 50% 0%, rgba(249, 115, 22, 0.07), transparent 55%),
-    linear-gradient(180deg, #faf8f5 0%, #ffffff 38%, #ffffff 100%);
-}
-.dark .browse-scene {
-  background:
-    radial-gradient(90% 45% at 50% 0%, rgba(249, 115, 22, 0.12), transparent 55%),
-    linear-gradient(180deg, #0b1220 0%, #0f172a 40%, #0f172a 100%);
-}
-
-@keyframes browseHeroIn {
-  from {
-    opacity: 0;
-    transform: translateY(22px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.browse-hero-brand,
-.browse-hero-title,
-.browse-hero-sub,
-.browse-hero-search {
-  animation: browseHeroIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.browse-hero-brand { animation-delay: 0.05s; }
-.browse-hero-title { animation-delay: 0.18s; }
-.browse-hero-sub { animation-delay: 0.28s; }
-.browse-hero-search { animation-delay: 0.42s; }
-
-@media (prefers-reduced-motion: reduce) {
-  .browse-hero-brand,
-  .browse-hero-title,
-  .browse-hero-sub,
-  .browse-hero-search {
-    animation: none !important;
-  }
-}
-
 
 
 /* Perf: skip offscreen paint for long lists */
