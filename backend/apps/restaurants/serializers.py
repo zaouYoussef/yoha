@@ -160,7 +160,17 @@ class MenuItemSerializer(serializers.ModelSerializer):
 
     def get_img(self, obj):
         prefer_thumb = self.context.get("prefer_thumbs", False)
-        return pick_image(obj.image_file, obj.image_thumb, obj.image_url, prefer_thumb=prefer_thumb)
+        url = pick_image(obj.image_file, obj.image_thumb, obj.image_url, prefer_thumb=prefer_thumb)
+        slug = ""
+        try:
+            slug = (obj.restaurant.slug if obj.restaurant_id else "") or ""
+        except Exception:  # noqa: BLE001
+            slug = ""
+        from apps.restaurants.cdn_images import CORNER_CROP_RESTAURANT_SLUGS, with_corner_crop
+
+        if slug in CORNER_CROP_RESTAURANT_SLUGS:
+            return with_corner_crop(url)
+        return url
 
 
 class MenuCategorySerializer(serializers.ModelSerializer):

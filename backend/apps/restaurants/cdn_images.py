@@ -164,3 +164,17 @@ def absolute_public_image_url(url: str) -> str:
         return path
     base = getattr(settings, "YOHA_FRONTEND_URL", "https://yoha.ma").rstrip("/")
     return f"{base}{path}"
+
+
+# Slugs dont les photos catalogue portent encore un watermark coin (ex. logo partenaire).
+CORNER_CROP_RESTAURANT_SLUGS = frozenset({"beug-s-restaurant"})
+
+
+def with_corner_crop(proxy_url: str) -> str:
+    """Ajoute ?crop=corner au proxy pour zoomer / masquer un watermark coin."""
+    if not proxy_url or PROXY_PATH_PREFIX not in proxy_url:
+        return proxy_url or ""
+    if "crop=corner" in proxy_url:
+        return proxy_url
+    sep = "&" if "?" in proxy_url else "?"
+    return f"{proxy_url}{sep}crop=corner"

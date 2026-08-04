@@ -1,6 +1,7 @@
 """Vue proxy images — stream CDN partenaire, anti-SSRF."""
 from __future__ import annotations
 
+import io
 import ipaddress
 import logging
 import socket
@@ -52,6 +53,39 @@ def _host_resolves_public(hostname: str) -> bool:
     return bool(ips) and all(_is_public_ip(ip) for ip in ips)
 
 
+def _zoom_crop_corner_logo(raw: bytes) -> tuple[bytes, str] | None:
+    """Zoom + crop biaisé pour masquer un watermark en haut à droite."""
+    try:
+        from PIL import Image
+    except ImportError:
+        return None
+    try:
+        im = Image.open(io.BytesIO(raw))
+        im.load()
+    except Exception:  # noqa: BLE001
+        return None
+
+    if im.mode not in ("RGB", "RGBA"):
+        im = im.convert("RGB")
+
+    w, h = im.size
+    if w < 40 or h < 40:
+        return None
+
+    # Garde ~78 % du cadre, ancré bas-gauche → coupe plus le coin haut-droit.
+    keep = 0.78
+    zw, zh = max(1, int(w * keep)), max(1, int(h * keep))
+    left = max(0, int((w - zw) * 0.22))
+    top = max(0, int((h - zh) * 0.62))
+    right = min(w, left + zw)
+    bottom = min(h, top + zh)
+    cropped = im.crop((left, top, right, bottom))
+
+    out = io.BytesIO()
+    cropped.save(out, format="WEBP", quality=86, method=4)
+    return out.getvalue(), "image/webp"
+
+
 class CdnImageProxyView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
@@ -69,11 +103,13 @@ class CdnImageProxyView(APIView):
         if not host or not _host_resolves_public(host):
             return HttpResponse(status=404)
 
+        want_corner_crop = str(request.query_params.get("crop") or "").strip().lower() == "corner"
+
         try:
             upstream = requests.get(
                 url,
                 timeout=12,
-                stream=True,
+                stream=not want_corner_crop,
                 allow_redirects=False,
                 headers={
                     "User-Agent": _UA,
@@ -100,6 +136,35 @@ class CdnImageProxyView(APIView):
         if cl and cl.isdigit() and int(cl) > _MAX_BYTES:
             upstream.close()
             return HttpResponse(status=404)
+
+        if want_corner_crop:
+            raw = b""
+            try:
+                for chunk in upstream.iter_content(chunk_size=_CHUNK):
+                    if not chunk:
+                        continue
+                    raw += chunk
+                    if len(raw) > _MAX_BYTES:
+                        upstream.close()
+                        return HttpResponse(status=404)
+            finally:
+                upstream.close()
+
+            processed = _zoom_crop_corner_logo(raw)
+            if processed:
+                body, ctype = processed
+                response = HttpResponse(body, content_type=ctype)
+                response["Cache-Control"] = "public, max-age=604800, immutable"
+                response["X-Content-Type-Options"] = "nosniff"
+                response["Content-Disposition"] = "inline"
+                return response
+
+            # Fallback : image brute si Pillow échoue
+            response = HttpResponse(raw, content_type=content_type or "image/jpeg")
+            response["Cache-Control"] = "public, max-age=604800, immutable"
+            response["X-Content-Type-Options"] = "nosniff"
+            response["Content-Disposition"] = "inline"
+            return response
 
         def _iter():
             total = 0

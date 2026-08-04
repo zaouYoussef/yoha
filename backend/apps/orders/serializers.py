@@ -223,9 +223,18 @@ class OrderLineSerializer(serializers.ModelSerializer):
         return f"line-{obj.pk}"
 
     def get_img(self, obj):
-        from apps.restaurants.cdn_images import publicize_image_url
+        from apps.restaurants.cdn_images import CORNER_CROP_RESTAURANT_SLUGS, publicize_image_url, with_corner_crop
 
-        return publicize_image_url(obj.image_url or "")
+        url = publicize_image_url(obj.image_url or "")
+        slug = ""
+        try:
+            if obj.order_id and obj.order.restaurant_id:
+                slug = obj.order.restaurant.slug or ""
+        except Exception:  # noqa: BLE001
+            slug = ""
+        if slug in CORNER_CROP_RESTAURANT_SLUGS:
+            return with_corner_crop(url)
+        return url
 
     def get_restaurantId(self, obj):
         if obj.order_id and obj.order.restaurant_id:
