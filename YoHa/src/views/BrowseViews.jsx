@@ -284,7 +284,7 @@ const CATEGORY_GLOW = {
   drinks: '#06b6d4',
 };
 
-function BrowseHero({ name, search, onSearchChange, openCount, totalCount }) {
+function BrowseHero({ name, search, onSearchChange, openCount }) {
   return (
     <section className="relative overflow-hidden bg-ink-950 text-white">
       <div
@@ -322,7 +322,6 @@ function BrowseHero({ name, search, onSearchChange, openCount, totalCount }) {
               <span className="text-white/35"> · </span>
               <span className="text-emerald-300/90 font-semibold">
                 {openCount} ouverts
-                {totalCount ? ` / ${totalCount}` : ''}
               </span>
             </>
           )}
@@ -895,7 +894,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
   return (
     <div className="page-enter">
-      <BrowseHero name={name} search={search} onSearchChange={setSearch} openCount={openCount} totalCount={catalog.length} />
+      <BrowseHero name={name} search={search} onSearchChange={setSearch} openCount={openCount} />
 
       <div className="bg-white dark:bg-ink-950 overflow-x-hidden browse-grid-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 sm:py-7 space-y-7 sm:space-y-9 stagger-children">
