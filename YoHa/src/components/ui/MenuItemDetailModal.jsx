@@ -114,6 +114,8 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
   const showIngredients = ingredients && ingredients !== desc;
   const detailText = ingredients || desc;
 
+  const hasModifiers = groups.length > 0;
+
   if (!mounted) return null;
 
   return createPortal(
@@ -124,10 +126,14 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
       aria-modal="true"
       aria-labelledby="menu-item-detail-title"
     >
-      {/* Hauteur fixe mobile → footer toujours à l’écran, sans scroll jusqu’en bas */}
+      {/* Avec sauces/suppléments : grande feuille. Sans : hauteur auto (pas de vide). */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex flex-col w-full sm:max-w-lg h-[min(92dvh,92vh)] sm:h-auto sm:max-h-[88vh] bg-white dark:bg-ink-900 rounded-t-[28px] sm:rounded-3xl shadow-2xl shadow-brand-500/10 border border-ink-200/70 dark:border-ink-800 ring-gradient overflow-hidden animate-slide-up sm:animate-scale-in"
+        className={`relative flex flex-col w-full sm:max-w-lg bg-white dark:bg-ink-900 rounded-t-[28px] sm:rounded-3xl shadow-2xl shadow-brand-500/10 border border-ink-200/70 dark:border-ink-800 ring-gradient overflow-hidden animate-slide-up sm:animate-scale-in sm:h-auto sm:max-h-[88vh] ${
+          hasModifiers
+            ? 'h-[min(92dvh,92vh)]'
+            : 'h-auto max-h-[min(92dvh,92vh)]'
+        }`}
       >
         <button
           type="button"
@@ -138,8 +144,8 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
           <I.X size={18} />
         </button>
 
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
-          <div className="relative h-40 sm:h-52 overflow-hidden bg-ink-100 dark:bg-ink-950 shrink-0">
+        <div className={`min-h-0 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] ${hasModifiers ? 'flex-1' : ''}`}>
+          <div className={`relative overflow-hidden bg-ink-100 dark:bg-ink-950 shrink-0 ${hasModifiers ? 'h-40 sm:h-52' : 'h-36 sm:h-44'}`}>
             <MenuItemImage
               src={item.img}
               alt={item.name}
