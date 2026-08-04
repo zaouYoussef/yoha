@@ -597,10 +597,12 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                       label="Frais de service"
                       value={serviceFee === 0 ? <span className="text-emerald-600 dark:text-emerald-400 font-bold">Offerts</span> : <span className="text-ink-950 dark:text-white font-bold">{formatMad(serviceFee)}</span>}
                     />
-                    <Row
-                      label="Supplément petite commande"
-                      value={smallOrderFee === 0 ? <span className="text-ink-400 font-medium">Aucun</span> : <span className="text-ink-950 dark:text-white font-bold">{formatMad(smallOrderFee)}</span>}
-                    />
+                    {!isCustom && (
+                      <Row
+                        label="Supplément petite commande"
+                        value={smallOrderFee === 0 ? <span className="text-ink-400 font-medium">Aucun</span> : <span className="text-ink-950 dark:text-white font-bold">{formatMad(smallOrderFee)}</span>}
+                      />
+                    )}
 
                     {discountAmount > 0 && (
                       <Row
