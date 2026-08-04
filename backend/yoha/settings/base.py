@@ -668,7 +668,7 @@ GLOVO_STORES = [
         "address_id": 609015,
         "name": "Maro Sushi By Marodelmar",
         "cuisine": "sushi",
-        "tags": ["Sushi", "Japonais"],
+        "tags": ["Sushi", "Japonais", "Pizza"],
         "cover_url": "https://glovo.dhmedia.io/image/stores-glovo/stores/c8f2d616917fa1820af5ca121d6bf9e9cbe6a41b5b07e9773a9f609b3c265484",
         "delivery_time": "25-40 min",
         "phone": "+212661399917",
