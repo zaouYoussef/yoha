@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { I } from '../icons/Icons.jsx';
-import { CUISINES, CATEGORIES_BANNERS, CATEGORY_GROUPS, CUISINE_CATEGORIES, STATIC_STORES } from '../data/index.js';
+import { CUISINES, CATEGORIES_BANNERS, CATEGORY_GROUPS, CUISINE_CATEGORIES, STATIC_STORES, restaurantInCategory } from '../data/index.js';
 import { useOrders, useCart } from '../contexts/AppContexts.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { motion } from 'framer-motion';
@@ -616,47 +616,20 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       );
   const favoritesList = homeRails.discoverRail;
 
-  const matchCuisine = (r, predicates) => predicates.some((fn) => fn(r));
-  const burgerList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
-    (x) => x.cuisine === 'burger',
-    (x) => x.tags?.includes('Burgers') || x.tags?.includes('Burger'),
-    (x) => x.name.toLowerCase().includes('burger'),
-  ])), true), [foodRestaurants]);
-  const pizzaList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
-    (x) => x.cuisine === 'pizza',
-    (x) => x.tags?.includes('Pizza'),
-    (x) => x.name.toLowerCase().includes('pizza'),
-  ])), true), [foodRestaurants]);
-  const asianList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
-    (x) => x.cuisine === 'sushi' || x.cuisine === 'asian',
-    (x) => x.tags?.includes('Sushi') || x.tags?.includes('Japonais'),
-    (x) => /sushi|wok|asian|japonais/i.test(x.name),
-  ])), true), [foodRestaurants]);
-  const tacosList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
-    (x) => x.cuisine === 'tacos',
-    (x) => x.tags?.includes('Tacos'),
-    (x) => /tacos|wrap/i.test(x.name),
-  ])), true), [foodRestaurants]);
-  const kebabList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
-    (x) => x.cuisine === 'kebab',
-    (x) => x.tags?.includes('Kebab') || x.tags?.includes('Shawarma'),
-    (x) => /kebab|shawarma|mevlana|bomo/i.test(x.name),
-  ])), true), [foodRestaurants]);
-  const sandwichList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
-    (x) => x.cuisine === 'sandwich',
-    (x) => x.tags?.includes('Sandwich') || x.tags?.includes('Snack'),
-    (x) => /snack|roma|subway|sandwich/i.test(x.name),
-  ])), true), [foodRestaurants]);
-  const healthyList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
-    (x) => x.cuisine === 'healthy' || x.cuisine === 'medical',
-    (x) => x.tags?.includes('Healthy') || x.tags?.includes('Salades'),
-    (x) => /healthy|bowl|medeat|salade/i.test(x.name),
-  ])), true), [foodRestaurants]);
-  const chickenList = useMemo(() => prioritizeOpenFirst(foodRestaurants.filter((r) => matchCuisine(r, [
-    (x) => x.cuisine === 'chicken',
-    (x) => x.tags?.includes('Chicken') || x.tags?.includes('Poulet'),
-    (x) => /chicken|poulet/i.test(x.name),
-  ])), true), [foodRestaurants]);
+  const byCat = (cat) => prioritizeOpenFirst(
+    foodRestaurants.filter((r) => restaurantInCategory(r, cat)),
+    true,
+  );
+  const burgerList = useMemo(() => byCat('burger'), [foodRestaurants]);
+  const pizzaList = useMemo(() => byCat('pizza'), [foodRestaurants]);
+  const asianList = useMemo(() => byCat('asian'), [foodRestaurants]);
+  const tacosList = useMemo(() => byCat('tacos'), [foodRestaurants]);
+  const kebabList = useMemo(() => byCat('kebab'), [foodRestaurants]);
+  const sandwichList = useMemo(() => byCat('sandwich'), [foodRestaurants]);
+  const healthyList = useMemo(() => byCat('healthy'), [foodRestaurants]);
+  const chickenList = useMemo(() => byCat('chicken'), [foodRestaurants]);
+  const indianList = useMemo(() => byCat('indian'), [foodRestaurants]);
+  const crepesList = useMemo(() => byCat('crepes'), [foodRestaurants]);
 
   const dessertItems = useMemo(() => {
     const DESSERT_PIN = ['custom-patisserie', 'ch-hiwat-sans-gluten', 'patisserie-royal'];
@@ -710,14 +683,16 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     if (filter === 'free_delivery') return prioritizedFoodRestaurants;
     if (filter === 'top_rated') return topRatedList.length ? topRatedList : prioritizedFoodRestaurants;
     if (filter === 'favorites') return favoritesList.length ? favoritesList : prioritizedFoodRestaurants;
-    if (filter === 'burgers_sec') return burgerList.length ? burgerList : prioritizeOpenFirst(foodRestaurants.filter(r => r.cuisine === 'burger'), prioritizeOpen);
-    if (filter === 'pizzas_sec') return pizzaList.length ? pizzaList : prioritizeOpenFirst(foodRestaurants.filter(r => r.cuisine === 'pizza'), prioritizeOpen);
-    if (filter === 'asian_sec') return asianList.length ? asianList : prioritizeOpenFirst(foodRestaurants.filter(r => r.cuisine === 'sushi' || r.cuisine === 'asian'), prioritizeOpen);
-    if (filter === 'tacos_sec') return tacosList.length ? tacosList : prioritizedFoodRestaurants;
-    if (filter === 'kebab_sec') return kebabList.length ? kebabList : prioritizedFoodRestaurants;
-    if (filter === 'sandwich_sec') return sandwichList.length ? sandwichList : prioritizedFoodRestaurants;
-    if (filter === 'healthy_sec') return healthyList.length ? healthyList : prioritizedFoodRestaurants;
-    if (filter === 'chicken_sec') return chickenList.length ? chickenList : prioritizedFoodRestaurants;
+    if (filter === 'burgers_sec') return burgerList.length ? burgerList : byCat('burger');
+    if (filter === 'pizzas_sec') return pizzaList.length ? pizzaList : byCat('pizza');
+    if (filter === 'asian_sec') return asianList.length ? asianList : byCat('asian');
+    if (filter === 'tacos_sec') return tacosList.length ? tacosList : byCat('tacos');
+    if (filter === 'kebab_sec') return kebabList.length ? kebabList : byCat('kebab');
+    if (filter === 'sandwich_sec') return sandwichList.length ? sandwichList : byCat('sandwich');
+    if (filter === 'healthy_sec') return healthyList.length ? healthyList : byCat('healthy');
+    if (filter === 'chicken_sec') return chickenList.length ? chickenList : byCat('chicken');
+    if (filter === 'indian_sec') return indianList.length ? indianList : byCat('indian');
+    if (filter === 'crepes_sec') return crepesList.length ? crepesList : byCat('crepes');
     if (filter === 'dessert' || filter === 'patisserie') return dessertItems;
     if (filter === 'pharmacy') return pharmacyItems;
     if (filter === 'parapharmacy') return paraItems;
@@ -735,14 +710,11 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       const matched = pool.filter(r => Array.isArray(r.tags) && r.tags.some(t => sub.match.some(k => norm(t).includes(k))));
       return matched.length ? matched : pool;
     }
-    if (['pizza', 'tacos', 'kebab', 'healthy', 'burger', 'sushi', 'asian', 'sandwich', 'grillades', 'breakfast', 'snacks', 'moroccan', 'shawarma', 'bakery', 'chicken', 'italian', 'sweets'].includes(filter)) {
-      return prioritizeOpenFirst(foodRestaurants.filter(r =>
-        r.cuisine === filter ||
-        (Array.isArray(r.tags) && r.tags.some(t => {
-          const clean = t.toLowerCase().replace(/[^a-z0-9]/g, '');
-          return clean === filter || clean === filter.toLowerCase().replace(/[^a-z0-9]/g, '');
-        }))
-      ), prioritizeOpen);
+    if (['pizza', 'tacos', 'kebab', 'healthy', 'burger', 'sushi', 'asian', 'sandwich', 'grillades', 'breakfast', 'snacks', 'moroccan', 'shawarma', 'bakery', 'chicken', 'italian', 'sweets', 'indian', 'crepes'].includes(filter)) {
+      return prioritizeOpenFirst(
+        foodRestaurants.filter((r) => restaurantInCategory(r, filter)),
+        prioritizeOpen,
+      );
     }
     if (filter === 'dessert' || filter === 'patisserie') return dessertItems;
     if (filter === 'pharmacy') return pharmacyItems;
@@ -754,28 +726,29 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       r.cuisine === filter ||
       (Array.isArray(r.tags) && r.tags.some(t => t.toLowerCase() === filter.toLowerCase()))
     ), prioritizeOpen);
-  }, [filter, promoRestaurants, popularRestaurants, fastDelivery, prioritizedFoodRestaurants, topRatedList, favoritesList, burgerList, pizzaList, asianList, dessertItems, pharmacyItems, paraItems, marketItems, shopItems, foodRestaurants, prioritizeOpen, tacosList, kebabList, sandwichList, healthyList, chickenList]);
+  }, [filter, promoRestaurants, popularRestaurants, fastDelivery, prioritizedFoodRestaurants, topRatedList, favoritesList, burgerList, pizzaList, asianList, dessertItems, pharmacyItems, paraItems, marketItems, shopItems, foodRestaurants, prioritizeOpen, tacosList, kebabList, sandwichList, healthyList, chickenList, indianList, crepesList]);
 
   const cuisineRails = useMemo(() => {
     const rails = [
       { key: 'burger', title: 'Burgers', subtitle: `${burgerList.length} restaurants`, list: burgerList, filterId: 'burgers_sec' },
       { key: 'pizza', title: 'Pizzas', subtitle: `${pizzaList.length} restaurants`, list: pizzaList, filterId: 'pizzas_sec' },
-      { key: 'asian', title: 'Asian & Sushi', subtitle: `${asianList.length} restaurants`, list: asianList, filterId: 'asian_sec' },
-      { key: 'kebab', title: 'Shawarma & Kebab', subtitle: `${kebabList.length} restaurants`, list: kebabList, filterId: 'kebab_sec' },
       { key: 'tacos', title: 'Tacos & Wraps', subtitle: `${tacosList.length} restaurants`, list: tacosList, filterId: 'tacos_sec' },
+      { key: 'kebab', title: 'Shawarma & Kebab', subtitle: `${kebabList.length} restaurants`, list: kebabList, filterId: 'kebab_sec' },
       { key: 'sandwich', title: 'Sandwichs & Snacks', subtitle: `${sandwichList.length} restaurants`, list: sandwichList, filterId: 'sandwich_sec' },
-      { key: 'healthy', title: 'Bowls & Healthy', subtitle: `${healthyList.length} restaurants`, list: healthyList, filterId: 'healthy_sec' },
+      { key: 'asian', title: 'Asian & Sushi', subtitle: `${asianList.length} restaurants`, list: asianList, filterId: 'asian_sec' },
+      { key: 'indian', title: 'Indien & Curry', subtitle: `${indianList.length} restaurants`, list: indianList, filterId: 'indian_sec' },
       { key: 'chicken', title: 'Poulet & Crispy', subtitle: `${chickenList.length} restaurants`, list: chickenList, filterId: 'chicken_sec' },
+      { key: 'healthy', title: 'Bowls & Healthy', subtitle: `${healthyList.length} restaurants`, list: healthyList, filterId: 'healthy_sec' },
+      { key: 'crepes', title: 'Crêpes & Gaufres', subtitle: `${crepesList.length} restaurants`, list: crepesList, filterId: 'crepes_sec' },
     ].filter((rail) => (rail.list || []).length > 0);
 
-    // Prefers rails that still have open restos, then shuffle.
     const withOpen = rails.filter((rail) => rail.list.some((r) => isRestaurantOpen(r)));
     const closedOnly = rails.filter((rail) => !rail.list.some((r) => isRestaurantOpen(r)));
     return [
       ...shuffleWithSeed(withOpen, homeSeed + 77),
       ...shuffleWithSeed(closedOnly, homeSeed + 88),
     ];
-  }, [burgerList, pizzaList, asianList, kebabList, tacosList, sandwichList, healthyList, chickenList, homeSeed]);
+  }, [burgerList, pizzaList, asianList, kebabList, tacosList, sandwichList, healthyList, chickenList, indianList, crepesList, homeSeed]);
 
   const homeSections = useMemo(() => {
     const { openRail, topRail, promoRail, discoverRail } = homeRails;
@@ -1038,7 +1011,14 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                        filter === 'favorites' ? '❤️ Favoris les plus populaires' :
                        filter === 'burgers_sec' ? '🍔 Burgers' :
                        filter === 'pizzas_sec' ? '🍕 Pizzas' :
+                       filter === 'tacos_sec' ? '🌮 Tacos & Wraps' :
+                       filter === 'kebab_sec' ? '🥙 Shawarma & Kebab' :
+                       filter === 'sandwich_sec' ? '🥪 Sandwichs & Snacks' :
                        filter === 'asian_sec' ? '🍣 Asian & Sushi' :
+                       filter === 'indian_sec' ? '🍛 Indien & Curry' :
+                       filter === 'chicken_sec' ? '🍗 Poulet & Crispy' :
+                       filter === 'healthy_sec' ? '🥗 Bowls & Healthy' :
+                       filter === 'crepes_sec' ? '🥞 Crêpes & Gaufres' :
                        filter === 'dessert' || filter === 'patisserie' ? '🥐 Pâtisseries' :
                        filter === 'pharmacy' ? '💊 Pharmacies' :
                        filter === 'parapharmacy' ? '🌿 Parapharmacies' :

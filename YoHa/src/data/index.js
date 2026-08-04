@@ -1,5 +1,6 @@
 export { CUISINES } from './cuisines.js';
 export { CUISINE_CATEGORIES } from './cuisineCategories.js';
+export { RESTAURANT_CATEGORY_MAP, restaurantCategories, restaurantInCategory } from './restaurantCategoryMap.js';
 export { CATEGORIES_BANNERS, CATEGORY_GROUPS } from './categories.js';
 export { FEATURES } from './features.jsx';
 export { TESTIMONIALS } from './testimonials.js';

@@ -366,8 +366,8 @@ GLOVO_STORES = [
         "store_id": 325469,
         "address_id": 485335,
         "name": "Kamora",
-        "cuisine": "burger",
-        "tags": ["Burger", "Tacos"],
+        "cuisine": "sushi",
+        "tags": ["Sushi", "Japonais", "Asian"],
         "delivery_time": "25-40 min",
     },
     {
@@ -387,7 +387,7 @@ GLOVO_STORES = [
         "address_id": 605123,
         "name": "New School Tacos",
         "cuisine": "tacos",
-        "tags": ["Tacos"],
+        "tags": ["Tacos", "Burger"],
         "delivery_time": "25-40 min",
     },
     {
@@ -418,7 +418,7 @@ GLOVO_STORES = [
         "address_id": 923965,
         "name": "Tchoco Charly",
         "cuisine": "drinks",
-        "tags": ["Chocolat", "Restaurant", "Goûter"],
+        "tags": ["Pizza", "Tacos", "Burger", "Shawarma"],
         "delivery_time": "25-40 min",
     },
     {
@@ -428,7 +428,7 @@ GLOVO_STORES = [
         "address_id": 901525,
         "name": "Burns",
         "cuisine": "burger",
-        "tags": ["Burger"],
+        "tags": ["Burger", "Bowls"],
         "delivery_time": "25-40 min",
     },
     {
@@ -437,8 +437,8 @@ GLOVO_STORES = [
         "store_id": 527388,
         "address_id": 858564,
         "name": "Melt 99",
-        "cuisine": "burger",
-        "tags": ["Burger", "Grillades"],
+        "cuisine": "dessert",
+        "tags": ["Crêpes", "Pancakes", "Desserts"],
         "delivery_time": "25-40 min",
     },
     {
@@ -458,7 +458,7 @@ GLOVO_STORES = [
         "address_id": 772401,
         "name": "Crumby",
         "cuisine": "dessert",
-        "tags": ["Cookies", "Desserts"],
+        "tags": ["Brunch", "Café", "Desserts"],
         "delivery_time": "25-40 min",
         "phone": "+212539909090",
         "opening_hours": {
@@ -478,7 +478,7 @@ GLOVO_STORES = [
         "address_id": 639988,
         "name": "Little Mamma",
         "cuisine": "pizza",
-        "tags": ["Pizza"],
+        "tags": ["Pizza", "Italien"],
         "delivery_time": "25-40 min",
     },
     {
@@ -487,8 +487,8 @@ GLOVO_STORES = [
         "store_id": 81391,
         "address_id": 869055,
         "name": "Al Mahrousa",
-        "cuisine": "burger",
-        "tags": ["Marocain", "Traditionnel"],
+        "cuisine": "kebab",
+        "tags": ["Shawarma", "Sandwich", "Burger", "Pizza", "Tacos", "Marocain"],
         "delivery_time": "25-40 min",
     },
     {
@@ -508,7 +508,7 @@ GLOVO_STORES = [
         "address_id": 113926,
         "name": "Beug's Restaurant",
         "cuisine": "burger",
-        "tags": ["Burger", "Sandwich"],
+        "tags": ["Burger", "Tacos", "Sandwich"],
         "delivery_time": "25-40 min",
     },
     {
@@ -527,8 +527,8 @@ GLOVO_STORES = [
         "store_id": 421082,
         "address_id": 624204,
         "name": "Big Bunn",
-        "cuisine": "pizza",
-        "tags": ["Pizza", "Burger"],
+        "cuisine": "burger",
+        "tags": ["Burger", "Sandwich"],
         "delivery_time": "25-40 min",
     },
     {
