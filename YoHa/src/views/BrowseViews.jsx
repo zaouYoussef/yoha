@@ -1803,13 +1803,15 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
             transition={{ delay: 0.4 }}
             className="mt-4 flex flex-wrap items-center gap-2"
           >
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[11px] font-bold text-white">
-              <span className="relative flex h-1.5 w-1.5">
-                {isOpen && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />}
-                <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${isOpen ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+            {!isServiceDetail && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[11px] font-bold text-white">
+                <span className="relative flex h-1.5 w-1.5">
+                  {isOpen && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />}
+                  <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${isOpen ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                </span>
+                {isOpen ? (openLabel || 'Ouvert') : (openLabel || 'Fermé')}
               </span>
-              {isOpen ? (openLabel || 'Ouvert') : (openLabel || 'Fermé')}
-            </span>
+            )}
             {!isChain && !isServiceDetail && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[11px] font-bold text-white">
                 <I.MapPin size={11} /> {r.distance || 'Tanger'}
@@ -2457,7 +2459,7 @@ export function RestaurantCard({ restaurant, onClick }) {
           <span className="px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-glow animate-pulse-slow">
             🎁 {restaurant.promo}
           </span>
-        ) : open ? (
+        ) : open && !isService ? (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[10px] font-bold text-white">
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70" />
