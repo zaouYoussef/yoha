@@ -29,19 +29,18 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
         onClick={onClose}
       />
       <aside className={`fixed top-0 right-0 z-[60] h-full w-full sm:w-[440px] bg-white dark:bg-ink-950 shadow-2xl flex flex-col transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${open ? 'translate-x-0' : 'translate-x-full'}`}>
-        <div className="relative overflow-hidden flex items-center justify-between px-5 h-[4.25rem] border-b border-ink-200/80 dark:border-ink-800">
-          <div className="absolute inset-0 bg-gradient-to-r from-brand-500/15 via-pink-500/10 to-violet-500/5 pointer-events-none" />
+        <div className="relative overflow-hidden flex items-center justify-between px-5 h-[4.25rem] border-b border-ink-100 dark:border-white/8 bg-ink-950 text-white">
           <div className="relative flex items-center gap-2.5">
-            <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 text-white grid place-items-center shadow-glow">
+            <span className="w-9 h-9 rounded-xl bg-brand-500 text-white grid place-items-center">
               <I.Bag size={18}/>
             </span>
             <div>
-              <h3 className="font-display font-black text-lg leading-none text-ink-900 dark:text-white">Mon panier</h3>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-500/80 mt-1">Prêt à commander</p>
+              <h3 className="font-display font-bold text-lg leading-none text-white">Mon panier</h3>
+              <p className="text-[11px] font-medium text-white/55 mt-1">Prêt à commander</p>
             </div>
-            <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-sm">{items.reduce((s,i)=>s+i.qty,0)}</span>
+            <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-bold bg-white/15 text-white">{items.reduce((s,i)=>s+i.qty,0)}</span>
           </div>
-          <button onClick={onClose} className="relative cursor-grow w-10 h-10 rounded-xl hover:bg-ink-100 dark:hover:bg-ink-800 grid place-items-center transition" aria-label="Fermer">
+          <button onClick={onClose} className="relative cursor-grow w-10 h-10 rounded-xl hover:bg-white/10 grid place-items-center transition text-white" aria-label="Fermer">
             <I.X size={20}/>
           </button>
         </div>
@@ -107,7 +106,7 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                       <div className="mt-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-3">
                         <span className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-600 grid place-items-center shrink-0"><I.Bike size={18}/></span>
                         <div>
-                          <div className="font-semibold text-sm text-emerald-800 dark:text-emerald-300">Livraison Offerte ✨</div>
+                          <div className="font-semibold text-sm text-emerald-800 dark:text-emerald-300">Livraison offerte</div>
                           <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">Sur toute l&apos;Alliance Tangéroise</div>
                         </div>
                       </div>
@@ -138,12 +137,12 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                     />
                     <Row 
                       label="Frais de livraison" 
-                      value={deliveryFee > 0 ? formatMad(deliveryFee) : 'Offerte ✨'} 
+                      value={deliveryFee > 0 ? formatMad(deliveryFee) : 'Offerte'} 
                     />
                     {!isCustom && (
                       <Row
                         label="Frais de service"
-                        value={serviceFee > 0 ? formatMad(serviceFee) : 'Offerts 🎉'}
+                        value={serviceFee > 0 ? formatMad(serviceFee) : 'Offerts'}
                       />
                     )}
                     {smallOrderFee > 0 && (
