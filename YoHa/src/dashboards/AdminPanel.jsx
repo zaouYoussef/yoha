@@ -910,7 +910,8 @@ export function RecentOrdersTable({ orders, title, full, gainMad, hideCourier = 
    RESTAURANTS
    ═══════════════════════════════════════════════════════════════ */
 export function AdminRestaurants() {
-  const { restaurants, orders, refreshRestaurants } = useOrders();
+  const { restaurants: publicRestaurants, orders, refreshRestaurants } = useOrders();
+  const [adminRestaurants, setAdminRestaurants] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -930,6 +931,29 @@ export function AdminRestaurants() {
   const [editTags, setEditTags] = useState({});
   const [showTagsPicker, setShowTagsPicker] = useState({});
   const [saving, setSaving] = useState(null);
+  const [busyRestoId, setBusyRestoId] = useState(null);
+
+  const loadAdminRestaurants = useCallback(async () => {
+    try {
+      const data = await apiFetch('/restaurants/youssef/', { auth: true });
+      const list = Array.isArray(data) ? data : data?.results || [];
+      setAdminRestaurants(list);
+      return list;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  useEffect(() => {
+    loadAdminRestaurants();
+  }, [loadAdminRestaurants]);
+
+  const restaurants = (adminRestaurants.length
+    ? adminRestaurants
+    : (publicRestaurants || [])
+  ).slice().sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'fr'));
+  const visibleCount = restaurants.filter((r) => r.isActive !== false).length;
+  const hiddenCount = restaurants.length - visibleCount;
 
   const saveRestoField = async (r, field, value) => {
     setSaving(r.pk);
@@ -943,6 +967,7 @@ export function AdminRestaurants() {
         body,
         auth: true,
       });
+      await loadAdminRestaurants();
       refreshRestaurants();
     } catch (e) {
       setError(e.message || 'Erreur');
@@ -967,11 +992,36 @@ export function AdminRestaurants() {
     if (!window.confirm('Supprimer ce restaurant ?')) return;
     try {
       await apiFetch(`/restaurants/youssef/${id}/`, { method: 'DELETE', auth: true });
+      await loadAdminRestaurants();
       refreshRestaurants();
     } catch (e) {
       setError(e.message || 'Erreur');
     }
-  }, [refreshRestaurants]);
+  }, [loadAdminRestaurants, refreshRestaurants]);
+
+  const handleToggleVisibility = useCallback(async (r) => {
+    if (!r?.pk) return;
+    const nextActive = r.isActive === false;
+    setBusyRestoId(r.pk);
+    const prev = adminRestaurants;
+    setAdminRestaurants((list) =>
+      list.map((item) => (item.pk === r.pk ? { ...item, isActive: nextActive } : item)),
+    );
+    try {
+      await apiFetch(`/restaurants/youssef/${r.pk}/update/`, {
+        method: 'PATCH',
+        auth: true,
+        body: { is_active: nextActive },
+      });
+      await loadAdminRestaurants();
+      refreshRestaurants();
+    } catch (e) {
+      setAdminRestaurants(prev);
+      setError(e.message || 'Impossible de mettre à jour la visibilité');
+    } finally {
+      setBusyRestoId(null);
+    }
+  }, [adminRestaurants, loadAdminRestaurants, refreshRestaurants]);
 
   const handleAdd = useCallback(async () => {
     setError('');
@@ -1000,13 +1050,14 @@ export function AdminRestaurants() {
       setOwnerPassword('');
       setOwnerDisplayName('');
       setShowForm(false);
+      await loadAdminRestaurants();
       refreshRestaurants();
     } catch (e) {
       setError(e.message || 'Erreur');
     } finally {
       setAdding(false);
     }
-  }, [name, description, phone, distanceLabel, deliveryTime, restoRating, selectedTags, ownerEmail, ownerPassword, ownerDisplayName, refreshRestaurants]);
+  }, [name, description, phone, distanceLabel, deliveryTime, restoRating, selectedTags, ownerEmail, ownerPassword, ownerDisplayName, loadAdminRestaurants, refreshRestaurants]);
 
   const COMMISSION_RATE = 15;
 
@@ -1014,7 +1065,7 @@ export function AdminRestaurants() {
     <div className="space-y-5">
       <GradientHeader
         title={`${restaurants.length} restaurant${restaurants.length > 1 ? 's' : ''}`}
-        subtitle="Gestion des restaurants partenaires"
+        subtitle={`Gestion des restaurants partenaires · ${visibleCount} visible${visibleCount > 1 ? 's' : ''} sur /browse${hiddenCount > 0 ? ` · ${hiddenCount} masqué${hiddenCount > 1 ? 's' : ''}` : ''}`}
         icon="🍽️"
         gradient="from-brand-500 via-pink-500 to-rose-500"
         actions={
@@ -1107,8 +1158,9 @@ export function AdminRestaurants() {
         {restaurants.map((r) => {
           const stats = restaurantStats[r.name] || { orders: 0, revenue: 0 };
           const commission = Math.round(stats.revenue * COMMISSION_RATE / 100);
+          const isVisible = r.isActive !== false;
           return (
-            <GlassCard key={r.id} className="overflow-hidden" hover>
+            <GlassCard key={r.id || r.pk} className={`overflow-hidden ${isVisible ? '' : 'opacity-70'}`} hover>
               {/* Cover with gradient overlay */}
               <div className="relative h-32 w-full">
                 {r.cover ? (
@@ -1129,6 +1181,11 @@ export function AdminRestaurants() {
                   <h3 className="font-display font-bold text-white text-base truncate drop-shadow-lg">{r.name}</h3>
                   <div className="text-[11px] text-white/80">{r.tags?.map((t) => typeof t === 'string' ? t.charAt(0).toUpperCase() + t.slice(1) : t).join(' · ') || (r.cuisine ? r.cuisine.charAt(0).toUpperCase() + r.cuisine.slice(1) : '')}</div>
                 </div>
+                <span className={`absolute top-2 left-2 rounded-full px-2.5 py-1 text-[10px] font-bold backdrop-blur-sm ${
+                  isVisible ? 'bg-emerald-500/90 text-white' : 'bg-ink-900/80 text-white'
+                }`}>
+                  {isVisible ? 'Visible' : 'Masqué'}
+                </span>
                 <button onClick={() => handleDelete(r.pk)}
                   className="absolute top-2 right-2 h-8 w-8 rounded-xl bg-red-500/90 text-white hover:bg-red-600 transition-colors flex items-center justify-center backdrop-blur-sm">
                   <I.Trash size={14} />
@@ -1220,6 +1277,23 @@ export function AdminRestaurants() {
                     )}
                   </div>
                 </div>
+
+                <button
+                  type="button"
+                  disabled={busyRestoId === r.pk || !r.pk}
+                  onClick={() => handleToggleVisibility(r)}
+                  className={`w-full rounded-xl px-3 py-2 text-xs font-bold transition ${
+                    isVisible
+                      ? 'bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 dark:text-amber-300'
+                      : 'bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 dark:text-emerald-300'
+                  } ${busyRestoId === r.pk ? 'opacity-60 cursor-wait' : ''}`}
+                >
+                  {busyRestoId === r.pk
+                    ? 'Mise à jour...'
+                    : isVisible
+                      ? 'Masquer de /browse'
+                      : 'Réafficher sur /browse'}
+                </button>
               </div>
             </GlassCard>
           );
