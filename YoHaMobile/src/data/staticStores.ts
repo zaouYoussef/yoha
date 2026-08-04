@@ -83,25 +83,6 @@ export const STATIC_STORES: StaticStore[] = [
   },
 
   {
-    id: 'ch-hiwat-sans-gluten',
-    name: 'Ch\'hiwat Sans Gluten',
-    cuisine: 'dessert',
-    rating: 4.6,
-    reviewsCount: 49,
-    distance: '2.6 km',
-    eta: '45-60 min',
-    fee: '20 DH',
-    cover: '/chain-img/patisserie-chhiwat-sans-gluten.jpg',
-    logo: '🧁',
-    description: 'Ch\'hiwat Sans Gluten — A côté Masjid Badr, Tanger 90000. Pâtisserie sans gluten, livraison express sur toute la ville.',
-    address: 'A côté Masjid Badr, Tanger 90000',
-    phone: '06 12 81 69 17',
-    tags: ["Ch'hiwat", 'Sans gluten', 'Pâtisserie'],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
     id: 'patisserie-royal',
     name: 'Pâtisserie Royal',
     cuisine: 'dessert',

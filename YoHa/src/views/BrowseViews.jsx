@@ -667,7 +667,12 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     (x) => /chicken|poulet/i.test(x.name),
   ])), true), [foodRestaurants]);
 
-  const dessertItems = useMemo(() => STATIC_STORES.filter(s => s.cuisine === 'dessert' || s.cuisine === 'patisserie'), []);
+  const dessertItems = useMemo(() => {
+    const fromApi = foodRestaurants.filter((r) => r.cuisine === 'dessert' || r.cuisine === 'patisserie');
+    const fromStatic = STATIC_STORES.filter((s) => s.cuisine === 'dessert' || s.cuisine === 'patisserie');
+    const seen = new Set(fromApi.map((r) => String(r.id || r.slug || '')));
+    return [...fromApi, ...fromStatic.filter((s) => !seen.has(String(s.id)))];
+  }, [foodRestaurants]);
   const customPharmacy = useMemo(() => STATIC_STORES.find((s) => s.id === 'custom-pharmacy'), []);
   const chainsList = useMemo(() => STATIC_STORES.filter((s) => s.isChain), []);
   const pharmacyItems = useMemo(
