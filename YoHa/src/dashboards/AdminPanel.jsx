@@ -1339,6 +1339,7 @@ export function AdminCouriers() {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [adding, setAdding] = useState(false);
+  const [busyCourierId, setBusyCourierId] = useState(null);
 
   const loadAllReviews = useCallback(async () => {
     const apiRevs = await fetchReviewsFromApi();
@@ -1402,11 +1403,12 @@ export function AdminCouriers() {
             const p = profiles.find((pr) => pr.userId === u.id || (pr.email && pr.email.toLowerCase() === u.email.toLowerCase()));
             return {
               id: u.id,
+              profileId: p?.id ? String(p.id) : null,
               name: u.display_name,
               displayName: u.display_name,
               email: u.email,
               vehicle: p?.vehicle || 'Moto Express',
-              isActive: u.is_active !== undefined ? u.is_active : true,
+              isActive: p?.isActive !== undefined ? p.isActive : (u.is_active !== undefined ? u.is_active : true),
               rating: p?.rating || '5.0',
               totalDeliveries: p?.totalDeliveries || 0,
               totalRevenue: p?.totalRevenue || 0,
@@ -1512,6 +1514,26 @@ export function AdminCouriers() {
       }
     } catch {}
   }, [courierList]);
+
+  const handleToggleAvailability = useCallback(async (id, profileId, nextActive) => {
+    if (!profileId) return;
+    setBusyCourierId(id);
+    const prev = courierList;
+    const optimistic = prev.map((c) => (c.id === id ? { ...c, isActive: nextActive } : c));
+    saveCouriersLocally(optimistic);
+    try {
+      await apiFetch(`/orders/couriers/${profileId}/`, {
+        method: 'PATCH',
+        auth: true,
+        body: { is_active: nextActive },
+      });
+      if (refreshOrders) refreshOrders({ silent: true });
+    } catch {
+      saveCouriersLocally(prev);
+    } finally {
+      setBusyCourierId(null);
+    }
+  }, [courierList, refreshOrders]);
 
   return (
     <div className="space-y-5">
@@ -1619,6 +1641,25 @@ export function AdminCouriers() {
                   {c.isActive !== false ? 'Actif' : 'Inactif'}
                 </span>
               </div>
+
+              <button
+                type="button"
+                disabled={busyCourierId === c.id || !c.profileId}
+                onClick={() => handleToggleAvailability(c.id, c.profileId, c.isActive === false)}
+                className={`mt-3 w-full rounded-xl px-3 py-2 text-xs font-bold transition ${
+                  c.isActive !== false
+                    ? 'bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 dark:text-amber-300'
+                    : 'bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 dark:text-emerald-300'
+                } ${busyCourierId === c.id ? 'opacity-60 cursor-wait' : ''}`}
+              >
+                {busyCourierId === c.id
+                  ? 'Mise à jour...'
+                  : !c.profileId
+                    ? 'Profil livreur introuvable'
+                  : c.isActive !== false
+                    ? 'Désactiver la réception de commandes'
+                    : 'Activer la réception de commandes'}
+              </button>
 
               {/* Live GPS Badge */}
               <AdminCourierLiveGpsBadge courier={c} orders={orders} />

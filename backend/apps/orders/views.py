@@ -445,7 +445,7 @@ class CourierListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        qs = CourierProfile.objects.filter(is_active=True).select_related("user")
+        qs = CourierProfile.objects.select_related("user")
         if user.role == "admin" or user.is_superuser:
             return qs
         if user.role == "courier" and user.courier_profile_id:
@@ -456,6 +456,30 @@ class CourierListView(generics.ListAPIView):
 class AdminCourierDeleteView(APIView):
     """Admin désactive un livreur (soft-delete)."""
     permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        if request.user.role != "admin":
+            return Response({"detail": "Accès refusé."}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            profile = CourierProfile.objects.get(pk=pk)
+        except CourierProfile.DoesNotExist:
+            return Response({"detail": "Livreur introuvable."}, status=status.HTTP_404_NOT_FOUND)
+
+        value = request.data.get("is_active")
+        if value is None:
+            profile.is_active = not bool(profile.is_active)
+        else:
+            profile.is_active = bool(value)
+        profile.save(update_fields=["is_active"])
+
+        return Response(
+            {
+                "id": profile.pk,
+                "is_active": profile.is_active,
+                "detail": "Disponibilité mise à jour.",
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def delete(self, request, pk):
         if request.user.role != "admin":

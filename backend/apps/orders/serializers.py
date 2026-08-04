@@ -382,10 +382,11 @@ class CourierSerializer(serializers.ModelSerializer):
     userId = serializers.SerializerMethodField()
     email = serializers.SerializerMethodField()
     phone = serializers.SerializerMethodField()
+    isActive = serializers.BooleanField(source="is_active", read_only=True)
 
     class Meta:
         model = CourierProfile
-        fields = ("id", "name", "phone", "avatar_url", "rating", "vehicle", "userId", "email")
+        fields = ("id", "name", "phone", "avatar_url", "rating", "vehicle", "userId", "email", "isActive")
 
     def get_userId(self, obj):
         return str(obj.user_id) if obj.user_id else None
