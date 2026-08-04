@@ -304,37 +304,44 @@ const CATEGORY_GLOW = {
   drinks: '#06b6d4',
 };
 
-function BrowseHero({ name, search, onSearchChange, openCount, totalCount }) {
+function BrowseHero({ name, search, onSearchChange, coverUrls = [] }) {
+  const covers = (coverUrls || []).filter(Boolean).slice(0, 6);
+
   return (
-    <section className="relative overflow-hidden">
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-[radial-gradient(120%_80%_at_0%_0%,rgba(249,115,22,0.22),transparent_55%),radial-gradient(90%_70%_at_100%_10%,rgba(236,72,153,0.16),transparent_50%),radial-gradient(70%_60%_at_50%_100%,rgba(139,92,246,0.12),transparent_55%)] dark:bg-[radial-gradient(120%_80%_at_0%_0%,rgba(249,115,22,0.28),transparent_55%),radial-gradient(90%_70%_at_100%_10%,rgba(236,72,153,0.18),transparent_50%),radial-gradient(70%_60%_at_50%_100%,rgba(139,92,246,0.2),transparent_55%)]"
-      />
-      <div className="absolute inset-0 bg-white/55 dark:bg-ink-950/70 pointer-events-none" aria-hidden />
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-6 sm:pt-8 sm:pb-8">
-        <div className="flex items-center justify-between gap-3 mb-5">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-ink-900 text-white dark:bg-white dark:text-ink-950 text-xs font-bold shadow-sm">
-            <I.MapPin size={13} />
-            Alliance · CHU
+    <section className="relative isolate overflow-hidden min-h-[min(72vw,420px)] sm:min-h-[380px] lg:min-h-[440px]">
+      {/* Full-bleed food plane */}
+      <div aria-hidden className="absolute inset-0 bg-ink-950">
+        {covers.length > 0 ? (
+          <div className="absolute inset-0 grid grid-cols-3 grid-rows-2">
+            {covers.map((src, i) => (
+              <div key={`${src}-${i}`} className="relative overflow-hidden">
+                <img
+                  src={src}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover scale-110 animate-[browse-ken_28s_ease-in-out_infinite] motion-reduce:animate-none"
+                  style={{ animationDelay: `${i * -4.5}s` }}
+                />
+              </div>
+            ))}
           </div>
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            {openCount} ouverts
-            {totalCount ? <span className="text-ink-400 font-semibold">/ {totalCount}</span> : null}
-          </span>
-        </div>
+        ) : (
+          <div className="absolute inset-0 bg-[radial-gradient(80%_70%_at_20%_10%,rgba(249,115,22,0.35),transparent_55%),radial-gradient(70%_60%_at_90%_80%,rgba(234,88,12,0.25),transparent_50%)]" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-b from-ink-950/55 via-ink-950/75 to-ink-950" />
+        <div className="absolute inset-0 bg-[radial-gradient(90%_60%_at_50%_100%,rgba(249,115,22,0.22),transparent_60%)]" />
+      </div>
 
-        <h1 className="font-display font-black tracking-tight text-[2.15rem] sm:text-4xl lg:text-5xl leading-[1.05] text-ink-900 dark:text-white max-w-3xl">
-          <span className="block text-gradient text-[0.72em] sm:text-[0.78em] mb-1">YoHa</span>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-10 sm:pt-14 sm:pb-14 flex flex-col justify-end min-h-[min(72vw,420px)] sm:min-h-[380px] lg:min-h-[440px]">
+        <p className="font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-br from-orange-200 via-brand-400 to-orange-600 drop-shadow-[0_8px_30px_rgba(0,0,0,0.45)]">
+          YoHa
+        </p>
+        <h1 className="mt-3 font-display font-bold text-2xl sm:text-3xl lg:text-4xl text-white tracking-tight leading-[1.1] max-w-2xl">
           {timeGreeting()}, {name}
         </h1>
-        <p className="mt-2.5 text-sm sm:text-base text-ink-500 dark:text-ink-400 max-w-xl">
-          Livraison offerte · frais offerts sur toute l&apos;Alliance Tangéroise
+        <p className="mt-3 text-sm sm:text-base text-white/70 max-w-lg font-medium">
+          Livraison offerte sur toute l&apos;Alliance Tangéroise
         </p>
-
-        <div className="mt-5 sm:mt-6">
+        <div className="mt-6 sm:mt-7 max-w-2xl">
           <SearchBar value={search} onChange={onSearchChange} variant="hero" />
         </div>
       </div>
@@ -471,11 +478,6 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   const loading = loadingRestaurants && !['dessert', 'pharmacy', 'parapharmacy', 'supermarket', 'shop'].includes(filter);
   const name = greetingName(user);
   const filterLabel = filter === 'all' ? 'Tous les partenaires' : CUISINES.find((c) => c.id === filter)?.label;
-
-  const openCount = useMemo(
-    () => catalog.filter((r) => isRestaurantOpen(r)).length,
-    [catalog],
-  );
 
   const featured = useMemo(() => {
     const openList = catalog.filter((r) => isRestaurantOpen(r));
@@ -878,29 +880,34 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     applyFilter,
   ]);
 
+  const heroCovers = useMemo(
+    () => openNowList.slice(0, 6).map((r) => restaurantCover(r.cover)).filter(Boolean),
+    [openNowList],
+  );
+
   const isDefault = filter === 'all' && !search.trim();
 
   return (
     <div className="page-enter">
-      <BrowseHero name={name} search={search} onSearchChange={setSearch} openCount={openCount} totalCount={catalog.length} />
+      <BrowseHero name={name} search={search} onSearchChange={setSearch} coverUrls={heroCovers} />
 
       <div className="bg-white dark:bg-ink-950 overflow-x-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-6 sm:space-y-7 stagger-children">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-8 sm:space-y-10 stagger-children">
 
           {/* ═══ SMART INTELLIGENT RE-ORDER BANNER ═══ */}
           {!search && <SmartReorderBanner catalog={catalog} onPickRestaurant={onPickRestaurant} />}
 
           {/* ═══ TOP TABS BAR (6 Main Services) ═══ */}
           {!search && (
-            <div className="border-b border-ink-100 dark:border-ink-800 -mx-4 px-4 sm:mx-0 sm:px-0 mb-1 overflow-x-auto no-scrollbar">
-              <div className="flex items-center gap-6 text-sm font-bold text-ink-600 dark:text-ink-300 min-w-max">
+            <div className="border-b border-ink-100 dark:border-ink-800 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
+              <div className="flex items-center gap-7 text-sm font-bold text-ink-500 dark:text-ink-400 min-w-max">
                 {[
-                  { id: 'all', label: 'Restos 🍔' },
-                  { id: 'pharmacy', label: 'Pharmacies 💊' },
-                  { id: 'parapharmacy', label: 'Parapharma 🌿' },
-                  { id: 'dessert', label: 'Pâtisseries 🥐' },
-                  { id: 'supermarket', label: 'Supermarché 🛒' },
-                  { id: 'shop', label: 'Magasins 🛍️' },
+                  { id: 'all', label: 'Restaurants' },
+                  { id: 'pharmacy', label: 'Pharmacies' },
+                  { id: 'parapharmacy', label: 'Parapharmacie' },
+                  { id: 'dessert', label: 'Pâtisseries' },
+                  { id: 'supermarket', label: 'Supermarché' },
+                  { id: 'shop', label: 'Magasins' },
                 ].map((tab) => {
                   const active = (tab.id === 'all' && (filter === 'all' || filter === 'restaurants')) || filter === tab.id;
                   return (
@@ -908,15 +915,15 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                       key={tab.id}
                       type="button"
                       onClick={() => applyFilter(tab.id)}
-                      className={`py-3 relative transition-colors ${
-                        active ? 'text-brand-600 dark:text-brand-400 font-extrabold' : 'hover:text-ink-900 dark:hover:text-white'
+                      className={`py-3.5 relative transition-colors tracking-tight ${
+                        active ? 'text-ink-950 dark:text-white' : 'hover:text-ink-900 dark:hover:text-white'
                       }`}
                     >
                       <span>{tab.label}</span>
                       {active && (
                         <motion.span
                           layoutId="browse-tab-underline"
-                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 rounded-full"
+                          className="absolute bottom-0 left-0 right-0 h-[2px] bg-brand-500 rounded-full"
                           transition={{ type: 'spring', stiffness: 520, damping: 40 }}
                         />
                       )}
@@ -1209,25 +1216,27 @@ function HorizontalRow({ title, subtitle, count, children, onSeeAll }) {
   return (
     <Reveal>
       <section className="px-4 sm:px-0">
-        <div className="flex items-end justify-between gap-3 mb-4">
+        <div className="flex items-end justify-between gap-4 mb-5">
           <div className="min-w-0">
-            <h2 className="font-display font-bold text-lg sm:text-xl text-ink-900 dark:text-white tracking-tight leading-snug">{title}</h2>
+            <h2 className="font-display font-bold text-xl sm:text-2xl text-ink-950 dark:text-white tracking-tight leading-snug">
+              {title}
+            </h2>
             {subtitle && (
-              <p className="text-xs text-ink-500 dark:text-ink-400 mt-1 font-medium">{subtitle}</p>
+              <p className="text-[13px] text-ink-500 dark:text-ink-400 mt-1.5 font-medium tracking-tight">{subtitle}</p>
             )}
           </div>
           {count > 0 && onSeeAll && (
             <button
               type="button"
               onClick={onSeeAll}
-              className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-brand-500 hover:underline cursor-pointer flex items-center gap-1 active:scale-95 transition-transform shrink-0 mb-0.5"
+              className="text-[13px] font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-500 cursor-pointer flex items-center gap-1.5 active:scale-95 transition-all shrink-0 mb-0.5"
             >
-              <span>Tout voir ({count})</span>
-              <span>→</span>
+              <span>Tout voir</span>
+              <span aria-hidden>→</span>
             </button>
           )}
         </div>
-        <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 snap-x snap-mandatory">
+        <div className="flex gap-3.5 sm:gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 snap-x snap-mandatory">
           {children}
         </div>
       </section>
@@ -1383,65 +1392,64 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      className="cursor-grow card-glow-hover group relative shrink-0 w-[78vw] max-w-[300px] sm:w-[270px] lg:w-[290px] h-[240px] sm:h-[250px] snap-center overflow-hidden rounded-[1.4rem] sm:rounded-2xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-[0_18px_40px_-20px_rgba(15,23,42,0.5)] hover:shadow-cardhover transition-[box-shadow,border-color,filter] duration-500 active:brightness-95"
+      className={`cursor-grow group relative shrink-0 w-[82vw] max-w-[320px] sm:w-[290px] lg:w-[310px] h-[260px] sm:h-[280px] snap-center overflow-hidden rounded-[1.35rem] bg-ink-950 shadow-[0_24px_50px_-28px_rgba(15,23,42,0.65)] transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-[0_30px_60px_-28px_rgba(249,115,22,0.35)] active:scale-[0.985] ${
+        promo ? 'ring-1 ring-brand-500/40' : 'ring-1 ring-white/10'
+      }`}
     >
       <img
         src={restaurantCover(restaurant.cover)}
         alt={restaurant.name}
         loading="lazy"
-        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08] ${
+        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[1.1s] ease-out group-hover:scale-[1.1] ${
           restaurant.coverBlend === 'screen' ? 'mix-blend-screen' : ''
         } ${
-          !open ? 'filter blur-[2px] grayscale opacity-50' : ''
+          !open ? 'filter blur-[2px] grayscale opacity-55' : ''
         }`}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/5" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
 
-      {/* Time Badge */}
-      <div className="absolute top-2.5 right-2.5 z-10">
-        <span className="px-2.5 py-1 rounded-full bg-white text-ink-950 font-extrabold text-xs shadow-md">
+      <div className="absolute top-3 right-3 z-10">
+        <span className="px-2.5 py-1 rounded-full bg-white/95 text-ink-950 font-bold text-[11px] shadow-md backdrop-blur-sm">
           {restaurant.eta || '45-60 min'}
         </span>
       </div>
 
-      {/* Closed overlay */}
       {!open && (
-        <div className="absolute inset-0 bg-ink-950/60 backdrop-blur-[2px] flex items-center justify-center z-10">
-          <span className="px-3.5 py-1.5 rounded-full bg-black/80 text-white text-xs font-bold border border-white/20 shadow-xl">
+        <div className="absolute inset-0 bg-ink-950/55 backdrop-blur-[2px] flex items-center justify-center z-10">
+          <span className="px-3.5 py-1.5 rounded-full bg-black/80 text-white text-xs font-bold border border-white/15 shadow-xl">
             Fermé
           </span>
         </div>
       )}
 
-      {/* Contenu ancré en bas, sur le voile */}
-      <div className="absolute inset-x-0 bottom-0 p-3.5 flex flex-col gap-1 text-left text-white z-10">
-        <h3 className="font-extrabold text-base truncate transition-colors group-hover:text-brand-400">
+      <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col gap-1.5 text-left text-white z-10">
+        <h3 className="font-display font-bold text-[1.05rem] sm:text-lg truncate tracking-tight">
           {restaurant.name}
         </h3>
 
-        <div className="flex items-center gap-1.5 text-xs text-white/75 font-medium truncate">
+        <div className="flex items-center gap-1.5 text-[12px] text-white/75 font-medium truncate">
           {restaurant.isChain ? (
-            <span className="text-brand-400 font-bold">⚡ Rapide</span>
+            <span className="text-white/80">Livraison express</span>
           ) : isService || isCustom ? null : (
             <>
-              <span className="text-amber-300 font-extrabold">★</span>
-              <span className="font-bold text-white">{(restaurant.rating ?? 4.4).toString().replace('.', ',')}</span>
-              <span>·</span>
-              <span>{restaurant.distance || '—'}</span>
-              <span>·</span>
-              <span className="text-brand-300 font-bold">⚡ Rapide</span>
+              <span className="text-amber-300 font-bold">★</span>
+              <span className="font-semibold text-white">{(restaurant.rating ?? 4.4).toString().replace('.', ',')}</span>
+              {restaurant.distance ? (
+                <>
+                  <span className="text-white/35">·</span>
+                  <span>{restaurant.distance}</span>
+                </>
+              ) : null}
             </>
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs mt-0.5 font-bold">
+        <div className="flex items-center gap-1.5 text-[12px] mt-0.5 font-semibold">
           {isCustom || isService ? (
-            <span className="text-amber-400 text-[11px]">20 MAD de livraison</span>
+            <span className="text-amber-300">20 MAD de livraison</span>
           ) : (
-            <>
-              <span className="line-through text-white/40 font-normal">19,99 MAD</span>
-              <span className="text-emerald-400 font-bold">0,00 MAD livraison</span>
-            </>
+            <span className="text-emerald-400">Livraison offerte</span>
           )}
         </div>
       </div>
@@ -1473,7 +1481,7 @@ export function SearchBar({ value, onChange, variant = 'default' }) {
     }`}>
       <div
         aria-hidden
-        className={`pointer-events-none absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 transition-opacity duration-300 ${focused ? 'opacity-[0.65] blur-md' : 'opacity-0'}`}
+        className={`pointer-events-none absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-brand-500 to-orange-600 transition-opacity duration-300 ${focused ? 'opacity-[0.65] blur-md' : 'opacity-0'}`}
       />
       <div
         className={`relative z-10 flex items-center gap-3 px-4 sm:px-5 h-[3.65rem] sm:h-[3.85rem] rounded-2xl border transition-all duration-300 ${
@@ -2798,21 +2806,20 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
         </div>
       )}
 
-      <div className="mb-4 flex items-end justify-between gap-3">
+      <div className="mb-5 flex items-end justify-between gap-3">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-600 dark:text-brand-400">
-            Exclusivités
-          </p>
-          <h2 className="font-display font-black text-[1.65rem] sm:text-3xl text-ink-900 dark:text-white tracking-tight leading-none mt-1">
+          <h2 className="font-display font-bold text-xl sm:text-2xl text-ink-950 dark:text-white tracking-tight leading-snug">
             Juste pour toi
           </h2>
-          <div className="mt-2.5 h-1.5 w-14 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 shadow-glow" />
+          <p className="text-[13px] text-ink-500 dark:text-ink-400 mt-1.5 font-medium">
+            Offres &amp; exclusivités Alliance
+          </p>
         </div>
         <button
           type="button"
           onClick={scrollNext}
           aria-label="Suivant"
-          className="hidden sm:grid place-items-center w-11 h-11 rounded-2xl bg-white dark:bg-ink-900 border border-ink-100 dark:border-ink-800 text-brand-600 shadow-card hover:scale-105 active:scale-95 transition"
+          className="hidden sm:grid place-items-center w-11 h-11 rounded-2xl bg-ink-950 text-white dark:bg-white dark:text-ink-950 shadow-card hover:scale-105 active:scale-95 transition"
         >
           →
         </button>
