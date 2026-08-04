@@ -149,6 +149,15 @@ def seed(apps, schema_editor):
             "is_active": True,
             "glovo_enabled": False,
             "owner": owner,
+            "opening_hours": {
+                "monday": {"is_closed": False, "is_24h": False, "open": "09:30", "close": "19:00", "slots": []},
+                "tuesday": {"is_closed": False, "is_24h": False, "open": "09:30", "close": "19:00", "slots": []},
+                "wednesday": {"is_closed": False, "is_24h": False, "open": "09:30", "close": "19:00", "slots": []},
+                "thursday": {"is_closed": False, "is_24h": False, "open": "09:30", "close": "19:00", "slots": []},
+                "friday": {"is_closed": False, "is_24h": False, "open": "09:30", "close": "19:00", "slots": []},
+                "saturday": {"is_closed": False, "is_24h": False, "open": "09:30", "close": "16:00", "slots": []},
+                "sunday": {"is_closed": True, "is_24h": False, "open": "09:30", "close": "19:00", "slots": []},
+            },
         },
     )
 
