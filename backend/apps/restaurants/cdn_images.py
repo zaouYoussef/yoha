@@ -120,18 +120,18 @@ def decode_cdn_token(token: str) -> str | None:
     return url
 
 
-def _normalize_upstream(url: str) -> str:
+def _normalize_upstream(url: str, *, kind: str | None = None) -> str:
     """Normalise les URLs image partenaires avant signature / fetch."""
     try:
         from apps.restaurants.glovo import normalize_glovo_image_url
 
-        fixed = normalize_glovo_image_url(url)
+        fixed = normalize_glovo_image_url(url, kind=kind)
         return fixed or url
     except Exception:  # noqa: BLE001
         return url
 
 
-def publicize_image_url(url: str) -> str:
+def publicize_image_url(url: str, *, kind: str | None = None) -> str:
     """Réécrit une URL CDN externe en chemin proxy YoHa ; laisse le reste intact."""
     if not url or not isinstance(url, str):
         return ""
@@ -145,7 +145,7 @@ def publicize_image_url(url: str) -> str:
     if not needs_cdn_proxy(trimmed):
         return trimmed
 
-    normalized = _normalize_upstream(trimmed)
+    normalized = _normalize_upstream(trimmed, kind=kind)
     if not normalized or is_broken_cdn_url(normalized):
         return ""
     if not is_allowed_upstream(normalized):

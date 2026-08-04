@@ -18,7 +18,7 @@ export const UNSPLASH_FALLBACKS = [
 export const FOOD_IMAGE_FALLBACK = '/images.png';
 /** Cover resto : ambiance food (pas le placeholder générique). */
 export const RESTAURANT_COVER_FALLBACK =
-  'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1200&auto=format&fit=crop&q=75';
+  'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1600&auto=format&fit=crop&q=85';
 export const RESTAURANT_LOGO_FALLBACK = '/logo.webp';
 
 const YOHA_PROXY_MARKER = '/api/v1/media/i/';

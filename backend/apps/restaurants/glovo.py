@@ -30,11 +30,22 @@ logger = logging.getLogger(__name__)
 API_BASE = "https://api.glovoapp.com"
 # Préférer glovo.dhmedia.io (format officiel front Glovo). deliveryhero.io reste un alias.
 IMAGE_BASE = "https://glovo.dhmedia.io/image"
-# Transform Glovo (fit 320² + webp) — requis pour un rendu fiable côté navigateur.
-GLOVO_IMAGE_TRANSFORM = (
-    "W3sicmVzaXplIjp7Im1vZGUiOiJmaXQiLCJ3aWR0aCI6MzIwLCJoZWlnaHQiOjMyMH19"
+# Transforms dhmedia (resize + webp) — qualité max selon le type d'image.
+# Ancien défaut 320² trop flou pour covers hero / retina.
+GLOVO_IMAGE_TRANSFORM_PRODUCT = (
+    "W3sicmVzaXplIjp7Im1vZGUiOiJmaXQiLCJ3aWR0aCI6ODAwLCJoZWlnaHQiOjgwMH19"
     "LHsid2VicCI6e319XQ=="
 )
+GLOVO_IMAGE_TRANSFORM_COVER = (
+    "W3sicmVzaXplIjp7Im1vZGUiOiJmaWxsIiwid2lkdGgiOjE2MDAsImhlaWdodCI6OTAwfX0s"
+    "eyJ3ZWJwIjp7fX1d"
+)
+GLOVO_IMAGE_TRANSFORM_LOGO = (
+    "W3sicmVzaXplIjp7Im1vZGUiOiJmaXQiLCJ3aWR0aCI6NTEyLCJoZWlnaHQiOjUxMn19"
+    "LHsid2VicCI6e319XQ=="
+)
+# Alias rétrocompat
+GLOVO_IMAGE_TRANSFORM = GLOVO_IMAGE_TRANSFORM_PRODUCT
 STORE_PAGE_URL = "https://glovoapp.com/{country}/{lang}/{city}/{slug}"
 
 USER_AGENT = (
@@ -133,8 +144,35 @@ def _image_url_from_image_id(image_id: str) -> str:
     return ""
 
 
-def normalize_glovo_image_url(url: str) -> str:
-    """Corrige / normalise les URLs images Glovo vers dhmedia + transform `t=`."""
+def _guess_image_kind(url: str) -> str:
+    low = (url or "").lower()
+    if "stores-glovo/stores" in low:
+        return "cover"
+    if "store_logos" in low:
+        return "logo"
+    return "product"
+
+
+def _transform_for_kind(kind: str) -> str:
+    if kind == "cover":
+        return GLOVO_IMAGE_TRANSFORM_COVER
+    if kind == "logo":
+        return GLOVO_IMAGE_TRANSFORM_LOGO
+    return GLOVO_IMAGE_TRANSFORM_PRODUCT
+
+
+def _apply_glovo_transform(url: str, transform: str) -> str:
+    """Force / remplace le paramètre `t=` (qualité) sur une URL dhmedia."""
+    from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+
+    parts = urlsplit(url)
+    query = [(k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True) if k != "t"]
+    query.append(("t", transform))
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
+
+
+def normalize_glovo_image_url(url: str, *, kind: str | None = None) -> str:
+    """Corrige / normalise les URLs images Glovo vers dhmedia + transform HD `t=`."""
     if not url or not isinstance(url, str):
         return ""
     url = url.strip()
@@ -154,10 +192,11 @@ def normalize_glovo_image_url(url: str) -> str:
     if url.startswith("https://images.deliveryhero.io/image/"):
         url = "https://glovo.dhmedia.io/image/" + url[len("https://images.deliveryhero.io/image/") :]
 
-    if "glovo.dhmedia.io/image/" in url and "t=" not in url.split("?", 1)[-1]:
-        sep = "&" if "?" in url else "?"
-        url = f"{url}{sep}t={GLOVO_IMAGE_TRANSFORM}"
-    return url
+    if "glovo.dhmedia.io/image/" not in url and "images.deliveryhero.io/image/" not in url:
+        return url
+
+    resolved_kind = kind or _guess_image_kind(url)
+    return _apply_glovo_transform(url, _transform_for_kind(resolved_kind))
 
 
 def _to_product(data: Dict[str, Any]) -> GlovoProduct:

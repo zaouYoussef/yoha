@@ -65,7 +65,7 @@ def media_url(file_key: str) -> str:
     return default_storage.url(file_key)
 
 
-def pick_image(file_key: str, thumb_key: str, fallback_url: str, *, prefer_thumb: bool = False) -> str:
+def pick_image(file_key: str, thumb_key: str, fallback_url: str, *, prefer_thumb: bool = False, kind: str | None = None) -> str:
     from apps.restaurants.cdn_images import publicize_image_url
 
     if prefer_thumb and thumb_key:
@@ -74,7 +74,7 @@ def pick_image(file_key: str, thumb_key: str, fallback_url: str, *, prefer_thumb
         url = media_url(file_key)
     else:
         url = fallback_url or ""
-    return publicize_image_url(url) if url else ""
+    return publicize_image_url(url, kind=kind) if url else ""
 
 
 class MenuItemModifierOptionSerializer(serializers.ModelSerializer):
@@ -160,7 +160,7 @@ class MenuItemSerializer(serializers.ModelSerializer):
 
     def get_img(self, obj):
         prefer_thumb = self.context.get("prefer_thumbs", False)
-        url = pick_image(obj.image_file, obj.image_thumb, obj.image_url, prefer_thumb=prefer_thumb)
+        url = pick_image(obj.image_file, obj.image_thumb, obj.image_url, prefer_thumb=prefer_thumb, kind="product")
         slug = ""
         try:
             slug = (obj.restaurant.slug if obj.restaurant_id else "") or ""
@@ -267,10 +267,10 @@ class RestaurantListSerializer(serializers.ModelSerializer):
         return restaurant_open_status(obj.opening_hours)["openLabel"]
 
     def get_cover(self, obj):
-        return pick_image(obj.cover_file, obj.cover_thumb, obj.cover_url, prefer_thumb=False)
+        return pick_image(obj.cover_file, obj.cover_thumb, obj.cover_url, prefer_thumb=False, kind="cover")
 
     def get_logo(self, obj):
-        return pick_image(obj.logo_file, obj.logo_thumb, obj.logo_url, prefer_thumb=False)
+        return pick_image(obj.logo_file, obj.logo_thumb, obj.logo_url, prefer_thumb=False, kind="logo")
 
     def get_ownerEmail(self, obj):
         if obj.owner_id and obj.owner:
