@@ -29,8 +29,10 @@ CHECKOUT_SERVICE_FEE_MAD = _d(getattr(settings, "YOHA_CHECKOUT_SERVICE_FEE_MAD",
 GROUP_ORDER_FREE_SERVICE_MAD = _d(getattr(settings, "YOHA_GROUP_ORDER_THRESHOLD_MAD", "200"))
 
 
-def small_order_surcharge_mad(subtotal: Decimal) -> Decimal:
-    """Aucun minimum de commande — supplément si panier léger."""
+def small_order_surcharge_mad(subtotal: Decimal, *, is_custom: bool = False) -> Decimal:
+    """Aucun minimum de commande — supplément si panier léger. Pas pour sur-mesure."""
+    if is_custom:
+        return Decimal("0.00")
     s = _d(subtotal)
     if s < SMALL_ORDER_THRESHOLD_LOW:
         return SMALL_ORDER_FEE_HIGH

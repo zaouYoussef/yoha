@@ -122,7 +122,7 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                 const customItems = items.filter(i => i.isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes(i.restaurantCuisine));
                 const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
                 const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
-                const smallOrderFee = getSmallOrderSurchargeMad(total);
+                const smallOrderFee = isCustom ? 0 : getSmallOrderSurchargeMad(total);
                 const serviceFee = getServiceFeeMad(total, { isCustom });
                 const grandTotal = total + deliveryFee + serviceFee + smallOrderFee;
 

@@ -30,7 +30,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
   
   const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
-  const smallOrderFee = getSmallOrderSurchargeMad(total);
+  const smallOrderFee = isCustom ? 0 : getSmallOrderSurchargeMad(total);
   const isGroupOrder = !isCustom && total >= 200;
   const serviceFee = getServiceFeeMad(total, { isCustom });
 

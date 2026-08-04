@@ -198,7 +198,7 @@ class Order(models.Model):
         else:
             fee = Decimal("0.00")
             is_custom = False
-        fee = fee + small_order_surcharge_mad(subtotal) + checkout_service_fee_mad(
+        fee = fee + small_order_surcharge_mad(subtotal, is_custom=is_custom) + checkout_service_fee_mad(
             subtotal, is_custom=is_custom
         )
         total = subtotal + fee
