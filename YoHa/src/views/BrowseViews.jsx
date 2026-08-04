@@ -569,14 +569,37 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     [foodRestaurants, homeSeed],
   );
 
-  /** Rails curated : ouverts en premier rail ; coups de cœur / découvrir ont leur propre sélection (pas vidés par les ouverts). */
+  /** Rails curated marketing + coups de cœur / offres / découvrir. */
   const homeRails = useMemo(() => {
     const shuffled = shuffleWithSeed(foodRestaurants, homeSeed + 31);
-
-    // 1) Ouverts maintenant — tous les ouverts
     const openRail = [...openNowList];
 
-    // 2) Coups de cœur — mieux notés (ouverts d'abord), pool complet
+    const hasOffer = (r) =>
+      Boolean(r?.promo)
+      || (Array.isArray(r?.offers) && r.offers.some((o) => o?.is_active !== false))
+      || /offert/i.test(String(r?.fee_label || r?.feeLabel || ''));
+
+    // Spécialement sélectionnés pour vous — mix ouvert + bien noté, shuffle visit
+    const forYouCandidates = prioritizeOpenFirst(
+      shuffleWithSeed(
+        foodRestaurants.filter((r) => isRestaurantOpen(r) || ratingOf(r) >= 4.3),
+        homeSeed + 41,
+      ),
+      true,
+    );
+    const forYouRail = takeUnique(forYouCandidates, new Set(), 8);
+
+    // À la une — promos d'abord, puis mieux notés ouverts
+    const headlinePool = [
+      ...shuffled.filter((r) => r.promo || (Array.isArray(r.offers) && r.offers.some((o) => o?.is_active !== false))),
+      ...prioritizeOpenFirst(
+        [...foodRestaurants].sort((a, b) => ratingOf(b) - ratingOf(a)),
+        true,
+      ),
+    ];
+    const aLaUneRail = takeUnique(headlinePool, new Set(), 8);
+
+    // Coups de cœur
     const topCandidates = prioritizeOpenFirst(
       [...foodRestaurants]
         .filter((r) => ratingOf(r) >= 4.5)
@@ -586,21 +609,23 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     const topUsed = new Set();
     const topRail = takeUnique(topCandidates, topUsed, 8);
 
-    // 3) Offres / promo — hors coups de cœur
-    const promoRail = takeUnique(
-      shuffled.filter((r) => r.promo || (Array.isArray(r.offers) && r.offers.some((o) => o?.is_active !== false))),
-      topUsed,
-      8,
-    );
+    // Offres près de chez vous
+    let promoRail = takeUnique(shuffled.filter(hasOffer), new Set(topUsed), 8);
+    if (promoRail.length < 3) {
+      promoRail = takeUnique(
+        prioritizeOpenFirst(shuffled.filter(hasOffer), true).concat(openRail),
+        new Set(),
+        8,
+      );
+    }
 
-    // 4) À découvrir — restos hors coups de cœur / promos, ouverts d'abord
     const discoverRail = takeUnique(
       prioritizeOpenFirst(shuffled, true),
-      topUsed,
+      new Set([...topUsed, ...promoRail.map((r) => restoKey(r)).filter(Boolean)]),
       10,
     );
 
-    return { openRail, topRail, promoRail, discoverRail, used: topUsed };
+    return { openRail, forYouRail, aLaUneRail, topRail, promoRail, discoverRail, used: topUsed };
   }, [foodRestaurants, openNowList, homeSeed]);
 
   const freeDeliveryList = prioritizedFoodRestaurants;
@@ -751,9 +776,35 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   }, [burgerList, pizzaList, asianList, kebabList, tacosList, sandwichList, healthyList, chickenList, indianList, crepesList, homeSeed]);
 
   const homeSections = useMemo(() => {
-    const { openRail, topRail, promoRail, discoverRail } = homeRails;
+    const { openRail, forYouRail, aLaUneRail, topRail, promoRail, discoverRail } = homeRails;
 
     const sections = [
+      forYouRail.length > 0 && (
+        <HorizontalRow
+          key="for-you"
+          title="Spécialement sélectionnés pour vous"
+          subtitle="Une sélection YoHa selon ce qui est ouvert près de toi"
+          count={forYouRail.length}
+        >
+          {forYouRail.map((r) => (
+            <RestaurantCardHorizontal key={`foryou-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          ))}
+        </HorizontalRow>
+      ),
+
+      aLaUneRail.length > 0 && (
+        <HorizontalRow
+          key="a-la-une"
+          title="À la une"
+          subtitle="Les adresses qui cartonnent en ce moment"
+          count={aLaUneRail.length}
+        >
+          {aLaUneRail.map((r) => (
+            <RestaurantCardHorizontal key={`une-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          ))}
+        </HorizontalRow>
+      ),
+
       openRail.length > 0 && (
         <HorizontalRow
           key="open-now"
@@ -763,6 +814,20 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
         >
           {openRail.map((r) => (
             <RestaurantCardHorizontal key={`open-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
+          ))}
+        </HorizontalRow>
+      ),
+
+      promoRail.length > 0 && (
+        <HorizontalRow
+          key="promo"
+          title="Offres près de chez vous"
+          subtitle={`${promoRail.length} restaurant${promoRail.length > 1 ? 's' : ''}`}
+          count={promoRail.length}
+          onSeeAll={() => applyFilter('offers')}
+        >
+          {promoRail.map((r) => (
+            <RestaurantCardHorizontal key={`promo-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
           ))}
         </HorizontalRow>
       ),
@@ -790,20 +855,6 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
         >
           {topRail.map((r) => (
             <RestaurantCardHorizontal key={`top-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} />
-          ))}
-        </HorizontalRow>
-      ),
-
-      promoRail.length > 0 && (
-        <HorizontalRow
-          key="promo"
-          title="Offres du moment"
-          subtitle={`${promoRail.length} restaurant${promoRail.length > 1 ? 's' : ''}`}
-          count={promoRail.length}
-          onSeeAll={() => applyFilter('offers')}
-        >
-          {promoRail.map((r) => (
-            <RestaurantCardHorizontal key={`promo-${r.id}`} restaurant={r} onClick={() => onPickRestaurant(r)} promo />
           ))}
         </HorizontalRow>
       ),
