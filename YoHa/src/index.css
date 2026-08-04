@@ -1008,10 +1008,56 @@
   }
 }
 
+@keyframes snake-crawl {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 48px 0;
+  }
+}
+
+@keyframes snake-head-pulse {
+  0%,
+  100% {
+    transform: translate(50%, -50%) scale(1);
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.45);
+  }
+  50% {
+    transform: translate(50%, -50%) scale(1.12);
+    box-shadow: 0 0 0 6px rgba(249, 115, 22, 0);
+  }
+}
+
 .animate-snake-bar {
   background-size: 250% 250%;
   animation: snake-flow 2.2s ease-in-out infinite;
 }
+
+/* Barre de suivi commande — flux type serpent (livreur en mouvement). */
+.yoha-snake-bar {
+  background-color: #ea580c;
+  background-image: repeating-linear-gradient(
+    105deg,
+    #f97316 0 10px,
+    #fb923c 10px 18px,
+    #ea580c 18px 26px,
+    #c2410c 26px 34px,
+    #f97316 34px 48px
+  );
+  background-size: 48px 100%;
+  animation: snake-crawl 0.85s linear infinite;
+}
+
+.yoha-snake-head {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid #ea580c;
+  animation: snake-head-pulse 1.4s ease-in-out infinite;
+}
+
 .animate-rotate-slow {
   animation: slow-rotate 28s linear infinite;
 }
@@ -1080,7 +1126,10 @@
   .animate-ping,
   .animate-wiggle,
   .animate-pulse-slow,
-  .animate-rotate-slow {
+  .animate-rotate-slow,
+  .animate-snake-bar,
+  .yoha-snake-bar,
+  .yoha-snake-head {
     animation: none !important;
   }
 }

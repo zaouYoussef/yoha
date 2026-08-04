@@ -154,6 +154,7 @@ function ItemsSummary({ order, itemCount }) {
 
 function ProgressBarSection({ status, stepNum, displayedProgressPct, gpsCalculated, destInfo, courierName }) {
   if (status === 'delivered') return null;
+  const liveMove = status === 'pickup_confirmed' || status === 'preparing' || status === 'delivering';
   return (
     <div className="px-4 sm:px-5 pt-4 pb-1">
       <div className="flex items-center justify-between text-[12px] font-semibold text-ink-500 mb-2">
@@ -163,11 +164,22 @@ function ProgressBarSection({ status, stepNum, displayedProgressPct, gpsCalculat
         </span>
       </div>
 
-      <div className="relative h-2 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden">
+      <div className="relative h-3 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden shadow-inner">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-brand-500 to-orange-600 transition-[width] duration-1000 ease-out"
-          style={{ width: `${displayedProgressPct}%` }}
-        />
+          className="absolute inset-y-0 left-0 rounded-full overflow-hidden transition-[width] duration-1000 ease-out"
+          style={{ width: `${Math.max(8, displayedProgressPct)}%` }}
+        >
+          <div
+            className={`h-full w-full ${liveMove ? 'yoha-snake-bar' : 'bg-gradient-to-r from-brand-500 to-orange-600'}`}
+            aria-hidden
+          />
+          {liveMove && (
+            <span
+              className="yoha-snake-head pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2"
+              aria-hidden
+            />
+          )}
+        </div>
       </div>
 
       <div className="mt-2 flex items-center gap-2 text-[12px] font-medium">
@@ -177,8 +189,11 @@ function ProgressBarSection({ status, stepNum, displayedProgressPct, gpsCalculat
             GPS {courierName || 'Livreur'} · {gpsCalculated.distanceKm.toFixed(1)} km · ~{gpsCalculated.travelMins} min
           </span>
         ) : (
-          <span className="text-ink-500 dark:text-ink-400">
-            {destInfo.name}
+          <span className="inline-flex items-center gap-1.5 text-ink-500 dark:text-ink-400">
+            {liveMove && (
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse shrink-0" />
+            )}
+            {liveMove ? 'Livreur en mouvement…' : destInfo.name}
           </span>
         )}
       </div>
@@ -193,7 +208,7 @@ function OrderHeader({ orderId, order }) {
         <div className="min-w-0 flex-1">
           <div className="text-[11px] font-semibold text-ink-400 tracking-tight">Commande</div>
           <h2 className="font-display font-bold text-base sm:text-lg text-ink-950 dark:text-white truncate tracking-tight mt-0.5">
-            #{orderId || 'YH-XXXX'}
+            #{orderId || 'YH-8472-9136'}
           </h2>
           {order?.restaurantName && (
             <p className="text-[13px] text-ink-500 dark:text-ink-400 font-medium truncate mt-0.5">
@@ -455,7 +470,7 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
           <div className="pointer-events-auto mx-auto max-w-xs rounded-2xl bg-ink-950 text-white px-4 py-3 flex items-center justify-between gap-3 border border-white/10 shadow-2xl">
             <div>
               <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider">En cours</div>
-              <div className="font-bold text-xs text-white">#{orderId?.slice(0, 10)}</div>
+              <div className="font-bold text-xs text-white">#{orderId}</div>
             </div>
             <button
               type="button"
