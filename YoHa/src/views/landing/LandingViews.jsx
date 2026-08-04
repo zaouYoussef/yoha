@@ -657,14 +657,24 @@ function CarouselPartnerCard({ restaurant, className = '' }) {
   const tags = Array.isArray(restaurant.tags) ? restaurant.tags : [];
   return (
     <div className={`relative w-full h-full overflow-hidden rounded-2xl sm:rounded-3xl border border-white/10 dark:border-ink-800/80 shadow-glow ${className}`}>
-      <img src={restaurantCover(restaurant.cover)} alt={restaurant.name} className="absolute inset-0 w-full h-full object-cover"/>
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"/>
-      <div className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 backdrop-blur-md text-white border border-white/20 flex items-center gap-1">
+      <img
+        src={restaurantCover(restaurant.cover)}
+        alt={restaurant.name}
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
+      <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-white/20 backdrop-blur-md text-white border border-white/20 flex items-center gap-1">
         ★ 4.9
       </div>
-      <div className="absolute bottom-4 left-4 right-4 text-white">
-        <span className="inline-block px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider bg-brand-500/80 text-white mb-2">{tags[0] || 'Partenaire'}</span>
-        <div className="font-display font-extrabold text-base sm:text-lg lg:text-xl mt-0.5 line-clamp-2">{restaurant.name}</div>
+      <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 text-white">
+        <span className="inline-block px-2 py-0.5 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-brand-500/80 text-white mb-1.5 sm:mb-2">
+          {tags[0] || 'Partenaire'}
+        </span>
+        <div className="font-display font-extrabold text-sm sm:text-base lg:text-xl mt-0.5 line-clamp-2 leading-snug">
+          {restaurant.name}
+        </div>
       </div>
     </div>
   );
@@ -675,8 +685,7 @@ function useCarouselRadius() {
   useEffect(() => {
     const update = () => {
       const w = window.innerWidth;
-      if (w < 640) setRadius(Math.min(100, w * 0.28));
-      else if (w < 1280) setRadius(Math.min(280, w * 0.38));
+      if (w < 1280) setRadius(Math.min(280, w * 0.32));
       else setRadius(360);
     };
     update();
@@ -689,50 +698,62 @@ function useCarouselRadius() {
 export function Carousel3DSection({ onStart }) {
   const { goto } = useYohaNav();
   const { restaurants } = useOrders();
-  const items = restaurants.slice(0, 6);
+  const items = useMemo(() => {
+    const fromApi = (restaurants || []).slice(0, 6);
+    if (fromApi.length >= 3) return fromApi;
+    return HERO_RESTAURANTS.slice(0, 6);
+  }, [restaurants]);
   const count = Math.max(items.length, 1);
   const angleStep = 360 / count;
   const radius = useCarouselRadius();
 
   const openRestaurant = (r) => {
-    if (r?.id) goto('restaurant', { restaurant: r });
+    if (r?.id && !String(r.id).startsWith('hero-')) goto('restaurant', { restaurant: r });
     else onStart?.();
   };
 
   return (
-    <section className="relative overflow-hidden py-8 sm:py-16 lg:py-24">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(550px,90vw)] h-[320px] rounded-full bg-brand-500/10 blur-[130px] pointer-events-none -z-10" />
-      <div className="absolute inset-0 -z-20 mesh-conic opacity-50"></div>
+    <section className="relative overflow-x-clip py-10 sm:py-16 lg:py-24">
+      <div
+        aria-hidden
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(550px,92vw)] h-[min(280px,45vw)] rounded-full bg-brand-500/10 blur-[100px] pointer-events-none -z-10"
+      />
+      <div className="absolute inset-0 -z-20 mesh-conic opacity-50" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center mb-8 sm:mb-10">
-        <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">À découvrir</span>
-        <h2 className="mt-3 font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight px-2">
-          Un univers culinaire <span className="text-gradient animate-text-glow-slow">à 360°</span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center mb-6 sm:mb-10">
+        <span className="text-[11px] sm:text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">
+          À découvrir
+        </span>
+        <h2 className="mt-2.5 sm:mt-3 font-display font-extrabold text-[1.65rem] leading-tight sm:text-4xl lg:text-5xl tracking-tight max-w-[20ch] sm:max-w-none mx-auto">
+          Un univers culinaire{' '}
+          <span className="text-gradient animate-text-glow-slow whitespace-nowrap">à 360°</span>
         </h2>
-        <p className="mt-3 text-sm sm:text-base text-ink-500 dark:text-ink-400 px-2">
+        <p className="mt-2.5 sm:mt-3 text-sm sm:text-base text-ink-500 dark:text-ink-400 max-w-md mx-auto leading-relaxed">
           Tour complet à 360° sur nos restaurants partenaires.
         </p>
       </div>
 
-      {/* Carrousel Mobile / Tablette — 2D Plat, Élégant et Fluide */}
-      <div className="lg:hidden -mx-4 px-4 overflow-x-auto no-scrollbar snap-x snap-mandatory flex gap-3.5 pb-2 pt-1">
-        {items.map((r) => (
-          <button
-            key={r.id}
-            type="button"
-            onClick={() => openRestaurant(r)}
-            className="shrink-0 w-[230px] sm:w-[260px] h-[280px] sm:h-[320px] snap-center cursor-pointer active:scale-95 transition-transform text-left"
-          >
-            <CarouselPartnerCard
-              restaurant={r}
-              className="border border-white/20 dark:border-white/10 shadow-lg hover:border-brand-500/40 transition-all duration-300"
-            />
-          </button>
-        ))}
+      {/* Mobile / tablette — rail horizontal (le 3D déborde et casse sur petit écran) */}
+      <div className="xl:hidden">
+        <div className="browse-rail flex gap-3 sm:gap-3.5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-3 pt-1 px-4 sm:px-6 scroll-px-4 sm:scroll-px-6">
+          {items.map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              onClick={() => openRestaurant(r)}
+              className="shrink-0 w-[min(68vw,240px)] sm:w-[260px] aspect-[3/4] max-h-[min(58vh,340px)] snap-center cursor-pointer active:scale-[0.98] transition-transform text-left"
+            >
+              <CarouselPartnerCard
+                restaurant={r}
+                className="border border-white/20 dark:border-white/10 shadow-lg"
+              />
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Carrousel Desktop — 3D Rotatif Original */}
-      <div className="hidden lg:block carousel-3d relative h-[380px] lg:h-[380px] xl:h-[420px]">
+      {/* Desktop large — carrousel 3D */}
+      <div className="hidden xl:block carousel-3d relative h-[420px]">
         <div className="carousel-3d-inner">
           {items.map((r, i) => {
             const angle = i * angleStep;
@@ -744,16 +765,19 @@ export function Carousel3DSection({ onStart }) {
                 className="carousel-3d-card cursor-grow group"
                 style={{ transform: `rotateY(${angle}deg) translateZ(${radius}px)` }}
               >
-                <CarouselPartnerCard restaurant={r} className="group-hover:border-brand-500/30 transition-all duration-500 group-hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]"/>
+                <CarouselPartnerCard
+                  restaurant={r}
+                  className="group-hover:border-brand-500/30 transition-all duration-500 group-hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]"
+                />
               </button>
             );
           })}
         </div>
       </div>
 
-      <div className="mt-8 text-center relative z-10">
-        <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/25">
-          Voir tous les restaurants 🚀 <I.Right size={18}/>
+      <div className="mt-6 sm:mt-8 px-4 text-center relative z-10">
+        <Button onClick={onStart} variant="primary" size="lg" className="shadow-lg shadow-brand-500/25 w-full sm:w-auto max-w-sm">
+          Voir tous les restaurants <I.Right size={18} />
         </Button>
       </div>
     </section>
