@@ -1873,8 +1873,8 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
               ref={(el) => { sectionRefs.current[cat.category] = el; }}
               className="mb-12 scroll-mt-28"
             >
-              <div className="px-4 sm:px-0 mb-4 flex items-end gap-3">
-                <div>
+              <div className="px-4 sm:px-0 mb-4">
+                <div className="inline-flex items-baseline gap-2.5 max-w-full flex-wrap">
                   <motion.h2
                     initial={{ opacity: 0, y: 8 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -1884,11 +1884,11 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                   >
                     {cat.category}
                   </motion.h2>
-                  <div className="mt-2 h-1 w-10 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
+                  <span className="text-[11px] font-semibold text-ink-400 dark:text-ink-500 shrink-0">
+                    {(cat.items || []).length} plat{(cat.items || []).length > 1 ? 's' : ''}
+                  </span>
                 </div>
-                <span className="mb-0.5 text-[11px] font-semibold text-ink-400 dark:text-ink-500">
-                  {(cat.items || []).length} plats
-                </span>
+                <div className="mt-2 h-1 w-10 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
               </div>
               <div className="px-3 sm:px-0 space-y-2.5">
                 {(cat.items || []).map((it, i) => (
