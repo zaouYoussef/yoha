@@ -566,38 +566,38 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     [foodRestaurants, homeSeed],
   );
 
-  /** Rails curated sans doublon entre elles (hors cuisines & grille finale). */
+  /** Rails curated : ouverts en premier rail ; coups de cœur / découvrir ont leur propre sélection (pas vidés par les ouverts). */
   const homeRails = useMemo(() => {
-    const used = new Set();
     const shuffled = shuffleWithSeed(foodRestaurants, homeSeed + 31);
 
-    // 1) Ouverts maintenant — priorité absolue
-    const openRail = [];
-    for (const r of openNowList) {
-      const k = restoKey(r);
-      if (!k || used.has(k)) continue;
-      used.add(k);
-      openRail.push(r);
-    }
+    // 1) Ouverts maintenant — tous les ouverts
+    const openRail = [...openNowList];
 
-    // 2) Mieux notés (parmi le reste)
-    const topRail = takeUnique(
-      shuffled.filter((r) => ratingOf(r) >= 4.5).sort((a, b) => ratingOf(b) - ratingOf(a)),
-      used,
-      8,
+    // 2) Coups de cœur — mieux notés (ouverts d'abord), pool complet
+    const topCandidates = prioritizeOpenFirst(
+      [...foodRestaurants]
+        .filter((r) => ratingOf(r) >= 4.5)
+        .sort((a, b) => ratingOf(b) - ratingOf(a)),
+      true,
     );
+    const topUsed = new Set();
+    const topRail = takeUnique(topCandidates, topUsed, 8);
 
-    // 3) Offres / promo
+    // 3) Offres / promo — hors coups de cœur
     const promoRail = takeUnique(
       shuffled.filter((r) => r.promo || (Array.isArray(r.offers) && r.offers.some((o) => o?.is_active !== false))),
-      used,
+      topUsed,
       8,
     );
 
-    // 4) À découvrir — restos pas encore montrés (souvent fermés mais utiles)
-    const discoverRail = takeUnique(shuffled, used, 10);
+    // 4) À découvrir — restos hors coups de cœur / promos, ouverts d'abord
+    const discoverRail = takeUnique(
+      prioritizeOpenFirst(shuffled, true),
+      topUsed,
+      10,
+    );
 
-    return { openRail, topRail, promoRail, discoverRail, used };
+    return { openRail, topRail, promoRail, discoverRail, used: topUsed };
   }, [foodRestaurants, openNowList, homeSeed]);
 
   const freeDeliveryList = prioritizedFoodRestaurants;
