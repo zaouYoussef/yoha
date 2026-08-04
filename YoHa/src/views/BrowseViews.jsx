@@ -226,29 +226,6 @@ const CUSTOM_STORE_BY_FILTER = {
 /** Visuels des pharmacies : photo unique en local. */
 const PHARMACY_COVER_POOL = ['/chain-img/pharmacie.jpg'];
 
-/** Point de référence Alliance / CHU Tanger pour les distances. */
-const ALLIANCE_REF = { lat: 35.7595, lng: -5.83395 };
-
-function haversineKm(lat1, lng1, lat2, lng2) {
-  const toRad = (d) => (Number(d) * Math.PI) / 180;
-  const R = 6371;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-function formatDistanceKm(lat, lng) {
-  const la = Number(lat);
-  const lo = Number(lng);
-  if (!Number.isFinite(la) || !Number.isFinite(lo)) return '';
-  const km = haversineKm(ALLIANCE_REF.lat, ALLIANCE_REF.lng, la, lo);
-  if (!Number.isFinite(km)) return '';
-  return `≈ ${km < 10 ? km.toFixed(1) : Math.round(km)} km`;
-}
-
 function pharmacyCoverFor(key) {
   let h = 0;
   for (const ch of String(key)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
