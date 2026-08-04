@@ -1529,7 +1529,6 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
   const r = restaurant;
   const openStatus = r.openingHours ? restaurantOpenStatus(r.openingHours) : { isOpen: true, openLabel: 'Ouvert' };
   const isOpen = r.isOpen ?? openStatus.isOpen ?? true;
-  const openLabel = r.openLabel ?? openStatus.openLabel ?? 'Ouvert';
   const [activeCat, setActiveCat] = useState(r.menu?.[0]?.category ?? '');
   const [selectedItem, setSelectedItem] = useState(null);
   const [compactNav, setCompactNav] = useState(false);
@@ -1575,13 +1574,6 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, [r]);
 
-  const CUISINE_ICONS = {
-    pizza: '🍕', tacos: '🌮', kebab: '🥙', sushi: '🍣', burger: '🍔',
-    healthy: '🥗', asian: '🥢', dessert: '🍰', drinks: '🥤',
-    pharmacy: '💊', parapharmacy: '🌿', supermarket: '🛒', shop: '🛍️', medical: '⚕️',
-    patisserie: '🥐',
-  };
-
   const populaires = (r.menu || []).flatMap((c) =>
     (c.items || [])
       .filter((it) => Number(it.price) > 12)
@@ -1594,57 +1586,52 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
     : 'Livraison offerte';
 
   return (
-    <div className="page-enter relative min-h-screen bg-gradient-to-b from-amber-50/70 via-white to-white dark:from-ink-950 dark:via-ink-950 dark:to-ink-950 overflow-x-hidden">
-      <div className="pointer-events-none absolute top-0 right-[-20%] w-[420px] h-[420px] rounded-full bg-brand-500/[0.08] dark:bg-brand-500/10 blur-[100px]" aria-hidden />
-      <div className="pointer-events-none absolute top-[40%] left-[-25%] w-[360px] h-[360px] rounded-full bg-pink-500/[0.06] dark:bg-pink-500/8 blur-[90px]" aria-hidden />
-      <div className="yoha-ambient opacity-50" aria-hidden />
-
+    <div className="page-enter relative min-h-screen bg-white dark:bg-ink-950 overflow-x-hidden">
       {/* Compact nav on scroll */}
       <div
         className={`fixed top-14 inset-x-0 z-40 transition-all duration-300 ${
           compactNav ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'
         }`}
       >
-        <div className="bg-white/90 dark:bg-ink-950/90 backdrop-blur-xl border-b border-ink-100/80 dark:border-ink-800 px-4 py-2.5 flex items-center gap-3">
+        <div className="bg-ink-950/90 backdrop-blur-xl border-b border-white/10 px-4 py-2.5 flex items-center gap-3">
           <button
             onClick={onBack}
-            className="w-9 h-9 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center shrink-0 active:scale-95"
+            className="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center shrink-0 active:scale-95"
             title="Retour"
           >
             <I.Left size={16} />
           </button>
           <div className="min-w-0 flex-1">
-            <p className="font-display font-bold text-sm text-ink-900 dark:text-white truncate">{r.name}</p>
+            <p className="font-display font-bold text-sm text-white truncate">{r.name}</p>
           </div>
           {!isChain && !isServiceDetail && (
-            <span className="shrink-0 inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-              <I.Star size={11} className="fill-emerald-500 text-emerald-500" />
-              {(r.rating ?? 4.5).toString().replace('.', ',')}
+            <span className="shrink-0 inline-flex items-center gap-1 text-xs font-bold text-amber-300">
+              ★ {(r.rating ?? 4.5).toString().replace('.', ',')}
             </span>
           )}
         </div>
       </div>
 
-      {/* HERO — full bleed, brand in the photo */}
+      {/* HERO — full-bleed cinematic */}
       <section
-        className={`relative h-[min(62vh,520px)] sm:h-[min(56vh,560px)] overflow-hidden ${
-          r.coverBlend === 'screen' ? 'bg-ink-950' : 'bg-ink-200 dark:bg-ink-900'
+        className={`relative h-[min(68vh,560px)] sm:h-[min(60vh,600px)] overflow-hidden ${
+          r.coverBlend === 'screen' ? 'bg-ink-950' : 'bg-ink-950'
         }`}
       >
         <img
           src={restaurantCover(r.cover)}
           alt={r.name || ''}
-          className={`absolute inset-0 w-full h-full animate-fade-in scale-[1.02] ${
+          className={`absolute inset-0 w-full h-full scale-110 animate-[browse-ken_32s_ease-in-out_infinite] motion-reduce:animate-none ${
             r.coverBlend === 'screen' ? 'object-contain mix-blend-screen' : 'object-cover'
           }`}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-black/80" />
-        <div className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-500/15 via-transparent to-pink-500/10 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink-950/70 via-ink-950/25 to-ink-950" />
+        <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-ink-950 via-ink-950/70 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(70%_50%_at_50%_100%,rgba(249,115,22,0.28),transparent_60%)] pointer-events-none" />
 
         <button
           onClick={onBack}
-          className="absolute top-3 left-3 sm:top-5 sm:left-5 z-20 w-11 h-11 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white flex items-center justify-center active:scale-95 transition shadow-lg"
+          className="absolute top-3 left-3 sm:top-5 sm:left-5 z-20 w-11 h-11 rounded-full bg-black/35 backdrop-blur-md border border-white/20 text-white flex items-center justify-center active:scale-95 transition shadow-lg"
           title="Retour"
         >
           <I.Left size={18} />
@@ -1654,81 +1641,62 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
           <motion.div
             initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.35, duration: 0.5 }}
-            className="absolute top-3 right-3 sm:top-5 sm:right-5 z-20 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border-2 border-white/80 shadow-xl bg-white"
+            transition={{ delay: 0.25, duration: 0.45 }}
+            className="absolute top-3 right-3 sm:top-5 sm:right-5 z-20 w-14 h-14 sm:w-[4.25rem] sm:h-[4.25rem] rounded-2xl overflow-hidden border border-white/70 shadow-2xl bg-white"
           >
             <img src={r.logo} alt="" className="w-full h-full object-cover" />
           </motion.div>
         )}
 
-        <div className="absolute inset-x-0 bottom-0 z-10 px-5 sm:px-8 pb-8 max-w-3xl mx-auto">
+        <div className="absolute inset-x-0 bottom-0 z-10 px-5 sm:px-8 pb-9 max-w-3xl mx-auto">
           <motion.p
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.12, duration: 0.4 }}
-            className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-300"
+            transition={{ delay: 0.1, duration: 0.35 }}
+            className="text-[12px] font-semibold tracking-wide text-orange-200/90"
           >
-            {formatTag(r.cuisine) || tags[0] || 'Restaurant'}
+            {(tags.map(formatTag).filter(Boolean).slice(0, 3).join(' · ')) || formatTag(r.cuisine) || 'Restaurant'}
           </motion.p>
           <motion.h1
-            initial={{ opacity: 0, y: 22 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-2 font-display font-black text-[clamp(2.1rem,8.5vw,3.5rem)] leading-[0.95] tracking-tight text-white"
+            transition={{ delay: 0.16, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-2 font-display font-black text-[clamp(2.35rem,9vw,3.75rem)] leading-[0.92] tracking-tight text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.55)]"
           >
             {r.name}
           </motion.h1>
 
-          {tags.length > 0 && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.35 }}
-              className="mt-3 text-sm text-white/65"
-            >
-              {tags.map(formatTag).filter(Boolean).join(' · ')}
-            </motion.p>
-          )}
-
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mt-4 flex flex-wrap items-center gap-2"
+            transition={{ delay: 0.28 }}
+            className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px] font-medium text-white/75"
           >
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[11px] font-bold text-white">
-              <span className="relative flex h-1.5 w-1.5">
-                {isOpen && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />}
-                <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${isOpen ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-              </span>
-              {isOpen ? (openLabel || 'Ouvert') : (openLabel || 'Fermé')}
+            <span className="inline-flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${isOpen ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+              {isOpen ? 'Ouvert' : 'Fermé'}
             </span>
             {!isChain && !isServiceDetail && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[11px] font-bold text-white">
-                <I.MapPin size={11} /> {r.distance || 'Tanger'}
-              </span>
+              <>
+                <span className="text-white/30">·</span>
+                <span className="text-amber-300">★ {(r.rating ?? 4.5).toString().replace('.', ',')}</span>
+              </>
             )}
-            {!isChain && !isServiceDetail && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/25 backdrop-blur-md border border-emerald-400/30 text-[11px] font-bold text-emerald-100">
-                <I.Star size={11} className="fill-emerald-300 text-emerald-300" />
-                {(r.rating ?? 4.5).toString().replace('.', ',')}
-              </span>
-            )}
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-brand-500/35 backdrop-blur-md border border-brand-300/35 text-[11px] font-bold text-brand-50">
-              {feeLabel}
-            </span>
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-semibold text-white/80">
-              Min. {formatMad(40, { decimals: 0 })}
-            </span>
+            <span className="text-white/30">·</span>
+            <span className="text-emerald-300">{feeLabel}</span>
+            <span className="text-white/30">·</span>
+            <span>Min. {formatMad(40, { decimals: 0 })}</span>
           </motion.div>
 
-          {(publicRestaurantBio(r.description, r.name) || (!isDuty && r.name)) && (
-            <p className="mt-3 text-[13px] text-white/50 leading-relaxed line-clamp-2 max-w-lg">
-              {isDuty && dutyHoursFr
-                ? dutyHoursFr
-                : publicRestaurantBio(r.description, r.name) ||
-                  `${r.name}, disponible en livraison directement chez vous ! ${CUISINE_ICONS[r.cuisine] || '🍽️'}`}
-            </p>
+          {publicRestaurantBio(r.description, r.name) && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.36 }}
+              className="mt-3.5 text-[13px] sm:text-sm text-white/55 leading-relaxed line-clamp-2 max-w-xl"
+            >
+              {isDuty && dutyHoursFr ? dutyHoursFr : publicRestaurantBio(r.description, r.name)}
+            </motion.p>
           )}
 
           {isDuty && r.phone && (
@@ -1776,10 +1744,10 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
 
       {/* Sticky categories */}
       {!r.isStatic && (r.menu || []).length > 0 && (
-        <div className="sticky top-14 z-30 bg-white/85 dark:bg-ink-950/85 backdrop-blur-xl border-b border-ink-100/70 dark:border-ink-800/80">
+        <div className="sticky top-14 z-30 bg-white/90 dark:bg-ink-950/90 backdrop-blur-xl border-b border-ink-100 dark:border-ink-800">
           <div
             ref={catsRef}
-            className="max-w-3xl mx-auto px-3 sm:px-6 flex gap-2 overflow-x-auto no-scrollbar h-[54px] items-center"
+            className="max-w-3xl mx-auto px-4 sm:px-6 flex gap-6 overflow-x-auto no-scrollbar h-[52px] items-center"
           >
             {(r.menu || []).map((c) => {
               const active = activeCat === c.category;
@@ -1788,13 +1756,20 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
                   key={c.category}
                   data-cat={c.category}
                   onClick={() => scrollToCat(c.category)}
-                  className={`relative shrink-0 px-4 h-9 rounded-full text-[12px] sm:text-[13px] font-bold whitespace-nowrap transition-all duration-200 ${
+                  className={`relative shrink-0 h-full text-[13px] font-semibold whitespace-nowrap transition-colors capitalize ${
                     active
-                      ? 'bg-brand-500 text-white shadow-glow dark:bg-brand-500'
-                      : 'text-ink-500 dark:text-ink-400 bg-ink-100/70 dark:bg-ink-900 hover:text-ink-800 dark:hover:text-white'
+                      ? 'text-ink-950 dark:text-white'
+                      : 'text-ink-400 dark:text-ink-500 hover:text-ink-800 dark:hover:text-white'
                   }`}
                 >
                   {c.category}
+                  {active && (
+                    <motion.span
+                      layoutId="menu-cat-underline"
+                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-brand-500 rounded-full"
+                      transition={{ type: 'spring', stiffness: 520, damping: 40 }}
+                    />
+                  )}
                 </button>
               );
             })}
@@ -1803,22 +1778,25 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
       )}
 
       {!r.isStatic ? (
-        <div className="relative max-w-3xl mx-auto px-0 sm:px-6 py-7 pb-36">
+        <div className="relative max-w-3xl mx-auto px-0 sm:px-6 py-8 pb-36">
           {!isOpen && (
-            <div className="mx-4 sm:mx-0 mb-6 rounded-2xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-500/5 px-4 py-3 text-center">
-              <p className="font-bold text-amber-700 dark:text-amber-300 text-sm">{openLabel || 'Fermé'}</p>
-              <p className="text-xs text-amber-600/80 dark:text-amber-300/70 mt-0.5">
-                Consulte le menu, la commande reprend à l&apos;ouverture.
+            <div className="mx-4 sm:mx-0 mb-8 rounded-2xl bg-ink-950 text-white px-5 py-4">
+              <p className="font-display font-bold text-base">Fermé pour le moment</p>
+              <p className="text-sm text-white/60 mt-1">
+                Consulte le menu — la commande reprend à l&apos;ouverture.
               </p>
             </div>
           )}
 
           {populaires.length > 0 && (
-            <section className="mb-11">
-              <div className="px-4 sm:px-0 mb-4">
-                <h2 className="font-display font-bold text-lg sm:text-xl text-ink-900 dark:text-white tracking-tight">
+            <section className="mb-12">
+              <div className="px-4 sm:px-0 mb-5">
+                <h2 className="font-display font-bold text-xl sm:text-2xl text-ink-950 dark:text-white tracking-tight">
                   Populaires
                 </h2>
+                <p className="text-[13px] text-ink-500 dark:text-ink-400 mt-1.5 font-medium">
+                  Les plus demandés chez {r.name}
+                </p>
               </div>
               <div className="flex gap-3.5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-1 px-4 sm:px-0">
                 {populaires.map((it, i) => (
@@ -1841,26 +1819,25 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
             <section
               key={cat.category}
               ref={(el) => { sectionRefs.current[cat.category] = el; }}
-              className="mb-12 scroll-mt-28"
+              className="mb-14 scroll-mt-28"
             >
-              <div className="px-4 sm:px-0 mb-4">
+              <div className="px-4 sm:px-0 mb-5">
                 <div className="inline-flex items-baseline gap-2.5 max-w-full flex-wrap">
                   <motion.h2
                     initial={{ opacity: 0, y: 8 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-30px' }}
                     transition={{ duration: 0.35, delay: Math.min(catIdx * 0.03, 0.15) }}
-                    className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white tracking-tight"
+                    className="font-display font-bold text-xl sm:text-2xl text-ink-950 dark:text-white tracking-tight capitalize"
                   >
                     {cat.category}
                   </motion.h2>
-                  <span className="text-[11px] font-semibold text-ink-400 dark:text-ink-500 shrink-0">
+                  <span className="text-[12px] font-medium text-ink-400 dark:text-ink-500 shrink-0">
                     {(cat.items || []).length} plat{(cat.items || []).length > 1 ? 's' : ''}
                   </span>
                 </div>
-                <div className="mt-2 h-1 w-10 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
               </div>
-              <div className="px-3 sm:px-0 space-y-2.5">
+              <div className="px-3 sm:px-0 space-y-3">
                 {(cat.items || []).map((it, i) => (
                   <DeliverooItemCard
                     key={it.db_id || it.id || i}
@@ -2061,18 +2038,18 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
     <div className="flex items-center gap-2 flex-wrap">
       {priced.discountPercent ? (
         <>
-          <span className="font-display font-black text-emerald-600 dark:text-emerald-400">
+          <span className="font-display font-bold text-emerald-400">
             {formatMad(priced.price)}
           </span>
-          <span className="text-xs text-ink-400 line-through font-semibold">
+          <span className="text-xs text-white/45 line-through font-semibold">
             {formatMad(priced.originalPrice)}
           </span>
-          <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-emerald-500 text-white">
+          <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-emerald-500 text-white">
             −{priced.discountPercent}%
           </span>
         </>
       ) : (
-        <span className="font-display font-black">{formatMad(item.price)}</span>
+        <span className="font-display font-bold">{formatMad(item.price)}</span>
       )}
     </div>
   );
@@ -2082,25 +2059,22 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
       <button
         type="button"
         onClick={() => onOpen?.()}
-        className="yoha-card-cv cursor-grow shrink-0 w-[78vw] max-w-[300px] sm:w-[250px] snap-center text-left group animate-fade-up"
+        className="yoha-card-cv cursor-grow shrink-0 w-[80vw] max-w-[300px] sm:w-[260px] snap-center text-left group"
+        style={{ animationDelay: `${Math.min(index, 6) * 40}ms` }}
       >
-        <div className="relative rounded-[1.35rem] overflow-hidden aspect-[5/4] bg-ink-100 dark:bg-ink-800 shadow-[0_18px_40px_-20px_rgba(15,23,42,0.45)] dark:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.65)] ring-1 ring-ink-200/60 dark:ring-white/10">
+        <div className="relative rounded-[1.35rem] overflow-hidden aspect-[4/5] bg-ink-950 shadow-[0_22px_48px_-24px_rgba(15,23,42,0.55)] ring-1 ring-black/5 dark:ring-white/10 transition-transform duration-500 group-hover:-translate-y-1">
           <MenuItemImage
             src={item.img}
             alt={item.name}
             loading="lazy"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-[1.1s] group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/25 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/40 to-transparent" />
           {priced.discountPercent ? (
-            <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-emerald-500 text-[9px] font-black uppercase tracking-wider text-white shadow-md">
+            <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-emerald-500 text-[10px] font-bold uppercase tracking-wider text-white shadow-md">
               −{priced.discountPercent}%
             </span>
-          ) : (
-            <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-white/80 dark:bg-ink-900/80 text-[9px] font-bold uppercase tracking-wider text-brand-600/90 dark:text-brand-400/90 backdrop-blur-sm border border-brand-500/15">
-              Top
-            </span>
-          )}
+          ) : null}
           {!orderingDisabled && (
             <button
               type="button"
@@ -2108,17 +2082,17 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
               className={`absolute top-3 right-3 w-11 h-11 rounded-full grid place-items-center text-lg font-black shadow-lg transition-all ${
                 adding
                   ? 'bg-emerald-500 text-white scale-110'
-                  : 'bg-white text-ink-900 active:scale-90 dark:bg-ink-900 dark:text-white'
+                  : 'bg-white text-ink-900 active:scale-90'
               }`}
             >
               {adding ? '✓' : '+'}
             </button>
           )}
           <div className="absolute inset-x-0 bottom-0 p-4">
-            <h3 className="font-display font-bold text-[16px] text-white leading-tight line-clamp-2 drop-shadow">
+            <h3 className="font-display font-bold text-[17px] text-white leading-tight line-clamp-2">
               {item.name}
             </h3>
-            <div className="mt-1.5 text-sm text-brand-300 [&_*]:text-brand-300 [&_.line-through]:text-white/60 [&_.bg-emerald-500]:bg-emerald-500">
+            <div className="mt-2 text-sm text-orange-200 [&_*]:text-orange-200 [&_.line-through]:text-white/50">
               {priceBlock}
             </div>
           </div>
@@ -2138,19 +2112,19 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
           onOpen?.();
         }
       }}
-      className="yoha-card-cv flex gap-3.5 p-3 rounded-2xl bg-white/95 dark:bg-ink-900/85 ring-1 ring-ink-100 dark:ring-ink-800 shadow-sm hover:shadow-cardhover hover:ring-brand-500/25 active:brightness-95 transition-all duration-300 cursor-grow group animate-fade-up"
+      className="yoha-card-cv flex gap-3.5 p-2.5 sm:p-3 rounded-[1.25rem] bg-white dark:bg-ink-900/80 ring-1 ring-ink-100 dark:ring-white/8 shadow-[0_10px_30px_-18px_rgba(15,23,42,0.35)] hover:shadow-[0_18px_40px_-20px_rgba(249,115,22,0.28)] hover:-translate-y-0.5 active:scale-[0.99] transition-all duration-300 cursor-grow group"
     >
-      <div className="shrink-0 w-[112px] h-[112px] sm:w-[124px] sm:h-[124px] rounded-xl overflow-hidden bg-ink-100 dark:bg-ink-800 relative shadow-sm">
+      <div className="shrink-0 w-[118px] h-[118px] sm:w-[132px] sm:h-[132px] rounded-[1rem] overflow-hidden bg-ink-100 dark:bg-ink-800 relative">
         <MenuItemImage
           src={item.img}
           alt={item.name}
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
-      <div className="flex-1 min-w-0 flex flex-col py-0.5">
-        <h3 className="font-display font-bold text-[15px] sm:text-base text-ink-900 dark:text-white leading-snug line-clamp-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+      <div className="flex-1 min-w-0 flex flex-col py-1 pr-1">
+        <h3 className="font-display font-bold text-[15px] sm:text-[17px] text-ink-950 dark:text-white leading-snug line-clamp-2 tracking-tight">
           {item.name}
         </h3>
         {item.desc && item.desc.trim() !== item.name ? (
@@ -2159,18 +2133,18 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
         <div className="mt-auto pt-2.5 flex items-center gap-2 flex-wrap">
           {priced.discountPercent ? (
             <>
-              <span className="font-display font-black text-[15px] text-emerald-600 dark:text-emerald-400">
+              <span className="font-display font-bold text-[16px] text-emerald-600 dark:text-emerald-400">
                 {formatMad(priced.price)}
               </span>
               <span className="text-xs text-ink-400 line-through font-semibold">
                 {formatMad(priced.originalPrice)}
               </span>
-              <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-emerald-500 text-white">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-emerald-500 text-white">
                 −{priced.discountPercent}%
               </span>
             </>
           ) : (
-            <span className="font-display font-black text-[15px] text-ink-900 dark:text-white">
+            <span className="font-display font-bold text-[16px] text-ink-950 dark:text-white">
               {formatMad(item.price)}
             </span>
           )}
@@ -2181,7 +2155,7 @@ function DeliverooItemCard({ item, restaurant, onAdd, onOpen, orderingDisabled =
               className={`ml-auto w-11 h-11 rounded-full grid place-items-center text-base font-black shadow-md transition-all ${
                 adding
                   ? 'bg-emerald-500 text-white scale-110'
-                  : 'bg-ink-900 text-white dark:bg-white dark:text-ink-900 hover:bg-brand-500 dark:hover:bg-brand-500 dark:hover:text-white active:scale-90'
+                  : 'bg-ink-950 text-white dark:bg-white dark:text-ink-950 hover:bg-brand-500 dark:hover:bg-brand-500 dark:hover:text-white active:scale-90'
               }`}
             >
               {adding ? '✓' : '+'}
