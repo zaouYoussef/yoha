@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 
 export const UNSPLASH_FALLBACKS = [
-  'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&auto=format&fit=crop&q=75',
+  // 0 = panier (fallback générique plats sans photo — plus de pizza trompeuse)
+  'https://images.unsplash.com/photo-1609842947419-ba4f04d5d60f?w=500&auto=format&fit=crop&q=75',
   'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&auto=format&fit=crop&q=75',
   'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=500&auto=format&fit=crop&q=75',
   'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=500&auto=format&fit=crop&q=75',
@@ -15,7 +16,9 @@ export const UNSPLASH_FALLBACKS = [
 ];
 
 export const FOOD_IMAGE_FALLBACK = UNSPLASH_FALLBACKS[0];
-export const RESTAURANT_COVER_FALLBACK = UNSPLASH_FALLBACKS[0];
+/** Cover resto : garde une ambiance food (pas le panier générique). */
+export const RESTAURANT_COVER_FALLBACK =
+  'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1200&auto=format&fit=crop&q=75';
 export const RESTAURANT_LOGO_FALLBACK = '/logo.webp';
 
 /** Transforms Glovo dhmedia — plats petits, cover/logo haute qualité. */
