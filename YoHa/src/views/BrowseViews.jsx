@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback, useDeferredValue } from 'react';
 import { useRouter } from 'next/navigation';
 import { I } from '../icons/Icons.jsx';
 import { CUISINES, CATEGORIES_BANNERS, CATEGORY_GROUPS, CUISINE_CATEGORIES, STATIC_STORES, restaurantInCategory } from '../data/index.js';
@@ -47,7 +47,19 @@ function shuffleWithSeed(array, seed) {
 
 const norm = (s) => foldText(s);
 
-/** Texte indexé pour la recherche browse (nom, tags, cuisine, menu si présent). */
+/** Min. caractères (après normalisation) — 1 lettre matche presque tout le catalogue et plante le mobile. */
+const SEARCH_MIN_CHARS = 2;
+/** Cap de cartes lourdes affichées (évite OOM Safari/Chrome mobile). */
+const SEARCH_MAX_RESULTS = 36;
+
+function searchTextPart(value) {
+  if (value == null) return '';
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+  if (Array.isArray(value)) return value.map(searchTextPart).filter(Boolean).join(' ');
+  return '';
+}
+
+/** Texte indexé pour la recherche browse (nom, tags, cuisine, indices menu). */
 function restaurantSearchHaystack(r) {
   if (!r) return '';
   const parts = [
@@ -59,21 +71,38 @@ function restaurantSearchHaystack(r) {
     ...(Array.isArray(r.tags) ? r.tags : []),
     ...(Array.isArray(r.menuHints) ? r.menuHints : []),
   ];
-  if (Array.isArray(r.menu)) {
+  // Menus complets uniquement si déjà en mémoire (rare sur /browse) — sinon trop lourd mobile.
+  if (Array.isArray(r.menu) && r.menu.length && !(Array.isArray(r.menuHints) && r.menuHints.length)) {
     r.menu.forEach((cat) => {
-      parts.push(cat.category);
-      (cat.items || []).forEach((it) => {
-        parts.push(it.name, it.desc, it.ingredients);
+      parts.push(cat?.category);
+      (cat?.items || []).forEach((it) => {
+        parts.push(it?.name);
       });
     });
   }
-  return foldText(parts.filter(Boolean).join(' '));
+  return foldText(parts.map(searchTextPart).filter(Boolean).join(' '));
 }
 
-function matchesBrowseSearch(r, rawQuery) {
+function browseSearchRank(r, q, haystack) {
+  const name = foldText(r?.name);
+  if (name.startsWith(q)) return 0;
+  if (name.includes(q)) return 1;
+  if (haystack.includes(q)) return 2;
+  return 3;
+}
+
+function filterBrowseSearch(pool, rawQuery, haystackByKey) {
   const q = foldText(rawQuery);
-  if (!q) return true;
-  return restaurantSearchHaystack(r).includes(q);
+  if (!q || q.length < SEARCH_MIN_CHARS) return [];
+  const scored = [];
+  for (const r of pool || []) {
+    const key = restoKey(r);
+    const hay = (haystackByKey && key && haystackByKey.get(key)) || restaurantSearchHaystack(r);
+    if (!hay.includes(q)) continue;
+    scored.push({ r, rank: browseSearchRank(r, q, hay) });
+  }
+  scored.sort((a, b) => a.rank - b.rank || String(a.r?.name || '').localeCompare(String(b.r?.name || ''), 'fr'));
+  return scored.slice(0, SEARCH_MAX_RESULTS).map((x) => x.r);
 }
 
 const SUB_CATEGORIES = {
@@ -398,6 +427,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   const { user } = useAuth();
   const { restaurants: catalog, loadingRestaurants, restaurantsError, refreshRestaurants } = useOrders();
   const [search, setSearch] = useState('');
+  const deferredSearch = useDeferredValue(search);
   const [filter, setFilter] = useState(() => normalizeBrowseFilter(initialFilter));
   const [dutyPharmacies, setDutyPharmacies] = useState([]);
 
@@ -452,11 +482,23 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     return out;
   }, [catalog, dutyPharmacies]);
 
+  const searchHaystacks = useMemo(() => {
+    const map = new Map();
+    for (const r of searchPool) {
+      const key = restoKey(r);
+      if (key) map.set(key, restaurantSearchHaystack(r));
+    }
+    return map;
+  }, [searchPool]);
+
+  const searchQueryFolded = foldText(deferredSearch);
+  const searchActive = searchQueryFolded.length >= SEARCH_MIN_CHARS;
+  const searchTooShort = Boolean(search.trim()) && !searchActive;
+
   const searchResults = useMemo(() => {
-    const q = search.trim();
-    if (!q) return [];
-    return searchPool.filter((r) => matchesBrowseSearch(r, q));
-  }, [search, searchPool]);
+    if (!searchActive) return [];
+    return filterBrowseSearch(searchPool, deferredSearch, searchHaystacks);
+  }, [searchActive, deferredSearch, searchPool, searchHaystacks]);
 
   const loading = loadingRestaurants && !['dessert', 'pharmacy', 'parapharmacy', 'supermarket', 'shop'].includes(filter);
   const name = greetingName(user);
@@ -1223,10 +1265,18 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
               <div className="flex items-center justify-between mb-5 pb-3 border-b border-ink-100 dark:border-ink-800 gap-3">
                 <div className="min-w-0">
                   <h2 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white truncate">
-                    Résultats pour « {search.trim()} »
+                    {searchTooShort
+                      ? 'Continue ta recherche'
+                      : `Résultats pour « ${search.trim()} »`}
                   </h2>
                   <p className="mt-1 text-xs font-semibold text-ink-500">
-                    {loading ? 'Recherche…' : `${searchResults.length} résultat${searchResults.length > 1 ? 's' : ''}`}
+                    {searchTooShort
+                      ? 'Au moins 2 lettres pour lancer la recherche'
+                      : loading
+                        ? 'Recherche…'
+                        : searchResults.length >= SEARCH_MAX_RESULTS
+                          ? `${SEARCH_MAX_RESULTS}+ résultats — affine pour trouver plus vite`
+                          : `${searchResults.length} résultat${searchResults.length > 1 ? 's' : ''}`}
                   </p>
                 </div>
                 <button
@@ -1237,7 +1287,11 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                   Effacer
                 </button>
               </div>
-              {loading ? (
+              {searchTooShort ? (
+                <p className="text-sm text-ink-500 dark:text-ink-400 py-8 text-center">
+                  Ex. « pizza », « tacos », « pharmacie »…
+                </p>
+              ) : loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {Array.from({ length: 6 }).map((_, i) => <RestaurantSkeleton key={i} />)}
                 </div>
@@ -1523,17 +1577,17 @@ export function SearchBar({ value, onChange, variant = 'default' }) {
   const isHero = variant === 'hero';
 
   return (
-    <div className={`group relative rounded-2xl transition-all duration-300 ${
+    <div className={`group relative rounded-2xl transition-shadow duration-300 ${
       focused 
-        ? 'shadow-glow-lg scale-[1.015]' 
+        ? 'shadow-glow-lg'
         : isHero ? 'shadow-cardhover ring-gradient' : 'shadow-card'
     }`}>
       <div
         aria-hidden
-        className={`pointer-events-none absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 transition-opacity duration-300 ${focused ? 'opacity-[0.65] blur-md' : 'opacity-0'}`}
+        className={`pointer-events-none absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 transition-opacity duration-300 ${focused ? 'opacity-40 sm:opacity-[0.55]' : 'opacity-0'}`}
       />
       <div
-        className={`relative z-10 flex items-center gap-3 px-4 sm:px-5 h-[3.65rem] sm:h-[3.85rem] rounded-2xl border transition-all duration-300 ${
+        className={`relative z-10 flex items-center gap-3 px-4 sm:px-5 h-[3.65rem] sm:h-[3.85rem] rounded-2xl border transition-colors duration-300 ${
           isHero
             ? focused
               ? 'bg-white dark:bg-ink-950 border-brand-500 dark:border-brand-500'
@@ -1543,11 +1597,14 @@ export function SearchBar({ value, onChange, variant = 'default' }) {
               : 'bg-white dark:bg-ink-900 border-ink-200 dark:border-ink-800'
         }`}
       >
-        <I.Search size={20} className={`shrink-0 transition-all duration-300 ${focused ? 'text-brand-500 scale-110' : 'text-ink-400'}`} />
+        <I.Search size={20} className={`shrink-0 transition-colors duration-300 ${focused ? 'text-brand-500' : 'text-ink-400'}`} />
         <input
           type="text"
           enterKeyHint="search"
           autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+          inputMode="search"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setFocused(true)}
