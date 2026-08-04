@@ -817,6 +817,67 @@
           ]
         }
       }
+    },
+    "maro-sushi": {
+      "phone": "+212661399917",
+      "address": "Q5HW+FX, Tanger, Maroc",
+      "opening_hours": {
+        "monday": { "open": "12:45", "close": "00:30" },
+        "tuesday": { "open": "12:45", "close": "00:30" },
+        "wednesday": { "open": "12:45", "close": "00:30" },
+        "thursday": { "open": "12:45", "close": "00:30" },
+        "friday": { "open": "12:45", "close": "00:30" },
+        "saturday": { "open": "12:45", "close": "00:30" },
+        "sunday": { "open": "12:45", "close": "00:30" }
+      }
+    },
+    "pam-pam": {
+      "phone": "+212701243884",
+      "address": "Avenue Youssef Ibn Tachfine 7, Tanger, Morocco",
+      "opening_hours": {
+        "monday": {
+          "slots": [
+            { "open": "00:00", "close": "03:30" },
+            { "open": "11:00", "close": "23:59" }
+          ]
+        },
+        "tuesday": {
+          "slots": [
+            { "open": "00:00", "close": "03:30" },
+            { "open": "11:00", "close": "23:59" }
+          ]
+        },
+        "wednesday": {
+          "slots": [
+            { "open": "00:00", "close": "03:30" },
+            { "open": "11:00", "close": "23:59" }
+          ]
+        },
+        "thursday": {
+          "slots": [
+            { "open": "00:00", "close": "03:30" },
+            { "open": "11:00", "close": "23:59" }
+          ]
+        },
+        "friday": {
+          "slots": [
+            { "open": "00:00", "close": "03:30" },
+            { "open": "11:00", "close": "23:59" }
+          ]
+        },
+        "saturday": {
+          "slots": [
+            { "open": "00:00", "close": "03:30" },
+            { "open": "11:00", "close": "23:59" }
+          ]
+        },
+        "sunday": {
+          "slots": [
+            { "open": "00:00", "close": "03:30" },
+            { "open": "11:00", "close": "23:59" }
+          ]
+        }
+      }
     }
   }
 }

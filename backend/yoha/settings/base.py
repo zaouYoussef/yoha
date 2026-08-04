@@ -661,6 +661,86 @@ GLOVO_STORES = [
         "delivery_time": "25-40 min",
         "phone": "+212776239310",
     },
+    {
+        "slug": "maro-sushi",
+        "glovo_slug": "marodelmar-tng",
+        "store_id": 411918,
+        "address_id": 609015,
+        "name": "Maro Sushi By Marodelmar",
+        "cuisine": "sushi",
+        "tags": ["Sushi", "Japonais"],
+        "cover_url": "https://glovo.dhmedia.io/image/stores-glovo/stores/c8f2d616917fa1820af5ca121d6bf9e9cbe6a41b5b07e9773a9f609b3c265484",
+        "delivery_time": "25-40 min",
+        "phone": "+212661399917",
+        "description": "Maro Sushi By Marodelmar — Q5HW+FX, Tanger, Maroc",
+        "opening_hours": {
+            "monday": {"open": "12:45", "close": "00:30"},
+            "tuesday": {"open": "12:45", "close": "00:30"},
+            "wednesday": {"open": "12:45", "close": "00:30"},
+            "thursday": {"open": "12:45", "close": "00:30"},
+            "friday": {"open": "12:45", "close": "00:30"},
+            "saturday": {"open": "12:45", "close": "00:30"},
+            "sunday": {"open": "12:45", "close": "00:30"},
+        },
+    },
+    {
+        "slug": "pam-pam",
+        "glovo_slug": "pam-pam-tng",
+        "store_id": 125461,
+        "address_id": 227631,
+        "name": "Pam Pam",
+        "cuisine": "burger",
+        "tags": ["Burger", "Snack"],
+        "cover_url": "https://glovo.dhmedia.io/image/stores-glovo/stores/d4c2c7ee421554a919973465b18bff8b2e749db4ce7a34956f46b7dc71c13435",
+        "logo_url": "https://glovo.dhmedia.io/image/customer-assets-glovo/store_logos/80fd12dd47c3303d2560f0c7cb6d4e9ba4823d53445e6e72596b5e4887a64136",
+        "delivery_time": "25-40 min",
+        "phone": "+212701243884",
+        "description": "Pam Pam — Avenue Youssef Ibn Tachfine 7, Tanger, Morocco",
+        "opening_hours": {
+            "monday": {
+                "slots": [
+                    {"open": "00:00", "close": "03:30"},
+                    {"open": "11:00", "close": "23:59"},
+                ]
+            },
+            "tuesday": {
+                "slots": [
+                    {"open": "00:00", "close": "03:30"},
+                    {"open": "11:00", "close": "23:59"},
+                ]
+            },
+            "wednesday": {
+                "slots": [
+                    {"open": "00:00", "close": "03:30"},
+                    {"open": "11:00", "close": "23:59"},
+                ]
+            },
+            "thursday": {
+                "slots": [
+                    {"open": "00:00", "close": "03:30"},
+                    {"open": "11:00", "close": "23:59"},
+                ]
+            },
+            "friday": {
+                "slots": [
+                    {"open": "00:00", "close": "03:30"},
+                    {"open": "11:00", "close": "23:59"},
+                ]
+            },
+            "saturday": {
+                "slots": [
+                    {"open": "00:00", "close": "03:30"},
+                    {"open": "11:00", "close": "23:59"},
+                ]
+            },
+            "sunday": {
+                "slots": [
+                    {"open": "00:00", "close": "03:30"},
+                    {"open": "11:00", "close": "23:59"},
+                ]
+            },
+        },
+    },
 ]
 
 # Réglages fins par store (recette de synchro) : renommages de sections,
@@ -691,6 +771,8 @@ GLOVO_STORE_CONFIGS = {
     "crousty-house": {"prune": True},
     "crousty-signature": {"prune": True},
     "matsco-sandwich": {"prune": True},
+    "maro-sushi": {"prune": True},
+    "pam-pam": {"prune": True},
 }
 
 # ——— Sécurité HTTP ———

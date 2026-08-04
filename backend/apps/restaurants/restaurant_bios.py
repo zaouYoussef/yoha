@@ -97,6 +97,14 @@ RESTAURANT_BIOS = {
         "Sushis frais, makis et plateaux à partager. "
         "Soju Sushi pour une pause japonaise livrée soigneusement."
     ),
+    "maro-sushi": (
+        "Sushis, makis et spécialités japonaises. "
+        "Maro Sushi By Marodelmar — fraîcheur et générosité à Tanger."
+    ),
+    "pam-pam": (
+        "Burgers, snacks et classiques à toute heure. "
+        "Pam Pam, le stop gourmand livré sur Alliance & CHU."
+    ),
     "tchoco-charly": (
         "Chocolats, gâteaux et douceurs cacao. "
         "Tchoco Charly, le goûter gourmand qui fait sourire."
