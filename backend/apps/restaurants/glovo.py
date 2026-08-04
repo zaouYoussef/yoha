@@ -562,8 +562,13 @@ class GlovoClient:
                 try:
                     detail = self.fetch_product_detail(pid)
                 except GlovoError as exc:
+                    msg = str(exc)
                     logger.info("glovo_product_detail_failed id=%s — %s", pid, exc)
-                    time.sleep(max(delay, 0.2))
+                    # Backoff plus long si Glovo rate-limit — on continue sans planter le menu.
+                    if "429" in msg:
+                        time.sleep(max(delay * 4, 3.0))
+                    else:
+                        time.sleep(max(delay, 0.2))
                     continue
                 groups = _modifier_groups(detail)
                 if groups:
