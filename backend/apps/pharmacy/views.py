@@ -1,21 +1,50 @@
-from datetime import date
+from datetime import date, timedelta
 
 from django.db.models import Q
+from django.utils.dateparse import parse_date
 from rest_framework import generics, permissions
 
 from .models import Pharmacy, PharmacyDuty
 from .serializers import PharmacyDutySerializer, PharmacySerializer
 
 
+def resolve_active_duty_date(requested: str | None = None) -> date:
+    """Date de garde à servir — miroir Infopoint (garde overnight jusqu'au lendemain matin).
+
+    Infopoint publie « Garde … de 03 août … à 09:00 du lendemain » : en base la
+    date reste le 03, alors que `date.today()` peut déjà être le 04 → filtre trop
+    strict = liste vide. On sert donc la dernière date de garde ≤ aujourd'hui.
+    """
+    if requested:
+        parsed = parse_date(str(requested).strip())
+        if parsed:
+            return parsed
+
+    today = date.today()
+    latest = (
+        PharmacyDuty.objects.filter(date__lte=today)
+        .order_by("-date")
+        .values_list("date", flat=True)
+        .first()
+    )
+    if latest:
+        return latest
+    # Filet de sécurité : veille si rien d'autre
+    yesterday = today - timedelta(days=1)
+    if PharmacyDuty.objects.filter(date=yesterday).exists():
+        return yesterday
+    return today
+
+
 class DutyPharmacyListView(generics.ListAPIView):
-    """Pharmacies de garde du jour. Public, sans pagination (liste complète)."""
+    """Pharmacies de garde actives (jour courant / nuit overnight). Public."""
 
     permission_classes = [permissions.AllowAny]
     serializer_class = PharmacyDutySerializer
     pagination_class = None
 
     def get_queryset(self):
-        duty_date = self.request.query_params.get("date") or date.today()
+        duty_date = resolve_active_duty_date(self.request.query_params.get("date"))
         return (
             PharmacyDuty.objects.filter(date=duty_date, pharmacy__is_active=True)
             .select_related("pharmacy")

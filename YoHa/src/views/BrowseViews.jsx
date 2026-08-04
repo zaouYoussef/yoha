@@ -190,6 +190,29 @@ const CUSTOM_STORE_BY_FILTER = {
 /** Visuels des pharmacies : photo unique en local. */
 const PHARMACY_COVER_POOL = ['/chain-img/pharmacie.jpg'];
 
+/** Point de référence Alliance / CHU Tanger pour les distances. */
+const ALLIANCE_REF = { lat: 35.7595, lng: -5.83395 };
+
+function haversineKm(lat1, lng1, lat2, lng2) {
+  const toRad = (d) => (Number(d) * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function formatDistanceKm(lat, lng) {
+  const la = Number(lat);
+  const lo = Number(lng);
+  if (!Number.isFinite(la) || !Number.isFinite(lo)) return '';
+  const km = haversineKm(ALLIANCE_REF.lat, ALLIANCE_REF.lng, la, lo);
+  if (!Number.isFinite(km)) return '';
+  return `≈ ${km < 10 ? km.toFixed(1) : Math.round(km)} km`;
+}
+
 function pharmacyCoverFor(key) {
   let h = 0;
   for (const ch of String(key)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
@@ -199,6 +222,7 @@ function pharmacyCoverFor(key) {
 /** Transforme une pharmacie de garde (API) en objet affichable comme une carte. */
 export function toDutyPharmacyItem(p) {
   const guard = p.guard === '24h' ? '24h' : p.guard || '24h';
+  const dist = formatDistanceKm(p.lat, p.lng);
   return {
     id: `duty-${p.slug || p.id}`,
     name: p.name,
@@ -213,7 +237,7 @@ export function toDutyPharmacyItem(p) {
     cover: pharmacyCoverFor(p.slug || String(p.id)),
     description: 'Pharmacie de garde. Dites-nous ce que vous cherchez, notre livreur s\u2019occupe de tout !',
     tags: [`Garde ${guard === '24h' ? '24H' : guard === 'night' ? 'de nuit' : 'de jour'}`],
-    distance: p.address || '',
+    distance: dist || '',
     address: p.address || '',
     phone: p.phone || '',
     lat: p.lat,
@@ -2300,7 +2324,11 @@ export function RestaurantCard({ restaurant, onClick }) {
       )}
 
       <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3.5 sm:p-4 z-10">
-        {restaurant.isCustomRequest ? (
+        {isDuty ? (
+          <span className="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-emerald-500 text-white shadow-md">
+            🕐 GARDE {restaurant.guard === 'night' ? 'NUIT' : restaurant.guard === 'day' ? 'JOUR' : '24H'}
+          </span>
+        ) : restaurant.isCustomRequest ? (
           <span className="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-md">
             ✨ SUR-MESURE
           </span>
@@ -2335,16 +2363,24 @@ export function RestaurantCard({ restaurant, onClick }) {
             {restaurant.nameAr}
           </p>
         )}
+        {isDuty && restaurant.address && (
+          <p className="mt-1 text-[11px] sm:text-xs text-white/70 line-clamp-2 leading-snug">
+            {restaurant.address}
+          </p>
+        )}
         {restaurant.subtitle && (
           <p className="mt-0.5 text-[11px] sm:text-xs font-medium text-white/55 truncate">
             {restaurant.subtitle}
           </p>
         )}
-        <div className="mt-1.5 flex items-center gap-1.5 text-[11px] sm:text-xs text-white/70 truncate">
+        <div className="mt-1.5 flex items-center gap-2 text-[11px] sm:text-xs text-white/70 truncate">
           {isDuty ? (
-            restaurant.phone && (
-              <span className="truncate shrink-0">{restaurant.phone}</span>
-            )
+            <>
+              {restaurant.phone && <span className="truncate shrink-0">{restaurant.phone}</span>}
+              {restaurant.distance && (
+                <span className="shrink-0 text-emerald-300 font-bold">{restaurant.distance}</span>
+              )}
+            </>
           ) : (
             <span className="truncate">{formatTags(restaurant.tags, ' • ')}</span>
           )}
