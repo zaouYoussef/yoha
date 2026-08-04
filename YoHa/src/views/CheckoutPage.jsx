@@ -293,21 +293,23 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
 
   if (cart.length === 0) {
     return (
-      <div className="page-enter relative max-w-2xl mx-auto px-4 sm:px-6 py-24 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(70%_50%_at_50%_0%,rgba(249,115,22,0.18),transparent_60%)] pointer-events-none" aria-hidden />
+      <div className="page-enter relative min-h-[70vh] max-w-2xl mx-auto px-4 sm:px-6 py-20 sm:py-24 text-center overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[radial-gradient(70%_50%_at_50%_0%,rgba(249,115,22,0.2),transparent_55%),radial-gradient(50%_40%_at_80%_30%,rgba(236,72,153,0.12),transparent_50%),radial-gradient(40%_35%_at_20%_80%,rgba(139,92,246,0.1),transparent_55%)] pointer-events-none"
+        />
         <div className="relative">
-          <p className="font-display font-black text-4xl text-transparent bg-clip-text bg-gradient-to-br from-orange-300 via-brand-500 to-orange-700">
-            YoHa
-          </p>
+          <p className="font-display font-black text-4xl sm:text-5xl text-gradient">YoHa</p>
           <h2 className="mt-4 font-display font-bold text-2xl sm:text-3xl text-ink-950 dark:text-white tracking-tight">
             Panier vide
           </h2>
-          <p className="mt-2 text-ink-500 dark:text-ink-400 font-medium max-w-sm mx-auto">
+          <p className="mt-2 text-ink-500 dark:text-ink-400 font-medium max-w-sm mx-auto text-sm sm:text-base">
             Ajoute quelques plats et reviens finaliser ta commande.
           </p>
           <button
+            type="button"
             onClick={onBack}
-            className="mt-7 px-6 py-3.5 rounded-2xl bg-ink-950 dark:bg-white text-white dark:text-ink-950 font-bold text-sm hover:bg-brand-500 dark:hover:bg-brand-500 dark:hover:text-white active:scale-95 transition-all"
+            className="mt-7 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white font-bold text-sm shadow-glow active:scale-95 transition-all btn-sweep"
           >
             Découvrir les restaurants →
           </button>
@@ -319,374 +321,413 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   const cartQty = cart.reduce((s, i) => s + i.qty, 0);
 
   return (
-    <div className="page-enter relative w-full min-w-0 overflow-x-hidden">
+    <div className="page-enter relative w-full min-w-0 overflow-x-hidden bg-white dark:bg-ink-950">
       <section className="relative overflow-hidden bg-ink-950 text-white">
         <div
           aria-hidden
-          className="absolute inset-0 bg-[radial-gradient(80%_70%_at_10%_0%,rgba(249,115,22,0.35),transparent_55%),radial-gradient(60%_50%_at_90%_30%,rgba(234,88,12,0.2),transparent_50%)]"
+          className="browse-hero-mesh absolute inset-0 pointer-events-none opacity-90"
         />
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 pt-5 sm:pt-7 pb-8 sm:pb-10">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[linear-gradient(180deg,transparent_40%,rgba(2,6,23,0.55)_100%)] pointer-events-none"
+        />
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-7 sm:pb-9">
+          <div className="flex items-center justify-between gap-3">
             <button
+              type="button"
               onClick={onBack}
-              className="cursor-pointer inline-flex items-center gap-2 self-start px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs transition-colors border border-white/15"
+              className="cursor-pointer inline-flex items-center gap-2 self-start min-h-[40px] px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs transition-colors border border-white/15"
             >
               <I.Left size={16} /> <span>Retour</span>
             </button>
-            <div className="flex items-center gap-2 text-[12px] font-semibold text-white/55">
-              <span className="text-orange-300">Panier</span>
-              <span aria-hidden>→</span>
+            <div className="hidden sm:flex items-center gap-1.5 text-[11px] sm:text-[12px] font-semibold text-white/50">
+              <span className="text-pink-200/90">Panier</span>
+              <span aria-hidden className="text-white/25">→</span>
               <span className="text-white">Validation</span>
-              <span aria-hidden>→</span>
-              <span>Confirmation</span>
+              <span aria-hidden className="text-white/25">→</span>
+              <span className="hidden md:inline">Confirmation</span>
             </div>
           </div>
 
-          <p className="mt-7 font-display font-black text-transparent bg-clip-text bg-gradient-to-br from-orange-200 via-brand-400 to-orange-600 text-3xl sm:text-4xl tracking-tight leading-none">
-            YoHa
-          </p>
-          <h1 className="mt-3 font-display font-bold text-[clamp(1.75rem,5.5vw,2.75rem)] tracking-tight leading-[1.05] max-w-xl">
-            Finaliser ta commande
+          <h1 className="mt-5 sm:mt-6 font-display font-black tracking-tight leading-[0.95] max-w-xl">
+            <span className="block text-gradient text-glow text-[clamp(2.4rem,8vw,3.75rem)]">YoHa</span>
+            <span className="mt-2.5 block text-[1.25rem] sm:text-2xl lg:text-[1.75rem] text-white/95 font-bold">
+              Finaliser ta commande
+            </span>
           </h1>
-          <p className="mt-2.5 text-sm text-white/60 font-medium max-w-lg">
-            Livraison en {deliveryEta} · Alliance &amp; CHU Tanger
+          <p className="mt-2.5 text-sm text-white/60 font-medium max-w-lg leading-relaxed">
+            Livraison en {deliveryEta}
+            <span className="text-white/30"> · </span>
+            Alliance · CHU
+            <span className="text-white/30"> · </span>
+            {cartQty} article{cartQty > 1 ? 's' : ''}
           </p>
         </div>
       </section>
 
-      <div className="relative max-w-5xl mx-auto w-full px-3 sm:px-6 pt-5 sm:pt-7 pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:pb-10">
-        {!user ? (
-          <div className="mb-5 rounded-2xl bg-ink-950 text-white px-4 py-3.5 text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <p className="font-medium text-white/85">
-              <span className="font-bold text-white">Commande invité</span> — aucun mot de passe requis.
-            </p>
-            {onLogin && (
-              <button
-                type="button"
-                onClick={onLogin}
-                className="font-semibold text-orange-300 hover:text-orange-200 shrink-0 text-xs cursor-pointer"
-              >
-                Se connecter →
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="mb-5 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/70 dark:border-emerald-500/25 px-4 py-3 text-sm text-emerald-900 dark:text-emerald-200 font-medium">
-            Connecté · <strong className="font-bold">{user.displayName}</strong> — cette commande compte pour ta cagnotte.
-          </div>
-        )}
+      <div className="browse-grid-bg relative">
+        <div className="relative max-w-5xl mx-auto w-full px-3.5 sm:px-6 pt-4 sm:pt-6 pb-[calc(7.25rem+env(safe-area-inset-bottom))] lg:pb-12">
+          {!user ? (
+            <div className="mb-4 sm:mb-5 rounded-2xl bg-ink-950 text-white px-4 py-3.5 text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 border border-white/10">
+              <p className="font-medium text-white/85 text-[13px] sm:text-sm leading-snug">
+                <span className="font-bold text-white">Commande invité</span> — aucun mot de passe requis.
+              </p>
+              {onLogin && (
+                <button
+                  type="button"
+                  onClick={onLogin}
+                  className="font-semibold text-pink-200 hover:text-white shrink-0 text-xs cursor-pointer self-start sm:self-auto"
+                >
+                  Se connecter →
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="mb-4 sm:mb-5 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/70 dark:border-emerald-500/25 px-4 py-3 text-[13px] sm:text-sm text-emerald-900 dark:text-emerald-200 font-medium">
+              Connecté · <strong className="font-bold">{user.displayName}</strong> — cette commande compte pour ta cagnotte.
+            </div>
+          )}
 
-        <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 min-w-0">
-          <div className="lg:col-span-2 space-y-4 sm:space-y-5 animate-fade-up min-w-0 order-2 lg:order-1">
-            <Card>
-              <CardHeader icon={<I.MapPin size={18} />} title="Coordonnées de livraison" />
-              <div className="p-4 sm:p-6 space-y-4">
-                <Input label="Nom complet" value={name} onChange={setName} placeholder="Prénom Nom" />
-                {!user ? (
+          <div className="grid lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6 min-w-0 items-start">
+            <div className="lg:col-span-3 space-y-3.5 sm:space-y-4 animate-fade-up min-w-0 order-2 lg:order-1">
+              <Card>
+                <CardHeader
+                  icon={<I.MapPin size={17} />}
+                  title="Coordonnées de livraison"
+                  subtitle="Alliance · CHU · FMPT · ISPITS"
+                />
+                <div className="p-4 sm:p-5 space-y-4">
+                  <Input label="Nom complet" value={name} onChange={setName} placeholder="Prénom Nom" />
+                  {!user ? (
+                    <div>
+                      <Input label="E-mail *" value={email} onChange={setEmail} placeholder="vous@exemple.com" type="email" />
+                      <p className="text-[12px] text-ink-500 mt-1.5 font-medium">
+                        Confirmation et suivi envoyés par e-mail.
+                      </p>
+                    </div>
+                  ) : (
+                    <Input
+                      label="E-mail de confirmation"
+                      value={email || user.email || ''}
+                      onChange={setEmail}
+                      placeholder="vous@exemple.com"
+                      type="email"
+                    />
+                  )}
+
                   <div>
-                    <Input label="E-mail *" value={email} onChange={setEmail} placeholder="vous@exemple.com" type="email" />
-                    <p className="text-[12px] text-ink-500 mt-1.5 font-medium">
-                      Confirmation et suivi envoyés par e-mail.
-                    </p>
-                  </div>
-                ) : (
-                  <Input
-                    label="E-mail de confirmation"
-                    value={email || user.email || ''}
-                    onChange={setEmail}
-                    placeholder="vous@exemple.com"
-                    type="email"
-                  />
-                )}
-
-                <div>
-                  <span className="text-[12px] font-semibold text-ink-600 dark:text-ink-300 tracking-tight">
-                    Lieu de livraison *
-                  </span>
-                  <p className="mt-1 text-[12px] text-ink-500 font-medium">Zones couvertes par YoHa</p>
-                  <div className="mt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {CAMPUS_HOSPITALS.map((place) => {
-                      const selected = address === place.name;
-                      return (
-                        <button
-                          key={place.name}
-                          type="button"
-                          onClick={() => setAddress(place.name)}
-                          className={`text-left rounded-2xl border p-3.5 transition-all ${
-                            selected
-                              ? 'border-brand-500 bg-brand-500/10 ring-2 ring-brand-500/20'
-                              : 'border-ink-200 dark:border-ink-800 bg-ink-50/60 dark:bg-ink-950 hover:border-brand-400/50'
-                          }`}
-                        >
-                          <div className="flex items-start gap-2.5">
-                            <span
-                              className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full border-2 ${
-                                selected ? 'border-brand-500 bg-brand-500' : 'border-ink-300 dark:border-ink-600'
-                              }`}
-                            >
-                              {selected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
-                            </span>
-                            <div className="min-w-0">
-                              <div className="font-bold text-sm text-ink-950 dark:text-white leading-snug">{place.name}</div>
-                              <div className="mt-0.5 text-[12px] text-ink-500 font-medium leading-snug">{place.subtitle}</div>
+                    <span className="text-[12px] font-semibold text-ink-600 dark:text-ink-300 tracking-tight">
+                      Lieu de livraison *
+                    </span>
+                    <p className="mt-1 text-[12px] text-ink-500 font-medium">Choisis ta zone YoHa</p>
+                    <div className="mt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
+                      {CAMPUS_HOSPITALS.map((place) => {
+                        const selected = address === place.name;
+                        return (
+                          <button
+                            key={place.name}
+                            type="button"
+                            onClick={() => setAddress(place.name)}
+                            className={`text-left rounded-2xl border p-3 sm:p-3.5 transition-all min-h-[64px] ${
+                              selected
+                                ? 'border-brand-500 bg-gradient-to-br from-brand-500/12 via-pink-500/8 to-violet-500/10 ring-2 ring-brand-500/20'
+                                : 'border-ink-200 dark:border-ink-800 bg-ink-50/60 dark:bg-ink-950 hover:border-brand-400/50'
+                            }`}
+                          >
+                            <div className="flex items-start gap-2.5">
+                              <span
+                                className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full border-2 ${
+                                  selected ? 'border-brand-500 bg-brand-500' : 'border-ink-300 dark:border-ink-600'
+                                }`}
+                              >
+                                {selected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                              </span>
+                              <div className="min-w-0">
+                                <div className="font-bold text-[13px] sm:text-sm text-ink-950 dark:text-white leading-snug">{place.name}</div>
+                                <div className="mt-0.5 text-[11px] sm:text-[12px] text-ink-500 font-medium leading-snug">{place.subtitle}</div>
+                              </div>
                             </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <Input label="Numéro de téléphone *" value={phone} onChange={setPhone} placeholder="+212 6 XX XX XX XX" type="tel" />
+                  <p className="text-[12px] text-ink-500 -mt-2 font-medium">
+                    Le livreur t&apos;appelle si besoin à l&apos;arrivée.
+                  </p>
+
+                  <label className="block space-y-1.5">
+                    <span className="text-[12px] font-semibold text-ink-600 dark:text-ink-300 tracking-tight">
+                      Instructions livreur / restaurant
+                    </span>
+                    <textarea
+                      value={restaurantNotes}
+                      onChange={(e) => setRestaurantNotes(e.target.value)}
+                      className="w-full min-h-[72px] px-3.5 sm:px-4 py-3 rounded-xl bg-ink-50/90 dark:bg-ink-950 border border-ink-200/90 dark:border-ink-800 outline-none focus:border-brand-500 dark:focus:border-brand-400 focus:ring-2 focus:ring-brand-500/15 text-base sm:text-sm font-medium transition resize-none text-ink-950 dark:text-white"
+                      rows={2}
+                      placeholder="Ex. : sans oignons, appeler devant le portail CHU…"
+                    />
+                  </label>
+                </div>
+              </Card>
+
+              <Card>
+                <CardHeader
+                  icon={<I.Clock size={17} />}
+                  title="Quand livrer ?"
+                  subtitle="ASAP ou créneau planifié"
+                />
+                <div className="p-4 sm:p-5">
+                  <TimeSlotPicker selected={scheduledTime} onSelect={setScheduledTime} />
+                </div>
+              </Card>
+
+              <Card>
+                <CardHeader icon={<I.Card size={17} />} title="Mode de paiement" subtitle="Uniquement à la livraison" />
+                <div className="p-4 sm:p-5">
+                  <div className="p-3.5 sm:p-4 rounded-2xl bg-ink-950 text-white flex items-center gap-3.5 border border-white/10">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 flex items-center justify-center shrink-0 font-bold text-xs tracking-tight shadow-glow">
+                      MAD
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-bold text-sm text-white">Espèces à la livraison</h4>
+                      <p className="text-[12px] text-white/60 mt-0.5 font-medium leading-normal">
+                        Paye le livreur YoHa dès réception.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card>
+                <CardHeader
+                  icon={<I.Bag size={17} />}
+                  title="Ton panier"
+                  subtitle={`${cartQty} article${cartQty > 1 ? 's' : ''} · ${storeLabel}`}
+                />
+                <div className="p-4 sm:p-5 space-y-0 divide-y divide-ink-100 dark:divide-ink-800">
+                  {cart.map((it) => (
+                    <div key={it.id} className="py-3 first:pt-0 last:pb-0 flex items-center gap-3 min-w-0">
+                      <MenuItemImage src={it.img} alt="" className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        {it.isCustom ? (
+                          <div className="space-y-0.5">
+                            <div className="text-[10px] font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Sur-mesure</div>
+                            {it.customDetails?.storeAddress && (
+                              <div className="text-xs text-ink-500 font-semibold truncate">{it.customDetails.storeName}</div>
+                            )}
+                            <p className="text-xs text-ink-700 dark:text-ink-300 font-medium truncate">{it.customDetails?.details}</p>
                           </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                        ) : (
+                          <>
+                            <h4 className="font-bold text-sm text-ink-950 dark:text-white truncate">{it.name}</h4>
+                            <div className="text-[12px] text-ink-500 dark:text-ink-400 font-medium mt-0.5 truncate">
+                              ×{it.qty} · {it.restaurantName || mainStoreName}
+                            </div>
+                            {(it.options || []).length > 0 && (
+                              <div className="text-[11px] text-ink-400 dark:text-ink-500 mt-0.5 truncate">
+                                {it.options.map((o) => o.name).join(' · ')}
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      <div className="font-bold text-sm text-ink-950 dark:text-white shrink-0 tabular-nums">
+                        {it.price > 0 ? formatMad(it.price * it.qty) : <span className="text-brand-600">Sur ticket</span>}
+                      </div>
+                    </div>
+                  ))}
                 </div>
+              </Card>
+            </div>
 
-                <Input label="Numéro de téléphone *" value={phone} onChange={setPhone} placeholder="+212 6 XX XX XX XX" type="tel" />
-                <p className="text-[12px] text-ink-500 -mt-2 font-medium">
-                  Le livreur t&apos;appelle si besoin à l&apos;arrivée.
-                </p>
-
-                <label className="block space-y-1.5">
-                  <span className="text-[12px] font-semibold text-ink-600 dark:text-ink-300 tracking-tight">
-                    Instructions livreur / restaurant
-                  </span>
-                  <textarea
-                    value={restaurantNotes}
-                    onChange={(e) => setRestaurantNotes(e.target.value)}
-                    className="w-full px-3.5 sm:px-4 py-3 rounded-xl bg-ink-50/80 dark:bg-ink-950 border border-ink-200 dark:border-ink-800 outline-none focus:border-brand-500 dark:focus:border-brand-400 text-base sm:text-sm font-medium transition resize-none text-ink-950 dark:text-white"
-                    rows={2}
-                    placeholder="Ex. : sans oignons, appeler devant le portail CHU…"
-                  />
-                </label>
-              </div>
-            </Card>
-
-            <TimeSlotPicker selected={scheduledTime} onSelect={setScheduledTime} />
-
-            <Card>
-              <CardHeader icon={<I.Bag size={18} />} title="Mode de paiement" />
-              <div className="p-4 sm:p-6">
-                <div className="p-4 rounded-2xl bg-ink-950 text-white flex items-center gap-3.5">
-                  <div className="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center shrink-0 font-bold text-sm tracking-tight">
-                    MAD
+            <div className="lg:col-span-2 lg:sticky lg:top-20 self-start animate-fade-up min-w-0 order-1 lg:order-2" style={{ animationDelay: '60ms' }}>
+              <Card className="border-brand-500/25 shadow-[0_28px_60px_-30px_rgba(249,115,22,0.4)] ring-1 ring-brand-500/10">
+                <div className="relative p-4 sm:p-5 space-y-3.5 sm:space-y-4">
+                  <div className="flex items-end justify-between gap-2 border-b border-ink-100 dark:border-white/8 pb-3">
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-400">
+                        Récapitulatif
+                      </p>
+                      <h3 className="font-display font-black text-lg sm:text-xl text-ink-950 dark:text-white tracking-tight mt-0.5">
+                        Total à payer
+                      </h3>
+                    </div>
+                    {isGroupOrder ? (
+                      <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 px-2.5 py-1 rounded-xl shrink-0">
+                        Offre groupe
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-semibold text-brand-600 dark:text-brand-400 bg-brand-500/10 px-2.5 py-1 rounded-xl shrink-0">
+                        {deliveryFee === 0 ? 'Livraison offerte' : deliveryEta}
+                      </span>
+                    )}
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <h4 className="font-bold text-sm text-white">Espèces à la livraison</h4>
-                    <p className="text-[12px] text-white/60 mt-0.5 font-medium leading-normal">
-                      Paye le livreur YoHa dès réception.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Card>
 
-            <Card>
-              <CardHeader
-                icon={<I.Bag size={18} />}
-                title={`${cartQty} article${cartQty > 1 ? 's' : ''} · ${storeLabel}`}
-              />
-              <div className="p-4 sm:p-6 space-y-3.5 divide-y divide-ink-100 dark:divide-ink-800">
-                {cart.map((it) => (
-                  <div key={it.id} className="pt-3 first:pt-0 flex items-center gap-3">
-                    <MenuItemImage src={it.img} alt="" className="w-14 h-14 rounded-xl object-cover shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      {it.isCustom ? (
-                        <div className="space-y-1">
-                          <div className="text-[11px] font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Sur-mesure</div>
-                          {it.customDetails?.storeAddress && (
-                            <div className="text-xs text-ink-500 font-semibold">{it.customDetails.storeName}</div>
-                          )}
-                          <p className="text-xs text-ink-700 dark:text-ink-300 font-medium truncate">{it.customDetails?.details}</p>
-                        </div>
+                  {!isCustom && (
+                    <div className={`p-3 rounded-2xl text-[12px] font-medium leading-snug ${isGroupOrder ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200' : 'bg-ink-50 dark:bg-ink-950 text-ink-700 dark:text-ink-300'}`}>
+                      {isGroupOrder ? (
+                        <p><strong className="font-bold">Commande de groupe</strong> — livraison &amp; service offerts.</p>
                       ) : (
-                        <>
-                          <h4 className="font-bold text-sm text-ink-950 dark:text-white truncate">{it.name}</h4>
-                          <div className="text-[12px] text-ink-500 dark:text-ink-400 font-medium mt-0.5">
-                            ×{it.qty} · {it.restaurantName || mainStoreName}
-                          </div>
-                          {(it.options || []).length > 0 && (
-                            <div className="text-[11px] text-ink-400 dark:text-ink-500 mt-0.5 truncate">
-                              {it.options.map((o) => o.name).join(' · ')}
-                            </div>
-                          )}
-                        </>
+                        <p>
+                          Ajoute <strong className="font-bold text-brand-600 dark:text-brand-400">{formatMad(200 - total)}</strong> pour livraison &amp; service offerts (seuil 200 MAD).
+                        </p>
                       )}
                     </div>
-                    <div className="font-bold text-sm text-ink-950 dark:text-white shrink-0">
-                      {it.price > 0 ? formatMad(it.price * it.qty) : <span className="text-brand-600">Sur ticket</span>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-
-          <div className="lg:sticky lg:top-20 self-start animate-fade-up min-w-0 order-1 lg:order-2" style={{ animationDelay: '80ms' }}>
-            <Card className="border-brand-500/20 shadow-[0_24px_50px_-28px_rgba(249,115,22,0.35)]">
-              <div className="relative p-4 sm:p-6 space-y-4">
-                <div className="flex items-center justify-between gap-2 border-b border-ink-100 dark:border-white/8 pb-3">
-                  <h3 className="font-display font-bold text-lg sm:text-xl text-ink-950 dark:text-white tracking-tight">Récapitulatif</h3>
-                  {isGroupOrder ? (
-                    <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 px-2.5 py-1 rounded-full">Offre groupe</span>
-                  ) : (
-                    <span className="text-[11px] font-semibold text-brand-600 dark:text-brand-400 bg-brand-500/10 px-2.5 py-1 rounded-full">
-                      {deliveryFee === 0 ? 'Livraison offerte' : deliveryEta}
-                    </span>
                   )}
-                </div>
 
-                {!isCustom && (
-                  <div className={`p-3 rounded-2xl text-[12px] font-medium ${isGroupOrder ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200' : 'bg-ink-50 dark:bg-ink-950 text-ink-700 dark:text-ink-300'}`}>
-                    {isGroupOrder ? (
-                      <p><strong className="font-bold">Commande de groupe</strong> — livraison &amp; service offerts.</p>
-                    ) : (
-                      <p>
-                        Ajoute <strong className="font-bold text-brand-600 dark:text-brand-400">{formatMad(200 - total)}</strong> pour livraison &amp; service offerts (seuil 200 MAD).
-                      </p>
-                    )}
-                  </div>
-                )}
+                  <div className="space-y-2.5">
+                    <Row
+                      label="Sous-total plats"
+                      value={isCustom ? (total > 0 ? `${formatMad(total)} + achats` : <span className="text-brand-600 dark:text-brand-400 font-bold">Sur ticket</span>) : formatMad(total)}
+                    />
+                    <Row
+                      label="Frais de livraison"
+                      value={deliveryFee === 0 ? <span className="text-emerald-600 dark:text-emerald-400 font-bold">Offerte</span> : <span className="text-ink-950 dark:text-white font-bold">{formatMad(deliveryFee)}</span>}
+                    />
+                    <Row
+                      label="Frais de service"
+                      value={serviceFee === 0 ? <span className="text-emerald-600 dark:text-emerald-400 font-bold">Offerts</span> : <span className="text-ink-950 dark:text-white font-bold">{formatMad(serviceFee)}</span>}
+                    />
+                    <Row
+                      label="Supplément petite commande"
+                      value={smallOrderFee === 0 ? <span className="text-ink-400 font-medium">Aucun</span> : <span className="text-ink-950 dark:text-white font-bold">{formatMad(smallOrderFee)}</span>}
+                    />
 
-                <Row
-                  label="Sous-total plats"
-                  value={isCustom ? (total > 0 ? `${formatMad(total)} + achats` : <span className="text-brand-600 dark:text-brand-400 font-bold">Sur ticket</span>) : formatMad(total)}
-                />
-                <Row
-                  label="Frais de livraison"
-                  value={deliveryFee === 0 ? <span className="text-emerald-600 dark:text-emerald-400 font-bold">Offerte</span> : <span className="text-ink-950 dark:text-white font-bold">{formatMad(deliveryFee)}</span>}
-                />
-                <Row
-                  label="Frais de service"
-                  value={serviceFee === 0 ? <span className="text-emerald-600 dark:text-emerald-400 font-bold">Offerts</span> : <span className="text-ink-950 dark:text-white font-bold">{formatMad(serviceFee)}</span>}
-                />
-                <Row
-                  label="Supplément petite commande"
-                  value={smallOrderFee === 0 ? <span className="text-ink-400 font-medium">Aucun</span> : <span className="text-ink-950 dark:text-white font-bold">{formatMad(smallOrderFee)}</span>}
-                />
-
-                {discountAmount > 0 && (
-                  <Row
-                    label={<span className="text-emerald-600 dark:text-emerald-400 font-bold">Promo ({appliedPromo?.code || 'YOHA50'})</span>}
-                    value={<span className="text-emerald-600 dark:text-emerald-400 font-bold">-{formatMad(discountAmount)}</span>}
-                  />
-                )}
-
-                <div className="border-t border-ink-100 dark:border-white/8 pt-3">
-                  <Row
-                    label={<b className="text-base font-bold text-ink-950 dark:text-white">Total</b>}
-                    value={
-                      <b className="font-display text-2xl sm:text-3xl font-black tracking-tight text-ink-950 dark:text-white">
-                        {isCustom ? `${formatMad(grand)} + achats` : formatMad(grand)}
-                      </b>
-                    }
-                  />
-                </div>
-
-                {smallOrderFee > 0 && (
-                  <p className="text-[12px] text-ink-500 dark:text-ink-400 bg-ink-50 dark:bg-ink-950 p-3 rounded-2xl">
-                    {total < 40
-                      ? `Panier < 40 MAD : +10 MAD. Dès 40 MAD → +5 MAD, dès 70 MAD → aucun supplément.`
-                      : `Panier < 70 MAD : +5 MAD. Ajoute ${formatMad(70 - total)} pour supprimer le supplément.`}
-                  </p>
-                )}
-
-                {isYoha50Active && !appliedPromo && !hasUsedYoha50 && (
-                  <div className="p-4 rounded-2xl bg-ink-950 text-white space-y-2.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-orange-300">Offre bienvenue</span>
-                      <span className="text-xs font-bold">−50 MAD</span>
-                    </div>
-                    <p className="text-[12px] text-white/70 font-medium leading-snug">
-                      Code <strong className="text-white">YOHA50</strong> sur ta 1ʳᵉ commande.
-                    </p>
-                    {!user ? (
-                      <p className="text-[11px] font-medium text-white/55">Connecte-toi pour activer l&apos;offre.</p>
-                    ) : (
-                      <p className="text-[11px] font-medium text-emerald-300">Tu es éligible.</p>
-                    )}
-                    <button
-                      type="button"
-                      onClick={applyYoha50}
-                      className={`w-full py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center cursor-pointer ${
-                        !user ? 'bg-white/15 text-white/70 hover:bg-white/20' : 'bg-brand-500 text-white hover:bg-brand-600 active:scale-[0.98]'
-                      }`}
-                    >
-                      Appliquer −50 MAD
-                    </button>
-                  </div>
-                )}
-
-                <div className="pt-1">
-                  {appliedPromo ? (
-                    <div className="flex items-center justify-between bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl px-3.5 py-2.5 border border-emerald-200 dark:border-emerald-700">
-                      <span className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-300">
-                        {appliedPromo.code} (−{formatMad(discountAmount)})
-                      </span>
-                      <button onClick={removePromo} className="text-xs font-bold text-rose-600 hover:underline cursor-pointer">Retirer</button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <input
-                        value={promoInput}
-                        onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-                        placeholder="Code promo"
-                        className="flex-1 rounded-xl border border-ink-200 bg-ink-50 px-3.5 py-2.5 text-xs font-bold tracking-wider outline-none focus:border-brand-500 dark:border-ink-700 dark:bg-ink-950 dark:text-white"
+                    {discountAmount > 0 && (
+                      <Row
+                        label={<span className="text-emerald-600 dark:text-emerald-400 font-bold">Promo ({appliedPromo?.code || 'YOHA50'})</span>}
+                        value={<span className="text-emerald-600 dark:text-emerald-400 font-bold">-{formatMad(discountAmount)}</span>}
                       />
+                    )}
+                  </div>
+
+                  <div className="border-t border-ink-100 dark:border-white/8 pt-3">
+                    <Row
+                      label={<b className="text-base font-bold text-ink-950 dark:text-white">Total</b>}
+                      value={
+                        <b className="font-display text-2xl sm:text-[1.85rem] font-black tracking-tight text-gradient">
+                          {isCustom ? `${formatMad(grand)} + achats` : formatMad(grand)}
+                        </b>
+                      }
+                    />
+                  </div>
+
+                  {smallOrderFee > 0 && (
+                    <p className="text-[12px] text-ink-500 dark:text-ink-400 bg-ink-50 dark:bg-ink-950 p-3 rounded-2xl leading-snug">
+                      {total < 40
+                        ? `Panier < 40 MAD : +10 MAD. Dès 40 MAD → +5 MAD, dès 70 MAD → aucun supplément.`
+                        : `Panier < 70 MAD : +5 MAD. Ajoute ${formatMad(70 - total)} pour supprimer le supplément.`}
+                    </p>
+                  )}
+
+                  {isYoha50Active && !appliedPromo && !hasUsedYoha50 && (
+                    <div className="p-3.5 sm:p-4 rounded-2xl bg-ink-950 text-white space-y-2.5 border border-white/10">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-pink-200">Offre bienvenue</span>
+                        <span className="text-xs font-bold">−50 MAD</span>
+                      </div>
+                      <p className="text-[12px] text-white/70 font-medium leading-snug">
+                        Code <strong className="text-white">YOHA50</strong> sur ta 1ʳᵉ commande.
+                      </p>
+                      {!user ? (
+                        <p className="text-[11px] font-medium text-white/55">Connecte-toi pour activer l&apos;offre.</p>
+                      ) : (
+                        <p className="text-[11px] font-medium text-emerald-300">Tu es éligible.</p>
+                      )}
                       <button
-                        onClick={applyPromo}
-                        className="cursor-pointer shrink-0 rounded-xl bg-ink-950 dark:bg-white text-white dark:text-ink-950 px-4 py-2.5 text-xs font-bold hover:bg-brand-500 dark:hover:bg-brand-500 dark:hover:text-white active:scale-95 transition-all"
+                        type="button"
+                        onClick={applyYoha50}
+                        className={`w-full min-h-[44px] py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center cursor-pointer ${
+                          !user
+                            ? 'bg-white/15 text-white/70 hover:bg-white/20'
+                            : 'bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white shadow-glow active:scale-[0.98] btn-sweep'
+                        }`}
                       >
-                        Valider
+                        Appliquer −50 MAD
                       </button>
                     </div>
                   )}
-                  {promoErr && <p className="mt-1.5 text-xs font-bold text-rose-600">{promoErr}</p>}
-                </div>
 
-                {err && (
-                  <p id="checkout-err-banner" className="text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-200">
-                    {err}
-                  </p>
-                )}
-
-                <div className="pt-2 hidden lg:block">
-                  <button
-                    type="button"
-                    onClick={handleConfirm}
-                    disabled={submitting}
-                    className="w-full relative py-3.5 px-5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm sm:text-base transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99]"
-                  >
-                    {submitting ? (
-                      <span className="flex items-center justify-center gap-2 font-bold text-sm">Traitement… <Loader /></span>
+                  <div className="pt-0.5">
+                    {appliedPromo ? (
+                      <div className="flex items-center justify-between gap-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl px-3.5 py-2.5 border border-emerald-200 dark:border-emerald-700">
+                        <span className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-300 truncate">
+                          {appliedPromo.code} (−{formatMad(discountAmount)})
+                        </span>
+                        <button type="button" onClick={removePromo} className="text-xs font-bold text-rose-600 hover:underline cursor-pointer shrink-0">Retirer</button>
+                      </div>
                     ) : (
-                      <span className="flex items-center justify-center gap-2 font-display">
-                        <span>Confirmer la commande</span>
-                        <I.Right size={18} stroke={2.5} />
-                      </span>
+                      <div className="flex items-stretch gap-2">
+                        <input
+                          value={promoInput}
+                          onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                          placeholder="Code promo"
+                          className="flex-1 min-w-0 min-h-[44px] rounded-xl border border-ink-200 bg-ink-50 px-3.5 py-2.5 text-xs font-bold tracking-wider outline-none focus:border-brand-500 dark:border-ink-700 dark:bg-ink-950 dark:text-white"
+                        />
+                        <button
+                          type="button"
+                          onClick={applyPromo}
+                          className="cursor-pointer shrink-0 min-h-[44px] rounded-xl bg-ink-950 dark:bg-white text-white dark:text-ink-950 px-4 py-2.5 text-xs font-bold hover:bg-brand-500 dark:hover:bg-brand-500 dark:hover:text-white active:scale-95 transition-all"
+                        >
+                          Valider
+                        </button>
+                      </div>
                     )}
-                  </button>
-                  <p className="mt-3 text-center text-[12px] text-ink-500 font-medium">Paiement sécurisé à la livraison</p>
+                    {promoErr && <p className="mt-1.5 text-xs font-bold text-rose-600 leading-snug">{promoErr}</p>}
+                  </div>
+
+                  {err && (
+                    <p id="checkout-err-banner" className="text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-200 leading-snug">
+                      {err}
+                    </p>
+                  )}
+
+                  <div className="pt-1 hidden lg:block">
+                    <button
+                      type="button"
+                      onClick={handleConfirm}
+                      disabled={submitting}
+                      className="w-full relative min-h-[52px] py-3.5 px-5 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white font-bold text-sm sm:text-base shadow-glow transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] btn-sweep"
+                    >
+                      {submitting ? (
+                        <span className="flex items-center justify-center gap-2 font-bold text-sm">Traitement… <Loader /></span>
+                      ) : (
+                        <span className="flex items-center justify-center gap-2 font-display font-bold">
+                          <span>Confirmer la commande</span>
+                          <I.Right size={18} stroke={2.5} />
+                        </span>
+                      )}
+                    </button>
+                    <p className="mt-3 text-center text-[12px] text-ink-500 font-medium">Paiement à la livraison · Espèces</p>
+                  </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 px-3 pt-2.5 bg-ink-950/95 backdrop-blur-xl border-t border-white/10 shadow-2xl pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 px-3 pt-2.5 bg-ink-950/96 backdrop-blur-xl border-t border-white/10 shadow-[0_-20px_50px_-20px_rgba(0,0,0,0.55)] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <div className="max-w-lg mx-auto space-y-2">
           {err ? (
-            <p className="text-[11px] font-bold text-rose-300 bg-rose-500/15 px-2.5 py-2 rounded-xl leading-snug">{err}</p>
+            <p className="text-[11px] font-bold text-rose-200 bg-rose-500/20 px-2.5 py-2 rounded-xl leading-snug">{err}</p>
           ) : null}
-          <div className="flex items-center justify-between gap-2.5 min-w-0">
-            <div className="shrink-0 min-w-0 max-w-[38%]">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="shrink-0 min-w-0 max-w-[34%]">
               <div className="text-[10px] font-bold uppercase tracking-wider text-white/45">Total</div>
-              <div className="font-display font-black text-base text-white truncate">{formatMad(grand)}</div>
+              <div className="font-display font-black text-lg text-white truncate tabular-nums leading-tight">{formatMad(grand)}</div>
             </div>
             <button
               type="button"
               onClick={handleConfirm}
               disabled={submitting}
-              className="min-w-0 flex-1 py-3.5 px-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+              className="min-w-0 flex-1 min-h-[48px] py-3 px-3 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white font-bold text-sm active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer shadow-glow btn-sweep"
             >
               {submitting ? (
-                <span className="font-bold text-xs">Traitement…</span>
+                <span className="font-bold text-xs flex items-center gap-2">Traitement… <Loader /></span>
               ) : (
                 <span className="flex items-center justify-center gap-1.5 font-display font-bold">
                   <span className="truncate">Confirmer</span>
