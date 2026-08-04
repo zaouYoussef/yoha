@@ -670,10 +670,26 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
   ])), true), [foodRestaurants]);
 
   const dessertItems = useMemo(() => {
-    const fromApi = foodRestaurants.filter((r) => r.cuisine === 'dessert' || r.cuisine === 'patisserie');
-    const fromStatic = STATIC_STORES.filter((s) => s.cuisine === 'dessert' || s.cuisine === 'patisserie');
-    const seen = new Set(fromApi.map((r) => String(r.id || r.slug || '')));
-    return [...fromApi, ...fromStatic.filter((s) => !seen.has(String(s.id)))];
+    const DESSERT_PIN = ['custom-patisserie', 'ch-hiwat-sans-gluten', 'patisserie-royal'];
+    const DESSERT_EXCLUDE = new Set(['tchoco-charly']);
+    const idOf = (r) => String(r?.id || r?.slug || '');
+    const isDessert = (r) => r?.cuisine === 'dessert' || r?.cuisine === 'patisserie';
+
+    const fromApi = foodRestaurants.filter((r) => isDessert(r) && !DESSERT_EXCLUDE.has(idOf(r)));
+    const fromStatic = STATIC_STORES.filter((s) => isDessert(s) && !DESSERT_EXCLUDE.has(idOf(s)));
+    const seen = new Set(fromApi.map(idOf));
+    const merged = [...fromApi, ...fromStatic.filter((s) => !seen.has(idOf(s)))];
+
+    return [...merged].sort((a, b) => {
+      const pa = DESSERT_PIN.indexOf(idOf(a));
+      const pb = DESSERT_PIN.indexOf(idOf(b));
+      const ra = pa === -1 ? 1000 : pa;
+      const rb = pb === -1 ? 1000 : pb;
+      if (ra !== rb) return ra - rb;
+      const oa = isRestaurantOpen(a) ? 0 : 1;
+      const ob = isRestaurantOpen(b) ? 0 : 1;
+      return oa - ob;
+    });
   }, [foodRestaurants]);
   const customPharmacy = useMemo(() => STATIC_STORES.find((s) => s.id === 'custom-pharmacy'), []);
   const chainsList = useMemo(() => STATIC_STORES.filter((s) => s.isChain), []);

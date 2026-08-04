@@ -417,8 +417,8 @@ GLOVO_STORES = [
         "store_id": 539328,
         "address_id": 923965,
         "name": "Tchoco Charly",
-        "cuisine": "dessert",
-        "tags": ["Chocolat", "Desserts"],
+        "cuisine": "drinks",
+        "tags": ["Chocolat", "Restaurant", "Goûter"],
         "delivery_time": "25-40 min",
     },
     {
