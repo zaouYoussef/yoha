@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db import models, transaction
 
 from apps.core.fields import EncryptedTextField
-from apps.core.finance import platform_net_mad, platform_profit_mad, service_fee_mad
+from apps.core.finance import platform_net_mad, platform_profit_mad, small_order_surcharge_mad
 
 
 class CourierProfile(models.Model):
@@ -190,6 +190,7 @@ class Order(models.Model):
             fee = Decimal("20.00")
         else:
             fee = Decimal("0.00")
+        fee = fee + small_order_surcharge_mad(subtotal)
         total = subtotal + fee
         order = cls.objects.create(
             public_id=cls.generate_public_id(),

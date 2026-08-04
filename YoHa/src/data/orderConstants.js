@@ -87,14 +87,18 @@ export function computeNet(totalDh) {
   return brut * PROFIT_NET_FACTOR;
 }
 
-/** Seuil au-delà duquel les frais de service passent au tarif élevé */
-export const SERVICE_FEE_THRESHOLD_MAD = 3000;
-export const SERVICE_FEE_LOW_MAD = 0;
-export const SERVICE_FEE_HIGH_MAD = 0;
-
-/** Frais de service checkout : 0 MAD par défaut pour les restaurants standard */
-export function getServiceFeeMad(subtotal) {
+/** Supplément petite commande — aucun minimum de commande. */
+export function getSmallOrderSurchargeMad(subtotal) {
+  const n = typeof subtotal === 'number' ? subtotal : parseFloat(subtotal);
+  if (!Number.isFinite(n) || n < 0) return 10;
+  if (n < 40) return 10;
+  if (n < 70) return 5;
   return 0;
+}
+
+/** @deprecated Utiliser getSmallOrderSurchargeMad */
+export function getServiceFeeMad(subtotal) {
+  return getSmallOrderSurchargeMad(subtotal);
 }
 
 /** Affiche un montant en dirhams (MAD) */

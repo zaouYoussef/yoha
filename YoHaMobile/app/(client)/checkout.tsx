@@ -34,6 +34,12 @@ const ADDRESSES = [
 
 const STATIC_SERVICE_FEE = 20;
 
+function smallOrderSurcharge(subtotal: number) {
+  if (subtotal < 40) return 10;
+  if (subtotal < 70) return 5;
+  return 0;
+}
+
 /** Créneau d'arrivée annoncé. Une promesse chiffrée rassure plus qu'un « rapide ». */
 function arrivalLabel(minutes: number) {
   const d = new Date(Date.now() + minutes * 60000);
@@ -57,8 +63,9 @@ export default function ClientCheckout() {
 
   const staticIds = useMemo(() => new Set(STATIC_STORES.map((s) => s.id)), []);
   const isStatic = !!restaurantId && staticIds.has(restaurantId);
-  const fee = isStatic ? STATIC_SERVICE_FEE : 0;
-  const total = subtotal + fee;
+  const deliveryFee = isStatic ? STATIC_SERVICE_FEE : 0;
+  const smallOrderFee = smallOrderSurcharge(subtotal);
+  const total = subtotal + deliveryFee + smallOrderFee;
   const eta = useMemo(() => arrivalLabel(45), []);
 
   const address = useMemo(() => {
@@ -238,10 +245,13 @@ export default function ClientCheckout() {
 
           <TotalRow label="Sous-total" value={subtotal} />
           {isStatic ? (
-            <TotalRow label="Frais de service" value={fee} />
+            <TotalRow label="Livraison" value={deliveryFee} />
           ) : (
             <TotalRow label="Livraison offerte" value={0} tone="discount" />
           )}
+          {smallOrderFee > 0 ? (
+            <TotalRow label="Supplément petite commande" value={smallOrderFee} />
+          ) : null}
           <TotalRow label="Total" value={total} tone="total" />
 
           {error ? (

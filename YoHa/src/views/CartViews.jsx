@@ -4,7 +4,7 @@ import React, { useEffect, Fragment } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { I } from '../icons/Icons.jsx';
 import { Button } from '../components/ui/Button.jsx';
-import { formatMad } from '../data/index.js';
+import { formatMad, getSmallOrderSurchargeMad } from '../data/index.js';
 import { MenuItemImage } from '../components/ui/MenuItemImage.jsx';
 import { Row } from '../components/ui/Row.jsx';
 import { useCart } from '../contexts/AppContexts.jsx';
@@ -123,8 +123,8 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                 const customItems = items.filter(i => i.isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes(i.restaurantCuisine));
                 const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
                 const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
-                const grandTotal = total + deliveryFee;
-                const isLimitBlocked = !isCustom && total < 40;
+                const smallOrderFee = getSmallOrderSurchargeMad(total);
+                const grandTotal = total + deliveryFee + smallOrderFee;
 
                 return (
                   <>
@@ -139,6 +139,12 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                       label="Frais de livraison" 
                       value={deliveryFee > 0 ? formatMad(deliveryFee) : 'Offerte ✨'} 
                     />
+                    {smallOrderFee > 0 && (
+                      <Row
+                        label="Supplément petite commande"
+                        value={formatMad(smallOrderFee)}
+                      />
+                    )}
                     <div className="border-t border-dashed border-ink-200 dark:border-ink-800 my-1"></div>
                     <Row 
                       label={<b className="text-base">Total</b>} 
@@ -152,10 +158,14 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                       } 
                     />
 
-                    {isLimitBlocked && (
+                    {smallOrderFee > 0 && (
                       <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2 animate-fade-up">
-                        <span className="text-sm">⚠️</span>
-                        <span>Le restaurant n&apos;accepte pas les commandes de moins de 40 DH. Ajoutez encore {formatMad(40 - total)}.</span>
+                        <span className="text-sm">ℹ️</span>
+                        <span>
+                          {total < 40
+                            ? 'Panier < 40 MAD : +10 MAD. Dès 40 MAD → +5 MAD, dès 70 MAD → aucun supplément.'
+                            : `Panier < 70 MAD : +5 MAD. Ajoutez ${formatMad(70 - total)} pour le supprimer.`}
+                        </span>
                       </div>
                     )}
                     {isCustom && (
@@ -170,7 +180,6 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                       variant="primary"
                       size="lg"
                       className="w-full justify-center btn-shimmer cta-brand border-0 shadow-glow"
-                      disabled={isLimitBlocked}
                     >
                       Passer commande · {isCustom 
                         ? (total > 0 ? `${formatMad(grandTotal)} + achats` : "20 DH + achats") 

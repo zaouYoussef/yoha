@@ -18,6 +18,22 @@ SERVICE_FEE_THRESHOLD = _d(getattr(settings, "YOHA_SERVICE_FEE_THRESHOLD_MAD", "
 DELIVERY_FEE = _d(getattr(settings, "YOHA_DELIVERY_FEE_MAD", "0.00"))
 NET_FACTOR = Decimal("0.99")
 
+# Supplément petite commande (sous-total plats)
+SMALL_ORDER_FEE_HIGH = Decimal("10.00")  # < 40 MAD
+SMALL_ORDER_FEE_MID = Decimal("5.00")  # 40–69 MAD
+SMALL_ORDER_THRESHOLD_LOW = Decimal("40.00")
+SMALL_ORDER_THRESHOLD_FREE = Decimal("70.00")
+
+
+def small_order_surcharge_mad(subtotal: Decimal) -> Decimal:
+    """Aucun minimum de commande — supplément si panier léger."""
+    s = _d(subtotal)
+    if s < SMALL_ORDER_THRESHOLD_LOW:
+        return SMALL_ORDER_FEE_HIGH
+    if s < SMALL_ORDER_THRESHOLD_FREE:
+        return SMALL_ORDER_FEE_MID
+    return Decimal("0.00")
+
 
 def service_fee_mad(subtotal: Decimal) -> Decimal:
     if subtotal > SERVICE_FEE_THRESHOLD:

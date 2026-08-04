@@ -61,26 +61,7 @@ export const CraveRoulette = React.memo(function CraveRoulette({ restaurants }: 
     if (!winner || !storedDetails) return;
     const price = Number(winner.item.price);
 
-    // Check minimum order rule (70 DH)
-    if (price < 70) {
-      addItem({
-        id: winner.item.id,
-        name: winner.item.name,
-        price: price,
-        img: winner.item.img,
-        restaurantId: winner.restaurant.slug,
-        restaurantName: winner.restaurant.name,
-      }, 1);
-      showToast(
-        'Ajouté au panier ! 🛒',
-        `Minimum 70 DH requis. Nous avons ajouté ${winner.item.name}. Ajoutez-en plus pour commander !`,
-        '⚠️'
-      );
-      setModalVisible(false);
-      hapticSuccess();
-      return;
-    }
-
+    // Aucun minimum — on peut commander directement (supplément appliqué côté serveur).
     setExpressLoading(true);
     try {
       const fullAddress = storedDetails.floor?.trim()

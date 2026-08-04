@@ -8,7 +8,7 @@ import { Row } from '../components/ui/Row.jsx';
 import { Card, CardHeader, Input, Loader } from '../components/checkout/CheckoutForms.jsx';
 import { TimeSlotPicker } from '../components/checkout/TimeSlotPicker.jsx';
 import { MenuItemImage } from '../components/ui/MenuItemImage.jsx';
-import { getServiceFeeMad, formatMad, CAMPUS_HOSPITALS } from '../data/index.js';
+import { getSmallOrderSurchargeMad, formatMad, CAMPUS_HOSPITALS } from '../data/index.js';
 import { useCart, useOrders } from '../contexts/AppContexts.jsx';
 
 export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) {
@@ -25,16 +25,14 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   const [appliedPromo, setAppliedPromo] = useState(null);
   const [promoErr, setPromoErr] = useState('');
 
-  const MIN_ORDER_TOTAL = 40;
+  // Aucun minimum de commande. Supplément petite commande selon sous-total.
+  // Livraison : 0 MAD restos / 20 MAD × boutiques sur-mesure.
   const isCustom = cart.some(i => i.isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes(i.restaurantCuisine));
   const customItems = cart.filter(i => i.isCustom || ['pharmacy', 'dessert', 'supermarket', 'shop', 'parapharmacy'].includes(i.restaurantCuisine));
   const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
   
-  // Structure tarifaire 100% livraison offerte partout :
-  // - Frais de livraison : 0.00 MAD (Offerts partout)
-  // - Frais de service : 9.99 MAD
   const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
-  const serviceFee = isCustom ? 0 : 9.99;
+  const smallOrderFee = getSmallOrderSurchargeMad(total);
   const isGroupOrder = !isCustom && total >= 200;
 
 
@@ -51,7 +49,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   const discountPct = appliedPromo ? (appliedPromo.discount || 0) : 0;
   const fixedDiscount = appliedPromo && appliedPromo.fixed_amount ? appliedPromo.fixed_amount : (appliedPromo?.code === 'YOHA50' ? 50 : 0);
   const discountAmount = fixedDiscount > 0 ? Math.min(total, fixedDiscount) : (discountPct > 0 ? Math.round(total * discountPct) / 100 : 0);
-  const grand = Math.max(0, total + deliveryFee + serviceFee - discountAmount);
+  const grand = Math.max(0, total + deliveryFee + smallOrderFee - discountAmount);
 
   const mainStoreName = cart[0]?.restaurantName || 'YoHa Partner';
 
@@ -229,10 +227,6 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
 
   const handleConfirm = async () => {
     setErr('');
-    if (!isCustom && total < MIN_ORDER_TOTAL) {
-      setErr(`Le restaurant n'accepte pas les commandes de moins de ${MIN_ORDER_TOTAL} DH. Ajoutez encore ${formatMad(MIN_ORDER_TOTAL - total)}.`);
-      return;
-    }
     const trimmedName = String(name || '').trim();
     if (!trimmedName || trimmedName.length < 2) {
       setErr('Indiquez votre nom pour la livraison.');
@@ -629,12 +623,12 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                 }
               />
               <Row
-                label="Frais de service"
+                label="Supplément petite commande"
                 value={
-                  serviceFee === 0 ? (
-                    <span className="text-emerald-600 dark:text-emerald-400 font-black">OFFERT 🎉</span>
+                  smallOrderFee === 0 ? (
+                    <span className="text-emerald-600 dark:text-emerald-400 font-black">Aucun</span>
                   ) : (
-                    <span className="text-ink-900 dark:text-white font-bold">{formatMad(serviceFee)}</span>
+                    <span className="text-ink-900 dark:text-white font-bold">{formatMad(smallOrderFee)}</span>
                   )
                 }
               />
@@ -660,10 +654,11 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                 />
               </div>
 
-              {/* Minimum Order Threshold Notice */}
-              {!isCustom && total < MIN_ORDER_TOTAL && (
-                <p className="text-xs text-rose-600 dark:text-rose-400 font-extrabold bg-rose-50 dark:bg-rose-950/50 p-3 rounded-2xl border border-rose-200 dark:border-rose-800">
-                  ⚠️ Minimum de commande : {MIN_ORDER_TOTAL} MAD. Ajoutez encore {formatMad(MIN_ORDER_TOTAL - total)} pour valider.
+              {smallOrderFee > 0 && (
+                <p className="text-xs text-ink-500 dark:text-ink-400 bg-ink-50 dark:bg-ink-900/40 p-3 rounded-2xl border border-ink-200/60 dark:border-ink-800">
+                  {total < 40
+                    ? `Panier < 40 MAD : +10 MAD. Dès 40 MAD → +5 MAD, dès 70 MAD → aucun supplément.`
+                    : `Panier < 70 MAD : +5 MAD. Ajoutez ${formatMad(70 - total)} pour supprimer le supplément.`}
                 </p>
               )}
 
@@ -744,7 +739,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                 <button
                   type="button"
                   onClick={handleConfirm}
-                  disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
+                  disabled={submitting}
                   className="w-full relative py-3.5 px-5 sm:px-6 rounded-xl cta-brand btn-shimmer active:scale-[0.99] text-white font-extrabold text-sm sm:text-base transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 border border-white/20"
                 >
                   {submitting ? (
@@ -787,7 +782,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
             <button
               type="button"
               onClick={handleConfirm}
-              disabled={submitting || (!isCustom && total < MIN_ORDER_TOTAL)}
+              disabled={submitting}
               className="min-w-0 flex-1 py-3.5 px-3 sm:px-4 rounded-xl cta-brand btn-shimmer text-white font-extrabold text-xs sm:text-sm active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer border border-white/20"
             >
               {submitting ? (
