@@ -54,7 +54,7 @@ export function OrderTrackingTimeline({ status = 'placed' }) {
                 <div
                   className={`w-11 h-11 rounded-2xl grid place-items-center shrink-0 transition-all duration-500 ${
                     current
-                      ? 'bg-gradient-to-br from-brand-500 to-pink-500 text-white shadow-glow scale-105'
+                      ? 'bg-brand-500 text-white shadow-md scale-105'
                       : done
                         ? 'bg-emerald-500 text-white'
                         : 'bg-ink-100 dark:bg-ink-800 text-ink-400'
@@ -100,7 +100,7 @@ export function OrderTrackingTimeline({ status = 'placed' }) {
                 <div
                   className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl grid place-items-center transition-all duration-500 ${
                     current
-                      ? 'bg-gradient-to-br from-brand-500 to-pink-500 text-white shadow-glow ring-4 ring-brand-500/25'
+                      ? 'bg-brand-500 text-white shadow-md ring-4 ring-brand-500/20'
                       : done
                         ? 'bg-emerald-500 text-white'
                         : 'bg-white dark:bg-ink-900 text-ink-400 border-2 border-ink-200 dark:border-ink-700'
