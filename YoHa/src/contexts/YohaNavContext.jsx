@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth, DASHBOARD_REQUIRED_ROLE, ROLE_LABELS, getStaffHomePath } from './AuthContext';
 import { useToast } from './AppContexts';
 import { browsePathForFilter } from '@/data/browseSlugs.js';
+import { softNavigate } from '@/utils/softNav.js';
 
 const NavCtx = createContext(null);
 
@@ -65,7 +66,7 @@ export function YohaNavProvider({ children }) {
 
       // Staff : jamais landing / browse / resto public — panel uniquement
       if (staffHome && CLIENT_SHOP_VIEWS.has(name)) {
-        router.push(staffHome);
+        softNavigate(router, staffHome);
         return;
       }
 
@@ -77,7 +78,7 @@ export function YohaNavProvider({ children }) {
             desc: 'Identifiez-vous pour accéder à cet espace professionnel.',
             type: 'default',
           });
-          router.push(buildPath('auth', { redirect: name }));
+          softNavigate(router, buildPath('auth', { redirect: name }));
           return;
         }
         if (effectiveUser.role !== need) {
@@ -86,14 +87,13 @@ export function YohaNavProvider({ children }) {
             desc: `Un compte « ${ROLE_LABELS[need] || need} » est nécessaire.`,
             type: 'default',
           });
-          router.push(buildPath('auth', { redirect: name }));
+          softNavigate(router, buildPath('auth', { redirect: name }));
           return;
         }
       }
 
       const path = buildPath(name, params);
-      // Succès : soft nav (prefetch déjà fait) — plus fluide qu'un full reload
-      router.push(path);
+      softNavigate(router, path);
     },
     [user, router, toast]
   );

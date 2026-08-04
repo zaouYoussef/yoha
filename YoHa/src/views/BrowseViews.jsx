@@ -23,6 +23,7 @@ import { browsePathForFilter, normalizeBrowseFilter } from '../data/browseSlugs.
 import { foldText } from '@/utils/textNormalize.js';
 import { publicRestaurantBio } from '@/utils/restaurantBio.js';
 import { OfferPushPrompt } from '../components/ui/OfferPushPrompt.jsx';
+import { softNavigate } from '@/utils/softNav.js';
 
 function shuffleWithSeed(array, seed) {
   if (!array || !array.length) return [];
@@ -439,7 +440,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       setFilter(next);
       const url = browsePathForFilter(next);
       if (typeof window !== 'undefined' && url !== window.location.pathname + window.location.search) {
-        router.push(url);
+        softNavigate(router, url);
       }
     },
     [router]

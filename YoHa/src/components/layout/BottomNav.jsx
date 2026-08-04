@@ -72,7 +72,7 @@ export function BNBtn({ active, onClick, icon, label, highlight, className = '' 
       type="button"
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
-      className={`cursor-grow relative flex flex-col items-center justify-center gap-0.5 px-1 transition-colors duration-200 active:scale-[0.94] ${
+      className={`cursor-grow relative flex flex-col items-center justify-center gap-0.5 px-1 transition-[color,transform] duration-200 ease-out active:scale-[0.92] ${
         active
           ? 'text-brand-600 dark:text-brand-400'
           : highlight
@@ -84,7 +84,7 @@ export function BNBtn({ active, onClick, icon, label, highlight, className = '' 
         <motion.span
           layoutId="bottom-nav-active"
           className="absolute inset-x-2.5 top-1.5 bottom-1.5 rounded-2xl bg-brand-500/[0.12] dark:bg-brand-500/20"
-          transition={{ type: 'spring', stiffness: 520, damping: 36 }}
+          transition={{ type: 'spring', stiffness: 420, damping: 32, mass: 0.6 }}
         />
       )}
       <span

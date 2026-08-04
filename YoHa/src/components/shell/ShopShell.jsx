@@ -11,6 +11,7 @@ import { useAuth, getStaffHomePath } from '@/contexts/AuthContext.jsx';
 import { useYohaNav } from '@/contexts/YohaNavContext.jsx';
 import { useCart, useToast, useOrders, CartUICtx } from '@/contexts/AppContexts.jsx';
 import { filterOrdersForClient } from '@/utils/clientOrders.js';
+import { softNavigate } from '@/utils/softNav.js';
 
 const CartSidebar = dynamic(
   () => import('@/views/CartViews.jsx').then((m) => ({ default: m.CartSidebar })),
@@ -69,7 +70,7 @@ export function ShopShell({ children, showCampus = false }) {
     const home = getStaffHomePath(user.role);
     if (!home) return;
     if (pathname === home || pathname.startsWith(`${home}/`)) return;
-    router.replace(home);
+    softNavigate(router, home, { method: 'replace' });
   }, [booting, user, pathname, router]);
 
   const staffHome = !booting && user ? getStaffHomePath(user.role) : null;
