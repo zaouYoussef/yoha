@@ -535,14 +535,17 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     });
   };
 
-  // Food partners from catalog (exclude pharmacies / supermarchés / shops only)
+  // Food partners for /browse (exclude pharmacies / shops / Ch'hiwat — pâtisserie only)
   const foodRestaurants = useMemo(() => {
     const nonFoodCuisines = ['pharmacy', 'parapharmacy', 'supermarket', 'shop'];
+    const browseExclude = new Set(['ch-hiwat-sans-gluten']);
     const seen = new Set();
     return catalog.filter((r) => {
       if (!r || !r.name) return false;
       if (nonFoodCuisines.includes(r.cuisine)) return false;
-      const key = r.id || r.name.toLowerCase().trim();
+      const id = String(r.id || r.slug || '');
+      if (browseExclude.has(id)) return false;
+      const key = id || r.name.toLowerCase().trim();
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
@@ -661,7 +664,8 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     const idOf = (r) => String(r?.id || r?.slug || '');
     const isDessert = (r) => r?.cuisine === 'dessert' || r?.cuisine === 'patisserie';
 
-    const fromApi = foodRestaurants.filter((r) => isDessert(r) && !DESSERT_EXCLUDE.has(idOf(r)));
+    // Catalogue complet (Ch'hiwat inclus) + static — pas foodRestaurants (exclu du browse restos)
+    const fromApi = (catalog || []).filter((r) => isDessert(r) && !DESSERT_EXCLUDE.has(idOf(r)));
     const fromStatic = STATIC_STORES.filter((s) => isDessert(s) && !DESSERT_EXCLUDE.has(idOf(s)));
     const seen = new Set(fromApi.map(idOf));
     const merged = [...fromApi, ...fromStatic.filter((s) => !seen.has(idOf(s)))];
@@ -676,7 +680,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       const ob = isRestaurantOpen(b) ? 0 : 1;
       return oa - ob;
     });
-  }, [foodRestaurants]);
+  }, [catalog]);
   const customPharmacy = useMemo(() => STATIC_STORES.find((s) => s.id === 'custom-pharmacy'), []);
   const chainsList = useMemo(() => STATIC_STORES.filter((s) => s.isChain), []);
   const pharmacyItems = useMemo(
