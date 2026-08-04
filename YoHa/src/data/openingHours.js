@@ -22,6 +22,28 @@ export const OPENING_DAY_LABELS = {
 
 const DEFAULT_SLOT = { is_closed: false, is_24h: false, open: '10:00', close: '23:00', slots: [] };
 const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
+const TZ = 'Africa/Casablanca';
+
+/** Instant « maintenant » en heure Maroc (aligné backend). */
+export function nowInCasablanca(at = new Date()) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: TZ,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).formatToParts(at);
+    const get = (type) => Number(parts.find((p) => p.type === type)?.value);
+    const hour = get('hour') % 24; // certains moteurs renvoient 24:00
+    return new Date(get('year'), get('month') - 1, get('day'), hour, get('minute'), get('second'));
+  } catch {
+    return at;
+  }
+}
 
 export function defaultOpeningHours() {
   return Object.fromEntries(OPENING_DAY_KEYS.map((day) => [day, { ...DEFAULT_SLOT, slots: [] }]));
@@ -102,15 +124,17 @@ function jsWeekdayToKey(date) {
 
 export function isRestaurantOpen(openingHours, at = new Date()) {
   const hours = normalizeOpeningHours(openingHours);
-  const key = jsWeekdayToKey(at);
+  const local = nowInCasablanca(at);
+  const key = jsWeekdayToKey(local);
   const day = hours[key];
-  const nowMinutes = at.getHours() * 60 + at.getMinutes();
+  const nowMinutes = local.getHours() * 60 + local.getMinutes();
   return dayIsOpen(day, nowMinutes);
 }
 
 function nextOpenLabel(hours, at) {
-  const startMinutes = at.getHours() * 60 + at.getMinutes();
-  const startJs = at.getDay();
+  const local = nowInCasablanca(at);
+  const startMinutes = local.getHours() * 60 + local.getMinutes();
+  const startJs = local.getDay();
   const startIdx = startJs === 0 ? 6 : startJs - 1;
 
   for (let offset = 0; offset < 8; offset += 1) {

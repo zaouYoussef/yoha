@@ -377,8 +377,12 @@ function FeaturedSpotlight({ restaurant, onClick }) {
                     🎁 {restaurant.promo}
                   </span>
                 )}
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">
-                  {open ? '● Ouvert' : '🔒 Fermé'}
+                <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                  open
+                    ? 'bg-emerald-500/20 text-emerald-200 border-emerald-400/30'
+                    : 'bg-amber-500/20 text-amber-100 border-amber-400/30'
+                }`}>
+                  {open ? '● Ouvert' : 'Fermé'}
                 </span>
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-white/90 border border-white/15">
                   <I.MapPin size={12} className="inline mr-1" />{restaurant.distance}
@@ -1411,8 +1415,8 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
       {/* Closed overlay */}
       {!open && (
         <div className="absolute inset-0 bg-ink-950/60 backdrop-blur-[2px] flex items-center justify-center z-10">
-          <span className="px-3.5 py-1.5 rounded-full bg-black/80 text-white text-xs font-black border border-white/20 shadow-xl uppercase tracking-wider">
-            🔒 Fermé
+          <span className="px-3.5 py-1.5 rounded-full bg-black/80 text-white text-xs font-bold border border-white/20 shadow-xl">
+            Fermé
           </span>
         </div>
       )}
@@ -2328,9 +2332,9 @@ export function RestaurantCard({ restaurant, onClick }) {
 
       {!open && (
         <div className="absolute inset-0 bg-ink-950/40 backdrop-blur-[2px] flex flex-col items-center justify-center text-white z-20">
-          <span className="bg-ink-950/75 border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-red-500" />
-            Fermé · Réouverture demain
+          <span className="bg-ink-950/75 border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide shadow-lg flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
+            Fermé
           </span>
         </div>
       )}

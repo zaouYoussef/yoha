@@ -90,7 +90,7 @@ export const RestaurantCard = React.memo(function RestaurantCard({
           ) : null}
           {!isOpen ? (
             <View style={styles.closedBadge}>
-              <Text style={styles.closedText}>🔒 Fermé</Text>
+              <Text style={styles.closedText}>Fermé</Text>
             </View>
           ) : null}
           {showFavorite ? (
@@ -124,7 +124,7 @@ export const RestaurantCard = React.memo(function RestaurantCard({
             ) : null}
           </View>
           {!isOpen ? (
-            <Text style={styles.closedHint} numberOfLines={1}>{openLabel}</Text>
+            <Text style={styles.closedHint}>Fermé</Text>
           ) : null}
           {(restaurant.tags || []).length > 0 ? (
             <View style={styles.tags}>
@@ -214,8 +214,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: radius.full,
+    maxWidth: 160,
   },
-  closedText: { fontSize: 10, fontFamily: fonts.bold, color: '#fff' },
+  closedText: { fontSize: 10, fontFamily: fonts.bold, color: '#fff', textAlign: 'center' },
   closedHint: { fontFamily: fonts.semibold, fontSize: 12, color: '#dc2626' },
   favBtn: { position: 'absolute', top: 12, right: 12 },
   favGrad: {
