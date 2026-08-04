@@ -24,6 +24,10 @@ SMALL_ORDER_FEE_MID = Decimal("5.00")  # 40–69 MAD
 SMALL_ORDER_THRESHOLD_LOW = Decimal("40.00")
 SMALL_ORDER_THRESHOLD_FREE = Decimal("70.00")
 
+# Frais de service checkout restos (en plus du supplément petite commande)
+CHECKOUT_SERVICE_FEE_MAD = _d(getattr(settings, "YOHA_CHECKOUT_SERVICE_FEE_MAD", "9.99"))
+GROUP_ORDER_FREE_SERVICE_MAD = _d(getattr(settings, "YOHA_GROUP_ORDER_THRESHOLD_MAD", "200"))
+
 
 def small_order_surcharge_mad(subtotal: Decimal) -> Decimal:
     """Aucun minimum de commande — supplément si panier léger."""
@@ -33,6 +37,15 @@ def small_order_surcharge_mad(subtotal: Decimal) -> Decimal:
     if s < SMALL_ORDER_THRESHOLD_FREE:
         return SMALL_ORDER_FEE_MID
     return Decimal("0.00")
+
+
+def checkout_service_fee_mad(subtotal: Decimal, *, is_custom: bool = False) -> Decimal:
+    """9,99 MAD sur les restos classiques ; offert dès 200 MAD (commande groupe)."""
+    if is_custom:
+        return Decimal("0.00")
+    if _d(subtotal) >= GROUP_ORDER_FREE_SERVICE_MAD:
+        return Decimal("0.00")
+    return CHECKOUT_SERVICE_FEE_MAD
 
 
 def service_fee_mad(subtotal: Decimal) -> Decimal:

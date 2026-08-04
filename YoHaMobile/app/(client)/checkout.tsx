@@ -64,8 +64,9 @@ export default function ClientCheckout() {
   const staticIds = useMemo(() => new Set(STATIC_STORES.map((s) => s.id)), []);
   const isStatic = !!restaurantId && staticIds.has(restaurantId);
   const deliveryFee = isStatic ? STATIC_SERVICE_FEE : 0;
+  const serviceFee = isStatic ? 0 : (subtotal >= 200 ? 0 : 9.99);
   const smallOrderFee = smallOrderSurcharge(subtotal);
-  const total = subtotal + deliveryFee + smallOrderFee;
+  const total = subtotal + deliveryFee + serviceFee + smallOrderFee;
   const eta = useMemo(() => arrivalLabel(45), []);
 
   const address = useMemo(() => {
@@ -249,6 +250,13 @@ export default function ClientCheckout() {
           ) : (
             <TotalRow label="Livraison offerte" value={0} tone="discount" />
           )}
+          {!isStatic ? (
+            <TotalRow
+              label="Frais de service"
+              value={serviceFee}
+              tone={serviceFee === 0 ? 'discount' : undefined}
+            />
+          ) : null}
           {smallOrderFee > 0 ? (
             <TotalRow label="Supplément petite commande" value={smallOrderFee} />
           ) : null}

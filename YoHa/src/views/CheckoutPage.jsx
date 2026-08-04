@@ -8,7 +8,7 @@ import { Row } from '../components/ui/Row.jsx';
 import { Card, CardHeader, Input, Loader } from '../components/checkout/CheckoutForms.jsx';
 import { TimeSlotPicker } from '../components/checkout/TimeSlotPicker.jsx';
 import { MenuItemImage } from '../components/ui/MenuItemImage.jsx';
-import { getSmallOrderSurchargeMad, formatMad, CAMPUS_HOSPITALS } from '../data/index.js';
+import { getSmallOrderSurchargeMad, getServiceFeeMad, formatMad, CAMPUS_HOSPITALS } from '../data/index.js';
 import { useCart, useOrders } from '../contexts/AppContexts.jsx';
 
 export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) {
@@ -34,6 +34,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
   const smallOrderFee = getSmallOrderSurchargeMad(total);
   const isGroupOrder = !isCustom && total >= 200;
+  const serviceFee = getServiceFeeMad(total, { isCustom });
 
 
   const cartSection = useMemo(() => {
@@ -49,7 +50,7 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
   const discountPct = appliedPromo ? (appliedPromo.discount || 0) : 0;
   const fixedDiscount = appliedPromo && appliedPromo.fixed_amount ? appliedPromo.fixed_amount : (appliedPromo?.code === 'YOHA50' ? 50 : 0);
   const discountAmount = fixedDiscount > 0 ? Math.min(total, fixedDiscount) : (discountPct > 0 ? Math.round(total * discountPct) / 100 : 0);
-  const grand = Math.max(0, total + deliveryFee + smallOrderFee - discountAmount);
+  const grand = Math.max(0, total + deliveryFee + serviceFee + smallOrderFee - discountAmount);
 
   const mainStoreName = cart[0]?.restaurantName || 'YoHa Partner';
 
@@ -619,6 +620,16 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                     <span className="text-emerald-600 dark:text-emerald-400 font-black">OFFERT 🚀</span>
                   ) : (
                     <span className="text-ink-900 dark:text-white font-bold">{formatMad(deliveryFee)}</span>
+                  )
+                }
+              />
+              <Row
+                label="Frais de service"
+                value={
+                  serviceFee === 0 ? (
+                    <span className="text-emerald-600 dark:text-emerald-400 font-black">OFFERT 🎉</span>
+                  ) : (
+                    <span className="text-ink-900 dark:text-white font-bold">{formatMad(serviceFee)}</span>
                   )
                 }
               />

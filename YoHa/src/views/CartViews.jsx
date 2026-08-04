@@ -4,7 +4,7 @@ import React, { useEffect, Fragment } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { I } from '../icons/Icons.jsx';
 import { Button } from '../components/ui/Button.jsx';
-import { formatMad, getSmallOrderSurchargeMad } from '../data/index.js';
+import { formatMad, getSmallOrderSurchargeMad, getServiceFeeMad } from '../data/index.js';
 import { MenuItemImage } from '../components/ui/MenuItemImage.jsx';
 import { Row } from '../components/ui/Row.jsx';
 import { useCart } from '../contexts/AppContexts.jsx';
@@ -124,7 +124,8 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                 const uniqueCustomShops = new Set(customItems.map(i => i.restaurantName?.trim().toLowerCase() || i.restaurantId));
                 const deliveryFee = isCustom ? uniqueCustomShops.size * 20 : 0;
                 const smallOrderFee = getSmallOrderSurchargeMad(total);
-                const grandTotal = total + deliveryFee + smallOrderFee;
+                const serviceFee = getServiceFeeMad(total, { isCustom });
+                const grandTotal = total + deliveryFee + serviceFee + smallOrderFee;
 
                 return (
                   <>
@@ -139,6 +140,12 @@ export function CartSidebar({ open, onClose, items, setQty, remove, total, onChe
                       label="Frais de livraison" 
                       value={deliveryFee > 0 ? formatMad(deliveryFee) : 'Offerte ✨'} 
                     />
+                    {!isCustom && (
+                      <Row
+                        label="Frais de service"
+                        value={serviceFee > 0 ? formatMad(serviceFee) : 'Offerts 🎉'}
+                      />
+                    )}
                     {smallOrderFee > 0 && (
                       <Row
                         label="Supplément petite commande"

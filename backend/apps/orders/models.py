@@ -6,7 +6,12 @@ from django.conf import settings
 from django.db import models, transaction
 
 from apps.core.fields import EncryptedTextField
-from apps.core.finance import platform_net_mad, platform_profit_mad, small_order_surcharge_mad
+from apps.core.finance import (
+    checkout_service_fee_mad,
+    platform_net_mad,
+    platform_profit_mad,
+    small_order_surcharge_mad,
+)
 
 
 class CourierProfile(models.Model):
@@ -186,11 +191,16 @@ class Order(models.Model):
 
         if custom_delivery_fee is not None:
             fee = Decimal(str(custom_delivery_fee))
+            is_custom = True
         elif restaurant.cuisine in ["medical", "dessert", "supermarket", "shop", "parapharmacy"]:
             fee = Decimal("20.00")
+            is_custom = True
         else:
             fee = Decimal("0.00")
-        fee = fee + small_order_surcharge_mad(subtotal)
+            is_custom = False
+        fee = fee + small_order_surcharge_mad(subtotal) + checkout_service_fee_mad(
+            subtotal, is_custom=is_custom
+        )
         total = subtotal + fee
         order = cls.objects.create(
             public_id=cls.generate_public_id(),

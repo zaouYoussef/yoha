@@ -87,6 +87,10 @@ export function computeNet(totalDh) {
   return brut * PROFIT_NET_FACTOR;
 }
 
+/** Frais de service checkout restos (en plus du supplément petite commande). */
+export const CHECKOUT_SERVICE_FEE_MAD = 9.99;
+export const GROUP_ORDER_FREE_SERVICE_MAD = 200;
+
 /** Supplément petite commande — aucun minimum de commande. */
 export function getSmallOrderSurchargeMad(subtotal) {
   const n = typeof subtotal === 'number' ? subtotal : parseFloat(subtotal);
@@ -96,9 +100,12 @@ export function getSmallOrderSurchargeMad(subtotal) {
   return 0;
 }
 
-/** @deprecated Utiliser getSmallOrderSurchargeMad */
-export function getServiceFeeMad(subtotal) {
-  return getSmallOrderSurchargeMad(subtotal);
+/** Frais de service 9,99 MAD — offert dès 200 MAD (groupe). 0 pour sur-mesure. */
+export function getServiceFeeMad(subtotal, { isCustom = false } = {}) {
+  if (isCustom) return 0;
+  const n = typeof subtotal === 'number' ? subtotal : parseFloat(subtotal);
+  if (Number.isFinite(n) && n >= GROUP_ORDER_FREE_SERVICE_MAD) return 0;
+  return CHECKOUT_SERVICE_FEE_MAD;
 }
 
 /** Affiche un montant en dirhams (MAD) */
