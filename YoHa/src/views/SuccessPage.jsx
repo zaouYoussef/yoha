@@ -30,6 +30,16 @@ function useNotificationPermission() {
   return { permitted, request };
 }
 
+/** Abonnement push unique : suivi commande + offres (côté serveur). */
+async function enableClientPush() {
+  try {
+    await subscribeWebPush();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const HERO = {
   placed:           { title: 'Commande confirmée', subtitle: 'On s’occupe de tout.', accent: 'from-brand-300 via-pink-400 to-violet-500' },
   pickup_confirmed: { title: 'Livreur en route', subtitle: 'Direction le restaurant.', accent: 'from-sky-200 via-sky-400 to-blue-500' },
@@ -515,6 +525,12 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   const { permitted: notifPermitted, request: requestNotif } = useNotificationPermission();
   const hasCartItems = cart.length > 0;
 
+  // Permission déjà OK → s'abonner silencieusement (suivi + offres)
+  useEffect(() => {
+    if (!notifPermitted) return;
+    enableClientPush();
+  }, [notifPermitted]);
+
   return (
     <div className="page-enter relative min-h-screen overflow-hidden bg-white dark:bg-ink-950">
       <Confetti active={status === 'placed'} />
@@ -528,13 +544,13 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
           {!notifPermitted && (
             <div className="mb-5 flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/15">
               <p className="text-[12px] font-medium text-white/80 flex-1">
-                Active les notifications pour le suivi live et les offres.
+                Active les notifications pour le suivi live.
               </p>
               <button
                 type="button"
                 onClick={async () => {
                   const ok = await requestNotif();
-                  if (ok) subscribeWebPush().catch(() => {});
+                  if (ok) enableClientPush();
                 }}
                 className="shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-lg bg-brand-500 text-white"
               >

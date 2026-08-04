@@ -22,7 +22,6 @@ import { pharmaciesApi } from '../lib/api.js';
 import { browsePathForFilter, normalizeBrowseFilter } from '../data/browseSlugs.js';
 import { foldText } from '@/utils/textNormalize.js';
 import { publicRestaurantBio } from '@/utils/restaurantBio.js';
-import { OfferPushPrompt } from '../components/ui/OfferPushPrompt.jsx';
 import { softNavigate } from '@/utils/softNav.js';
 
 function shuffleWithSeed(array, seed) {
@@ -973,7 +972,6 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
           {/* ═══ SMART INTELLIGENT RE-ORDER BANNER ═══ */}
           {!search && <SmartReorderBanner catalog={catalog} onPickRestaurant={onPickRestaurant} />}
-          {!search && <OfferPushPrompt />}
 
           {/* ═══ TOP TABS BAR (6 Main Services) ═══ */}
           {!search && (
