@@ -31,10 +31,10 @@ function useNotificationPermission() {
 }
 
 const HERO = {
-  placed:           { title: 'Commande confirmée', subtitle: 'On s’occupe de tout.', accent: 'from-orange-300 via-brand-400 to-orange-600' },
+  placed:           { title: 'Commande confirmée', subtitle: 'On s’occupe de tout.', accent: 'from-brand-300 via-pink-400 to-violet-500' },
   pickup_confirmed: { title: 'Livreur en route', subtitle: 'Direction le restaurant.', accent: 'from-sky-200 via-sky-400 to-blue-500' },
-  preparing:        { title: 'Commande prête', subtitle: 'Le restaurant a terminé.', accent: 'from-amber-200 via-orange-400 to-brand-600' },
-  delivering:       { title: 'En route vers toi', subtitle: 'Suivi live activé.', accent: 'from-orange-200 via-brand-400 to-orange-600' },
+  preparing:        { title: 'Commande prête', subtitle: 'Le restaurant a terminé.', accent: 'from-violet-200 via-pink-400 to-brand-500' },
+  delivering:       { title: 'En route vers toi', subtitle: 'Suivi live activé.', accent: 'from-pink-300 via-brand-400 to-violet-500' },
   delivered:        { title: 'Commande livrée', subtitle: 'Bon appétit.', accent: 'from-emerald-200 via-emerald-400 to-teal-500' },
 };
 
@@ -64,20 +64,30 @@ function progressFromGpsDistance(distanceKm, refMaxKm, step = 3) {
 
 function DeliveryWindowBanner({ liveEtaWindow, status }) {
   if (!liveEtaWindow || status === 'delivered') return null;
+  const delayed = Boolean(liveEtaWindow.delayed);
   return (
     <div className="mx-auto max-w-sm mt-5">
       <div className="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md px-4 py-3.5 flex items-center gap-3">
         <div className="min-w-0 flex-1">
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-orange-200/90">
-            Livraison estimée
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-pink-200/90">
+            {delayed ? 'Nouveau créneau' : 'Livraison estimée'}
           </div>
           <div className="font-display font-bold text-xl text-white tabular-nums tracking-tight mt-0.5">
             {liveEtaWindow.start} – {liveEtaWindow.end}
           </div>
+          {delayed && (
+            <p className="mt-2 text-[12px] leading-snug text-white/80">
+              Le livreur est proche — juste un peu de patience. Désolé pour l’attente.
+            </p>
+          )}
         </div>
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/25 shrink-0">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          Live
+        <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-full shrink-0 border ${
+          delayed
+            ? 'bg-amber-500/20 text-amber-100 border-amber-400/30'
+            : 'bg-emerald-500/20 text-emerald-200 border-emerald-400/25'
+        }`}>
+          <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${delayed ? 'bg-amber-300' : 'bg-emerald-400'}`} />
+          {delayed ? 'Bientôt' : 'Live'}
         </span>
       </div>
     </div>
@@ -194,7 +204,7 @@ function ProgressBarSection({ status, stepNum, displayedProgressPct, gpsCalculat
           style={{ width: `${Math.max(8, displayedProgressPct)}%` }}
         >
           <div
-            className={`h-full w-full ${liveMove ? 'yoha-snake-bar' : 'bg-gradient-to-r from-brand-500 to-orange-600'}`}
+            className={`h-full w-full ${liveMove ? 'yoha-snake-bar' : 'bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500'}`}
             aria-hidden
           />
           {liveMove && (
@@ -422,49 +432,26 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
     return clamp(Math.round(smartProgressPct * 10) / 10, 6, 98);
   }, [status, smartProgressPct]);
 
-  const storeCount = useMemo(() => {
-    if (!order?.items?.length) return 1;
-    const keys = new Set();
-    for (const it of order.items) {
-      const n = it.name || '';
-      const bracketed = n.match(/^\[(.+?)\]/);
-      const dashed = n.match(/^(.+?)\s+-\s+/);
-      if (bracketed) keys.add(`n:${bracketed[1].trim().toLowerCase()}`);
-      else if (dashed) keys.add(`n:${dashed[1].trim().toLowerCase()}`);
-      else {
-        const rid = it.restaurantId || it.restaurantName?.trim().toLowerCase();
-        if (rid) keys.add(`r:${rid}`);
-      }
-    }
-    return Math.max(1, keys.size);
-  }, [order]);
-  const isMultiStore = storeCount > 1;
-
   const liveEtaWindow = useMemo(() => {
     if (status === 'delivered') return null;
     const baseTime = order?.createdAt ? new Date(order.createdAt).getTime() : Date.now();
+    if (!Number.isFinite(baseTime)) return null;
     const fmt = (ms) => {
       const d = new Date(ms);
       return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     };
-    if (gpsCalculated) {
-      const remainingMs = (gpsCalculated.travelMins + (isMultiStore ? 15 : 0)) * 60 * 1000;
-      const arrivalTargetMs = nowMs + remainingMs;
-      return {
-        start: fmt(Math.max(nowMs, arrivalTargetMs - 3 * 60 * 1000)),
-        end: fmt(arrivalTargetMs + 7 * 60 * 1000),
-      };
+    // Créneau fixe : 45–60 min après la commande
+    let startMs = baseTime + 45 * 60 * 1000;
+    let endMs = baseTime + 60 * 60 * 1000;
+    let delayed = false;
+    // Dépassé et pas encore livré → +15 min et message « livreur proche »
+    while (nowMs > endMs && status !== 'delivered') {
+      startMs = endMs;
+      endMs += 15 * 60 * 1000;
+      delayed = true;
     }
-    const etaMin = isMultiStore ? 45 : 20;
-    const etaMax = isMultiStore ? 60 : 35;
-    let startMs = baseTime + etaMin * 60 * 1000;
-    let endMs = baseTime + etaMax * 60 * 1000;
-    while (nowMs > endMs - 2 * 60 * 1000 && status !== 'delivered') {
-      startMs += 10 * 60 * 1000;
-      endMs += 10 * 60 * 1000;
-    }
-    return { start: fmt(startMs), end: fmt(endMs) };
-  }, [order?.createdAt, status, nowMs, gpsCalculated, isMultiStore]);
+    return { start: fmt(startMs), end: fmt(endMs), delayed };
+  }, [order?.createdAt, status, nowMs]);
 
   useEffect(() => {
     if (!orderId) return undefined;
@@ -494,7 +481,7 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
       <section className="relative overflow-hidden bg-ink-950 text-white pb-10 sm:pb-12">
         <div
           aria-hidden
-          className="absolute inset-0 bg-[radial-gradient(80%_70%_at_20%_0%,rgba(249,115,22,0.38),transparent_55%),radial-gradient(60%_50%_at_90%_40%,rgba(234,88,12,0.2),transparent_50%)]"
+          className="absolute inset-0 bg-[radial-gradient(80%_70%_at_20%_0%,rgba(249,115,22,0.28),transparent_55%),radial-gradient(60%_50%_at_85%_35%,rgba(236,72,153,0.22),transparent_50%),radial-gradient(50%_40%_at_60%_90%,rgba(139,92,246,0.18),transparent_55%)]"
         />
         <div className="relative max-w-lg mx-auto px-4 pt-8 sm:pt-10">
           {!notifPermitted && (
@@ -576,7 +563,7 @@ export function Confetti({ active = true }) {
         left: Math.random() * 100,
         delay: Math.random() * 0.8,
         duration: 2 + Math.random() * 2,
-        color: ['#f97316', '#fb923c', '#ea580c', '#fdba74', '#fff7ed', '#f59e0b'][i % 6],
+        color: ['#f97316', '#ec4899', '#8b5cf6', '#fb923c', '#f472b6', '#a78bfa'][i % 6],
         rotate: Math.random() * 360,
         shape: i % 3,
         size: 4 + Math.random() * 6,

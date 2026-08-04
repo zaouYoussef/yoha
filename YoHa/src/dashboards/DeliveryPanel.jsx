@@ -145,6 +145,14 @@ function resolveRestaurantDisplayAddress(order, restaurants = []) {
   if (fromOrder) {
     return fromOrder.toLowerCase().includes('tanger') ? fromOrder : `${fromOrder}, Tanger, Maroc`;
   }
+  // Commandes sur-mesure / para / pâtisserie : adresse saisie dans customDetails
+  const fromCustom = (order?.items || [])
+    .map((it) => it?.customDetails?.storeAddress || it?.restaurantAddress || '')
+    .map((a) => String(a || '').trim())
+    .find((a) => a && !/^\d([.,]\d)?\s*km$/i.test(a) && a.length > 3);
+  if (fromCustom) {
+    return fromCustom.toLowerCase().includes('tanger') ? fromCustom : `${fromCustom}, Tanger, Maroc`;
+  }
   const { fromApi, fromStatic } = resolveRestaurantRecord(order, restaurants);
   const address = (fromApi?.address || fromStatic?.address || '').trim();
   if (address) {
@@ -155,7 +163,8 @@ function resolveRestaurantDisplayAddress(order, restaurants = []) {
     const sep = desc.includes('—') ? '—' : ' - ';
     const maybeAddr = desc.split(sep).slice(1).join(sep).trim();
     if (maybeAddr && maybeAddr.length > 8) {
-      return maybeAddr.toLowerCase().includes('tanger') ? maybeAddr : `${maybeAddr}, Tanger`;
+      const cleaned = maybeAddr.includes('. ') ? maybeAddr.split('. ')[0].trim() : maybeAddr;
+      return cleaned.toLowerCase().includes('tanger') ? cleaned : `${cleaned}, Tanger`;
     }
   }
   return '';

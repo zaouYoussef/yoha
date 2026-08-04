@@ -19,6 +19,7 @@ class CartLineInputSerializer(serializers.Serializer):
     item_name = serializers.CharField(required=False, allow_blank=True, default="")
     item_price = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, default=Decimal("0.00"))
     restaurant_name = serializers.CharField(required=False, allow_blank=True, default="")
+    restaurant_address = serializers.CharField(required=False, allow_blank=True, default="")
     item_options = serializers.ListField(
         child=serializers.CharField(max_length=120),
         required=False,
@@ -81,13 +82,18 @@ class CheckoutSerializer(serializers.Serializer):
         
         # Dynamically get or create Restaurant (e.g. for pharmacies & patisseries)
         restaurant = Restaurant.objects.filter(slug=slug, is_active=True).first()
+        restaurant_name = items_in[0].get("restaurant_name") or "Établissement"
+        if not restaurant_name or restaurant_name == "Établissement":
+            restaurant_name = slug.replace("-", " ").title()
+        restaurant_address = (items_in[0].get("restaurant_address") or "").strip()
+        # Description « Nom — adresse » pour l'itinéraire livreur (get_restaurantAddress).
+        address_description = (
+            f"{restaurant_name} — {restaurant_address}" if restaurant_address else ""
+        )
+
         if not restaurant:
-            restaurant_name = items_in[0].get("restaurant_name") or "Établissement"
-            if not restaurant_name or restaurant_name == "Établissement":
-                restaurant_name = slug.replace("-", " ").title()
-            
             cuisine = Restaurant.Cuisine.MEDICAL
-            if "dessert" in slug or "patisserie" in slug or "patiss" in slug:
+            if "dessert" in slug or "patisserie" in slug or "patiss" in slug or "boulangerie" in slug:
                 cuisine = Restaurant.Cuisine.DESSERT
             elif "pharmacy" in slug or "medical" in slug or "pharma" in slug:
                 cuisine = Restaurant.Cuisine.MEDICAL
@@ -97,13 +103,17 @@ class CheckoutSerializer(serializers.Serializer):
                 cuisine = Restaurant.Cuisine.SHOP
             elif "parapharmacy" in slug or "parapharma" in slug:
                 cuisine = Restaurant.Cuisine.PARAPHARMACY
-                
+
             restaurant = Restaurant.objects.create(
                 slug=slug,
                 name=restaurant_name,
                 cuisine=cuisine,
+                description=address_description,
                 is_active=True,
             )
+        elif address_description and not (restaurant.description or "").strip():
+            restaurant.description = address_description
+            restaurant.save(update_fields=["description"])
 
         # Get or create MenuCategory
         category, _ = MenuCategory.objects.get_or_create(
@@ -331,6 +341,11 @@ class OrderSerializer(serializers.ModelSerializer):
         desc = (obj.restaurant.description or "").strip()
         if "—" in desc:
             addr = desc.split("—", 1)[1].strip(" ,")
+            # Strip trailing marketing sentence after period if present
+            if ". " in addr:
+                first = addr.split(". ", 1)[0].strip(" ,")
+                if len(first) > 8:
+                    addr = first
             if addr:
                 return addr
         if " - " in desc:

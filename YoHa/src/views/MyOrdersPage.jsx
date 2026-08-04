@@ -126,7 +126,7 @@ function OrderCard({ order, onOpenOrder, onReorder, featured = false }) {
                 <h3 className="font-display font-bold text-lg sm:text-xl truncate text-ink-950 dark:text-white tracking-tight">
                   {order.restaurantName}
                 </h3>
-                <p className="text-[12px] text-ink-400 mt-0.5 font-mono">#{order.id}</p>
+                <p className="text-[12px] text-ink-400 mt-0.5">#{order.id}</p>
               </div>
               <OrderStatusBadge status={order.status} />
             </div>

@@ -13,7 +13,7 @@ import { Tilt } from '../components/ui/Tilt.jsx';
 import { useYohaNav } from '../contexts/YohaNavContext.jsx';
 import { spotlightHandler } from '../utils/spotlight.js';
 import { formatMad, restaurantOpenStatus } from '../data/index.js';
-import { MenuItemImage, restaurantCover, restaurantLogo } from '../components/ui/MenuItemImage.jsx';
+import { MenuItemImage, restaurantCover } from '../components/ui/MenuItemImage.jsx';
 import { MenuItemDetailModal } from '../components/ui/MenuItemDetailModal.jsx';
 import { withItemOfferPricing, offerScopeLabel } from '../utils/restaurantOffers.js';
 import PlaceAutocomplete from '../components/ui/PlaceAutocomplete.jsx';
@@ -286,35 +286,49 @@ const CATEGORY_GLOW = {
 
 function BrowseHero({ name, search, onSearchChange, openCount, totalCount }) {
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden bg-ink-950 text-white">
       <div
         aria-hidden
-        className="absolute inset-0 bg-[radial-gradient(120%_80%_at_0%_0%,rgba(249,115,22,0.22),transparent_55%),radial-gradient(90%_70%_at_100%_10%,rgba(236,72,153,0.16),transparent_50%),radial-gradient(70%_60%_at_50%_100%,rgba(139,92,246,0.12),transparent_55%)] dark:bg-[radial-gradient(120%_80%_at_0%_0%,rgba(249,115,22,0.28),transparent_55%),radial-gradient(90%_70%_at_100%_10%,rgba(236,72,153,0.18),transparent_50%),radial-gradient(70%_60%_at_50%_100%,rgba(139,92,246,0.2),transparent_55%)]"
+        className="browse-hero-mesh absolute inset-0 pointer-events-none"
       />
-      <div className="absolute inset-0 bg-white/55 dark:bg-ink-950/70 pointer-events-none" aria-hidden />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,rgba(2,6,23,0.55)_100%)] pointer-events-none"
+      />
+      <div
+        aria-hidden
+        className="absolute -right-16 top-[-20%] w-[55%] h-[140%] opacity-[0.14] pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(closest-side at 40% 40%, rgba(249,115,22,0.9), transparent 70%), radial-gradient(closest-side at 70% 60%, rgba(236,72,153,0.7), transparent 68%)',
+        }}
+      />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-6 sm:pt-8 sm:pb-8">
-        <div className="flex items-center justify-between gap-3 mb-5">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-ink-900 text-white dark:bg-white dark:text-ink-950 text-xs font-bold shadow-sm">
-            <I.MapPin size={13} />
-            Alliance · CHU
-          </div>
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            {openCount} ouverts
-            {totalCount ? <span className="text-ink-400 font-semibold">/ {totalCount}</span> : null}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-8 sm:pt-10 sm:pb-11">
+        <h1 className="font-display font-black tracking-tight leading-[0.92] max-w-3xl">
+          <span className="block text-gradient text-glow text-[clamp(2.75rem,9vw,5.25rem)]">
+            YoHa
           </span>
-        </div>
-
-        <h1 className="font-display font-black tracking-tight text-[2.15rem] sm:text-4xl lg:text-5xl leading-[1.05] text-ink-900 dark:text-white max-w-3xl">
-          <span className="block text-gradient text-[0.72em] sm:text-[0.78em] mb-1">YoHa</span>
-          {timeGreeting()}, {name}
+          <span className="mt-3 block text-[1.35rem] sm:text-2xl lg:text-3xl text-white/95 font-bold tracking-tight">
+            {timeGreeting()}, {name}
+          </span>
         </h1>
-        <p className="mt-2.5 text-sm sm:text-base text-ink-500 dark:text-ink-400 max-w-xl">
-          Livraison offerte · frais offerts sur toute l&apos;Alliance Tangéroise
+        <p className="mt-3 text-sm sm:text-base text-white/65 max-w-xl leading-relaxed">
+          Livraison offerte sur toute l&apos;Alliance Tangéroise
+          <span className="text-white/35"> · </span>
+          Alliance · CHU
+          {openCount != null && (
+            <>
+              <span className="text-white/35"> · </span>
+              <span className="text-emerald-300/90 font-semibold">
+                {openCount} ouverts
+                {totalCount ? ` / ${totalCount}` : ''}
+              </span>
+            </>
+          )}
         </p>
 
-        <div className="mt-5 sm:mt-6">
+        <div className="mt-6 sm:mt-7 max-w-2xl">
           <SearchBar value={search} onChange={onSearchChange} variant="hero" />
         </div>
       </div>
@@ -323,60 +337,57 @@ function BrowseHero({ name, search, onSearchChange, openCount, totalCount }) {
 }
 
 function FeaturedSpotlight({ restaurant, onClick }) {
+  if (!restaurant) return null;
   const tags = Array.isArray(restaurant.tags) ? restaurant.tags : [];
   const open = isRestaurantOpen(restaurant);
 
   return (
     <Reveal>
-      <Tilt max={3} className="rounded-[2rem]">
+      <Tilt max={2.5} className="rounded-[1.75rem] sm:rounded-[2rem]">
         <button
           type="button"
           onClick={onClick}
-          className="cursor-grow group relative w-full text-left overflow-hidden rounded-[2rem] border border-brand-500/20 shadow-glow-lg transition-shadow duration-500 hover:shadow-glow card-glow-hover"
-          style={{ '--glow-color': 'rgba(249,115,22,0.45)' }}
+          className="cursor-grow group relative w-full text-left overflow-hidden rounded-[1.75rem] sm:rounded-[2rem] border border-white/10 shadow-[0_28px_70px_-32px_rgba(15,23,42,0.65)] transition-shadow duration-500 hover:shadow-glow"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/80 to-transparent z-10" />
           <img
             src={restaurantCover(restaurant.cover)}
             alt=""
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.1s] ease-out group-hover:scale-[1.06]"
           />
-          {/* Animated gradient mesh visible only on hover */}
-          <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.15)_0%,rgba(236,72,153,0.1)_30%,transparent_50%)] animate-rotate-slow pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/75 to-ink-950/20 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-transparent to-transparent z-10" />
+          <div className="card-shine absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-          <div className="relative z-20 flex flex-col sm:flex-row sm:items-end justify-between gap-6 p-6 sm:p-8 min-h-[220px] sm:min-h-[260px] w-full">
-            <div className="max-w-xl">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-gradient-to-r from-brand-500 via-pink-500 to-brand-600 text-white border border-white/25 shadow-[0_0_15px_rgba(249,115,22,0.4)] animate-border-glow">
-                <I.Flame size={12} className="animate-pulse text-yellow-300" /> Coup de cœur
-              </span>
-              <h3 className="mt-4 font-display font-black text-2xl sm:text-4xl text-white tracking-tight leading-none text-glow-slow">{restaurant.name}</h3>
-              <p className="mt-2 text-sm sm:text-base text-white/75 line-clamp-2">{formatTags(tags, ' · ')}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {restaurant.promo && (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/15 backdrop-blur-md text-white border border-white/20">
-                    🎁 {restaurant.promo}
-                  </span>
-                )}
-                <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
-                  open
-                    ? 'bg-emerald-500/20 text-emerald-200 border-emerald-400/30'
-                    : 'bg-amber-500/20 text-amber-100 border-amber-400/30'
-                }`}>
-                  {open ? '● Ouvert' : 'Fermé'}
+          <div className="relative z-20 flex flex-col sm:flex-row sm:items-end justify-between gap-5 p-5 sm:p-7 min-h-[200px] sm:min-h-[240px] w-full">
+            <div className="max-w-xl min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-300">
+                Coup de cœur
+              </p>
+              <h3 className="mt-2 font-display font-black text-2xl sm:text-[2.35rem] text-white tracking-tight leading-[0.98] truncate">
+                {restaurant.name}
+              </h3>
+              <p className="mt-2 text-sm text-white/70 line-clamp-2">{formatTags(tags, ' · ')}</p>
+              <div className="mt-3.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-white/75">
+                <span className={open ? 'text-emerald-300' : 'text-amber-200'}>
+                  {open ? 'Ouvert' : 'Fermé'}
                 </span>
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-white/90 border border-white/15">
-                  <I.MapPin size={12} className="inline mr-1" />{restaurant.distance}
-                </span>
+                {restaurant.distance ? (
+                  <>
+                    <span className="text-white/25">·</span>
+                    <span>{restaurant.distance}</span>
+                  </>
+                ) : null}
+                {restaurant.promo ? (
+                  <>
+                    <span className="text-white/25">·</span>
+                    <span className="text-pink-200">{restaurant.promo}</span>
+                  </>
+                ) : null}
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto sm:shrink-0">
-              <div className="hidden sm:flex w-14 h-14 rounded-2xl overflow-hidden border-2 border-white/90 shadow-lg bg-white shrink-0">
-                <img src={restaurantLogo(restaurant.logo)} alt="" className="w-full h-full object-cover" />
-              </div>
-              <span className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-ink-900 font-extrabold text-sm group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors shadow-xl w-full sm:w-auto border border-white/20 select-none">
-                Voir le menu <I.Right size={16} />
-              </span>
-            </div>
+            <span className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white font-extrabold text-sm shadow-glow w-full sm:w-auto shrink-0 btn-sweep select-none">
+              Voir le menu <I.Right size={16} />
+            </span>
           </div>
         </button>
       </Tilt>
@@ -850,13 +861,14 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
       prioritizedFoodRestaurants.length > 0 && (
         <section key="all-grid" className="px-4 sm:px-0">
-          <div className="mb-4">
-            <h2 className="font-display font-bold text-lg sm:text-xl text-ink-900 dark:text-white tracking-tight">
+          <div className="mb-5">
+            <h2 className="font-display font-black text-xl sm:text-2xl text-ink-950 dark:text-white tracking-tight">
               Tous les restaurants
             </h2>
-            <p className="text-xs text-ink-500 dark:text-ink-400 mt-1 font-medium">
+            <p className="text-xs sm:text-[13px] text-ink-500 dark:text-ink-400 mt-1 font-medium">
               {openRail.length} ouvert{openRail.length > 1 ? 's' : ''} · {prioritizedFoodRestaurants.length} au total
             </p>
+            <div className="mt-2.5 h-1 w-11 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {prioritizedFoodRestaurants.map((r, i) => (
@@ -885,16 +897,16 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     <div className="page-enter">
       <BrowseHero name={name} search={search} onSearchChange={setSearch} openCount={openCount} totalCount={catalog.length} />
 
-      <div className="bg-white dark:bg-ink-950 overflow-x-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-6 sm:space-y-7 stagger-children">
+      <div className="bg-white dark:bg-ink-950 overflow-x-hidden browse-grid-bg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 sm:py-7 space-y-7 sm:space-y-9 stagger-children">
 
           {/* ═══ SMART INTELLIGENT RE-ORDER BANNER ═══ */}
           {!search && <SmartReorderBanner catalog={catalog} onPickRestaurant={onPickRestaurant} />}
 
           {/* ═══ TOP TABS BAR (6 Main Services) ═══ */}
           {!search && (
-            <div className="border-b border-ink-100 dark:border-ink-800 -mx-4 px-4 sm:mx-0 sm:px-0 mb-1 overflow-x-auto no-scrollbar">
-              <div className="flex items-center gap-6 text-sm font-bold text-ink-600 dark:text-ink-300 min-w-max">
+            <div className="border-b border-ink-100/80 dark:border-ink-800/80 -mx-4 px-4 sm:mx-0 sm:px-0 mb-1 overflow-x-auto no-scrollbar">
+              <div className="flex items-center gap-6 text-sm font-bold text-ink-500 dark:text-ink-400 min-w-max">
                 {[
                   { id: 'all', label: 'Restos 🍔' },
                   { id: 'pharmacy', label: 'Pharmacies 💊' },
@@ -909,15 +921,15 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                       key={tab.id}
                       type="button"
                       onClick={() => applyFilter(tab.id)}
-                      className={`py-3 relative transition-colors ${
-                        active ? 'text-brand-600 dark:text-brand-400 font-extrabold' : 'hover:text-ink-900 dark:hover:text-white'
+                      className={`py-3.5 relative transition-colors ${
+                        active ? 'text-ink-950 dark:text-white font-extrabold' : 'hover:text-ink-900 dark:hover:text-white'
                       }`}
                     >
                       <span>{tab.label}</span>
                       {active && (
                         <motion.span
                           layoutId="browse-tab-underline"
-                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 rounded-full"
+                          className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 rounded-full"
                           transition={{ type: 'spring', stiffness: 520, damping: 40 }}
                         />
                       )}
@@ -926,6 +938,14 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                 })}
               </div>
             </div>
+          )}
+
+          {/* ═══ SPOTLIGHT ═══ */}
+          {isDefault && featuredList[0] && (
+            <FeaturedSpotlight
+              restaurant={featuredList[0]}
+              onClick={() => onPickRestaurant(featuredList[0])}
+            />
           )}
 
           {/* ═══ 🔥 OFFRES — IMAGE PROMO BANNERS CAROUSEL ═══ */}
@@ -1212,23 +1232,26 @@ function HorizontalRow({ title, subtitle, count, children, onSeeAll }) {
       <section className="px-4 sm:px-0">
         <div className="flex items-end justify-between gap-3 mb-4">
           <div className="min-w-0">
-            <h2 className="font-display font-bold text-lg sm:text-xl text-ink-900 dark:text-white tracking-tight leading-snug">{title}</h2>
+            <h2 className="font-display font-black text-xl sm:text-2xl text-ink-950 dark:text-white tracking-tight leading-snug">
+              {title}
+            </h2>
             {subtitle && (
-              <p className="text-xs text-ink-500 dark:text-ink-400 mt-1 font-medium">{subtitle}</p>
+              <p className="text-xs sm:text-[13px] text-ink-500 dark:text-ink-400 mt-1 font-medium">{subtitle}</p>
             )}
+            <div className="mt-2.5 h-1 w-11 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
           </div>
           {count > 0 && onSeeAll && (
             <button
               type="button"
               onClick={onSeeAll}
-              className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-brand-500 hover:underline cursor-pointer flex items-center gap-1 active:scale-95 transition-transform shrink-0 mb-0.5"
+              className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-pink-500 cursor-pointer flex items-center gap-1 active:scale-95 transition-all shrink-0 mb-0.5"
             >
               <span>Tout voir ({count})</span>
-              <span>→</span>
+              <span aria-hidden>→</span>
             </button>
           )}
         </div>
-        <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 snap-x snap-mandatory">
+        <div className="browse-rail flex gap-3.5 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 snap-x snap-mandatory">
           {children}
         </div>
       </section>
@@ -1319,24 +1342,26 @@ export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
   };
 
   return (
-    <div className="w-full mb-3 animate-fade-up">
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-ink-950 via-slate-900 to-ink-950 text-white p-3.5 sm:p-5 shadow-xl border border-brand-500/40">
-        <div className="absolute -right-10 -bottom-10 w-44 h-44 bg-brand-500/10 rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute -left-12 -top-12 w-32 h-32 bg-pink-500/10 rounded-full blur-2xl pointer-events-none" />
+    <div className="w-full mb-1 animate-fade-up">
+      <div className="relative overflow-hidden rounded-[1.35rem] sm:rounded-[1.6rem] bg-ink-950 text-white p-4 sm:p-5 shadow-[0_22px_50px_-24px_rgba(15,23,42,0.55)] border border-white/10">
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[radial-gradient(80%_80%_at_0%_0%,rgba(249,115,22,0.28),transparent_55%),radial-gradient(70%_70%_at_100%_100%,rgba(236,72,153,0.2),transparent_50%)]"
+        />
         
         <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-500 to-pink-500 flex items-center justify-center text-xl sm:text-2xl shrink-0 shadow-lg shadow-brand-500/20">
-              ⚡
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-brand-500 via-pink-500 to-violet-500 flex items-center justify-center text-lg sm:text-xl shrink-0 shadow-glow">
+              ↻
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] sm:text-xs text-brand-300 font-extrabold uppercase tracking-wider block">
+              <span className="text-[10px] sm:text-xs text-pink-200/90 font-extrabold uppercase tracking-[0.16em] block">
                 Votre dernière commande
               </span>
-              <h3 className="font-display font-black text-sm sm:text-lg text-white truncate leading-tight">
-                Recommander chez <span className="text-amber-300 font-extrabold">{storeName}</span> ?
+              <h3 className="font-display font-black text-sm sm:text-lg text-white truncate leading-tight mt-0.5">
+                Recommander chez <span className="text-gradient">{storeName}</span> ?
               </h3>
-              <p className="text-[11px] sm:text-xs text-ink-300 truncate max-w-md font-medium mt-0.5">
+              <p className="text-[11px] sm:text-xs text-white/55 truncate max-w-md font-medium mt-0.5">
                 {itemsSummary}
               </p>
             </div>
@@ -1346,17 +1371,17 @@ export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
             <button
               type="button"
               onClick={handleReorderCheckout}
-              className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 text-white font-extrabold text-xs shadow-glow hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+              className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 text-white font-extrabold text-xs shadow-glow hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center btn-sweep"
             >
-              <span>⚡ Recommander {totalAmount > 0 ? `(${totalAmount.toFixed(2)} MAD)` : ''}</span>
+              <span>Recommander {totalAmount > 0 ? `(${totalAmount.toFixed(2)} MAD)` : ''}</span>
             </button>
 
             <button
               type="button"
               onClick={handleNewOrder}
-              className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-xs hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center truncate"
+              className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/16 text-white border border-white/20 font-bold text-xs active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center truncate"
             >
-              <span>🍽️ Nouvelle commande chez {storeName}</span>
+              <span>Nouvelle commande chez {storeName}</span>
             </button>
           </div>
         </div>
@@ -1384,28 +1409,27 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      className="cursor-grow card-glow-hover group relative shrink-0 w-[78vw] max-w-[300px] sm:w-[270px] lg:w-[290px] h-[240px] sm:h-[250px] snap-center overflow-hidden rounded-[1.4rem] sm:rounded-2xl border border-ink-200/60 dark:border-white/[0.08] bg-ink-950 shadow-[0_18px_40px_-20px_rgba(15,23,42,0.5)] hover:shadow-cardhover transition-[box-shadow,border-color,filter] duration-500 active:brightness-95"
+      className="cursor-grow card-glow-hover group relative shrink-0 w-[82vw] max-w-[320px] sm:w-[280px] lg:w-[300px] h-[260px] sm:h-[270px] snap-center overflow-hidden rounded-[1.55rem] sm:rounded-[1.65rem] border border-ink-200/50 dark:border-white/[0.08] bg-ink-950 shadow-[0_22px_48px_-22px_rgba(15,23,42,0.55)] hover:shadow-[0_28px_56px_-20px_rgba(249,115,22,0.28)] transition-[box-shadow,border-color,filter] duration-500 active:brightness-95"
     >
       <img
         src={restaurantCover(restaurant.cover)}
         alt={restaurant.name}
         loading="lazy"
-        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08] ${
+        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.1] ${
           restaurant.coverBlend === 'screen' ? 'mix-blend-screen' : ''
         } ${
           !open ? 'filter blur-[2px] grayscale opacity-50' : ''
         }`}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/5" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/10" />
+      <div className="card-shine absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-      {/* Time Badge */}
-      <div className="absolute top-2.5 right-2.5 z-10">
-        <span className="px-2.5 py-1 rounded-full bg-white text-ink-950 font-extrabold text-xs shadow-md">
+      <div className="absolute top-3 right-3 z-10">
+        <span className="px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white font-bold text-[11px] shadow-sm tabular-nums">
           {restaurant.eta || '45-60 min'}
         </span>
       </div>
 
-      {/* Closed overlay */}
       {!open && (
         <div className="absolute inset-0 bg-ink-950/60 backdrop-blur-[2px] flex items-center justify-center z-10">
           <span className="px-3.5 py-1.5 rounded-full bg-black/80 text-white text-xs font-bold border border-white/20 shadow-xl">
@@ -1414,35 +1438,33 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
         </div>
       )}
 
-      {/* Contenu ancré en bas, sur le voile */}
-      <div className="absolute inset-x-0 bottom-0 p-3.5 flex flex-col gap-1 text-left text-white z-10">
-        <h3 className="font-extrabold text-base truncate transition-colors group-hover:text-brand-400">
+      <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col gap-1 text-left text-white z-10">
+        <h3 className="font-display font-black text-[1.05rem] sm:text-lg truncate tracking-tight transition-colors group-hover:text-brand-300">
           {restaurant.name}
         </h3>
 
         <div className="flex items-center gap-1.5 text-xs text-white/75 font-medium truncate">
           {restaurant.isChain ? (
-            <span className="text-brand-400 font-bold">⚡ Rapide</span>
+            <span className="text-brand-300 font-bold">Livraison express</span>
           ) : isService || isCustom ? null : (
             <>
               <span className="text-amber-300 font-extrabold">★</span>
               <span className="font-bold text-white">{(restaurant.rating ?? 4.4).toString().replace('.', ',')}</span>
-              <span>·</span>
-              <span>{restaurant.distance || '—'}</span>
-              <span>·</span>
-              <span className="text-brand-300 font-bold">⚡ Rapide</span>
+              {restaurant.distance ? (
+                <>
+                  <span className="text-white/30">·</span>
+                  <span>{restaurant.distance}</span>
+                </>
+              ) : null}
             </>
           )}
         </div>
 
         <div className="flex items-center gap-1.5 text-xs mt-0.5 font-bold">
           {isCustom || isService ? (
-            <span className="text-amber-400 text-[11px]">20 MAD de livraison</span>
+            <span className="text-pink-300 text-[11px]">20 MAD de livraison</span>
           ) : (
-            <>
-              <span className="line-through text-white/40 font-normal">19,99 MAD</span>
-              <span className="text-emerald-400 font-bold">0,00 MAD livraison</span>
-            </>
+            <span className="text-emerald-400 font-bold">Livraison offerte</span>
           )}
         </div>
       </div>
@@ -1481,7 +1503,7 @@ export function SearchBar({ value, onChange, variant = 'default' }) {
           isHero
             ? focused
               ? 'bg-white dark:bg-ink-950 border-brand-500 dark:border-brand-500'
-              : 'bg-white/95 dark:bg-ink-900/90 backdrop-blur-md border-white/30 dark:border-ink-800'
+              : 'bg-white border-white/20 shadow-xl'
             : focused
               ? 'bg-white dark:bg-ink-950 border-brand-500 dark:border-brand-500'
               : 'bg-white dark:bg-ink-900 border-ink-200 dark:border-ink-800'
@@ -2803,16 +2825,16 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
           <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-600 dark:text-brand-400">
             Exclusivités
           </p>
-          <h2 className="font-display font-black text-[1.65rem] sm:text-3xl text-ink-900 dark:text-white tracking-tight leading-none mt-1">
+          <h2 className="font-display font-black text-[1.75rem] sm:text-3xl text-ink-950 dark:text-white tracking-tight leading-none mt-1">
             Juste pour toi
           </h2>
-          <div className="mt-2.5 h-1.5 w-14 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 shadow-glow" />
+          <div className="mt-2.5 h-1 w-12 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500 shadow-glow" />
         </div>
         <button
           type="button"
           onClick={scrollNext}
           aria-label="Suivant"
-          className="hidden sm:grid place-items-center w-11 h-11 rounded-2xl bg-white dark:bg-ink-900 border border-ink-100 dark:border-ink-800 text-brand-600 shadow-card hover:scale-105 active:scale-95 transition"
+          className="hidden sm:grid place-items-center w-11 h-11 rounded-2xl bg-ink-950 text-white dark:bg-white dark:text-ink-950 shadow-card hover:scale-105 active:scale-95 transition"
         >
           →
         </button>

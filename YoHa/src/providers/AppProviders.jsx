@@ -431,6 +431,10 @@ function triggerClientNotification(title, body, orderId) {
           item_price: i.price,
           item_options: (i.options || []).map((o) => o.name),
           restaurant_name: i.restaurantName,
+          restaurant_address:
+            i.restaurantAddress
+            || i.customDetails?.storeAddress
+            || '',
         })),
         customer_name: customer.name,
         customer_email: customer.email || undefined,
@@ -444,7 +448,9 @@ function triggerClientNotification(title, body, orderId) {
       try {
         order = await ordersApi.checkout(payload);
       } catch (err) {
-        const generatedId = `yh-${Math.floor(100000 + Math.random() * 900000)}`;
+        const a = 1000 + Math.floor(Math.random() * 9000);
+        const b = 1000 + Math.floor(Math.random() * 9000);
+        const generatedId = `YH-${a}-${b}`;
         const storeName = cartItems[0]?.restaurantName || 'YoHa Partner';
         order = {
           id: generatedId,
@@ -716,6 +722,7 @@ function triggerClientNotification(title, body, orderId) {
               qty: 1,
               restaurantId: restaurant.id,
               restaurantName: restaurant.name,
+              restaurantAddress: restaurant.address || '',
             },
           ];
         });

@@ -129,11 +129,11 @@ class Order(models.Model):
 
     @classmethod
     def generate_public_id(cls) -> str:
-        """Identifiant public non énumérable — ex. YH-K7M2QX9P4R."""
-        alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+        """Numéro client lisible — ex. YH-8472-9136 (8 chiffres, ~100M combinaisons)."""
         for _ in range(48):
-            body = "".join(secrets.choice(alphabet) for _ in range(10))
-            candidate = f"YH-{body}"
+            a = secrets.randbelow(9000) + 1000  # 1000–9999
+            b = secrets.randbelow(9000) + 1000
+            candidate = f"YH-{a}-{b}"
             if not cls.objects.filter(public_id=candidate).exists():
                 return candidate
         raise RuntimeError("Impossible de générer un numéro de commande unique.")
