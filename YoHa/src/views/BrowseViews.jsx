@@ -743,14 +743,14 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
   const cuisineRails = useMemo(() => {
     const rails = [
-      { key: 'burger', title: '🍔 Burgers', subtitle: 'Smash, double cheese & frites', list: burgerList, filterId: 'burgers_sec' },
-      { key: 'pizza', title: '🍕 Pizzas', subtitle: 'Napolitaines & recettes italiennes', list: pizzaList, filterId: 'pizzas_sec' },
-      { key: 'asian', title: '🍣 Asian & Sushi', subtitle: 'Maki, nigiri, pad thaï & ramen', list: asianList, filterId: 'asian_sec' },
-      { key: 'kebab', title: '🥙 Shawarma & Kebab', subtitle: 'Grillades & sauces maison', list: kebabList, filterId: 'kebab_sec' },
-      { key: 'tacos', title: '🌮 Tacos & Wraps', subtitle: 'French tacos & wraps gourmands', list: tacosList, filterId: 'tacos_sec' },
-      { key: 'sandwich', title: '🥪 Sandwichs & Snacks', subtitle: 'Chauds, paninis & snacks', list: sandwichList, filterId: 'sandwich_sec' },
-      { key: 'healthy', title: '🥗 Bowls & Healthy', subtitle: 'Salades, bowls & MedEat', list: healthyList, filterId: 'healthy_sec' },
-      { key: 'chicken', title: '🍗 Poulet & Crispy', subtitle: 'Tenders, wings & poulet rôti', list: chickenList, filterId: 'chicken_sec' },
+      { key: 'burger', title: 'Burgers', subtitle: `${burgerList.length} restaurants`, list: burgerList, filterId: 'burgers_sec' },
+      { key: 'pizza', title: 'Pizzas', subtitle: `${pizzaList.length} restaurants`, list: pizzaList, filterId: 'pizzas_sec' },
+      { key: 'asian', title: 'Asian & Sushi', subtitle: `${asianList.length} restaurants`, list: asianList, filterId: 'asian_sec' },
+      { key: 'kebab', title: 'Shawarma & Kebab', subtitle: `${kebabList.length} restaurants`, list: kebabList, filterId: 'kebab_sec' },
+      { key: 'tacos', title: 'Tacos & Wraps', subtitle: `${tacosList.length} restaurants`, list: tacosList, filterId: 'tacos_sec' },
+      { key: 'sandwich', title: 'Sandwichs & Snacks', subtitle: `${sandwichList.length} restaurants`, list: sandwichList, filterId: 'sandwich_sec' },
+      { key: 'healthy', title: 'Bowls & Healthy', subtitle: `${healthyList.length} restaurants`, list: healthyList, filterId: 'healthy_sec' },
+      { key: 'chicken', title: 'Poulet & Crispy', subtitle: `${chickenList.length} restaurants`, list: chickenList, filterId: 'chicken_sec' },
     ].filter((rail) => (rail.list || []).length > 0);
 
     // Prefers rails that still have open restos, then shuffle.
@@ -769,8 +769,8 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       openRail.length > 0 && (
         <HorizontalRow
           key="open-now"
-          title="🟢 Disponibles maintenant"
-          subtitle={`${openRail.length} resto${openRail.length > 1 ? 's' : ''} prêt${openRail.length > 1 ? 's' : ''} à te livrer`}
+          title="Disponibles maintenant"
+          subtitle={`${openRail.length} restaurant${openRail.length > 1 ? 's' : ''}`}
           count={openRail.length}
         >
           {openRail.map((r) => (
@@ -782,8 +782,8 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       chainsList.length > 0 && (
         <HorizontalRow
           key="chains"
-          title="🍟 Les grandes enseignes"
-          subtitle="McDonald's, KFC, Pizza Hut… on achète pour vous"
+          title="Les grandes enseignes"
+          subtitle={`${chainsList.length} restaurant${chainsList.length > 1 ? 's' : ''}`}
           count={chainsList.length}
         >
           {chainsList.map((r) => (
@@ -795,8 +795,8 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       topRail.length > 0 && (
         <HorizontalRow
           key="top"
-          title="🌟 Coups de cœur notés"
-          subtitle="Les meilleures notes — sans doublon"
+          title="Coups de cœur"
+          subtitle={`${topRail.length} restaurant${topRail.length > 1 ? 's' : ''}`}
           count={topRail.length}
           onSeeAll={() => applyFilter('top_rated')}
         >
@@ -809,8 +809,8 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       promoRail.length > 0 && (
         <HorizontalRow
           key="promo"
-          title="🎁 Offres du moment"
-          subtitle="Promos actives près de l'Alliance"
+          title="Offres du moment"
+          subtitle={`${promoRail.length} restaurant${promoRail.length > 1 ? 's' : ''}`}
           count={promoRail.length}
           onSeeAll={() => applyFilter('offers')}
         >
@@ -823,8 +823,8 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       discoverRail.length > 0 && (
         <HorizontalRow
           key="discover"
-          title="✨ À découvrir"
-          subtitle="D'autres adresses de la flotte YoHa"
+          title="À découvrir"
+          subtitle={`${discoverRail.length} restaurant${discoverRail.length > 1 ? 's' : ''}`}
           count={discoverRail.length}
         >
           {discoverRail.map((r) => (
@@ -850,16 +850,12 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
       prioritizedFoodRestaurants.length > 0 && (
         <section key="all-grid" className="px-4 sm:px-0">
           <div className="mb-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400 mb-1">
-              Catalogue
-            </p>
-            <h2 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white tracking-tight">
+            <h2 className="font-display font-bold text-lg sm:text-xl text-ink-900 dark:text-white tracking-tight">
               Tous les restaurants
             </h2>
-            <p className="text-xs text-ink-500 dark:text-ink-400 mt-1.5 font-medium">
-              {openRail.length} ouvert{openRail.length > 1 ? 's' : ''} · {prioritizedFoodRestaurants.length} au total · ouverts en premier
+            <p className="text-xs text-ink-500 dark:text-ink-400 mt-1 font-medium">
+              {openRail.length} ouvert{openRail.length > 1 ? 's' : ''} · {prioritizedFoodRestaurants.length} au total
             </p>
-            <div className="mt-2.5 h-1 w-11 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {prioritizedFoodRestaurants.map((r, i) => (
@@ -1215,14 +1211,10 @@ function HorizontalRow({ title, subtitle, count, children, onSeeAll }) {
       <section className="px-4 sm:px-0">
         <div className="flex items-end justify-between gap-3 mb-4">
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400 mb-1">
-              Sélection
-            </p>
-            <h2 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white tracking-tight leading-none">{title}</h2>
+            <h2 className="font-display font-bold text-lg sm:text-xl text-ink-900 dark:text-white tracking-tight leading-snug">{title}</h2>
             {subtitle && (
-              <p className="text-xs text-ink-500 dark:text-ink-400 mt-1.5 font-medium">{subtitle}</p>
+              <p className="text-xs text-ink-500 dark:text-ink-400 mt-1 font-medium">{subtitle}</p>
             )}
-            <div className="mt-2.5 h-1 w-11 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
           </div>
           {count > 0 && onSeeAll && (
             <button
@@ -1816,13 +1808,9 @@ export function RestaurantPage({ restaurant, onBack, onAdd }) {
           {populaires.length > 0 && (
             <section className="mb-11">
               <div className="px-4 sm:px-0 mb-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-600 dark:text-brand-400">
-                  Sélection
-                </p>
-                <h2 className="mt-1 font-display font-black text-2xl sm:text-3xl text-ink-900 dark:text-white tracking-tight">
+                <h2 className="font-display font-bold text-lg sm:text-xl text-ink-900 dark:text-white tracking-tight">
                   Populaires
                 </h2>
-                <div className="mt-2 h-1 w-12 rounded-full bg-gradient-to-r from-brand-500 via-pink-500 to-violet-500" />
               </div>
               <div className="flex gap-3.5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-1 px-4 sm:px-0">
                 {populaires.map((it, i) => (
