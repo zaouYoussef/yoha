@@ -66,6 +66,44 @@ export const STATIC_STORES = [
   },
 
   {
+    id: 'ch-hiwat-sans-gluten',
+    name: 'Ch\'hiwat Sans Gluten',
+    cuisine: 'dessert',
+    rating: 4.6,
+    reviewsCount: 49,
+    distance: '2.6 km',
+    eta: '45-60 min',
+    fee: '20 DH',
+    cover: '/chain-img/patisserie-chhiwat-sans-gluten.jpg',
+    logo: '🧁',
+    description: 'Ch\'hiwat Sans Gluten — A côté Masjid Badr, Tanger 90000. Pâtisserie sans gluten, livraison express sur toute la ville.',
+    address: 'A côté Masjid Badr, Tanger 90000',
+    phone: '06 12 81 69 17',
+    tags: ["Ch'hiwat", "Sans gluten", "Pâtisserie"],
+    isOpen: true,
+    isStatic: true
+  },
+
+  {
+    id: 'patisserie-royal',
+    name: 'Pâtisserie Royal',
+    cuisine: 'dessert',
+    rating: 4.2,
+    reviewsCount: 456,
+    distance: '2.8 km',
+    eta: '45-60 min',
+    fee: '20 DH',
+    cover: '/chain-img/patisserie-royal.jpg',
+    logo: '🧁',
+    description: 'Pâtisserie Royal — Résidence Al-Ferdaous، N° 04 Av. Marrakech, Tangier 90060. Pâtisserie de qualité, livraison express sur toute la ville.',
+    address: 'Résidence Al-Ferdaous، N° 04 Av. Marrakech, Tangier 90060',
+    phone: '05 39 35 64 85',
+    tags: ["Royal", "Pâtisserie"],
+    isOpen: true,
+    isStatic: true
+  },
+
+  {
     id: 'patisserie-fath',
     name: 'Pâtisserie Fath',
     cuisine: 'dessert',
@@ -536,24 +574,6 @@ export const STATIC_STORES = [
     description: 'Maison Framboise — 5, rue zalaqa, rés. annasr mag1, Tangier 90000, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
     address: '5, rue zalaqa, rés. annasr mag1, Tangier 90000, Maroc',
     tags: ["Maison","Framboise"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'patisserie-royal',
-    name: 'Pâtisserie Royal',
-    cuisine: 'dessert',
-    rating: 4.2,
-    reviewsCount: 456,
-    distance: '2.8 km',
-    eta: '45-60 min',
-    fee: '20 DH',
-    cover: 'https://lh3.googleusercontent.com/gps-cs-s/AHRPTWktyOJYz0J3eX6BQsVkAeSfr7J3QqB21rbVXLENKG9gj695VUioLBv35j6izxka3o9uylOKCKJd_v-i8jBtl-pBACf4L0XF1x6-WpR3-wGSGQKap4QU7bfwl0fFptgN5372Cv8s=w426-h240-k-no',
-    logo: '🧁',
-    description: 'Pâtisserie Royal — Résidence Al-Ferdaous، N° 04 Av. Marrakech, Tangier 90060, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'Résidence Al-Ferdaous، N° 04 Av. Marrakech, Tangier 90060, Maroc',
-    tags: ["Royal"],
     isOpen: true,
     isStatic: true
   },
@@ -1449,24 +1469,6 @@ export const STATIC_STORES = [
     description: 'Panadería Bab Al Madina — 28 Rue d\'Italie, Tangier, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
     address: '28 Rue d\'Italie, Tangier, Maroc',
     tags: ["Panaderia","Bab","Al","Madina"],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'ch-hiwat-sans-gluten',
-    name: 'Ch\'hiwat Sans Gluten',
-    cuisine: 'dessert',
-    rating: 4.6,
-    reviewsCount: 49,
-    distance: '2.6 km',
-    eta: '45-60 min',
-    fee: '20 DH',
-    cover: 'https://lh3.googleusercontent.com/gps-cs-s/AHRPTWmPKPADOvhrnXB7CscS-PwCtJxogc_5QkyPciQdf37fX-XoW91uIPmbl8pzceC2sdnx4ZYDw_fR2IFyO45NYw4hlLRV5WMfaWTyDRY-ySGP3jg-mqsnqpk8Y0o4xKxYRyi9Y9TQ=w533-h240-k-no',
-    logo: '🧁',
-    description: 'Ch\'hiwat Sans Gluten — A côté Masjid Badr, Tanger 90000, Maroc, Tanger. Pâtisserie de qualité, livraison express sur toute la ville.',
-    address: 'A côté Masjid Badr, Tanger 90000, Maroc',
-    tags: ["Ch hiwat","Sans","Gluten"],
     isOpen: true,
     isStatic: true
   },

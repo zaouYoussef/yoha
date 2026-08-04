@@ -10,6 +10,8 @@
   cover: string;
   logo: string;
   description: string;
+  address?: string;
+  phone?: string;
   tags: string[];
   isOpen: boolean;
   isStatic: boolean;
@@ -78,6 +80,44 @@ export const STATIC_STORES: StaticStore[] = [
     isOpen: true,
     isStatic: true,
     isCustomRequest: true
+  },
+
+  {
+    id: 'ch-hiwat-sans-gluten',
+    name: 'Ch\'hiwat Sans Gluten',
+    cuisine: 'dessert',
+    rating: 4.6,
+    reviewsCount: 49,
+    distance: '2.6 km',
+    eta: '45-60 min',
+    fee: '20 DH',
+    cover: '/chain-img/patisserie-chhiwat-sans-gluten.jpg',
+    logo: '🧁',
+    description: 'Ch\'hiwat Sans Gluten — A côté Masjid Badr, Tanger 90000. Pâtisserie sans gluten, livraison express sur toute la ville.',
+    address: 'A côté Masjid Badr, Tanger 90000',
+    phone: '06 12 81 69 17',
+    tags: ["Ch'hiwat", 'Sans gluten', 'Pâtisserie'],
+    isOpen: true,
+    isStatic: true
+  },
+
+  {
+    id: 'patisserie-royal',
+    name: 'Pâtisserie Royal',
+    cuisine: 'dessert',
+    rating: 4.2,
+    reviewsCount: 456,
+    distance: '2.8 km',
+    eta: '45-60 min',
+    fee: '20 DH',
+    cover: '/chain-img/patisserie-royal.jpg',
+    logo: '🧁',
+    description: 'Pâtisserie Royal — Résidence Al-Ferdaous، N° 04 Av. Marrakech, Tangier 90060. Pâtisserie de qualité, livraison express sur toute la ville.',
+    address: 'Résidence Al-Ferdaous، N° 04 Av. Marrakech, Tangier 90060',
+    phone: '05 39 35 64 85',
+    tags: ['Royal', 'Pâtisserie'],
+    isOpen: true,
+    isStatic: true
   },
 
   {
@@ -178,23 +218,6 @@ export const STATIC_STORES: StaticStore[] = [
     logo: '🎪',
     description: 'Pâtisserie Al Afrah 1978 — situé 33 Rue de la Kasbah. Pâtisserie de qualité à Tanger.',
     tags: ['Al Afrah', 'Kasbah', '1978', 'Traditionnel'],
-    isOpen: true,
-    isStatic: true
-  },
-
-  {
-    id: 'patisserie-royal',
-    name: 'Pâtisserie Royal',
-    cuisine: 'dessert',
-    rating: 4.3,
-    reviewsCount: 182,
-    distance: '1 km',
-    eta: '45-60 min',
-    fee: '20 DH',
-    cover: 'https://images.unsplash.com/photo-1579372786545-d24232daf58c?w=800&auto=format&fit=crop&q=80',
-    logo: '👑',
-    description: 'Pâtisserie Royal — situé Résidence Al-Ferdaous, Av. Marrakech. Pâtisserie de qualité à Tanger.',
-    tags: ['Royal', 'Al-Ferdaous', 'Marrakech', 'Douceurs'],
     isOpen: true,
     isStatic: true
   },
