@@ -126,13 +126,13 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
       aria-modal="true"
       aria-labelledby="menu-item-detail-title"
     >
-      {/* Avec sauces/suppléments : grande feuille. Sans : hauteur auto (pas de vide). */}
+      {/* Avec sauces : grande feuille. Sans : image ~75 %, contenu compact en bas. */}
       <div
         onClick={(e) => e.stopPropagation()}
         className={`relative flex flex-col w-full sm:max-w-lg bg-white dark:bg-ink-900 rounded-t-[28px] sm:rounded-3xl shadow-2xl shadow-brand-500/10 border border-ink-200/70 dark:border-ink-800 ring-gradient overflow-hidden animate-slide-up sm:animate-scale-in sm:h-auto sm:max-h-[88vh] ${
           hasModifiers
             ? 'h-[min(92dvh,92vh)]'
-            : 'h-auto max-h-[min(92dvh,92vh)]'
+            : 'h-[min(88dvh,88vh)] sm:h-auto'
         }`}
       >
         <button
@@ -144,8 +144,14 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
           <I.X size={18} />
         </button>
 
-        <div className={`min-h-0 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] ${hasModifiers ? 'flex-1' : ''}`}>
-          <div className={`relative overflow-hidden bg-ink-100 dark:bg-ink-950 shrink-0 ${hasModifiers ? 'h-40 sm:h-52' : 'h-36 sm:h-44'}`}>
+        <div className={`min-h-0 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] ${hasModifiers ? 'flex-1' : 'flex flex-col flex-1 sm:flex-none sm:overflow-visible'}`}>
+          <div
+            className={`relative overflow-hidden bg-ink-100 dark:bg-ink-950 shrink-0 ${
+              hasModifiers
+                ? 'h-40 sm:h-52'
+                : 'h-[75%] min-h-[280px] sm:h-56 sm:min-h-0'
+            }`}
+          >
             <MenuItemImage
               src={item.img}
               alt={item.name}
@@ -162,7 +168,7 @@ export function MenuItemDetailModal({ item, restaurant, onClose, onAdd, ordering
             </div>
           </div>
 
-          <div className="px-4 sm:px-5 pt-3 pb-4 space-y-4">
+          <div className={`px-4 sm:px-5 pt-3 pb-4 space-y-4 ${hasModifiers ? '' : 'shrink-0'}`}>
             <div>
               {restaurant?.name ? (
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-400">
