@@ -66,11 +66,15 @@ def media_url(file_key: str) -> str:
 
 
 def pick_image(file_key: str, thumb_key: str, fallback_url: str, *, prefer_thumb: bool = False) -> str:
+    from apps.restaurants.cdn_images import publicize_image_url
+
     if prefer_thumb and thumb_key:
-        return media_url(thumb_key)
-    if file_key:
-        return media_url(file_key)
-    return fallback_url or ""
+        url = media_url(thumb_key)
+    elif file_key:
+        url = media_url(file_key)
+    else:
+        url = fallback_url or ""
+    return publicize_image_url(url) if url else ""
 
 
 class MenuItemModifierOptionSerializer(serializers.ModelSerializer):

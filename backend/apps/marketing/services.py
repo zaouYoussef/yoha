@@ -72,6 +72,8 @@ def pick_featured_restaurant(rotation_index: int) -> Restaurant:
 
 
 def pick_featured_items(restaurant: Restaurant, limit: int = 3) -> list[dict]:
+    from apps.restaurants.cdn_images import absolute_public_image_url
+
     items = (
         MenuItem.objects.filter(restaurant=restaurant, is_available=True)
         .order_by("sort_order", "id")[:limit]
@@ -81,13 +83,15 @@ def pick_featured_items(restaurant: Restaurant, limit: int = 3) -> list[dict]:
             "name": it.name,
             "desc": it.description,
             "price": f"{it.price_mad:.2f}".replace(".", ","),
-            "img": it.image_url or "",
+            "img": absolute_public_image_url(it.image_url or "") if it.image_url else "",
         }
         for it in items
     ]
 
 
 def build_promo_context(*, restaurant: Restaurant, campaign_key: str) -> dict:
+    from apps.restaurants.cdn_images import absolute_public_image_url
+
     others = (
         Restaurant.objects.filter(is_active=True)
         .exclude(pk=restaurant.pk)
@@ -100,7 +104,7 @@ def build_promo_context(*, restaurant: Restaurant, campaign_key: str) -> dict:
             "name": restaurant.name,
             "slug": restaurant.slug,
             "promo": restaurant.promo_label or "Livraison offerte campus",
-            "cover": restaurant.cover_url or restaurant.logo_url or "",
+            "cover": absolute_public_image_url(restaurant.cover_url or restaurant.logo_url or ""),
             "eta": "45–60 min",
         },
         "featured_items": pick_featured_items(restaurant),
@@ -109,7 +113,7 @@ def build_promo_context(*, restaurant: Restaurant, campaign_key: str) -> dict:
                 "name": r.name,
                 "slug": r.slug,
                 "promo": r.promo_label or "Livraison offerte",
-                "cover": r.cover_url or r.logo_url or "",
+                "cover": absolute_public_image_url(r.cover_url or r.logo_url or ""),
             }
             for r in others
         ],

@@ -185,7 +185,7 @@ class OrderLineSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source="item_name")
     price = serializers.DecimalField(source="unit_price_mad", max_digits=10, decimal_places=2)
     qty = serializers.IntegerField(source="quantity")
-    img = serializers.CharField(source="image_url")
+    img = serializers.SerializerMethodField()
     restaurantId = serializers.SerializerMethodField()
     restaurantName = serializers.SerializerMethodField()
     options = serializers.SerializerMethodField()
@@ -198,6 +198,11 @@ class OrderLineSerializer(serializers.ModelSerializer):
         if obj.menu_item_id and obj.menu_item:
             return obj.menu_item.external_id
         return f"line-{obj.pk}"
+
+    def get_img(self, obj):
+        from apps.restaurants.cdn_images import publicize_image_url
+
+        return publicize_image_url(obj.image_url or "")
 
     def get_restaurantId(self, obj):
         if obj.order_id and obj.order.restaurant_id:

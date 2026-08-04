@@ -43,6 +43,10 @@ def format_line_price_text(line) -> str:
 def _abs_url(path: str) -> str:
     if not path:
         return ""
+    from apps.restaurants.cdn_images import absolute_public_image_url, needs_cdn_proxy
+
+    if needs_cdn_proxy(path) or ("dhmedia.io" in path.lower()):
+        return absolute_public_image_url(path)
     if path.startswith("http://") or path.startswith("https://"):
         return path
     base = getattr(settings, "YOHA_FRONTEND_URL", "http://localhost:3002").rstrip("/")

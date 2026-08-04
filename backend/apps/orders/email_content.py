@@ -79,11 +79,13 @@ def get_offers(*, exclude_restaurant_id=None, limit: int = 3) -> list[dict]:
     for r in qs[: limit * 2]:
         promo = (r.promo_label or "").strip() or "Livraison offerte sur le campus"
         cover = r.cover_url or r.logo_url or ""
+        from apps.restaurants.cdn_images import absolute_public_image_url
+
         offers.append(
             {
                 "name": r.name,
                 "promo": promo,
-                "cover": cover,
+                "cover": absolute_public_image_url(cover) if cover else "",
                 "slug": r.slug,
                 "eta": "45–60 min",
             }
@@ -129,6 +131,10 @@ def build_context(order: Order, status: str) -> dict | None:
 def _abs_url(path: str) -> str:
     if not path:
         return ""
+    from apps.restaurants.cdn_images import absolute_public_image_url, needs_cdn_proxy
+
+    if needs_cdn_proxy(path) or ("dhmedia.io" in path.lower()):
+        return absolute_public_image_url(path)
     if path.startswith("http://") or path.startswith("https://"):
         return path
     base = getattr(settings, "YOHA_FRONTEND_URL", "http://localhost:3002").rstrip("/")

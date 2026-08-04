@@ -21,11 +21,21 @@ export function getSmartFallback(cuisine?: string): string {
   return UNSPLASH_FALLBACKS[key] || UNSPLASH_FALLBACKS.default;
 }
 
+function isLeakedPartnerCdn(url: string): boolean {
+  const low = url.toLowerCase();
+  const hints = ['dhm' + 'edia.io', 'deliv' + 'eryhero.io', 'glo' + 'voapp.com', 'cloudfront.net', 'd52ouboplz7yg'];
+  return hints.some((h) => low.includes(h));
+}
+
 export function resolveImageUrl(url?: string | null, cuisine?: string): string {
   if (!url || typeof url !== 'string' || !url.trim()) {
     return resolveImageUrl(getSmartFallback(cuisine), cuisine);
   }
   let trimmed = url.trim();
+  // Ne jamais charger une CDN partenaire en direct (API doit renvoyer /api/v1/media/i/…).
+  if (isLeakedPartnerCdn(trimmed) && !trimmed.includes('/api/v1/media/i/')) {
+    return resolveImageUrl(getSmartFallback(cuisine), cuisine);
+  }
   if (trimmed.startsWith('http://127.0.0.1:8000') || trimmed.startsWith('http://localhost:8000')) {
     trimmed = trimmed.replace(/^http:\/\/(127\.0\.0\.1|localhost):8000/, 'https://yoha.ma');
   } else if (trimmed.startsWith('/')) {

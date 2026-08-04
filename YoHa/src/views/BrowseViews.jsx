@@ -2242,15 +2242,15 @@ export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = f
   );
 }
 
-/** Boutiques sans menu Glovo (sur-mesure / listing statique). */
+/** Boutiques sans menu sync (sur-mesure / listing statique). */
 const SERVICE_CUISINES = ['pharmacy', 'parapharmacy', 'supermarket', 'shop'];
-/** Pâtisseries du listing Google Maps — pas les desserts Glovo (Kunafita, Crumby…). */
+/** Pâtisseries du listing Google Maps — pas les desserts partenaires catalogue. */
 const STATIC_DESSERT_CUISINES = ['dessert', 'patisserie'];
 
 function isServiceStore(r) {
   if (!r || r.isCustomRequest) return false;
   if (SERVICE_CUISINES.includes(r.cuisine)) return true;
-  // Restos dessert Glovo (menu + rating + distance) = cartes partenaires normales
+  // Restos dessert catalogue (menu + rating + distance) = cartes partenaires normales
   if (STATIC_DESSERT_CUISINES.includes(r.cuisine) && r.isStatic) return true;
   return false;
 }

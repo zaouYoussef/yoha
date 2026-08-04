@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { fixGlovoImageUrl } from './MenuItemImage.jsx';
+import { normalizeMenuImageUrl } from './MenuItemImage.jsx';
 
 /**
  * Upload d’image vers l’API YoHa (multipart).
@@ -23,7 +23,7 @@ export function ImageUpload({
   const [error, setError] = useState('');
   const [broken, setBroken] = useState(false);
 
-  const rawUrl = preview || fixGlovoImageUrl(currentUrl);
+  const rawUrl = preview || normalizeMenuImageUrl(currentUrl);
   const displayUrl = broken || !rawUrl ? null : rawUrl;
 
   // Reset broken flag when the source URL changes

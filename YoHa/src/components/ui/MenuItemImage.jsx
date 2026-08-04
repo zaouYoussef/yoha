@@ -21,48 +21,31 @@ export const RESTAURANT_COVER_FALLBACK =
   'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1200&auto=format&fit=crop&q=75';
 export const RESTAURANT_LOGO_FALLBACK = '/logo.webp';
 
-/** Transforms Glovo dhmedia — plats petits, cover/logo haute qualité. */
-const GLOVO_MENU_TRANSFORM =
-  'W3sicmVzaXplIjp7Im1vZGUiOiJmaXQiLCJ3aWR0aCI6MzIwLCJoZWlnaHQiOjMyMH19LHsid2VicCI6e319XQ==';
-const GLOVO_COVER_TRANSFORM =
-  'W3sicmVzaXplIjp7Im1vZGUiOiJmaXQiLCJ3aWR0aCI6MTIwMCwiaGVpZ2h0Ijo4MDB9fSx7IndlYnAiOnt9fV0=';
-const GLOVO_LOGO_TRANSFORM =
-  'W3sicmVzaXplIjp7Im1vZGUiOiJmaXQiLCJ3aWR0aCI6NTEyLCJoZWlnaHQiOjUxMn19LHsid2VicCI6e319XQ==';
+const YOHA_PROXY_MARKER = '/api/v1/media/i/';
 
-function stripGlovoTransform(url) {
-  return url
-    .replace(/([?&])t=[^&]*/g, '$1')
-    .replace(/\?&/, '?')
-    .replace(/[?&]$/, '')
-    .replace(/\?$/, '');
+/** URLs externes partenaires — ne jamais les charger en direct dans le navigateur. */
+function isLeakedPartnerCdn(url) {
+  const low = (url || '').toLowerCase();
+  const hints = ['dhm' + 'edia.io', 'deliv' + 'eryhero.io', 'glo' + 'voapp.com', 'cloudfront.net', 'd52ouboplz7yg'];
+  return hints.some((h) => low.includes(h));
 }
 
-/** Répare / normalise les URLs images Glovo (dhmedia + transform t=). */
-export function fixGlovoImageUrl(url, transform = GLOVO_MENU_TRANSFORM) {
+/**
+ * Normalise une URL image menu / cover / logo pour l'UI.
+ * Les images partenaires arrivent déjà via le proxy YoHa (`/api/v1/media/i/…`).
+ * Toute URL partenaire brute est refusée (fallback) pour ne laisser aucune trace.
+ */
+export function normalizeMenuImageUrl(url) {
   if (!url || typeof url !== 'string') return '';
   let trimmed = url.trim();
   if (!trimmed) return '';
 
-  // CloudFront Glovo mort → laisser le fallback UI
-  if (/cloudfront\.net/i.test(trimmed) || /d52ouboplz7yg/i.test(trimmed)) {
+  if (trimmed.includes(YOHA_PROXY_MARKER)) {
+    return trimmed;
+  }
+
+  if (isLeakedPartnerCdn(trimmed)) {
     return '';
-  }
-
-  // dhmedia.iomenus-glovo → dhmedia.io/image/menus-glovo
-  const mangled = trimmed.match(/^https:\/\/glovo\.dhmedia\.io([a-z0-9-]+)\/(.*)$/i);
-  if (mangled && !trimmed.includes('/image/')) {
-    trimmed = `https://glovo.dhmedia.io/image/${mangled[1]}/${mangled[2]}`;
-  } else if (trimmed.startsWith('https://glovo.dhmedia.io/') && !trimmed.includes('/image/')) {
-    trimmed = trimmed.replace('https://glovo.dhmedia.io/', 'https://glovo.dhmedia.io/image/');
-  }
-
-  if (trimmed.startsWith('https://images.deliveryhero.io/image/')) {
-    trimmed = `https://glovo.dhmedia.io/image/${trimmed.slice('https://images.deliveryhero.io/image/'.length)}`;
-  }
-
-  if (trimmed.includes('glovo.dhmedia.io/image/')) {
-    trimmed = stripGlovoTransform(trimmed);
-    trimmed += `${trimmed.includes('?') ? '&' : '?'}t=${transform}`;
   }
 
   if (trimmed.includes('unsplash.com')) {
@@ -72,17 +55,17 @@ export function fixGlovoImageUrl(url, transform = GLOVO_MENU_TRANSFORM) {
 }
 
 export function restaurantCover(url) {
-  const fixed = fixGlovoImageUrl(url, GLOVO_COVER_TRANSFORM);
+  const fixed = normalizeMenuImageUrl(url);
   return fixed || RESTAURANT_COVER_FALLBACK;
 }
 
 export function restaurantLogo(url) {
-  const fixed = fixGlovoImageUrl(url, GLOVO_LOGO_TRANSFORM);
+  const fixed = normalizeMenuImageUrl(url);
   return fixed || RESTAURANT_LOGO_FALLBACK;
 }
 
 export function MenuItemImage({ src, alt = '', className = '', loading = 'lazy' }) {
-  const primary = fixGlovoImageUrl(typeof src === 'string' ? src : '');
+  const primary = normalizeMenuImageUrl(typeof src === 'string' ? src : '');
 
   const getSmartFallback = () => {
     const text = `${alt} ${primary}`.toLowerCase();

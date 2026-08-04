@@ -133,7 +133,7 @@ export function RestaurantDashboard({ goto, dark, setDark }) {
         if (!resto) { setMyResto(null); return; }
         try {
           if (typeof window !== 'undefined') {
-            // Nettoyer d'anciens overrides locaux qui masquaient les images Glovo
+            // Nettoyer d'anciens overrides locaux qui masquaient les images catalogue
             localStorage.removeItem('yoha_resto_cover');
             localStorage.removeItem('yoha_resto_logo');
 

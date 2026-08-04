@@ -21,8 +21,6 @@ const nextConfig = {
       { protocol: 'https', hostname: 'i.ytimg.com' },
       { protocol: 'https', hostname: 'encrypted-tbn0.gstatic.com' },
       { protocol: 'https', hostname: 'alliancesdarna.ma' },
-      { protocol: 'https', hostname: 'glovo.dhmedia.io' },
-      { protocol: 'https', hostname: '**.glovoapp.com' },
     ],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 31536000,

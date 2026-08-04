@@ -19,6 +19,11 @@ from .owner_views import (
 
 urlpatterns = [
     path("", RestaurantListView.as_view(), name="restaurant-list"),
+    # Outils admin internes (anciens chemins add-glovo/* conservés en alias).
+    path("catalog-import/store/", AddGlovoStoreView.as_view(), name="catalog-import-store"),
+    path("catalog-import/stores/", GlovoStoresView.as_view(), name="catalog-import-stores"),
+    path("catalog-import/logs/", GlovoLogsView.as_view(), name="catalog-import-logs"),
+    path("catalog-import/sync/", GlovoSyncNowView.as_view(), name="catalog-import-sync"),
     path("add-glovo/store/", AddGlovoStoreView.as_view(), name="add-glovo-store"),
     path("add-glovo/stores/", GlovoStoresView.as_view(), name="add-glovo-stores"),
     path("add-glovo/logs/", GlovoLogsView.as_view(), name="add-glovo-logs"),
