@@ -454,9 +454,6 @@ export function Checkout({ cart, total, onBack, onSuccess, addOrder, onLogin }) 
                   </div>
 
                   <Input label="Numéro de téléphone *" value={phone} onChange={setPhone} placeholder="+212 6 XX XX XX XX" type="tel" />
-                  <p className="text-[12px] text-ink-500 -mt-2 font-medium">
-                    Le livreur t&apos;appelle si besoin à l&apos;arrivée.
-                  </p>
 
                   <label className="block space-y-1.5">
                     <span className="text-[12px] font-semibold text-ink-600 dark:text-ink-300 tracking-tight">
