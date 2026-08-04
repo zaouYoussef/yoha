@@ -23,7 +23,7 @@ export function getSmartFallback(cuisine?: string): string {
 
 export function resolveImageUrl(url?: string | null, cuisine?: string): string {
   if (!url || typeof url !== 'string' || !url.trim()) {
-    return getSmartFallback(cuisine);
+    return resolveImageUrl(getSmartFallback(cuisine), cuisine);
   }
   let trimmed = url.trim();
   if (trimmed.startsWith('http://127.0.0.1:8000') || trimmed.startsWith('http://localhost:8000')) {
