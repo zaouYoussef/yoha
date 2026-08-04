@@ -66,7 +66,7 @@ export const ORDER_STATUS_TOASTS = {
 export const DELIVERY_FEE_DH = 0;
 
 /** Rémunération fixe affichée par livraison (dashboard livreur) */
-export const MOCK_COURIER_GAIN_PER_DELIVERY_MAD = 16;
+export const MOCK_COURIER_GAIN_PER_DELIVERY_MAD = 17;
 /** Commission plateforme sur le restaurant : 20 % sur (total commande − forfait client). */
 export const PROFIT_FACTOR = 0.2;
 /** Forfait client (MAD) : déduit de la base avant le %, puis ajouté au profit (les 12 DH prélevés au client). */
