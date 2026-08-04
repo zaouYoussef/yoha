@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { I } from '../icons/Icons.jsx';
-import { MOCK_COURIER_GAIN_PER_DELIVERY_MAD, formatMad, isActiveOrderStatus, STATIC_STORES } from '../data/index.js';
+import { MOCK_COURIER_GAIN_PER_DELIVERY_MAD, formatMad, isActiveOrderStatus, STATIC_STORES, restaurantOpenStatus, formatDayHours, nowInCasablanca, OPENING_DAY_KEYS } from '../data/index.js';
 import { useOrders } from '../contexts/AppContexts.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import {
@@ -138,6 +138,26 @@ function resolveRestaurantRecord(order, restaurants = []) {
       (rname && String(r.name || '').toLowerCase() === rname.toLowerCase()),
   );
   return { fromApi, fromStatic };
+}
+
+function resolveRestaurantPhone(order, restaurants = []) {
+  const fromOrder = String(order?.restaurantPhone || '').trim();
+  if (fromOrder) return fromOrder;
+  const { fromApi, fromStatic } = resolveRestaurantRecord(order, restaurants);
+  return String(fromApi?.phone || fromStatic?.phone || '').trim();
+}
+
+function resolveRestaurantHoursLabel(order, restaurants = []) {
+  const { fromApi, fromStatic } = resolveRestaurantRecord(order, restaurants);
+  const hours = fromApi?.openingHours || fromStatic?.openingHours;
+  if (!hours || typeof hours !== 'object') return '';
+  const status = restaurantOpenStatus(hours);
+  const local = nowInCasablanca();
+  const js = local.getDay();
+  const idx = js === 0 ? 6 : js - 1;
+  const todayKey = OPENING_DAY_KEYS[idx];
+  const today = formatDayHours(hours[todayKey] || {});
+  return `${status.openLabel} · aujourd'hui ${today}`;
 }
 
 function resolveRestaurantDisplayAddress(order, restaurants = []) {
@@ -1158,10 +1178,8 @@ function AnimatedMapSvg() {
 
 export function DeliveryOrderCard({ order, action, showMap, variant = 'available' }) {
   const { restaurants } = useOrders();
-  const restaurantPhone =
-    order.restaurantPhone ||
-    restaurants.find((r) => r.id === order.restaurantId)?.phone ||
-    '';
+  const restaurantPhone = resolveRestaurantPhone(order, restaurants);
+  const restaurantHours = resolveRestaurantHoursLabel(order, restaurants);
 
   const customerPhone = order.customer?.phone || '';
   const restaurantAddress = resolveRestaurantDisplayAddress(order, restaurants);
@@ -1225,6 +1243,11 @@ export function DeliveryOrderCard({ order, action, showMap, variant = 'available
               {restaurantAddress ? (
                 <div className="mt-0.5 break-words text-xs font-medium leading-snug text-ink-500 dark:text-ink-400">
                   {restaurantAddress}
+                </div>
+              ) : null}
+              {restaurantHours ? (
+                <div className="mt-1 text-[11px] font-semibold text-ink-500 dark:text-ink-400">
+                  Horaires : {restaurantHours}
                 </div>
               ) : null}
               {restaurantPhone ? (

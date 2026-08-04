@@ -4235,13 +4235,22 @@ export const STATIC_STORES = [
     fee: '20 DH',
     cover: '/chain-img/mcdonalds.avif',
     logo: '🍟',
-    description: 'McDonald\'s — le fast-food le plus célèbre au monde. Commandez vos burgers, frites et desserts préférés, nous les achetons pour vous.',
+    description: 'McDonald\'s — Av. des Forces Armées Royales, Tanger 90000. Commandez vos burgers, frites et desserts préférés, nous les achetons pour vous.',
     tags: ['Sur-mesure', 'Chaîne', 'Burger', 'Fast-food'],
-    isOpen: true,
     isStatic: true,
     isCustomRequest: true,
     isChain: true,
-    address: 'Succursale la plus proche à Tanger'
+    phone: '06 79 89 76 27',
+    address: 'Av. des Forces Armées Royales, Tanger 90000',
+    openingHours: {
+      monday: { open: "10:00", close: "05:00", slots: [{ open: "10:00", close: "05:00" }] },
+      tuesday: { open: "10:00", close: "05:00", slots: [{ open: "10:00", close: "05:00" }] },
+      wednesday: { open: "10:00", close: "05:00", slots: [{ open: "10:00", close: "05:00" }] },
+      thursday: { open: "10:00", close: "05:00", slots: [{ open: "10:00", close: "05:00" }] },
+      friday: { open: "10:00", close: "05:00", slots: [{ open: "10:00", close: "05:00" }] },
+      saturday: { open: "10:00", close: "05:00", slots: [{ open: "10:00", close: "05:00" }] },
+      sunday: { open: "10:00", close: "05:00", slots: [{ open: "10:00", close: "05:00" }] }
+    },
   },
 
   {
@@ -4255,13 +4264,21 @@ export const STATIC_STORES = [
     fee: '20 DH',
     cover: '/chain-img/burgerking.avif',
     logo: '🍔',
-    description: 'Burger King — le roi du Whopper. Commandez vos burgers flamme, nuggets et frites, nous les achetons pour vous.',
+    description: 'Burger King — Station TotalEnergies, Avenue des FAR, Kilomètres 6, Route de Rabat, Tanger. Commandez vos burgers flamme, nuggets et frites, nous les achetons pour vous.',
     tags: ['Sur-mesure', 'Chaîne', 'Burger', 'Fast-food'],
-    isOpen: true,
     isStatic: true,
     isCustomRequest: true,
     isChain: true,
-    address: 'Succursale la plus proche à Tanger'
+    address: 'Station TotalEnergies, Avenue des FAR, Kilomètres 6, Route de Rabat, Tanger',
+    openingHours: {
+      monday: { open: "11:00", close: "02:00", slots: [{ open: "11:00", close: "02:00" }] },
+      tuesday: { open: "11:00", close: "02:00", slots: [{ open: "11:00", close: "02:00" }] },
+      wednesday: { open: "11:00", close: "02:00", slots: [{ open: "11:00", close: "02:00" }] },
+      thursday: { open: "11:00", close: "02:00", slots: [{ open: "11:00", close: "02:00" }] },
+      friday: { open: "11:00", close: "02:00", slots: [{ open: "11:00", close: "02:00" }] },
+      saturday: { open: "11:00", close: "02:00", slots: [{ open: "11:00", close: "02:00" }] },
+      sunday: { open: "11:00", close: "02:00", slots: [{ open: "11:00", close: "02:00" }] }
+    },
   },
 
   {
@@ -4275,13 +4292,22 @@ export const STATIC_STORES = [
     fee: '20 DH',
     cover: '/chain-img/kfc.jpg',
     logo: '🍗',
-    description: 'KFC — le poulet frit incontournable. Commandez votre bucket, tenders et burgers poulet, nous les achetons pour vous.',
+    description: 'KFC — City Center, Tangier 90060. Commandez votre bucket, tenders et burgers poulet, nous les achetons pour vous.',
     tags: ['Sur-mesure', 'Chaîne', 'Poulet', 'Fast-food'],
-    isOpen: true,
     isStatic: true,
     isCustomRequest: true,
     isChain: true,
-    address: 'Succursale la plus proche à Tanger'
+    phone: '05 20 94 96 98',
+    address: 'City Center, Tangier 90060',
+    openingHours: {
+      monday: { open: "11:00", close: "00:00", slots: [{ open: "11:00", close: "00:00" }] },
+      tuesday: { open: "11:00", close: "00:00", slots: [{ open: "11:00", close: "00:00" }] },
+      wednesday: { open: "11:00", close: "00:00", slots: [{ open: "11:00", close: "00:00" }] },
+      thursday: { open: "11:00", close: "00:00", slots: [{ open: "11:00", close: "00:00" }] },
+      friday: { open: "11:00", close: "00:00", slots: [{ open: "11:00", close: "00:00" }] },
+      saturday: { open: "11:00", close: "00:00", slots: [{ open: "11:00", close: "00:00" }] },
+      sunday: { open: "11:00", close: "00:00", slots: [{ open: "11:00", close: "00:00" }] }
+    },
   },
 
   {
@@ -4295,13 +4321,22 @@ export const STATIC_STORES = [
     fee: '20 DH',
     cover: '/chain-img/pizzahut.avif',
     logo: '🍕',
-    description: 'Pizza Hut — la pizza américaine légendaire. Commandez vos pizzas, pâtes et wings, nous les achetons pour vous.',
+    description: 'Pizza Hut — 28 Bab el-Assa, Tanger 90030. Commandez vos pizzas, pâtes et wings, nous les achetons pour vous.',
     tags: ['Sur-mesure', 'Chaîne', 'Pizza', 'Fast-food'],
-    isOpen: true,
     isStatic: true,
     isCustomRequest: true,
     isChain: true,
-    address: 'Succursale la plus proche à Tanger'
+    phone: '05 39 38 41 36',
+    address: '28 Bab el-Assa, Tanger 90030',
+    openingHours: {
+      monday: { open: "11:30", close: "00:00", slots: [{ open: "11:30", close: "00:00" }] },
+      tuesday: { open: "11:30", close: "00:00", slots: [{ open: "11:30", close: "00:00" }] },
+      wednesday: { open: "11:30", close: "00:00", slots: [{ open: "11:30", close: "00:00" }] },
+      thursday: { open: "11:30", close: "00:00", slots: [{ open: "11:30", close: "00:00" }] },
+      friday: { open: "11:30", close: "00:00", slots: [{ open: "11:30", close: "00:00" }] },
+      saturday: { open: "11:30", close: "00:00", slots: [{ open: "11:30", close: "00:00" }] },
+      sunday: { open: "11:30", close: "00:00", slots: [{ open: "11:30", close: "00:00" }] }
+    },
   },
 
   {
@@ -4317,11 +4352,20 @@ export const STATIC_STORES = [
     logo: '🍕',
     description: 'Domino\'s Pizza — livraison de pizzas à la demande. Commandez votre pizza préférée, nous la récupérons pour vous.',
     tags: ['Sur-mesure', 'Chaîne', 'Pizza', 'Fast-food'],
-    isOpen: true,
     isStatic: true,
     isCustomRequest: true,
     isChain: true,
-    address: 'Succursale la plus proche à Tanger'
+    phone: '05 39 94 33 33',
+    address: 'Tanger',
+    openingHours: {
+      monday: { open: "11:00", close: "23:30", slots: [{ open: "11:00", close: "23:30" }] },
+      tuesday: { open: "11:00", close: "23:30", slots: [{ open: "11:00", close: "23:30" }] },
+      wednesday: { open: "11:00", close: "23:30", slots: [{ open: "11:00", close: "23:30" }] },
+      thursday: { open: "11:00", close: "23:30", slots: [{ open: "11:00", close: "23:30" }] },
+      friday: { open: "11:00", close: "23:30", slots: [{ open: "11:00", close: "23:30" }] },
+      saturday: { open: "11:00", close: "23:30", slots: [{ open: "11:00", close: "23:30" }] },
+      sunday: { open: "11:00", close: "23:30", slots: [{ open: "11:00", close: "23:30" }] }
+    },
   },
 
   {
@@ -4337,11 +4381,20 @@ export const STATIC_STORES = [
     logo: '🍕',
     description: 'Papa John\'s Pizza — la pâte fraîche artisanale. Commandez vos pizzas, sides et desserts, nous les achetons pour vous.',
     tags: ['Sur-mesure', 'Chaîne', 'Pizza', 'Fast-food'],
-    isOpen: true,
     isStatic: true,
     isCustomRequest: true,
     isChain: true,
-    address: 'Succursale la plus proche à Tanger'
+    phone: '05 39 32 57 31',
+    address: 'Tanger',
+    openingHours: {
+      monday: { open: "12:00", close: "00:00", slots: [{ open: "12:00", close: "00:00" }] },
+      tuesday: { open: "12:00", close: "00:00", slots: [{ open: "12:00", close: "00:00" }] },
+      wednesday: { open: "12:00", close: "00:00", slots: [{ open: "12:00", close: "00:00" }] },
+      thursday: { open: "12:00", close: "00:00", slots: [{ open: "12:00", close: "00:00" }] },
+      friday: { open: "12:00", close: "00:00", slots: [{ open: "12:00", close: "00:00" }] },
+      saturday: { open: "12:00", close: "00:00", slots: [{ open: "12:00", close: "00:00" }] },
+      sunday: { open: "12:00", close: "00:00", slots: [{ open: "12:00", close: "00:00" }] }
+    },
   },
 
 ];
