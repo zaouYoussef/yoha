@@ -308,40 +308,50 @@ function BrowseHero({ name, search, onSearchChange, coverUrls = [] }) {
   const covers = (coverUrls || []).filter(Boolean).slice(0, 6);
 
   return (
-    <section className="relative isolate overflow-hidden min-h-[min(72vw,420px)] sm:min-h-[380px] lg:min-h-[440px]">
-      {/* Full-bleed food plane */}
+    <section className="relative isolate overflow-hidden min-h-[min(100svh,920px)] h-[100svh] max-h-[920px] sm:h-[min(88vh,820px)] sm:min-h-[560px] lg:h-[min(85vh,780px)]">
       <div aria-hidden className="absolute inset-0 bg-ink-950">
         {covers.length > 0 ? (
-          <div className="absolute inset-0 grid grid-cols-3 grid-rows-2">
+          <div className="absolute inset-0 grid grid-cols-2 sm:grid-cols-3 grid-rows-3 sm:grid-rows-2">
             {covers.map((src, i) => (
-              <div key={`${src}-${i}`} className="relative overflow-hidden">
+              <div key={`${src}-${i}`} className={`relative overflow-hidden ${i >= 4 ? 'hidden sm:block' : ''}`}>
                 <img
                   src={src}
                   alt=""
-                  className="absolute inset-0 h-full w-full object-cover scale-110 animate-[browse-ken_28s_ease-in-out_infinite] motion-reduce:animate-none"
-                  style={{ animationDelay: `${i * -4.5}s` }}
+                  fetchPriority={i < 2 ? 'high' : 'low'}
+                  loading={i < 2 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover scale-110 animate-[browse-ken_32s_ease-in-out_infinite] motion-reduce:animate-none"
+                  style={{ animationDelay: `${i * -5.2}s` }}
                 />
               </div>
             ))}
+            {covers.length < 6 &&
+              Array.from({ length: Math.max(0, 6 - covers.length) }).map((_, i) => (
+                <div
+                  key={`fill-${i}`}
+                  className="bg-[radial-gradient(circle_at_30%_20%,rgba(249,115,22,0.45),transparent_55%),linear-gradient(160deg,#0f172a,#1c1917)]"
+                />
+              ))}
           </div>
         ) : (
-          <div className="absolute inset-0 bg-[radial-gradient(80%_70%_at_20%_10%,rgba(249,115,22,0.35),transparent_55%),radial-gradient(70%_60%_at_90%_80%,rgba(234,88,12,0.25),transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(80%_70%_at_20%_10%,rgba(249,115,22,0.4),transparent_55%),radial-gradient(70%_60%_at_90%_80%,rgba(234,88,12,0.28),transparent_50%),linear-gradient(180deg,#0c1222,#1c1917)]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-ink-950/55 via-ink-950/75 to-ink-950" />
-        <div className="absolute inset-0 bg-[radial-gradient(90%_60%_at_50%_100%,rgba(249,115,22,0.22),transparent_60%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink-950/40 via-ink-950/70 to-ink-950" />
+        <div className="absolute inset-0 bg-[radial-gradient(95%_55%_at_50%_100%,rgba(249,115,22,0.28),transparent_58%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-ink-950 to-transparent" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-10 sm:pt-14 sm:pb-14 flex flex-col justify-end min-h-[min(72vw,420px)] sm:min-h-[380px] lg:min-h-[440px]">
-        <p className="font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-br from-orange-200 via-brand-400 to-orange-600 drop-shadow-[0_8px_30px_rgba(0,0,0,0.45)]">
+      <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-10 sm:pt-20 sm:pb-14 flex flex-col justify-end">
+        <p className="browse-hero-brand font-display font-black text-[clamp(3.75rem,18vw,9rem)] tracking-[-0.04em] leading-[0.85] text-transparent bg-clip-text bg-gradient-to-br from-orange-100 via-brand-400 to-orange-600 drop-shadow-[0_12px_40px_rgba(0,0,0,0.5)]">
           YoHa
         </p>
-        <h1 className="mt-3 font-display font-bold text-2xl sm:text-3xl lg:text-4xl text-white tracking-tight leading-[1.1] max-w-2xl">
+        <h1 className="browse-hero-title mt-4 sm:mt-5 font-display font-bold text-[clamp(1.6rem,5.5vw,2.75rem)] text-white tracking-tight leading-[1.05] max-w-2xl">
           {timeGreeting()}, {name}
         </h1>
-        <p className="mt-3 text-sm sm:text-base text-white/70 max-w-lg font-medium">
+        <p className="browse-hero-sub mt-3 text-sm sm:text-base text-white/72 max-w-md font-medium tracking-tight">
           Livraison offerte sur toute l&apos;Alliance Tangéroise
         </p>
-        <div className="mt-6 sm:mt-7 max-w-2xl">
+        <div className="browse-hero-search mt-7 sm:mt-8 max-w-2xl w-full">
           <SearchBar value={search} onChange={onSearchChange} variant="hero" />
         </div>
       </div>
@@ -369,29 +379,29 @@ function FeaturedSpotlight({ restaurant, onClick }) {
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
           />
           {/* Animated gradient mesh visible only on hover */}
-          <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.15)_0%,rgba(236,72,153,0.1)_30%,transparent_50%)] animate-rotate-slow pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10" />
+          <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.18)_0%,transparent_50%)] animate-rotate-slow pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10" />
 
           <div className="relative z-20 flex flex-col sm:flex-row sm:items-end justify-between gap-6 p-6 sm:p-8 min-h-[220px] sm:min-h-[260px] w-full">
             <div className="max-w-xl">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-gradient-to-r from-brand-500 via-pink-500 to-brand-600 text-white border border-white/25 shadow-[0_0_15px_rgba(249,115,22,0.4)] animate-border-glow">
-                <I.Flame size={12} className="animate-pulse text-yellow-300" /> Coup de cœur
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider bg-brand-500 text-white border border-white/20">
+                <I.Flame size={12} className="text-orange-100" /> Coup de cœur
               </span>
               <h3 className="mt-4 font-display font-black text-2xl sm:text-4xl text-white tracking-tight leading-none text-glow-slow">{restaurant.name}</h3>
               <p className="mt-2 text-sm sm:text-base text-white/75 line-clamp-2">{formatTags(tags, ' · ')}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {restaurant.promo && (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/15 backdrop-blur-md text-white border border-white/20">
-                    🎁 {restaurant.promo}
+                  <span className="px-3 py-1 rounded-md text-xs font-bold bg-white/15 backdrop-blur-md text-white border border-white/20">
+                    {restaurant.promo}
                   </span>
                 )}
-                <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                <span className={`px-3 py-1 rounded-md text-xs font-bold border ${
                   open
                     ? 'bg-emerald-500/20 text-emerald-200 border-emerald-400/30'
                     : 'bg-amber-500/20 text-amber-100 border-amber-400/30'
                 }`}>
-                  {open ? '● Ouvert' : 'Fermé'}
+                  {open ? 'Ouvert' : 'Fermé'}
                 </span>
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-white/90 border border-white/15">
+                <span className="px-3 py-1 rounded-md text-xs font-bold bg-white/10 text-white/90 border border-white/15">
                   <I.MapPin size={12} className="inline mr-1" />{restaurant.distance}
                 </span>
               </div>
@@ -856,11 +866,12 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 
       prioritizedFoodRestaurants.length > 0 && (
         <section key="all-grid" className="px-4 sm:px-0">
-          <div className="mb-4">
-            <h2 className="font-display font-bold text-lg sm:text-xl text-ink-900 dark:text-white tracking-tight">
+          <div className="mb-5">
+            <h2 className="font-display font-bold text-[1.35rem] sm:text-[1.75rem] text-ink-950 dark:text-white tracking-tight leading-[1.1]">
               Tous les restaurants
             </h2>
-            <p className="text-xs text-ink-500 dark:text-ink-400 mt-1 font-medium">
+            <div className="mt-2.5 h-[2px] w-10 rounded-full bg-brand-500" aria-hidden />
+            <p className="text-[13px] text-ink-500 dark:text-ink-400 mt-2.5 font-medium">
               {openRail.length} ouvert{openRail.length > 1 ? 's' : ''} · {prioritizedFoodRestaurants.length} au total
             </p>
           </div>
@@ -896,16 +907,16 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
     <div className="page-enter">
       <BrowseHero name={name} search={search} onSearchChange={setSearch} coverUrls={heroCovers} />
 
-      <div className="bg-white dark:bg-ink-950 overflow-x-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-8 sm:space-y-10 stagger-children">
+      <div className="browse-scene overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-9 sm:space-y-11 stagger-children">
 
           {/* ═══ SMART INTELLIGENT RE-ORDER BANNER ═══ */}
           {!search && <SmartReorderBanner catalog={catalog} onPickRestaurant={onPickRestaurant} />}
 
           {/* ═══ TOP TABS BAR (6 Main Services) ═══ */}
           {!search && (
-            <div className="border-b border-ink-100 dark:border-ink-800 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
-              <div className="flex items-center gap-7 text-sm font-bold text-ink-500 dark:text-ink-400 min-w-max">
+            <div className="border-b border-ink-200/70 dark:border-white/[0.08] -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
+              <div className="flex items-center gap-8 text-[13px] sm:text-sm font-semibold tracking-tight text-ink-500 dark:text-ink-400 min-w-max">
                 {[
                   { id: 'all', label: 'Restaurants' },
                   { id: 'pharmacy', label: 'Pharmacies' },
@@ -920,15 +931,17 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                       key={tab.id}
                       type="button"
                       onClick={() => applyFilter(tab.id)}
-                      className={`py-3.5 relative transition-colors tracking-tight ${
-                        active ? 'text-ink-950 dark:text-white' : 'hover:text-ink-900 dark:hover:text-white'
+                      className={`py-4 relative transition-colors ${
+                        active
+                          ? 'font-display font-bold text-ink-950 dark:text-white text-[15px] sm:text-base'
+                          : 'hover:text-ink-900 dark:hover:text-white'
                       }`}
                     >
                       <span>{tab.label}</span>
                       {active && (
                         <motion.span
                           layoutId="browse-tab-underline"
-                          className="absolute bottom-0 left-0 right-0 h-[2px] bg-brand-500 rounded-full"
+                          className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-brand-500"
                           transition={{ type: 'spring', stiffness: 520, damping: 40 }}
                         />
                       )}
@@ -939,15 +952,17 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             </div>
           )}
 
-          {/* ═══ 🔥 OFFRES — IMAGE PROMO BANNERS CAROUSEL ═══ */}
+          {/* ═══ OFFRES — IMAGE PROMO BANNERS CAROUSEL ═══ */}
           {!search && (
             <DeliverooPromoBannersCarousel onSelectFilter={applyFilter} />
           )}
 
-          {/* ═══ CUISINE CATEGORIES CAROUSEL (High Quality AI Food Imagery) ═══ */}
+          {/* ═══ CUISINE CATEGORIES CAROUSEL ═══ */}
           {isDefault && (
             <section className="relative">
-              <div className="flex gap-3.5 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-[#faf8f5] dark:from-ink-950 to-transparent z-10 sm:hidden" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#faf8f5] dark:from-ink-950 to-transparent z-10 sm:hidden" />
+              <div className="flex gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
                 {CUISINE_CATEGORIES.map((c) => {
                   const active = filter === c.id;
                   return (
@@ -955,26 +970,28 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                       key={c.id}
                       type="button"
                       onClick={() => applyFilter(active ? 'all' : c.id)}
-                      className="cursor-pointer shrink-0 flex flex-col items-center gap-2 w-[4.8rem] sm:w-[5.2rem] group"
+                      className="cursor-pointer shrink-0 flex flex-col items-center gap-2.5 w-[5.4rem] sm:w-[6rem] group"
                     >
                       <div
-                        className={`relative w-[4.4rem] h-[4.4rem] sm:w-[4.8rem] sm:h-[4.8rem] rounded-2xl overflow-hidden transition-all duration-300 shadow-md ${
+                        className={`relative w-[5rem] h-[5rem] sm:w-[5.5rem] sm:h-[5.5rem] rounded-[1.35rem] overflow-hidden transition-all duration-500 ${
                           active
-                            ? 'ring-3 ring-brand-500 scale-105 shadow-xl border-2 border-white'
-                            : 'border-2 border-slate-100 dark:border-ink-800 group-hover:border-brand-400 group-hover:shadow-lg group-hover:scale-105'
+                            ? 'ring-2 ring-brand-500 scale-[1.04] shadow-[0_16px_36px_-18px_rgba(249,115,22,0.55)]'
+                            : 'ring-1 ring-ink-200/80 dark:ring-white/10 group-hover:ring-brand-400/60 group-hover:scale-[1.03]'
                         }`}
                       >
                         <MenuItemImage
                           src={c.image}
                           alt={c.label}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
                         />
                         <div className={`absolute inset-0 transition-colors duration-300 ${
-                          active ? 'bg-brand-500/10' : 'bg-gradient-to-t from-black/40 via-transparent to-transparent group-hover:from-black/10'
+                          active ? 'bg-brand-500/15' : 'bg-gradient-to-t from-black/50 via-transparent to-transparent'
                         }`} />
                       </div>
-                      <span className={`text-xs font-black text-center leading-tight truncate w-full tracking-tight ${
-                        active ? 'text-brand-600 dark:text-brand-400 font-extrabold' : 'text-slate-900 dark:text-white font-extrabold'
+                      <span className={`text-[12px] text-center leading-tight truncate w-full tracking-tight ${
+                        active
+                          ? 'font-display font-bold text-brand-600 dark:text-brand-400'
+                          : 'font-semibold text-ink-800 dark:text-white'
                       }`}>
                         {c.label}
                       </span>
@@ -1015,26 +1032,24 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
             <section className="px-4 sm:px-0">
               <div className="flex items-center justify-between mb-6 pb-3 border-b border-ink-100 dark:border-ink-800">
                 <div>
-                  <h2 className="font-display font-black text-xl sm:text-2xl text-ink-900 dark:text-white flex items-center gap-2">
-                    <span>
-                      {filter === 'restaurants' ? '🍕 Restaurants' :
-                       filter === 'offers' ? '🎁 Offres près de chez vous' :
-                       filter === 'popular' ? '🔥 Populaires dans votre quartier' :
-                       filter === 'fast' ? '⚡ Frais de livraison tout doux' :
-                       filter === 'free_delivery' ? '🛵 Frais de livraison offerts' :
-                       filter === 'top_rated' ? '🌟 Mieux notés' :
-                       filter === 'favorites' ? '❤️ Favoris les plus populaires' :
-                       filter === 'burgers_sec' ? '🍔 Burgers' :
-                       filter === 'pizzas_sec' ? '🍕 Pizzas' :
-                       filter === 'asian_sec' ? '🍣 Asian & Sushi' :
-                       filter === 'dessert' || filter === 'patisserie' ? '🥐 Pâtisseries' :
-                       filter === 'pharmacy' ? '💊 Pharmacies' :
-                       filter === 'parapharmacy' ? '🌿 Parapharmacies' :
-                       filter === 'supermarket' ? '🛒 Supermarchés' :
-                       filter === 'shop' ? '🛍️ Magasins' :
-                       SUB_BY_ID[filter] ? `${SUB_BY_ID[filter].emoji} ${SUB_BY_ID[filter].label}` :
-                       `Résultats pour « ${filter.charAt(0).toUpperCase() + filter.slice(1)} »`}
-                    </span>
+                  <h2 className="font-display font-bold text-xl sm:text-2xl text-ink-950 dark:text-white tracking-tight">
+                    {filter === 'restaurants' ? 'Restaurants' :
+                     filter === 'offers' ? 'Offres près de chez vous' :
+                     filter === 'popular' ? 'Populaires dans votre quartier' :
+                     filter === 'fast' ? 'Livraison express' :
+                     filter === 'free_delivery' ? 'Livraison offerte' :
+                     filter === 'top_rated' ? 'Mieux notés' :
+                     filter === 'favorites' ? 'Favoris' :
+                     filter === 'burgers_sec' ? 'Burgers' :
+                     filter === 'pizzas_sec' ? 'Pizzas' :
+                     filter === 'asian_sec' ? 'Asian & Sushi' :
+                     filter === 'dessert' || filter === 'patisserie' ? 'Pâtisseries' :
+                     filter === 'pharmacy' ? 'Pharmacies' :
+                     filter === 'parapharmacy' ? 'Parapharmacies' :
+                     filter === 'supermarket' ? 'Supermarchés' :
+                     filter === 'shop' ? 'Magasins' :
+                     SUB_BY_ID[filter] ? SUB_BY_ID[filter].label :
+                     `Résultats pour « ${filter.charAt(0).toUpperCase() + filter.slice(1)} »`}
                   </h2>
                 </div>
                 {!['pharmacy', 'parapharmacy', 'dessert', 'patisserie', 'supermarket', 'shop'].includes(filter) && (
@@ -1066,8 +1081,8 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                     {dutyGroups.map((group) => (
                       <section key={group.guard}>
                         <div className="mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-black uppercase tracking-wide px-3 py-1.5">
-                            🕐 {group.title}
+                          <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wide px-3 py-1.5">
+                            {group.title}
                           </span>
                           {group.hours && (
                             <span className="text-xs sm:text-sm font-semibold text-ink-600 dark:text-ink-300">
@@ -1121,14 +1136,14 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                       />
                       <div className="absolute inset-0 bg-gradient-to-r from-ink-950/95 via-ink-950/75 to-ink-950/30" />
                       <div className="relative p-6 sm:p-8 text-white">
-                        <span className="inline-flex items-center rounded-full bg-brand-500/20 border border-brand-400/40 text-brand-300 text-[11px] font-bold px-2.5 py-1 uppercase tracking-wide">
-                          ✨ Sur-mesure
+                        <span className="inline-flex items-center rounded-md bg-brand-500/20 border border-brand-400/40 text-brand-300 text-[11px] font-bold px-2.5 py-1 uppercase tracking-wide">
+                          Sur-mesure
                         </span>
                         <h2 className="font-display font-black text-2xl sm:text-3xl mt-3">Restaurant sur-mesure</h2>
                         <p className="mt-2 max-w-md text-sm text-ink-200 leading-relaxed">
                           Un resto, un snack ou un plat bien précis en tête ? Dites-nous tout, le livreur y va et vous livre.
                         </p>
-                        <span className="mt-4 inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 text-white font-extrabold text-sm shadow-glow group-hover:scale-[1.02] active:scale-95 transition-all">
+                        <span className="mt-4 inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-500 text-white font-bold text-sm shadow-md group-hover:scale-[1.02] active:scale-95 transition-all">
                           Décrire ma demande <I.Right size={16} />
                         </span>
                       </div>
@@ -1166,7 +1181,7 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
                     const customStore = STATIC_STORES.find((s) => s.id === customId);
                     if (customStore) onPickRestaurant(customStore);
                   }}
-                  className="shrink-0 px-5 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 text-white font-extrabold text-sm shadow-glow hover:scale-[1.02] active:scale-95 transition-all"
+                  className="shrink-0 px-5 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm shadow-md hover:scale-[1.02] active:scale-95 transition-all"
                 >
                   Décrire ma demande
                 </button>
@@ -1220,14 +1235,15 @@ export function Home({ onPickRestaurant, initialFilter = 'all' }) {
 function HorizontalRow({ title, subtitle, count, children, onSeeAll }) {
   return (
     <Reveal>
-      <section className="px-4 sm:px-0">
+      <section className="px-4 sm:px-0 relative">
         <div className="flex items-end justify-between gap-4 mb-5">
           <div className="min-w-0">
-            <h2 className="font-display font-bold text-xl sm:text-2xl text-ink-950 dark:text-white tracking-tight leading-snug">
+            <h2 className="font-display font-bold text-[1.35rem] sm:text-[1.75rem] text-ink-950 dark:text-white tracking-tight leading-[1.1]">
               {title}
             </h2>
+            <div className="mt-2.5 h-[2px] w-10 rounded-full bg-brand-500" aria-hidden />
             {subtitle && (
-              <p className="text-[13px] text-ink-500 dark:text-ink-400 mt-1.5 font-medium tracking-tight">{subtitle}</p>
+              <p className="text-[13px] text-ink-500 dark:text-ink-400 mt-2.5 font-medium tracking-tight">{subtitle}</p>
             )}
           </div>
           {count > 0 && onSeeAll && (
@@ -1241,8 +1257,12 @@ function HorizontalRow({ title, subtitle, count, children, onSeeAll }) {
             </button>
           )}
         </div>
-        <div className="flex gap-3.5 sm:gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 snap-x snap-mandatory">
-          {children}
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-[#faf8f5] dark:from-ink-950 to-transparent z-10 sm:hidden" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#faf8f5] dark:from-ink-950 to-transparent z-10" />
+          <div className="flex gap-3.5 sm:gap-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 snap-x snap-mandatory">
+            {children}
+          </div>
         </div>
       </section>
     </Reveal>
@@ -1250,19 +1270,19 @@ function HorizontalRow({ title, subtitle, count, children, onSeeAll }) {
 }
 
 const CUISINE_GLOW_MAP = {
-  pizza: 'from-orange-500 to-red-500',
-  tacos: 'from-amber-500 to-orange-500',
-  kebab: 'from-red-500 to-pink-500',
-  healthy: 'from-emerald-500 to-teal-500',
-  burger: 'from-yellow-500 to-amber-500',
-  sushi: 'from-pink-500 to-rose-500',
-  asian: 'from-purple-500 to-violet-500',
-  dessert: 'from-pink-400 to-rose-400',
-  patisserie: 'from-pink-400 to-rose-400',
-  pharmacy: 'from-emerald-500 to-green-500',
-  parapharmacy: 'from-teal-500 to-emerald-500',
-  supermarket: 'from-blue-500 to-cyan-500',
-  shop: 'from-violet-500 to-purple-500',
+  pizza: 'from-orange-500 to-red-600',
+  tacos: 'from-amber-500 to-orange-600',
+  kebab: 'from-orange-600 to-amber-700',
+  healthy: 'from-emerald-500 to-teal-600',
+  burger: 'from-amber-500 to-orange-500',
+  sushi: 'from-teal-500 to-emerald-600',
+  asian: 'from-orange-500 to-amber-600',
+  dessert: 'from-amber-400 to-orange-500',
+  patisserie: 'from-amber-400 to-orange-500',
+  pharmacy: 'from-emerald-500 to-teal-600',
+  parapharmacy: 'from-teal-500 to-emerald-600',
+  supermarket: 'from-sky-500 to-teal-600',
+  shop: 'from-amber-600 to-orange-700',
 };
 
 export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
@@ -1333,21 +1353,21 @@ export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
 
   return (
     <div className="w-full mb-3 animate-fade-up">
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-ink-950 via-slate-900 to-ink-950 text-white p-3.5 sm:p-5 shadow-xl border border-brand-500/40">
-        <div className="absolute -right-10 -bottom-10 w-44 h-44 bg-brand-500/10 rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute -left-12 -top-12 w-32 h-32 bg-pink-500/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-[1.35rem] bg-ink-950 text-white p-3.5 sm:p-5 border border-brand-500/25 shadow-[0_20px_50px_-28px_rgba(15,23,42,0.7)]">
+        <div className="absolute -right-10 -bottom-10 w-44 h-44 bg-brand-500/15 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -left-12 -top-12 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl pointer-events-none" />
         
         <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-500 to-pink-500 flex items-center justify-center text-xl sm:text-2xl shrink-0 shadow-lg shadow-brand-500/20">
-              ⚡
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-500 to-orange-600 flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
+              <I.Flame size={20} className="text-white" />
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] sm:text-xs text-brand-300 font-extrabold uppercase tracking-wider block">
+              <span className="text-[10px] sm:text-xs text-brand-300 font-bold uppercase tracking-wider block">
                 Votre dernière commande
               </span>
-              <h3 className="font-display font-black text-sm sm:text-lg text-white truncate leading-tight">
-                Recommander chez <span className="text-amber-300 font-extrabold">{storeName}</span> ?
+              <h3 className="font-display font-bold text-sm sm:text-lg text-white truncate leading-tight">
+                Recommander chez <span className="text-orange-300">{storeName}</span> ?
               </h3>
               <p className="text-[11px] sm:text-xs text-ink-300 truncate max-w-md font-medium mt-0.5">
                 {itemsSummary}
@@ -1359,17 +1379,17 @@ export function SmartReorderBanner({ catalog = [], onPickRestaurant }) {
             <button
               type="button"
               onClick={handleReorderCheckout}
-              className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 text-white font-extrabold text-xs shadow-glow hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+              className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-[0_10px_30px_-12px_rgba(249,115,22,0.7)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
             >
-              <span>⚡ Recommander {totalAmount > 0 ? `(${totalAmount.toFixed(2)} MAD)` : ''}</span>
+              <span>Recommander {totalAmount > 0 ? `(${totalAmount.toFixed(2)} MAD)` : ''}</span>
             </button>
 
             <button
               type="button"
               onClick={handleNewOrder}
-              className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-xs hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center truncate"
+              className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-semibold text-xs hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center truncate"
             >
-              <span>🍽️ Nouvelle commande chez {storeName}</span>
+              <span>Nouvelle commande chez {storeName}</span>
             </button>
           </div>
         </div>
@@ -1397,39 +1417,48 @@ function RestaurantCardHorizontal({ restaurant, onClick, promo = false }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(e); } }}
-      className={`cursor-grow group relative shrink-0 w-[82vw] max-w-[320px] sm:w-[290px] lg:w-[310px] h-[260px] sm:h-[280px] snap-center overflow-hidden rounded-[1.35rem] bg-ink-950 shadow-[0_24px_50px_-28px_rgba(15,23,42,0.65)] transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-[0_30px_60px_-28px_rgba(249,115,22,0.35)] active:scale-[0.985] ${
-        promo ? 'ring-1 ring-brand-500/40' : 'ring-1 ring-white/10'
+      className={`cursor-grow group relative shrink-0 w-[84vw] max-w-[340px] sm:w-[300px] lg:w-[320px] h-[280px] sm:h-[300px] snap-center overflow-hidden rounded-[1.4rem] bg-ink-950 shadow-[0_28px_56px_-30px_rgba(15,23,42,0.7)] transition-[transform,box-shadow] duration-500 hover:-translate-y-1.5 hover:shadow-[0_34px_64px_-28px_rgba(249,115,22,0.38)] active:scale-[0.985] ${
+        promo ? 'ring-1 ring-brand-500/45' : 'ring-1 ring-white/10'
       }`}
     >
       <img
         src={restaurantCover(restaurant.cover)}
         alt={restaurant.name}
         loading="lazy"
-        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[1.1s] ease-out group-hover:scale-[1.1] ${
+        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.12] ${
           restaurant.coverBlend === 'screen' ? 'mix-blend-screen' : ''
         } ${
           !open ? 'filter blur-[2px] grayscale opacity-55' : ''
         }`}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent" />
-      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
+      <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/45 to-transparent pointer-events-none" />
 
-      <div className="absolute top-3 right-3 z-10">
-        <span className="px-2.5 py-1 rounded-full bg-white/95 text-ink-950 font-bold text-[11px] shadow-md backdrop-blur-sm">
+      <div className="absolute top-3.5 left-3.5 right-3.5 z-10 flex items-start justify-between gap-2">
+        {open ? (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/12 backdrop-blur-md border border-white/20 text-[10px] font-bold text-white">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
+            </span>
+            Ouvert
+          </span>
+        ) : <span />}
+        <span className="px-2.5 py-1 rounded-md bg-white/95 text-ink-950 font-bold text-[11px] shadow-md">
           {restaurant.eta || '45-60 min'}
         </span>
       </div>
 
       {!open && (
         <div className="absolute inset-0 bg-ink-950/55 backdrop-blur-[2px] flex items-center justify-center z-10">
-          <span className="px-3.5 py-1.5 rounded-full bg-black/80 text-white text-xs font-bold border border-white/15 shadow-xl">
+          <span className="px-3.5 py-1.5 rounded-md bg-black/80 text-white text-xs font-bold border border-white/15 shadow-xl">
             Fermé
           </span>
         </div>
       )}
 
-      <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col gap-1.5 text-left text-white z-10">
-        <h3 className="font-display font-bold text-[1.05rem] sm:text-lg truncate tracking-tight">
+      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex flex-col gap-1.5 text-left text-white z-10">
+        <h3 className="font-display font-bold text-[1.15rem] sm:text-[1.25rem] truncate tracking-tight leading-tight">
           {restaurant.name}
         </h3>
 
@@ -2211,7 +2240,7 @@ export function MenuItem({ item, restaurant, onAdd, onOpen, orderingDisabled = f
                 −{priced.discountPercent}%
               </span>
             ) : isBestseller ? (
-              <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-glow tracking-wider animate-pulse">
+              <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase bg-brand-500 text-white shadow-md tracking-wider">
                 Populaire
               </span>
             ) : null}
@@ -2307,7 +2336,7 @@ export function RestaurantCard({ restaurant, onClick }) {
 
       {!open && (
         <div className="absolute inset-0 bg-ink-950/40 backdrop-blur-[2px] flex flex-col items-center justify-center text-white z-20">
-          <span className="bg-ink-950/75 border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide shadow-lg flex items-center gap-1.5">
+          <span className="bg-ink-950/75 border border-white/20 px-3.5 py-1.5 rounded-md text-xs font-bold tracking-wide shadow-lg flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
             Fermé
           </span>
@@ -2316,19 +2345,19 @@ export function RestaurantCard({ restaurant, onClick }) {
 
       <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3.5 sm:p-4 z-10">
         {isDuty ? (
-          <span className="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-emerald-500 text-white shadow-md">
-            🕐 GARDE {restaurant.guard === 'night' ? 'NUIT' : restaurant.guard === 'day' ? 'JOUR' : '24H'}
+          <span className="px-3 py-1 rounded-md text-[10px] sm:text-xs font-bold bg-emerald-500 text-white shadow-md">
+            GARDE {restaurant.guard === 'night' ? 'NUIT' : restaurant.guard === 'day' ? 'JOUR' : '24H'}
           </span>
         ) : restaurant.isCustomRequest ? (
-          <span className="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-md">
-            ✨ SUR-MESURE
+          <span className="px-3 py-1 rounded-md text-[10px] sm:text-xs font-bold bg-gradient-to-r from-amber-500 to-brand-500 text-white shadow-md">
+            SUR-MESURE
           </span>
         ) : restaurant.promo && open ? (
-          <span className="px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-gradient-to-r from-brand-500 to-pink-500 text-white shadow-glow animate-pulse-slow">
-            🎁 {restaurant.promo}
+          <span className="px-3 py-1 rounded-md text-[10px] sm:text-xs font-bold bg-brand-500 text-white shadow-md">
+            {restaurant.promo}
           </span>
         ) : open ? (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[10px] font-bold text-white">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/15 backdrop-blur-md border border-white/20 text-[10px] font-bold text-white">
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70" />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
@@ -2338,7 +2367,7 @@ export function RestaurantCard({ restaurant, onClick }) {
         ) : <span />}
 
         {!restaurant.isCustomRequest && !isService && (
-          <span className="shrink-0 inline-flex items-center gap-0.5 px-2 py-1 rounded-lg bg-white/95 text-emerald-600 text-[10px] sm:text-xs font-bold shadow-sm">
+          <span className="shrink-0 inline-flex items-center gap-0.5 px-2 py-1 rounded-md bg-white/95 text-emerald-600 text-[10px] sm:text-xs font-bold shadow-sm">
             <I.Star size={11} className="fill-emerald-500 text-emerald-500 sm:w-3 sm:h-3" />{' '}
             {(restaurant.rating ?? 4.8).toString().replace('.', ',')}
           </span>
@@ -2346,7 +2375,7 @@ export function RestaurantCard({ restaurant, onClick }) {
       </div>
 
       <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 z-10 text-white">
-        <h3 className="font-display font-black text-[1.25rem] sm:text-xl leading-tight line-clamp-2 transition-colors group-hover:text-brand-300">
+        <h3 className="font-display font-bold text-[1.25rem] sm:text-xl leading-tight line-clamp-2 transition-colors group-hover:text-orange-200">
           {restaurant.name}
         </h3>
         {isDuty && restaurant.nameAr && (
@@ -2373,7 +2402,7 @@ export function RestaurantCard({ restaurant, onClick }) {
               )}
             </>
           ) : (
-            <span className="truncate">{formatTags(restaurant.tags, ' • ')}</span>
+            <span className="truncate">{formatTags(restaurant.tags, ' · ')}</span>
           )}
         </div>
 
@@ -2382,7 +2411,7 @@ export function RestaurantCard({ restaurant, onClick }) {
             <>
               <span className="font-bold text-amber-300 shrink-0">20 MAD livraison</span>
               <span className="flex-1" />
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white text-ink-900 font-black text-[10px] sm:text-[11px] shadow-md">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white text-ink-900 font-bold text-[10px] sm:text-[11px] shadow-md">
                 Commander <I.Right size={11} />
               </span>
             </>
@@ -2394,7 +2423,7 @@ export function RestaurantCard({ restaurant, onClick }) {
               </span>
               <span className="font-bold text-emerald-400 shrink-0">Livraison offerte</span>
               <span className="flex-1" />
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-brand-500 to-pink-500 text-white font-black text-[10px] sm:text-[11px] shadow-glow">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-brand-500 text-white font-bold text-[10px] sm:text-[11px] shadow-md">
                 Voir le menu <I.Right size={11} />
               </span>
             </>
@@ -2604,7 +2633,7 @@ export function LoyaltyRewardBanner() {
 const PROMO_BANNERS = [
   {
     id: 'promo-1',
-    accent: 'from-brand-500 via-pink-500 to-rose-600',
+    accent: 'from-brand-600 via-orange-500 to-amber-600',
     orb: 'bg-amber-300/40',
     tag: 'Offre de bienvenue',
     title: '50 MAD',
@@ -2618,8 +2647,8 @@ const PROMO_BANNERS = [
   },
   {
     id: 'promo-2',
-    accent: 'from-violet-600 via-fuchsia-500 to-brand-500',
-    orb: 'bg-violet-300/35',
+    accent: 'from-ink-900 via-ink-800 to-brand-600',
+    orb: 'bg-orange-300/30',
     tag: 'Livraison offerte',
     title: '0 MAD',
     titleAccent: 'de frais',
@@ -2632,8 +2661,8 @@ const PROMO_BANNERS = [
   },
   {
     id: 'promo-4',
-    accent: 'from-pink-600 via-rose-500 to-orange-400',
-    orb: 'bg-pink-200/40',
+    accent: 'from-amber-600 via-orange-500 to-brand-500',
+    orb: 'bg-amber-200/40',
     tag: 'Douceurs & desserts',
     title: 'Envie',
     titleAccent: 'glacée ?',
@@ -2646,7 +2675,7 @@ const PROMO_BANNERS = [
   },
   {
     id: 'promo-pharma',
-    accent: 'from-emerald-600 via-teal-500 to-cyan-500',
+    accent: 'from-emerald-700 via-teal-600 to-emerald-500',
     orb: 'bg-emerald-200/40',
     tag: 'Pharmacie de garde',
     title: 'Médicaments',
@@ -2660,7 +2689,7 @@ const PROMO_BANNERS = [
   },
   {
     id: 'promo-para',
-    accent: 'from-teal-500 via-emerald-400 to-lime-400',
+    accent: 'from-teal-600 via-emerald-500 to-teal-400',
     orb: 'bg-teal-200/35',
     tag: 'Parapharmacie',
     title: 'Beauté',
@@ -2674,7 +2703,7 @@ const PROMO_BANNERS = [
   },
   {
     id: 'promo-market',
-    accent: 'from-cyan-600 via-sky-500 to-blue-500',
+    accent: 'from-sky-700 via-teal-600 to-cyan-500',
     orb: 'bg-sky-200/40',
     tag: 'Supermarché',
     title: 'Courses',
@@ -2688,8 +2717,8 @@ const PROMO_BANNERS = [
   },
   {
     id: 'promo-shop',
-    accent: 'from-violet-600 via-purple-500 to-fuchsia-500',
-    orb: 'bg-violet-200/40',
+    accent: 'from-ink-900 via-amber-800 to-orange-600',
+    orb: 'bg-amber-200/35',
     tag: 'Magasins',
     title: 'Mode',
     titleAccent: '& shopping',
@@ -2702,8 +2731,8 @@ const PROMO_BANNERS = [
   },
   {
     id: 'promo-5',
-    accent: 'from-indigo-600 via-violet-500 to-pink-500',
-    orb: 'bg-sky-300/30',
+    accent: 'from-brand-700 via-orange-600 to-amber-500',
+    orb: 'bg-orange-300/30',
     tag: 'Livraison express',
     title: '4,99 MAD',
     titleAccent: 'express',
@@ -2716,7 +2745,7 @@ const PROMO_BANNERS = [
   },
   {
     id: 'promo-6',
-    accent: 'from-amber-500 via-orange-500 to-pink-500',
+    accent: 'from-amber-600 via-orange-500 to-brand-600',
     orb: 'bg-amber-200/45',
     tag: 'Fidélité',
     title: '-50 MAD',
@@ -2779,7 +2808,7 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
   return (
     <section className="relative px-4 sm:px-0">
       {copiedToast && (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-gradient-to-r from-brand-500 to-pink-500 text-white font-black text-sm shadow-glow flex items-center gap-2 animate-bounce-soft border border-white/20">
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-brand-500 text-white font-bold text-sm shadow-[0_12px_40px_-12px_rgba(249,115,22,0.7)] flex items-center gap-2 animate-bounce-soft border border-white/20">
           <span className="text-base">✓</span>
           <span>{copiedToast}</span>
         </div>
@@ -2874,7 +2903,7 @@ export function DeliverooPromoBannersCarousel({ onSelectFilter }) {
             key={b.id}
             className={`h-1.5 rounded-full transition-all duration-300 ${
               i === activeIdx
-                ? 'w-6 bg-gradient-to-r from-brand-500 to-pink-500'
+                ? 'w-6 bg-brand-500'
                 : 'w-1.5 bg-ink-200 dark:bg-ink-700'
             }`}
           />
@@ -2892,14 +2921,14 @@ function DeliverooPopularBrandsSection({ restaurants, onPick }) {
   };
 
   const bgColors = [
-    'from-amber-400 to-yellow-500',
-    'from-slate-900 to-indigo-950',
-    'from-slate-950 to-black',
-    'from-rose-600 to-red-700',
-    'from-orange-500 to-amber-600',
+    'from-amber-400 to-orange-500',
+    'from-ink-900 to-ink-950',
+    'from-orange-600 to-amber-700',
+    'from-brand-500 to-orange-600',
+    'from-amber-500 to-orange-500',
     'from-emerald-600 to-teal-700',
-    'from-violet-600 to-purple-800',
-    'from-sky-500 to-blue-700',
+    'from-orange-700 to-amber-800',
+    'from-teal-600 to-emerald-700',
   ];
 
   return (
