@@ -1,11 +1,11 @@
-"""Endpoints d'administration de la synchro Glovo (/add-glovo/*).
+"""Endpoints d'administration de la synchro catalogue (/catalog-import/*, alias historiques).
 
-Accès réservé aux administrateurs YoHa ou au token `GLOVO_TOOLS.token`
-(en-tête `X-Glovo-Token`) — utile pour déclencher la synchro depuis un
-outil externe.
+Accès : JWT admin YoHa, ou token outil en en-tête `X-Catalog-Token` / `X-Glovo-Token`
+(comparaison constant-time). Outils désactivés par défaut en production.
 """
 from __future__ import annotations
 
+import hmac
 import logging
 import threading
 
@@ -13,9 +13,9 @@ from django.conf import settings
 from django.db import close_old_connections
 from django.utils.text import slugify
 from rest_framework import status
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from apps.restaurants.glovo import GlovoError, discover_store
 from apps.restaurants.glovo_sync import build_sync_targets, sync_all_glovo
@@ -28,12 +28,25 @@ def _tools_enabled(name: str) -> bool:
     return bool(getattr(settings, "GLOVO_TOOLS", {}).get(name, False))
 
 
+def _token_ok(request) -> bool:
+    expected = (getattr(settings, "GLOVO_TOOLS", {}) or {}).get("token", "") or ""
+    if not expected:
+        return False
+    provided = (
+        request.headers.get("X-Catalog-Token")
+        or request.headers.get("X-Glovo-Token")
+        or ""
+    )
+    return hmac.compare_digest(str(provided), str(expected))
+
+
 def _authorized(request) -> bool:
     user = getattr(request, "user", None)
-    if user is not None and user.is_authenticated and user.is_staff:
+    if user is not None and user.is_authenticated and (
+        getattr(user, "role", None) == "admin" or user.is_staff or user.is_superuser
+    ):
         return True
-    token = getattr(settings, "GLOVO_TOOLS", {}).get("token", "")
-    return bool(token) and request.headers.get("X-Glovo-Token") == token
+    return _token_ok(request)
 
 
 def _denied() -> Response:
@@ -50,18 +63,21 @@ def _run_sync_in_thread(slug: str | None) -> None:
         try:
             sync_all_glovo(force=True, slug=slug or None)
         except Exception:  # noqa: BLE001
-            logger.exception("add_glovo_thread_failed")
+            logger.exception("catalog_import_thread_failed")
         finally:
             close_old_connections()
 
     threading.Thread(target=_job, daemon=True).start()
 
 
-class AddGlovoStoreView(APIView):
-    """Découvre un store Glovo et le crée/active dans YoHa (menu synchronisé)."""
+class _CatalogToolView(APIView):
+    """JWT admin ou token outil — pas d'accès anonyme silencieux."""
 
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    authentication_classes = [JWTAuthentication]
+    permission_classes = []
+
+class AddGlovoStoreView(_CatalogToolView):
+    """Découvre un store catalogue et le crée/active dans YoHa (menu synchronisé)."""
 
     def post(self, request):
         if not _tools_enabled("add"):
@@ -99,7 +115,7 @@ class AddGlovoStoreView(APIView):
 
         if not store_id or not address_id:
             return Response(
-                {"detail": "store/address introuvables — vérifiez le slug Glovo."},
+                {"detail": "store/address introuvables — vérifiez le slug."},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
@@ -145,11 +161,8 @@ class AddGlovoStoreView(APIView):
         )
 
 
-class GlovoStoresView(APIView):
-    """Liste des stores Glovo synchronisés avec leur dernier état."""
-
-    permission_classes = [AllowAny]
-    authentication_classes = []
+class GlovoStoresView(_CatalogToolView):
+    """Liste des stores synchronisés avec leur dernier état."""
 
     def get(self, request):
         if not _tools_enabled("discover"):
@@ -177,11 +190,8 @@ class GlovoStoresView(APIView):
         return Response(payload)
 
 
-class GlovoLogsView(APIView):
+class GlovoLogsView(_CatalogToolView):
     """Historique récent des synchronisations."""
-
-    permission_classes = [AllowAny]
-    authentication_classes = []
 
     def get(self, request):
         if not _tools_enabled("logs"):
@@ -207,11 +217,8 @@ class GlovoLogsView(APIView):
         )
 
 
-class GlovoSyncNowView(APIView):
+class GlovoSyncNowView(_CatalogToolView):
     """Déclenche une synchronisation immédiate (tous ou un store)."""
-
-    permission_classes = [AllowAny]
-    authentication_classes = []
 
     def post(self, request):
         if not _tools_enabled("sync"):
@@ -221,4 +228,4 @@ class GlovoSyncNowView(APIView):
 
         slug = (request.data.get("slug") or "").strip() or None
         _run_sync_in_thread(slug)
-        return Response({"detail": "Synchro Glovo lancée.", "slug": slug})
+        return Response({"detail": "Synchro catalogue lancée.", "slug": slug})

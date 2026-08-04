@@ -6,7 +6,7 @@ import { ToastCtx, OrdersCtx, CartIconRefCtx, CartCtx, makeCartKey } from '@/con
 import { AuthProvider, useAuth } from '@/contexts/AuthContext.jsx';
 import { YohaNavProvider } from '@/contexts/YohaNavContext.jsx';
 import { getTokens, ordersApi, restaurantsApi } from '@/lib/api';
-import { getGuestOrderIds, addGuestOrderId, clearGuestOrderIds } from '@/utils/guestOrders';
+import { getGuestOrderIds, getGuestOrderEmail, addGuestOrderId, clearGuestOrderIds } from '@/utils/guestOrders';
 import { orderToCartItems } from '@/utils/reorder';
 import { withItemOfferPricing } from '@/utils/restaurantOffers.js';
 
@@ -241,7 +241,7 @@ function triggerClientNotification(title, body, orderId) {
       }
       if (guestIds.length) {
         try {
-          const guestList = await ordersApi.guestList(guestIds);
+          const guestList = await ordersApi.guestList(guestIds, getGuestOrderEmail());
           (Array.isArray(guestList) ? guestList : []).forEach((o) => byId.set(o.id, o));
         } catch {}
       }
@@ -488,7 +488,7 @@ function triggerClientNotification(title, body, orderId) {
 
       const isLoggedInClient = !!getTokens()?.access && user?.role === 'client';
       if (!isLoggedInClient && order?.id) {
-        addGuestOrderId(order.id);
+        addGuestOrderId(order.id, customer?.email || order?.customer?.email || '');
       }
 
       setOrders((prev) => {
@@ -653,11 +653,11 @@ function triggerClientNotification(title, body, orderId) {
           try {
             order = await ordersApi.get(publicId);
           } catch {
-            const list = await ordersApi.guestList([publicId]);
+            const list = await ordersApi.guestList([publicId], getGuestOrderEmail());
             order = list[0] ?? null;
           }
         } else {
-          const list = await ordersApi.guestList([publicId]);
+          const list = await ordersApi.guestList([publicId], getGuestOrderEmail());
           order = list[0] ?? null;
         }
         if (order) syncOrder(order);

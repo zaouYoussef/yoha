@@ -44,7 +44,6 @@ class HealthView(APIView):
             "status": "ok" if healthy else "degraded",
             "database": db_ok,
             "cache": cache_ok,
-            "debug": settings.DEBUG,
         }
         code = status.HTTP_200_OK if healthy else status.HTTP_503_SERVICE_UNAVAILABLE
         return Response(payload, status=code)

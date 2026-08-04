@@ -7,6 +7,7 @@ from rest_framework import serializers
 from apps.restaurants.models import MenuItem, Restaurant, MenuCategory
 
 from .models import CourierProfile, Order, OrderLine, Review
+from .security import emails_match
 
 User = get_user_model()
 
@@ -112,12 +113,29 @@ class CheckoutSerializer(serializers.Serializer):
         )
 
         resolved = []
+        from .security import (
+            CLIENT_PRICE_CUISINES,
+            clamp_client_unit_price,
+            compute_catalog_unit_price,
+        )
+
+        allow_adhoc = restaurant.cuisine in CLIENT_PRICE_CUISINES
+
         for row in items_in:
             external_id = row["menu_item_id"]
-            item = MenuItem.objects.filter(restaurant=restaurant, external_id=external_id).first()
+            options = row.get("item_options") or []
+            item = (
+                MenuItem.objects.filter(restaurant=restaurant, external_id=external_id)
+                .prefetch_related("modifier_groups__options")
+                .first()
+            )
             if not item:
+                if not allow_adhoc:
+                    raise serializers.ValidationError(
+                        {"items": f"Plat introuvable : {external_id}"}
+                    )
                 item_name = row.get("item_name") or "Article"
-                item_price = row.get("item_price") or Decimal("0.00")
+                item_price = clamp_client_unit_price(row.get("item_price"))
                 item = MenuItem.objects.create(
                     restaurant=restaurant,
                     category=category,
@@ -126,11 +144,16 @@ class CheckoutSerializer(serializers.Serializer):
                     price_mad=item_price,
                     is_available=True,
                 )
+                unit = item_price
+            else:
+                # Catalogue : prix 100 % serveur (+ options validées).
+                unit = compute_catalog_unit_price(item, options)
+
             resolved.append({
                 "menu_item": item,
                 "qty": row["quantity"],
-                "unit_price_mad": row.get("item_price"),
-                "options": row.get("item_options") or [],
+                "unit_price_mad": unit,
+                "options": options,
             })
 
         # Calculate dynamic delivery fee: 20 DH per unique custom/static pharmacy, patisserie, supermarket, shop, or parapharmacy restaurant name
@@ -316,6 +339,20 @@ class OrderSerializer(serializers.ModelSerializer):
     def get_customerUserId(self, obj):
         return str(obj.client_id) if obj.client_id else None
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get("request")
+        user = getattr(request, "user", None) if request else None
+        is_admin = bool(
+            user
+            and user.is_authenticated
+            and (getattr(user, "role", None) == "admin" or user.is_superuser)
+        )
+        if not is_admin:
+            data.pop("profitDh", None)
+            data.pop("netDh", None)
+        return data
+
 
 class CourierLocationSerializer(serializers.Serializer):
     # Float + arrondi : les GPS mobiles (iOS) envoient > 9 chiffres totaux
@@ -344,6 +381,7 @@ class CourierSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source="display_name")
     userId = serializers.SerializerMethodField()
     email = serializers.SerializerMethodField()
+    phone = serializers.SerializerMethodField()
 
     class Meta:
         model = CourierProfile
@@ -352,10 +390,27 @@ class CourierSerializer(serializers.ModelSerializer):
     def get_userId(self, obj):
         return str(obj.user_id) if obj.user_id else None
 
+    def _is_admin(self):
+        request = self.context.get("request")
+        user = getattr(request, "user", None) if request else None
+        return bool(user and user.is_authenticated and (user.role == "admin" or user.is_superuser))
+
     def get_email(self, obj):
+        if not self._is_admin():
+            return None
         if obj.user_id and obj.user:
             return obj.user.email
         return None
+
+    def get_phone(self, obj):
+        request = self.context.get("request")
+        user = getattr(request, "user", None) if request else None
+        if self._is_admin():
+            return obj.phone or ""
+        # Livreur : son propre téléphone seulement
+        if user and user.is_authenticated and user.courier_profile_id == obj.pk:
+            return obj.phone or ""
+        return ""
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -407,30 +462,61 @@ class ReviewSerializer(serializers.ModelSerializer):
 class ReviewCreateSerializer(serializers.Serializer):
     order_id = serializers.CharField()
     customer_name = serializers.CharField(max_length=120, required=False, allow_blank=True)
-    restaurant_name = serializers.CharField(max_length=200)
+    restaurant_name = serializers.CharField(max_length=200, required=False, allow_blank=True)
     courier_name = serializers.CharField(max_length=100, required=False, allow_blank=True)
     rating = serializers.IntegerField(min_value=1, max_value=5)
     comment = serializers.CharField(required=False, allow_blank=True)
 
-    def create(self, validated_data):
-        order_id = validated_data.pop("order_id")
-        from .models import Order
-        import uuid
+    def validate(self, attrs):
+        from .models import Order, Review
+
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            raise serializers.ValidationError("Authentification requise.")
+
+        order_id = attrs["order_id"]
         order = Order.objects.filter(public_id=order_id).first()
         if not order:
-            try:
-                uuid.UUID(str(order_id))
-                order = Order.objects.filter(pk=order_id).first()
-            except (ValueError, TypeError):
-                pass
-        if order:
-            validated_data["order"] = order
-            if not validated_data.get("customer_name") or validated_data.get("customer_name") in ["Client", "Client YoHa"]:
-                validated_data["customer_name"] = order.customer_name or (order.user.display_name if order.user else "")
+            raise serializers.ValidationError({"order_id": "Commande introuvable."})
+
+        user = request.user
+        owns = order.client_id == user.id
+        if not owns and user.role == "client":
+            # Invité devenu compte : e-mail commande = e-mail compte
+            if not emails_match(user.email, order.customer_email or ""):
+                raise serializers.ValidationError("Cette commande ne vous appartient pas.")
+        elif not owns and user.role != "admin" and not user.is_superuser:
+            raise serializers.ValidationError("Cette commande ne vous appartient pas.")
+
+        if order.status != Order.Status.DELIVERED:
+            raise serializers.ValidationError("Avis possible uniquement après livraison.")
+
+        if Review.objects.filter(order=order).exists():
+            raise serializers.ValidationError("Un avis existe déjà pour cette commande.")
+
+        attrs["order"] = order
+        attrs["restaurant_name"] = attrs.get("restaurant_name") or (
+            order.restaurant.name if order.restaurant_id else ""
+        )
+        attrs["courier_name"] = attrs.get("courier_name") or (
+            order.courier.display_name if order.courier_id else ""
+        )
+        attrs["customer_name"] = attrs.get("customer_name") or order.customer_name or (
+            user.display_name if hasattr(user, "display_name") else ""
+        ) or user.email
+        return attrs
+
+    def create(self, validated_data):
         request = self.context.get("request")
-        if request and request.user.is_authenticated:
-            validated_data["user"] = request.user
-            if not validated_data.get("customer_name") or validated_data.get("customer_name") in ["Client", "Client YoHa"]:
-                validated_data["customer_name"] = request.user.display_name or request.user.email
-        return Review.objects.create(**validated_data)
+        validated_data.pop("order_id", None)
+        order = validated_data["order"]
+        return Review.objects.create(
+            order=order,
+            user=request.user if request and request.user.is_authenticated else None,
+            customer_name=validated_data.get("customer_name") or "",
+            restaurant_name=validated_data.get("restaurant_name") or "",
+            courier_name=validated_data.get("courier_name") or "",
+            rating=validated_data["rating"],
+            comment=validated_data.get("comment") or "",
+        )
 

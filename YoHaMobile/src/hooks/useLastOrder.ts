@@ -1,7 +1,7 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Order, ordersApi } from '../lib/api';
-import { getGuestOrderIds } from '../lib/guestOrders';
+import { getGuestOrderIds, getGuestOrderEmail } from '../lib/guestOrders';
 import { useAuth } from '../contexts/AuthContext';
 
 export function useLastOrder() {
@@ -19,7 +19,7 @@ export function useLastOrder() {
           setLastOrder(null);
           return;
         }
-        orders = await ordersApi.guestList(ids);
+        orders = await ordersApi.guestList(ids, await getGuestOrderEmail());
       }
       const delivered = orders.find((o) => o.status === 'delivered');
       setLastOrder(delivered ?? orders[0] ?? null);

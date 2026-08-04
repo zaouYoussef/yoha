@@ -533,12 +533,12 @@ export const ordersApi = {
     return (raw as Record<string, unknown>[]).map(normalizeOrder);
   },
 
-  async guestList(publicIds: string[]) {
+  async guestList(publicIds: string[], email = '') {
     if (!publicIds.length) return [] as Order[];
     const raw = unwrapList(
       await apiFetch('/orders/guest/', {
         method: 'POST',
-        body: { public_ids: publicIds },
+        body: { public_ids: publicIds, email: email || undefined },
         auth: false,
       }),
     );
@@ -560,7 +560,8 @@ export const ordersApi = {
       const raw = await apiFetch<Record<string, unknown>>(`/orders/${publicId}/`);
       return normalizeOrder(raw);
     }
-    const guest = await ordersApi.guestList([publicId]);
+    const { getGuestOrderEmail } = await import('./guestOrders');
+    const guest = await ordersApi.guestList([publicId], await getGuestOrderEmail());
     if (guest[0]) return guest[0];
     throw new Error('Commande introuvable');
   },

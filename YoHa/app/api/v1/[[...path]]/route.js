@@ -8,8 +8,14 @@ function buildBackendUrl(segments, search) {
   return `${BACKEND}/api/v1/${path}${search || ''}`;
 }
 
-function isFrontendUrl(url) {
-  return /:300[0-9]\b/.test(url) || url.includes('localhost:300');
+function isSameBackend(url) {
+  try {
+    const u = new URL(url, BACKEND);
+    const b = new URL(BACKEND);
+    return u.origin === b.origin && u.pathname.startsWith('/api/');
+  } catch {
+    return false;
+  }
 }
 
 async function proxy(request, context) {
@@ -19,7 +25,6 @@ async function proxy(request, context) {
     const { search } = new URL(request.url);
     let target = buildBackendUrl(segments, search);
 
-    // Sécurité : s'assurer que l'URL cible se termine par un slash (Django APPEND_SLASH)
     if (!target.split('?')[0].endsWith('/')) {
       target = target.replace(/(\?|$)/, '/$1');
     }
@@ -29,13 +34,16 @@ async function proxy(request, context) {
     const contentType = request.headers.get('content-type');
     if (auth) headers.set('Authorization', auth);
     if (contentType) headers.set('Content-Type', contentType);
-    headers.set('X-Forwarded-Proto', 'https');
+    // Ne pas forger Proto : laisser nginx / l'origine réelle
+    const fwdProto = request.headers.get('x-forwarded-proto');
+    if (fwdProto) headers.set('X-Forwarded-Proto', fwdProto);
     headers.set('X-Forwarded-Host', request.headers.get('host') || 'yoha.ma');
 
     const init = {
       method: request.method,
       headers,
       redirect: 'manual',
+      signal: AbortSignal.timeout(25000),
     };
     if (request.method !== 'GET' && request.method !== 'HEAD') {
       init.body = await request.arrayBuffer();
@@ -43,13 +51,16 @@ async function proxy(request, context) {
 
     let upstream = await fetch(target, init);
 
+    // Ne suivre qu'une redirection vers le même backend API (anti-SSRF)
     if ([301, 302, 307, 308].includes(upstream.status)) {
       const location = upstream.headers.get('location');
-      if (location && !isFrontendUrl(location)) {
+      if (location) {
         const nextUrl = location.startsWith('http')
           ? location
           : `${BACKEND}${location.startsWith('/') ? location : `/${location}`}`;
-        upstream = await fetch(nextUrl, init);
+        if (isSameBackend(nextUrl)) {
+          upstream = await fetch(nextUrl, init);
+        }
       }
     }
 
@@ -58,6 +69,8 @@ async function proxy(request, context) {
       status: upstream.status,
       headers: {
         'Content-Type': upstream.headers.get('content-type') || 'application/json',
+        'X-Content-Type-Options': 'nosniff',
+        'Cache-Control': 'no-store',
       },
     });
   } catch (error) {

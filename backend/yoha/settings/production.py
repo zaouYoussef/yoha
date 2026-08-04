@@ -6,13 +6,13 @@ REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = (  # noqa: F405
     "rest_framework.renderers.JSONRenderer",
 )
 
-SECURE_SSL_REDIRECT = env("SECURE_SSL_REDIRECT")
-SESSION_COOKIE_SECURE = env("SESSION_COOKIE_SECURE")
-CSRF_COOKIE_SECURE = env("CSRF_COOKIE_SECURE")
+# Forcer HTTPS / cookies sécurisés en production (ignorer env trop permissif)
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 ALLOWED_HOSTS = [
-    "94.237.99.114",
     "yoha.ma",
     "www.yoha.ma",
     "localhost",
@@ -21,10 +21,19 @@ ALLOWED_HOSTS = [
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 CORS_ALLOWED_ORIGINS = [
-    "http://94.237.99.114",
-    "http://yoha.ma",
-    "http://www.yoha.ma",
+    "https://yoha.ma",
+    "https://www.yoha.ma",
+]
+CSRF_TRUSTED_ORIGINS = [
     "https://yoha.ma",
     "https://www.yoha.ma",
 ]
 
+# Outils catalogue sync : off par défaut en prod (activer via env si besoin)
+GLOVO_TOOLS = {
+    **GLOVO_TOOLS,  # noqa: F405
+    "add": env.bool("GLOVO_TOOL_ADD", default=False),  # noqa: F405
+    "discover": env.bool("GLOVO_TOOL_DISCOVER", default=False),  # noqa: F405
+    "sync": env.bool("GLOVO_TOOL_SYNC", default=False),  # noqa: F405
+    "logs": env.bool("GLOVO_TOOL_LOGS", default=False),  # noqa: F405
+}

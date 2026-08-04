@@ -93,7 +93,7 @@ export default function ClientCheckout() {
         delivery_instructions: notes.trim(),
         scheduled_delivery_at: null,
       });
-      await addGuestOrderId(order.id);
+      await addGuestOrderId(order.id, email.trim());
       void hapticSuccess();
       clear();
       router.replace(`/(client)/order/${order.id}`);

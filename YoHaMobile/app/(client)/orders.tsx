@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 
 import { ordersApi, type Order } from '../../src/lib/api';
 import { resolveImageUrl } from '../../src/lib/resolveImageUrl';
-import { getGuestOrderIds } from '../../src/lib/guestOrders';
+import { getGuestOrderIds, getGuestOrderEmail } from '../../src/lib/guestOrders';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { useCart } from '../../src/contexts/CartContext';
 import { useLayoutChrome } from '../../src/lib/layoutChrome';
@@ -43,7 +43,7 @@ export default function ClientOrders() {
         setOrders(await ordersApi.list());
       } else {
         const ids = await getGuestOrderIds();
-        setOrders(ids.length ? await ordersApi.guestList(ids) : []);
+        setOrders(ids.length ? await ordersApi.guestList(ids, await getGuestOrderEmail()) : []);
       }
     } catch {
       setOrders([]);

@@ -60,7 +60,7 @@ class Order(models.Model):
     }
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    public_id = models.CharField(max_length=20, unique=True, db_index=True)
+    public_id = models.CharField(max_length=40, unique=True, db_index=True)
     client = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -124,10 +124,11 @@ class Order(models.Model):
 
     @classmethod
     def generate_public_id(cls) -> str:
-        """Numéro public aléatoire (non séquentiel) — ex. YH-8472."""
-        for _ in range(32):
-            num = secrets.randbelow(9_000) + 1_000  # 4 chiffres
-            candidate = f"YH-{num}"
+        """Identifiant public non énumérable — ex. YH-K7M2QX9P4R."""
+        alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+        for _ in range(48):
+            body = "".join(secrets.choice(alphabet) for _ in range(10))
+            candidate = f"YH-{body}"
             if not cls.objects.filter(public_id=candidate).exists():
                 return candidate
         raise RuntimeError("Impossible de générer un numéro de commande unique.")
@@ -171,9 +172,10 @@ class Order(models.Model):
         for row in items_payload:
             item = row["menu_item"]
             qty = row["qty"]
-            # Prix unitaire transmis par le client (base + surtaxes options) ;
-            # on retombe sur le prix en base si absent ou nul.
-            unit = Decimal(str(row.get("unit_price_mad") or 0)) or item.price_mad
+            # Prix unitaire toujours fourni déjà recalculé côté serializer (serveur).
+            unit = Decimal(str(row.get("unit_price_mad") or 0))
+            if unit <= 0:
+                unit = item.price_mad
             line_total = unit * qty
             subtotal += line_total
             opts = row.get("options") or []

@@ -516,12 +516,12 @@ export const ordersApi = {
     return unwrapList(await apiFetch('/orders/'));
   },
 
-  async guestList(publicIds) {
+  async guestList(publicIds, email = '') {
     if (!publicIds?.length) return [];
     return unwrapList(
       await apiFetch('/orders/guest/', {
         method: 'POST',
-        body: { public_ids: publicIds },
+        body: { public_ids: publicIds, email: email || undefined },
         auth: false,
       }),
     );

@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useOrderAlerts } from '../hooks/useOrderAlerts';
 import { useRestaurantMe } from '../hooks/useRestaurantMe';
 import { Order, ordersApi } from '../lib/api';
-import { getGuestOrderIds } from '../lib/guestOrders';
+import { getGuestOrderIds, getGuestOrderEmail } from '../lib/guestOrders';
 import { subscribeOrder, unsubscribe } from '../lib/ws/client';
 
 /** WebSocket-driven order alerts for client tab. Falls back to polling if WS fails. */
@@ -17,7 +17,7 @@ export function ClientOrderAlertPoller() {
     try {
       const data = user
         ? await ordersApi.list()
-        : await ordersApi.guestList(await getGuestOrderIds());
+        : await ordersApi.guestList(await getGuestOrderIds(), await getGuestOrderEmail());
       const list = Array.isArray(data) ? data : [];
       setOrders(list);
 

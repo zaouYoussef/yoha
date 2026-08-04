@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Order, ordersApi } from '../lib/api';
 import { isActiveOrderStatus } from '../lib/constants';
-import { getGuestOrderIds } from '../lib/guestOrders';
+import { getGuestOrderIds, getGuestOrderEmail } from '../lib/guestOrders';
 import { useAuth } from '../contexts/AuthContext';
 
 export function useActiveOrder() {
@@ -15,7 +15,7 @@ export function useActiveOrder() {
         orders = (await ordersApi.list()) as Order[];
       } else {
         const ids = await getGuestOrderIds();
-        orders = await ordersApi.guestList(ids);
+        orders = await ordersApi.guestList(ids, await getGuestOrderEmail());
       }
       const active = orders.find((o) => isActiveOrderStatus(o.status));
       setActiveOrder(active || null);
