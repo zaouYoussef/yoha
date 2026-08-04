@@ -447,6 +447,21 @@ class CourierListView(generics.ListAPIView):
         user = self.request.user
         qs = CourierProfile.objects.select_related("user")
         if user.role == "admin" or user.is_superuser:
+            # Garantit un CourierProfile pour chaque compte livreur (évite « Profil introuvable »)
+            from django.contrib.auth import get_user_model
+
+            User = get_user_model()
+            for u in User.objects.filter(role=User.Role.COURIER, is_active=True):
+                profile, created = CourierProfile.objects.get_or_create(
+                    user=u,
+                    defaults={
+                        "display_name": (u.display_name or u.email or "Livreur").strip(),
+                        "is_active": True,
+                    },
+                )
+                if not created and u.display_name and profile.display_name != u.display_name:
+                    profile.display_name = u.display_name
+                    profile.save(update_fields=["display_name"])
             return qs
         if user.role == "courier" and user.courier_profile_id:
             return qs.filter(pk=user.courier_profile_id)
@@ -457,32 +472,37 @@ class AdminCourierDeleteView(APIView):
     """Admin désactive un livreur (soft-delete)."""
     permission_classes = [IsAuthenticated]
 
+    def _is_admin(self, request):
+        u = request.user
+        return bool(u and u.is_authenticated and (u.role == "admin" or u.is_superuser))
+
     def patch(self, request, pk):
-        if request.user.role != "admin":
+        if not self._is_admin(request):
             return Response({"detail": "Accès refusé."}, status=status.HTTP_403_FORBIDDEN)
         try:
             profile = CourierProfile.objects.get(pk=pk)
         except CourierProfile.DoesNotExist:
             return Response({"detail": "Livreur introuvable."}, status=status.HTTP_404_NOT_FOUND)
 
-        value = request.data.get("is_active")
+        value = request.data.get("is_active", request.data.get("isActive"))
         if value is None:
             profile.is_active = not bool(profile.is_active)
         else:
-            profile.is_active = bool(value)
+            profile.is_active = bool(value) if not isinstance(value, str) else value.lower() in ("1", "true", "yes")
         profile.save(update_fields=["is_active"])
 
         return Response(
             {
                 "id": profile.pk,
                 "is_active": profile.is_active,
+                "isActive": profile.is_active,
                 "detail": "Disponibilité mise à jour.",
             },
             status=status.HTTP_200_OK,
         )
 
     def delete(self, request, pk):
-        if request.user.role != "admin":
+        if not self._is_admin(request):
             return Response({"detail": "Accès refusé."}, status=status.HTTP_403_FORBIDDEN)
         try:
             profile = CourierProfile.objects.get(pk=pk)

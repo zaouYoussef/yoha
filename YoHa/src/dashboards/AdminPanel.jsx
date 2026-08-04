@@ -1474,15 +1474,22 @@ export function AdminCouriers() {
         const merged = users
           .filter((u) => u.is_active !== false)
           .map((u) => {
-            const p = profiles.find((pr) => pr.userId === u.id || (pr.email && pr.email.toLowerCase() === u.email.toLowerCase()));
+            const uid = String(u.id || '').toLowerCase();
+            const uemail = String(u.email || '').toLowerCase();
+            const p = profiles.find((pr) => {
+              const puid = String(pr.userId || pr.user_id || '').toLowerCase();
+              const pemail = String(pr.email || '').toLowerCase();
+              return (puid && uid && puid === uid) || (pemail && uemail && pemail === uemail);
+            });
+            const profileId = p?.id != null ? String(p.id) : null;
             return {
               id: u.id,
-              profileId: p?.id ? String(p.id) : null,
-              name: u.display_name,
-              displayName: u.display_name,
+              profileId,
+              name: u.display_name || p?.name || u.email,
+              displayName: u.display_name || p?.name || u.email,
               email: u.email,
               vehicle: p?.vehicle || 'Moto Express',
-              isActive: p?.isActive !== undefined ? p.isActive : (u.is_active !== undefined ? u.is_active : true),
+              isActive: p?.isActive !== undefined ? Boolean(p.isActive) : (u.is_active !== undefined ? u.is_active : true),
               rating: p?.rating || '5.0',
               totalDeliveries: p?.totalDeliveries || 0,
               totalRevenue: p?.totalRevenue || 0,
@@ -1564,16 +1571,16 @@ export function AdminCouriers() {
     }
 
     if (createdCourier) {
-      const updated = [createdCourier, ...courierList];
-      saveCouriersLocally(updated);
       setEmail('');
       setPassword('');
       setDisplayName('');
       setShowForm(false);
+      // Recharge depuis l'API pour récupérer le profileId (CourierProfile)
+      await loadCouriers();
       if (refreshOrders) refreshOrders();
     }
     setAdding(false);
-  }, [email, password, displayName, courierList, refreshOrders]);
+  }, [email, password, displayName, loadCouriers, refreshOrders]);
 
   const handleDelete = useCallback(async (id) => {
     if (!window.confirm('Voulez-vous vraiment supprimer ce livreur ?')) return;
