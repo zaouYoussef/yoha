@@ -364,7 +364,13 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
   }, [syncGps]);
 
   const destInfo = useMemo(
-    () => resolveDestinationCoords(order?.customerAddress || order?.address || order?.delivery_instructions || ''),
+    () => resolveDestinationCoords(
+      order?.customerAddress
+      || order?.customer?.address
+      || order?.address
+      || order?.delivery_instructions
+      || '',
+    ),
     [order],
   );
 
