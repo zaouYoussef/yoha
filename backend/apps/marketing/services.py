@@ -160,8 +160,29 @@ def run_promo_campaign(*, force: bool = False, dry_run: bool = False) -> dict:
 
     sent = 0
     failed = 0
+    push_sent = 0
     from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "YoHa <no-reply@yoha.ma>")
     subject = f"🍽️ {base_ctx['title']} · YoHa"
+
+    # Push navigateur (2×/semaine) — Chrome fermé / écran éteint OK ; file d'attente si téléphone off
+    try:
+        from apps.orders.web_push_sender import send_promo_offers_web_push
+
+        hero = base_ctx.get("hero") or {}
+        promo_label = hero.get("promo") or "Livraison offerte"
+        push_title = f"🔥 Offre YoHa · {restaurant.name}"
+        push_body = f"{promo_label} — découvre le menu de la semaine sur YoHa."
+        push_sent = send_promo_offers_web_push(
+            title=push_title,
+            body=push_body,
+            data={
+                "campaignKey": campaign_key,
+                "restaurantSlug": restaurant.slug,
+                "url": f"/restaurant/{restaurant.slug}",
+            },
+        )
+    except Exception:
+        logger.exception("promo_push_failed campaign=%s", campaign_key)
 
     for email in recipients:
         if not email or email.strip().lower().endswith('@yoha.ma'):
@@ -224,5 +245,6 @@ def run_promo_campaign(*, force: bool = False, dry_run: bool = False) -> dict:
         "restaurant": restaurant.slug,
         "sent": sent,
         "failed": failed,
+        "push_sent": push_sent,
         "recipients": len(recipients),
     }

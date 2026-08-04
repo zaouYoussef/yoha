@@ -7,10 +7,16 @@ self.addEventListener("push", function (event) {
     return;
   }
 
-  var title = data.title || "YoHa - Nouvelle Commande 🚀";
-  var body = data.body || "Une nouvelle commande nécessite votre attention !";
-  var tag = "yoha-order-" + (data.data && data.data.orderId ? data.data.orderId : Date.now());
+  var payloadData = data.data || {};
+  var isOffer = data.tag === "yoha-offer" || payloadData.type === "promo_offer";
+  var title = data.title || (isOffer ? "Offre YoHa" : "YoHa - Nouvelle Commande");
+  var body = data.body || (isOffer ? "Une offre t'attend sur YoHa." : "Une nouvelle commande nécessite votre attention !");
+  var tag = data.tag
+    || (isOffer
+      ? "yoha-offer"
+      : "yoha-order-" + (payloadData.orderId ? payloadData.orderId : Date.now()));
   var icon = "/logo.png";
+  var actionTitle = isOffer ? "Voir l'offre" : "Voir la commande";
 
   event.waitUntil(
     self.registration.showNotification(title, {
@@ -19,11 +25,11 @@ self.addEventListener("push", function (event) {
       badge: icon,
       tag: tag,
       renotify: true,
-      requireInteraction: true,
-      vibrate: [500, 250, 500, 250, 500, 250, 500],
-      data: data.data || {},
+      requireInteraction: !isOffer,
+      vibrate: isOffer ? [200, 100, 200] : [500, 250, 500, 250, 500, 250, 500],
+      data: payloadData,
       actions: [
-        { action: "open", title: "📱 Voir la commande" }
+        { action: "open", title: actionTitle }
       ]
     })
   );
@@ -34,23 +40,30 @@ self.addEventListener("notificationclick", function (event) {
   var data = event.notification.data || {};
   var tag = event.notification.tag || "";
 
-  // Client notifications use tag prefix "yoha-client-"
   var isClient = tag.indexOf("yoha-client-") === 0;
+  var isOffer = tag === "yoha-offer" || data.type === "promo_offer";
   var orderId = isClient && data.orderId
     ? data.orderId
     : (data.orderId || (tag.replace("yoha-client-", "") || null));
 
   var url = data.url
     ? data.url
-    : isClient && orderId
-      ? "/order/" + orderId
-      : "/delivery";
+    : isOffer
+      ? "/browse"
+      : isClient && orderId
+        ? "/order/" + orderId
+        : "/delivery";
 
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (clientList) {
       for (var i = 0; i < clientList.length; i++) {
         var client = clientList[i];
         if (client.url.indexOf(self.location.origin) === 0 && "focus" in client) {
+          if ("navigate" in client && url) {
+            try {
+              client.navigate(self.location.origin + url);
+            } catch (_) { /* ignore */ }
+          }
           return client.focus();
         }
       }
@@ -68,4 +81,3 @@ self.addEventListener("install", function () {
 self.addEventListener("activate", function (event) {
   event.waitUntil(clients.claim());
 });
-

@@ -322,6 +322,8 @@ PHARMACY_SCHEDULER_HOUR = env.int("PHARMACY_SCHEDULER_HOUR", default=12)
 PHARMACY_SCHEDULER_MINUTE = env.int("PHARMACY_SCHEDULER_MINUTE", default=0)
 PROMO_CAMPAIGN_MIN_DAYS = env.int("PROMO_CAMPAIGN_MIN_DAYS", default=2)
 PROMO_EMAIL_DELAY_SECONDS = env.float("PROMO_EMAIL_DELAY_SECONDS", default=1.0)
+# File d'attente push offres (si téléphone éteint) — 3 jours
+PROMO_PUSH_TTL_SECONDS = env.int("PROMO_PUSH_TTL_SECONDS", default=60 * 60 * 24 * 3)
 
 # ——— Synchronisation des menus Glovo (Tanger, toutes les 1 jours) ———
 GLOVO_SYNC_ENABLED = env.bool("GLOVO_SYNC_ENABLED", default=True)

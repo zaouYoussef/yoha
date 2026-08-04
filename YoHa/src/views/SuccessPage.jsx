@@ -528,7 +528,7 @@ export function SuccessPage({ orderId, onHome, onMyOrders }) {
           {!notifPermitted && (
             <div className="mb-5 flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/15">
               <p className="text-[12px] font-medium text-white/80 flex-1">
-                Active les notifications pour le suivi live.
+                Active les notifications pour le suivi live et les offres.
               </p>
               <button
                 type="button"

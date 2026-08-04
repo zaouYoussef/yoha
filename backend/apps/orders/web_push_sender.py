@@ -33,7 +33,7 @@ def _get_vapid_private_key() -> str:
         return ""
 
 
-def _send_web_push(sub, payload: str, vapid_private: str, vapid_claims_email: str) -> bool:
+def _send_web_push(sub, payload: str, vapid_private: str, vapid_claims_email: str, *, ttl: int = 86400, urgency: str = "high") -> bool:
     from pywebpush import webpush, WebPushException
 
     # pywebpush accepte PEM ou clé DER base64 ; normalise si besoin
@@ -53,8 +53,8 @@ def _send_web_push(sub, payload: str, vapid_private: str, vapid_claims_email: st
             data=payload,
             vapid_private_key=key,
             vapid_claims={"sub": f"mailto:{vapid_claims_email}"},
-            headers={"Urgency": "high"},
-            ttl=86400,
+            headers={"Urgency": urgency},
+            ttl=ttl,
         )
         return True
     except WebPushException as exc:
@@ -198,4 +198,53 @@ def send_client_web_push(*, order, title: str, body: str, data: dict | None = No
             success += 1
 
     logger.info("web_push_client_sent order=%s success=%s", order.public_id, success)
+    return success
+
+
+def send_promo_offers_web_push(*, title: str, body: str, data: dict | None = None) -> int:
+    """Push offres marketing → tous les clients abonnés (Chrome fermé OK, file d'attente ~3 j)."""
+    vapid_private = _vapid_private_raw()
+    vapid_claims_email = getattr(settings, "VAPID_CLAIMS_EMAIL", "no-reply@yoha.ma")
+    if not vapid_private:
+        logger.warning("web_push_promo_skip no_vapid_private_key")
+        return 0
+
+    payload = json.dumps({
+        "title": title,
+        "body": body,
+        "tag": "yoha-offer",
+        "data": {
+            "type": "promo_offer",
+            "url": "/browse",
+            **(data or {}),
+        },
+    })
+
+    # Clients + comptes sans rôle staff (abonnements issus de la page succès / browse)
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    staff_roles = [
+        User.Role.COURIER,
+        User.Role.RESTAURANT,
+        User.Role.ADMIN,
+    ]
+    subs = list(
+        WebPushSubscription.objects.select_related("user")
+        .filter(user__is_active=True, user__role=User.Role.CLIENT)
+        .iterator()
+    )
+    if not subs:
+        logger.info("web_push_promo_skip no_client_subscribers")
+        return 0
+
+    # TTL 3 jours : si le téléphone était éteint, la notif arrive au rallumage
+    ttl = int(getattr(settings, "PROMO_PUSH_TTL_SECONDS", 60 * 60 * 24 * 3))
+    success = 0
+    for sub in subs:
+        if _send_web_push(
+            sub, payload, vapid_private, vapid_claims_email, ttl=ttl, urgency="normal"
+        ):
+            success += 1
+
+    logger.info("web_push_promo_sent success=%s total=%s", success, len(subs))
     return success
