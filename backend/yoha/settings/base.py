@@ -690,7 +690,7 @@ GLOVO_STORES = [
         "address_id": 227631,
         "name": "Pam Pam",
         "cuisine": "burger",
-        "tags": ["Burger", "Snack"],
+        "tags": ["Burger", "Tacos", "Snack", "Poutine"],
         "cover_url": "https://glovo.dhmedia.io/image/stores-glovo/stores/d4c2c7ee421554a919973465b18bff8b2e749db4ce7a34956f46b7dc71c13435",
         "logo_url": "https://glovo.dhmedia.io/image/customer-assets-glovo/store_logos/80fd12dd47c3303d2560f0c7cb6d4e9ba4823d53445e6e72596b5e4887a64136",
         "delivery_time": "25-40 min",
