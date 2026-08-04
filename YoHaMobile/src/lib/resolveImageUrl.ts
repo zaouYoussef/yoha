@@ -12,7 +12,7 @@ export const UNSPLASH_FALLBACKS: Record<string, string> = {
   supermarket: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=600&auto=format&fit=crop&q=80',
   shop: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&auto=format&fit=crop&q=80',
   drinks: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&auto=format&fit=crop&q=80',
-  default: 'https://images.unsplash.com/photo-1609842947419-ba4f04d5d60f?w=600&auto=format&fit=crop&q=80',
+  default: '/images.png',
 };
 
 export function getSmartFallback(cuisine?: string): string {

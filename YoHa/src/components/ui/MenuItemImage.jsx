@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react';
 
 export const UNSPLASH_FALLBACKS = [
-  // 0 = panier (fallback générique plats sans photo — plus de pizza trompeuse)
-  'https://images.unsplash.com/photo-1609842947419-ba4f04d5d60f?w=500&auto=format&fit=crop&q=75',
+  // 0 = placeholder « image introuvable » (assets locaux)
+  '/images.png',
   'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&auto=format&fit=crop&q=75',
   'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=500&auto=format&fit=crop&q=75',
   'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=500&auto=format&fit=crop&q=75',
@@ -15,8 +15,8 @@ export const UNSPLASH_FALLBACKS = [
   'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=500&auto=format&fit=crop&q=75',
 ];
 
-export const FOOD_IMAGE_FALLBACK = UNSPLASH_FALLBACKS[0];
-/** Cover resto : garde une ambiance food (pas le panier générique). */
+export const FOOD_IMAGE_FALLBACK = '/images.png';
+/** Cover resto : ambiance food (pas le placeholder générique). */
 export const RESTAURANT_COVER_FALLBACK =
   'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1200&auto=format&fit=crop&q=75';
 export const RESTAURANT_LOGO_FALLBACK = '/logo.webp';
